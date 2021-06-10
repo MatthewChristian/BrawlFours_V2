@@ -3,7 +3,7 @@ import Image from 'next/image'
 
 export default function PlayingCard(props) {
     return (
-        <div className="col-sm-1" onClick={props.onClickHandler}>
+        <div className="col-sm-1" id={props.value} onClick={props.onClickHandler}>
           <Image
             src={`/images/${props.value}.png`}
             width={140}
