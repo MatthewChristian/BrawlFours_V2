@@ -207,13 +207,17 @@ export default function FirstPost() {
 
   return (
     <div className="container">
-      <h1>First Post</h1>
+      <h1>Brawl Fours</h1>
       <div className="score">
         <p>Score: {score[0]} - {score[1]}</p>
       </div>
-      <div className="score">
-        <p> Kicked: {kickedCard}</p>
+      <div className="score row">
+        <div className="col-sm-1">
+          <p> Kicked: </p>
+        </div>
+        <PlayingCard key={kickedCard} value={kickedCard}></PlayingCard>
       </div>
+      <hr></hr>
       <div className="row hand player1" ref={player1Hand}>
         {
           Array.from({ length: player1Cards.length }, (_, k) => (
