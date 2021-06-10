@@ -37,6 +37,12 @@ export default function FirstPost() {
   // Manage kicked card
   const [ kickedCard, setKickedCard ] = useState(null);
 
+  // Manage which suit was called
+  const [ called, setCalled ] = useState("any");
+
+  // Manage whose turn it is to play
+  const [ playerTurn, setPlayerTurn ] = useState(1);
+
   class Hand {
     constructor() {
       this.cards = [];
@@ -141,8 +147,9 @@ export default function FirstPost() {
         p4Cards[i] = player[3].cards[i].Suit + player[3].cards[i].Value;
       }
 
-      setLoaded(true); // Indicate that player cards have been rendered
+      console.log("Here");
       setPlayer1Cards(p1Cards);
+      console.log("EEFDS " + player1Cards);
       setPlayer2Cards(p2Cards);
       setPlayer3Cards(p3Cards);
       setPlayer4Cards(p4Cards);
@@ -179,11 +186,58 @@ export default function FirstPost() {
     setScore(teamScore);
   }
 
+  function playCard() {
+    let team;
+    let playerCards;
+
+    // Determine which team the player is on
+    if (playerTurn == 1 || playerTurn == 3) {
+      team = 1;
+    }
+    else {
+      team = 2;
+    } 
+    console.log("Team: " + team);
+
+    // Get cards of the player whose turn it is
+    if (playerTurn == 1) {
+      playerCards = [...player1Cards];
+    }
+    else if (playerTurn == 2) {
+      playerCards = [...player2Cards];
+    }
+    else if (playerTurn == 3) {
+      playerCards = [...player3Cards];
+    }
+    else {
+      playerCards = [...player4Cards];
+    }
+    console.log("PC1:" + player1Cards);
+    console.log("PC:" + playerCards);
+
+    
+    if (called !== "any") {
+      for (var i=0; j<playerCards.length; i++) {
+        console.log("PCi: " + playerCards[i]);
+        /* hand=cards[j].id;
+        if (hand.charAt(0) == called) {
+          bare=false;
+        } */
+      }
+    }
+      
+
+
+  }
+
   /*
     Initialise game
   */
   useEffect(() => {
     if (!loaded) {
+      
+      setLoaded(true); // Indicate that player cards have been rendered
+
       for (var i = 0; i < 4; i++) {
         player[i] = new Hand();
       }
@@ -194,15 +248,21 @@ export default function FirstPost() {
 
       displayPlayerCards();
       checkKicked();
+      playCard();
     }
-
-    //console.log(player[0]);
   });
 
   function testFunc() {
     let x;
-    x = player1Cards[0];
-    console.log(score);
+    x = player1Cards;
+    console.log(x);
+  }
+
+  function testFunc2() {
+    let x;
+    x = [...player1Cards];
+    x.pop();
+    setPlayer1Cards(x);
   }
 
   return (
@@ -221,7 +281,7 @@ export default function FirstPost() {
       <div className="row hand player1" ref={player1Hand}>
         {
           Array.from({ length: player1Cards.length }, (_, k) => (
-            <PlayingCard key={player1Cards[k]} value={player1Cards[k]}></PlayingCard>
+            <PlayingCard key={player1Cards[k]} value={player1Cards[k]} onClickHandler={testFunc}></PlayingCard>
           ))
         }
       </div>
