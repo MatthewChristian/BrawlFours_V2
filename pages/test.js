@@ -19,6 +19,8 @@ export default function FirstPost() {
   const [ player3Cards, setPlayer3Cards ] = useState([]);
   const [ player4Cards, setPlayer4Cards ] = useState([]);
 
+  const [ loaded, setLoaded ] = useState(false);
+
 
   class Hand {
     constructor() {
@@ -88,21 +90,34 @@ export default function FirstPost() {
 
   function displayPlayerCards() {
     let p1Cards = [];
+    let p2Cards = [];
+    let p3Cards = [];
+    let p4Cards = [];
 
     for (var i=0; i<player[0].cards.length; i++) {
       p1Cards[i] = player[0].cards[i].Suit + player[0].cards[i].Value;
     }
 
-    setPlayer1Cards(p1Cards);
+    for (var i=0; i<player[1].cards.length; i++) {
+      p2Cards[i] = player[1].cards[i].Suit + player[1].cards[i].Value;
+    }
 
-    let p2Cards = [...player2Cards]; 
-    setPlayer1Cards(p1Cards);
+    for (var i=0; i<player[2].cards.length; i++) {
+      p3Cards[i] = player[2].cards[i].Suit + player[2].cards[i].Value;
+    }
 
-    let p3Cards = [...player3Cards]; 
-    setPlayer1Cards(p1Cards);
+    for (var i=0; i<player[3].cards.length; i++) {
+      p4Cards[i] = player[3].cards[i].Suit + player[3].cards[i].Value;
+    }
 
-    let p4Cards = [...player4Cards]; 
-    setPlayer1Cards(p1Cards);
+    if (!loaded) {
+      setLoaded(true);
+      setPlayer1Cards(p1Cards);
+      setPlayer2Cards(p2Cards);
+      setPlayer3Cards(p3Cards);
+      setPlayer4Cards(p4Cards);
+    }
+
   }
 
   /*
@@ -118,22 +133,24 @@ export default function FirstPost() {
     let score = [0, 0];
     let kicked = deck.pop();
 
-    for (var i = 0; i < 4; i++) {
-      player[i] = new Hand();
+    if (!loaded) {
+      for (var i = 0; i < 4; i++) {
+        player[i] = new Hand();
+      }
+
+      for (var i = 0; i < 2; i++) {
+        dealAll(player, deck);
+      }
+
+      displayPlayerCards();
     }
 
-    for (var i = 0; i < 2; i++) {
-      dealAll(player, deck);
-    }
-
-    //displayPlayerCards();
-
-    console.log(player[0]);
+    //console.log(player[0]);
   });
 
   function testFunc() {
     let x;
-    x = player[0].cards[0].Suit + player[0].cards[0].Value;
+    x = player1Cards[0];
     console.log(x);
   }
 
@@ -148,13 +165,25 @@ export default function FirstPost() {
         }
       </div>
       <div className="row hand player2" ref={player2Hand}>
-        <PlayingCard value={player1Cards}></PlayingCard>
+        {
+          Array.from({ length: player2Cards.length }, (_, k) => (
+            <PlayingCard value={player2Cards[k]}></PlayingCard>
+          ))
+        }
       </div>
       <div className="row hand player3" ref={player3Hand}>
-        <PlayingCard value={player1Cards}></PlayingCard>
+        {
+          Array.from({ length: player3Cards.length }, (_, k) => (
+            <PlayingCard value={player3Cards[k]}></PlayingCard>
+          ))
+        }
       </div>
       <div className="row hand player4" ref={player4Hand}>
-        <PlayingCard value={player1Cards}></PlayingCard>
+        {
+          Array.from({ length: player4Cards.length }, (_, k) => (
+            <PlayingCard value={player4Cards[k]}></PlayingCard>
+          ))
+        }
       </div>
       <button value="Press" onClick={testFunc}>Press</button>
     </div>
