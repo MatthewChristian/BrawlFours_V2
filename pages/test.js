@@ -4,8 +4,20 @@ import PlayingCard from "../components/PlayingCard"
 
 export default function FirstPost() {
 
-  let player = [];
-  let deck = createDeck();
+  // Indicate if the game has been initialised as yet
+  const [ loaded, setLoaded ] = useState(false);
+
+  let player;
+  let deck;
+  let kicked;
+  let dealer;
+
+  if (!loaded) {
+    player = [];
+    dealer = 1;
+    deck = createDeck();
+    kicked=deck.pop();
+  }
 
   // React refs for player hand div
   const player1Hand = useRef(null);
@@ -19,8 +31,11 @@ export default function FirstPost() {
   const [ player3Cards, setPlayer3Cards ] = useState([]);
   const [ player4Cards, setPlayer4Cards ] = useState([]);
 
-  const [ loaded, setLoaded ] = useState(false);
+  // Manage team scores
+  const [ score, setScore ] = useState([0, 0]);
 
+  // Manage kicked card
+  const [ kickedCard, setKickedCard ] = useState(null);
 
   class Hand {
     constructor() {
@@ -70,7 +85,7 @@ export default function FirstPost() {
   /*
     Deal 3 cards to a player
   */
-  function deal(player, deck) {
+  function deal(player) {
     let card;
     for (var i = 0; i < 3; i++) {
       card = deck.pop();
@@ -81,68 +96,104 @@ export default function FirstPost() {
   /* 
     Deal 3 cards to all players
   */
-  function dealAll(player, deck) {
+  function dealAll() {
     for (var j = 0; j < 4; j++) {
-      deal(player[j], deck);
+      deal(player[j]);
     }
   }
 
+  /* 
+    Use Suit and Value values of a card object to form a string 
+  */
+  function parseCard(card) {
+    let string;
+    string = card.Suit + card.Value;
+    return string;
+  }
 
+  /*
+    Render player cards on the screen
+  */
   function displayPlayerCards() {
+
+    // Arrays to store player cards as a string
     let p1Cards = [];
     let p2Cards = [];
     let p3Cards = [];
     let p4Cards = [];
-
-    for (var i=0; i<player[0].cards.length; i++) {
-      p1Cards[i] = player[0].cards[i].Suit + player[0].cards[i].Value;
-    }
-
-    for (var i=0; i<player[1].cards.length; i++) {
-      p2Cards[i] = player[1].cards[i].Suit + player[1].cards[i].Value;
-    }
-
-    for (var i=0; i<player[2].cards.length; i++) {
-      p3Cards[i] = player[2].cards[i].Suit + player[2].cards[i].Value;
-    }
-
-    for (var i=0; i<player[3].cards.length; i++) {
-      p4Cards[i] = player[3].cards[i].Suit + player[3].cards[i].Value;
-    }
-
+    
+    // Only run function once
     if (!loaded) {
-      setLoaded(true);
+      // For loops to initialise arrays for each player
+      for (var i=0; i<player[0].cards.length; i++) {
+        p1Cards[i] = player[0].cards[i].Suit + player[0].cards[i].Value;
+      }
+
+      for (var i=0; i<player[1].cards.length; i++) {
+        p2Cards[i] = player[1].cards[i].Suit + player[1].cards[i].Value;
+      }
+
+      for (var i=0; i<player[2].cards.length; i++) {
+        p3Cards[i] = player[2].cards[i].Suit + player[2].cards[i].Value;
+      }
+
+      for (var i=0; i<player[3].cards.length; i++) {
+        p4Cards[i] = player[3].cards[i].Suit + player[3].cards[i].Value;
+      }
+
+      setLoaded(true); // Indicate that player cards have been rendered
       setPlayer1Cards(p1Cards);
       setPlayer2Cards(p2Cards);
       setPlayer3Cards(p3Cards);
       setPlayer4Cards(p4Cards);
+      setKickedCard(parseCard(kicked));
     }
 
+  }
+
+  /*
+    Check to see what card that the dealer has kicked
+  */
+  function checkKicked() {
+    let teamScore = [];
+    teamScore = [...score];
+    if (kicked.Value == 6) {
+      if (dealer == 1 || dealer == 3)
+        teamScore[0]+=2;
+      else
+        teamScore[1]+=2;
+    }
+    if (kicked.Value == "J") {
+      if (dealer == 1 || dealer == 3)
+        teamScore[0]+=3;
+      else
+        teamScore[1]+=3;
+    }
+    if (kicked.Value == "A") {
+      if (dealer == 1 || dealer == 3)
+        teamScore[0]++;
+      else
+        teamScore[1]++;
+    }
+    console.log("TS: " + teamScore);
+    setScore(teamScore);
   }
 
   /*
     Initialise game
   */
   useEffect(() => {
-    let game = 0;
-    let dealer = 4;
-    let playerTurn = 0;
-    let lift = [0, 0, 0, 0, 0, 0]; //Index 0 - 3: Players 1 - 4 points, Index 4: Team 1 total points for game, Index 5: Team 2 total points for game
-    let highLow = [0, 0, 0, 15]; //Index 1: Team winning High, Index 2: Team winning Low, Index 3: High, Index 4: Low
-    let jackWinner = [0, 0, 0]; //First index = Who played jack, Second index = Who won jack, Third index = value
-    let score = [0, 0];
-    let kicked = deck.pop();
-
     if (!loaded) {
       for (var i = 0; i < 4; i++) {
         player[i] = new Hand();
       }
 
       for (var i = 0; i < 2; i++) {
-        dealAll(player, deck);
+        dealAll();
       }
 
       displayPlayerCards();
+      checkKicked();
     }
 
     //console.log(player[0]);
@@ -151,37 +202,43 @@ export default function FirstPost() {
   function testFunc() {
     let x;
     x = player1Cards[0];
-    console.log(x);
+    console.log(score);
   }
 
   return (
     <div className="container">
       <h1>First Post</h1>
+      <div className="score">
+        <p>Score: {score[0]} - {score[1]}</p>
+      </div>
+      <div className="score">
+        <p> Kicked: {kickedCard}</p>
+      </div>
       <div className="row hand player1" ref={player1Hand}>
         {
           Array.from({ length: player1Cards.length }, (_, k) => (
-            <PlayingCard value={player1Cards[k]}></PlayingCard>
+            <PlayingCard key={player1Cards[k]} value={player1Cards[k]}></PlayingCard>
           ))
         }
       </div>
       <div className="row hand player2" ref={player2Hand}>
         {
           Array.from({ length: player2Cards.length }, (_, k) => (
-            <PlayingCard value={player2Cards[k]}></PlayingCard>
+            <PlayingCard key={player2Cards[k]} value={player2Cards[k]}></PlayingCard>
           ))
         }
       </div>
       <div className="row hand player3" ref={player3Hand}>
         {
           Array.from({ length: player3Cards.length }, (_, k) => (
-            <PlayingCard value={player3Cards[k]}></PlayingCard>
+            <PlayingCard key={player3Cards[k]} value={player3Cards[k]}></PlayingCard>
           ))
         }
       </div>
       <div className="row hand player4" ref={player4Hand}>
         {
           Array.from({ length: player4Cards.length }, (_, k) => (
-            <PlayingCard value={player4Cards[k]}></PlayingCard>
+            <PlayingCard key={player4Cards[k]} value={player4Cards[k]}></PlayingCard>
           ))
         }
       </div>
