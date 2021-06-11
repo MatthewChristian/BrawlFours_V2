@@ -27,6 +27,7 @@ export default function FirstPost() {
   let jackInPlay = false // Indicate if jack is in play
   let jackHangerTeam = 0; // Team who hung jack
   let jackHangerValue = 0; // Value of card which hung jack
+  let count = 0;
 
   if (!loaded) {
     player = [];
@@ -54,8 +55,14 @@ export default function FirstPost() {
   // Manage kicked card
   const [ kickedCard, setKickedCard ] = useState(null);
 
+  // Manage which suit is trump
+  const [ trump, setTrump ] = useState(null);
+
   // Manage whose turn it is to play
   const [ playerTurn, setPlayerTurn ] = useState(1);
+
+  // Manage cards in a lift
+  const [ lift, setLift ] = useState([0, 0, 0, 0]);
 
   class Hand {
     constructor() {
@@ -173,6 +180,7 @@ export default function FirstPost() {
       player4CardsVar = p4Cards;
       
       setKickedCard(parseCard(kicked));
+      setTrump(kicked.Suit);
       called = kicked.Suit;
     }
 
@@ -264,6 +272,74 @@ export default function FirstPost() {
   }
 
   /*
+    Determine a card's power to win a lift
+  */
+  function getLift(cardPlayed) {
+    if (cardPlayed.Value === "2") {
+      lift[playerTurn] = 2;
+    }
+    else if (cardPlayed.Value === "3") {
+      lift[playerTurn] = 3;
+    }
+    else if (cardPlayed.Value === "4") {
+      lift[playerTurn] = 4;
+    }
+    else if (cardPlayed.Value === "5") {
+      lift[playerTurn] = 5;
+    }
+    else if (cardPlayed.Value === "6") {
+      lift[playerTurn] = 6;
+    }
+    else if (cardPlayed.Value === "7") {
+      lift[playerTurn] = 7;
+    }
+    else if (cardPlayed.Value === "8") {
+      lift[playerTurn] = 8;
+    }
+    else if (cardPlayed.Value === "9") {
+      lift[playerTurn] = 9;
+    }
+    else if (cardPlayed.Value === "X") {
+      lift[playerTurn] = 10;
+    }
+    else if (cardPlayed.Value === "J") {
+      lift[playerTurn] = 11;
+    }
+    else if (cardPlayed.Value === "Q") {
+      lift[playerTurn] = 12;
+    }
+    else if (cardPlayed.Value === "K") {
+      lift[playerTurn] = 13;
+    }
+    else if (cardPlayed.Value === "A") {
+      lift[playerTurn] = 14;
+    }
+    
+    // If card played is trump, their card has more power to win lifts
+    if (cardPlayed.Suit == trump) {
+      lift[playerTurn] += 100;
+    }
+
+    // If card played is not of the suit that was called or trumo, their card has less power to win lifts
+    if (cardPlayed.Suit !== called && cardPlayed.Suit !== trump) {
+      lift[playerTurn] = lift[playerTurn] - 100;
+    }
+  }
+
+  function checkLift(lift) {
+    let highest=0;
+    let highIndex=0;
+    for (var i=0; i<4; i++) {
+      if (lift[i] > highest) {
+        highest=lift[i];
+        highIndex=i;
+      }
+    }
+    return highIndex;
+  }
+
+
+  /*
     Function that triggers when a card is clicked
   */
   function playCard(event) {
@@ -273,6 +349,7 @@ export default function FirstPost() {
     let calledTemp;
     let cardPlayedId;
     let cardPlayed;
+    let liftWinner;
 
     // Determine which team the player is on
     if (playerTurn == 1 || playerTurn == 3) {
@@ -337,18 +414,64 @@ export default function FirstPost() {
         jackWinner = team;
         jackInPlay = true;
       }
-      if (value > 11 && jackInPlay == true) {
+      if (value > 11 && jackInPlay == true) { // If jack is in lift and a Queen or higher has been played
         jackWinner = team;
       }
-      if (value > 11 && value > jackHangerValue) {
+      if (value > 11 && value > jackHangerValue) { // If jack is in lift with a Queen or higher and a Card stronger than the previous royal is played
         jackHangerTeam = team;
         jackHangerValue = value;
       }
     }
 
-    console.log("Pa: " + cardPlayed.Suit + cardPlayed.Value);
+    // Find card in playerCards array that correspond to the card clicked
     let card = playerCards.findIndex( element => element.charAt(0) === cardPlayed.Suit && element.charAt(1) === cardPlayed.Value);
-    console.log("Card Index: " + card);
+
+    // Remove card clicked from array
+    playerCards.splice(card, 1);
+
+    // Update states
+    if (playerTurn == 1) {
+      setPlayer1Cards(playerCards);
+    }
+    else if (playerTurn == 2) {
+      setPlayer2Cards(playerCards);
+    }
+    else if (playerTurn == 3) {
+      setPlayer3Cards(playerCards);
+    }
+    else {
+      setPlayer4Cards(playerCards);
+    }
+
+    // Put card in lift and determine if card would win or lose lift
+    getLift(cardPlayed);
+
+    // Increment player turn
+    setPlayerTurn(playerTurn+1);
+
+    // Increment count, count determines how many players have played a card for a lift already
+    count+=1;
+
+    // Loop back to player 1 after player 4 has played
+    if (playerTurn == 5) {
+      setPlayerTurn(1);
+    }
+
+    // Lift end
+    if (count == 4) {
+      count = 0;
+      if (jackHangerTeam > 0 && jackInPlay) {
+      jackWinner[1] = jackHangerTeam;
+      }
+      jackHangerTeam = 0;
+      jackHangerValue = 0; 
+      jackInPlay = false;
+      called="any";
+      liftWinner=checkLift(lift);
+      console.log(liftWinner);
+      setPlayerTurn(liftWinner);
+    }
+
 
   }
 
@@ -370,7 +493,6 @@ export default function FirstPost() {
 
       displayPlayerCards();
       checkKicked();
-      //playCard();
     }
   });
 
@@ -413,21 +535,21 @@ export default function FirstPost() {
       <div className="row hand player2" ref={player2Hand}>
         {
           Array.from({ length: player2Cards.length }, (_, k) => (
-            <PlayingCard key={player2Cards[k]} value={player2Cards[k]}></PlayingCard>
+            <PlayingCard key={player2Cards[k]} value={player2Cards[k]} onClickHandler={playCard}></PlayingCard>
           ))
         }
       </div>
       <div className="row hand player3" ref={player3Hand}>
         {
           Array.from({ length: player3Cards.length }, (_, k) => (
-            <PlayingCard key={player3Cards[k]} value={player3Cards[k]}></PlayingCard>
+            <PlayingCard key={player3Cards[k]} value={player3Cards[k]} onClickHandler={playCard}></PlayingCard>
           ))
         }
       </div>
       <div className="row hand player4" ref={player4Hand}>
         {
           Array.from({ length: player4Cards.length }, (_, k) => (
-            <PlayingCard key={player4Cards[k]} value={player4Cards[k]}></PlayingCard>
+            <PlayingCard key={player4Cards[k]} value={player4Cards[k]} onClickHandler={playCard}></PlayingCard>
           ))
         }
       </div>
