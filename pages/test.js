@@ -7,21 +7,33 @@ export default function FirstPost() {
   // Indicate if the game has been initialised as yet
   const [ loaded, setLoaded ] = useState(false);
 
-  let player;
-  let deck;
-  let kicked;
-  let dealer;
-  let player1CardsVar;
+  let player; // Array to store cards in all players' hands
+  let deck; // Cards left in deck
+  let kicked; // Card that was kicked
+  let dealer; // Which player is the dealer
+  let player1CardsVar; // Cards in player 1's hand
   let player2CardsVar;
   let player3CardsVar;
   let player4CardsVar;
-  let called = "s";
+  let playerTurnVar = 1; // Which player's turn to play
+  let called = "any"; // Which card was called
+  let high = 0;
+  let highWinner = 0; // Team who won high
+  let low = 0;
+  let lowWinner = 0; // Team who won low
+  let jack = 0; // Jack value
+  let jackPlayer = 0; // Team who played jack
+  let jackWinner = 0; // Team who won jack
+  let jackInPlay = false // Indicate if jack is in play
+  let jackHangerTeam = 0; // Team who hung jack
+  let jackHangerValue = 0; // Value of card which hung jack
 
   if (!loaded) {
     player = [];
     dealer = 1;
     deck = createDeck();
-    kicked=deck.pop();
+    kicked = deck.pop();
+    console.log("Kicked: " + kicked.Suit + kicked.Value);
   }
 
   // React refs for player hand div
@@ -205,13 +217,62 @@ export default function FirstPost() {
   }
 
   /*
+    Get value of card to determine lift winner
+  */
+  function getCardValue(card) {
+    var value=0;
+    if (card.Value == "2") {
+      value=2;
+    }
+    else if (card.Value == "3") {
+      value=3;
+    }
+    else if (card.Value == "4") {
+      value=4;
+    }
+    else if (card.Value == "5") {
+      value=5;
+    }
+    else if (card.Value == "6") {
+      value=6;
+    }
+    else if (card.Value == "7") {
+      value=7;
+    }
+    else if (card.Value == "8") {
+      value=8;
+    }
+    else if (card.Value == "9") {
+      value=9;
+    }
+    else if (card.Value == "X") {
+      value=10;
+    }
+    else if (card.Value == "J") {
+      value=11;
+    }
+    else if (card.Value == "Q") {
+      value=12;
+    }
+    else if (card.Value == "K") {
+      value=13;
+    }
+    else if (card.Value == "A") {
+      value=14;
+    }
+    return value;
+  }
+
+  /*
     Function that triggers when a card is clicked
   */
-  function playCard() {
+  function playCard(event) {
     let team;
     let playerCards;
     let bare;
     let calledTemp;
+    let cardPlayedId;
+    let cardPlayed;
 
     // Determine which team the player is on
     if (playerTurn == 1 || playerTurn == 3) {
@@ -224,16 +285,16 @@ export default function FirstPost() {
 
     // Get cards of the player whose turn it is
     if (playerTurn == 1) {
-      playerCards = player1CardsVar;
+      playerCards = [...player1Cards];
     }
     else if (playerTurn == 2) {
-      playerCards =  player2CardsVar;
+      playerCards =  [...player2Cards];
     }
     else if (playerTurn == 3) {
-      playerCards =  player3CardsVar;
+      playerCards =  [...player3Cards];
     }
     else {
-      playerCards =  player4CardsVar;
+      playerCards = [...player4Cards];
     }
     console.log("PC1:" + player1Cards);
     console.log("PC:" + playerCards);
@@ -241,10 +302,8 @@ export default function FirstPost() {
     
     if (called !== "any") {
       for (var i=0; i<playerCards.length; i++) {
-        console.log("PCi: " + playerCards[i]);
         if (playerCards[i].charAt(0) == called) {
           bare=false;
-          console.log("Not bare");
         } 
       }
     }
@@ -254,7 +313,42 @@ export default function FirstPost() {
       
     // Put undertrump code later
 
-    
+    // Get card played
+    cardPlayedId = event.currentTarget.id;
+    cardPlayed = getCard(cardPlayedId);
+    if (called == "any") { // If trump has not been called yet
+      called = cardPlayed.Suit;
+    }
+
+    console.log("Kicked2: " + kickedCard);
+    // If trump is played
+    if (cardPlayed.Suit == kickedCard.Suit) { 
+      value=getCardValue(cardPlayed);
+      if (value > high) {
+        highWinner = team;
+        high = value;
+      }
+      if (value < low) {
+        lowWinner = team;
+        low = value;
+      }
+      if (value == 11 && jackPlayer == 0) { //If jack has not yet been played
+        jackPlayer = team;
+        jackWinner = team;
+        jackInPlay = true;
+      }
+      if (value > 11 && jackInPlay == true) {
+        jackWinner = team;
+      }
+      if (value > 11 && value > jackHangerValue) {
+        jackHangerTeam = team;
+        jackHangerValue = value;
+      }
+    }
+
+    console.log("Pa: " + cardPlayed.Suit + cardPlayed.Value);
+    let card = playerCards.findIndex( element => element.charAt(0) === cardPlayed.Suit && element.charAt(1) === cardPlayed.Value);
+    console.log("Card Index: " + card);
 
   }
 
@@ -276,7 +370,7 @@ export default function FirstPost() {
 
       displayPlayerCards();
       checkKicked();
-      playCard();
+      //playCard();
     }
   });
 
@@ -312,7 +406,7 @@ export default function FirstPost() {
       <div className="row hand player1" ref={player1Hand}>
         {
           Array.from({ length: player1Cards.length }, (_, k) => (
-            <PlayingCard key={player1Cards[k]} value={player1Cards[k]} onClickHandler={testFunc}></PlayingCard>
+            <PlayingCard key={player1Cards[k]} value={player1Cards[k]} onClickHandler={playCard}></PlayingCard>
           ))
         }
       </div>
