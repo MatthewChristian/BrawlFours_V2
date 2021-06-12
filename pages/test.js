@@ -350,7 +350,22 @@ export default function FirstPost() {
     let cardPlayedId;
     let cardPlayed;
     let liftWinner;
+    let playerId;
+    let cardHand;
 
+    // Get card played
+    cardPlayedId = event.currentTarget.id;
+    cardPlayed = getCard(cardPlayedId);
+    cardHand = cardPlayedId.charAt(2);
+    if (called == "any") { // If trump has not been called yet
+      called = cardPlayed.Suit;
+    }
+
+    // If card is being played from a hand that does not belong to the player whose turn it is, end function
+    if (cardHand != playerTurn) {
+      return;
+    }
+    
     // Determine which team the player is on
     if (playerTurn == 1 || playerTurn == 3) {
       team = 1;
@@ -389,13 +404,6 @@ export default function FirstPost() {
     }
       
     // Put undertrump code later
-
-    // Get card played
-    cardPlayedId = event.currentTarget.id;
-    cardPlayed = getCard(cardPlayedId);
-    if (called == "any") { // If trump has not been called yet
-      called = cardPlayed.Suit;
-    }
 
     console.log("Kicked2: " + kickedCard);
     // If trump is played
@@ -453,7 +461,7 @@ export default function FirstPost() {
     count+=1;
 
     // Loop back to player 1 after player 4 has played
-    if (playerTurn == 5) {
+    if (playerTurn == 4) {
       setPlayerTurn(1);
     }
 
@@ -506,10 +514,7 @@ export default function FirstPost() {
   }
 
   function testFunc2() {
-    let x;
-    x = [...player1Cards];
-    x.pop();
-    setPlayer1Cards(x);
+    console.log(1 == "1");
   }
 
   return (
@@ -528,32 +533,32 @@ export default function FirstPost() {
       <div className="row hand player1" ref={player1Hand}>
         {
           Array.from({ length: player1Cards.length }, (_, k) => (
-            <PlayingCard key={player1Cards[k]} value={player1Cards[k]} onClickHandler={playCard}></PlayingCard>
+            <PlayingCard key={player1Cards[k]} value={player1Cards[k]+1} onClickHandler={playCard}></PlayingCard>
           ))
         }
       </div>
       <div className="row hand player2" ref={player2Hand}>
         {
           Array.from({ length: player2Cards.length }, (_, k) => (
-            <PlayingCard key={player2Cards[k]} value={player2Cards[k]} onClickHandler={playCard}></PlayingCard>
+            <PlayingCard key={player2Cards[k]} value={player2Cards[k]+2} onClickHandler={playCard}></PlayingCard>
           ))
         }
       </div>
       <div className="row hand player3" ref={player3Hand}>
         {
           Array.from({ length: player3Cards.length }, (_, k) => (
-            <PlayingCard key={player3Cards[k]} value={player3Cards[k]} onClickHandler={playCard}></PlayingCard>
+            <PlayingCard key={player3Cards[k]} value={player3Cards[k]+3} onClickHandler={playCard}></PlayingCard>
           ))
         }
       </div>
       <div className="row hand player4" ref={player4Hand}>
         {
           Array.from({ length: player4Cards.length }, (_, k) => (
-            <PlayingCard key={player4Cards[k]} value={player4Cards[k]} onClickHandler={playCard}></PlayingCard>
+            <PlayingCard key={player4Cards[k]} value={player4Cards[k]+4} onClickHandler={playCard}></PlayingCard>
           ))
         }
       </div>
-      <button value="Press" onClick={testFunc}>Press</button>
+      <button value="Press" onClick={testFunc2}>Press</button>
     </div>
   )
 }
