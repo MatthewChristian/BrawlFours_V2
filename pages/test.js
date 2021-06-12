@@ -11,12 +11,6 @@ export default function FirstPost() {
   let deck; // Cards left in deck
   let kicked; // Card that was kicked
   let dealer; // Which player is the dealer
-  let player1CardsVar; // Cards in player 1's hand
-  let player2CardsVar;
-  let player3CardsVar;
-  let player4CardsVar;
-  let playerTurnVar = 1; // Which player's turn to play
-  let called = "any"; // Which card was called
   let high = 0;
   let highWinner = 0; // Team who won high
   let low = 0;
@@ -27,7 +21,7 @@ export default function FirstPost() {
   let jackInPlay = false // Indicate if jack is in play
   let jackHangerTeam = 0; // Team who hung jack
   let jackHangerValue = 0; // Value of card which hung jack
-  let count = 0;
+  let liftVar = [-200, 0, 0, 0, 0];
 
   if (!loaded) {
     player = [];
@@ -55,6 +49,9 @@ export default function FirstPost() {
   // Manage kicked card
   const [ kickedCard, setKickedCard ] = useState(null);
 
+  // Manage called card
+  const [ called, setCalled ] = useState("any");
+
   // Manage which suit is trump
   const [ trump, setTrump ] = useState(null);
 
@@ -62,7 +59,20 @@ export default function FirstPost() {
   const [ playerTurn, setPlayerTurn ] = useState(1);
 
   // Manage cards in a lift
-  const [ lift, setLift ] = useState([0, 0, 0, 0]);
+  const [ lift, setLift ] = useState([-200, 0, 0, 0, 0]);
+
+  // Indicate which team won a lift
+  const [ liftWinner, setLiftWinner ] = useState(0);
+
+  // Manage how many players have played in a round
+  const [ count, setCount ] = useState(1);
+
+  // Manage each team's points for game
+  const [ t1Points, setT1Points ] = useState(0);
+  const [ t2Points, setT2Points ] = useState(0);
+
+  // Manage how many players have played in a round
+  const [ loading, setLoading ] = useState(true);
 
   class Hand {
     constructor() {
@@ -168,20 +178,12 @@ export default function FirstPost() {
         p4Cards[i] = player[3].cards[i].Suit + player[3].cards[i].Value;
       }
 
-      
       setPlayer1Cards(p1Cards);
       setPlayer2Cards(p2Cards);
       setPlayer3Cards(p3Cards);
       setPlayer4Cards(p4Cards);
-
-      player1CardsVar = p1Cards;
-      player2CardsVar = p2Cards;
-      player3CardsVar = p3Cards;
-      player4CardsVar = p4Cards;
-      
       setKickedCard(parseCard(kicked));
       setTrump(kicked.Suit);
-      called = kicked.Suit;
     }
 
   }
@@ -275,67 +277,170 @@ export default function FirstPost() {
     Determine a card's power to win a lift
   */
   function getLift(cardPlayed) {
+
+    let liftTemp = [...lift];
+      
     if (cardPlayed.Value === "2") {
-      lift[playerTurn] = 2;
+      liftTemp[playerTurn] = 2;
     }
     else if (cardPlayed.Value === "3") {
-      lift[playerTurn] = 3;
+      liftTemp[playerTurn] = 3;
     }
     else if (cardPlayed.Value === "4") {
-      lift[playerTurn] = 4;
+      liftTemp[playerTurn] = 4;
     }
     else if (cardPlayed.Value === "5") {
-      lift[playerTurn] = 5;
+      liftTemp[playerTurn] = 5;
     }
     else if (cardPlayed.Value === "6") {
-      lift[playerTurn] = 6;
+      liftTemp[playerTurn] = 6;
     }
     else if (cardPlayed.Value === "7") {
-      lift[playerTurn] = 7;
+      liftTemp[playerTurn] = 7;
     }
     else if (cardPlayed.Value === "8") {
-      lift[playerTurn] = 8;
+      liftTemp[playerTurn] = 8;
     }
     else if (cardPlayed.Value === "9") {
-      lift[playerTurn] = 9;
+      liftTemp[playerTurn] = 9;
     }
     else if (cardPlayed.Value === "X") {
-      lift[playerTurn] = 10;
+      liftTemp[playerTurn] = 10;
     }
     else if (cardPlayed.Value === "J") {
-      lift[playerTurn] = 11;
+      liftTemp[playerTurn] = 11;
     }
     else if (cardPlayed.Value === "Q") {
-      lift[playerTurn] = 12;
+      liftTemp[playerTurn] = 12;
     }
     else if (cardPlayed.Value === "K") {
-      lift[playerTurn] = 13;
+      liftTemp[playerTurn] = 13;
     }
     else if (cardPlayed.Value === "A") {
-      lift[playerTurn] = 14;
+      liftTemp[playerTurn] = 14;
     }
     
     // If card played is trump, their card has more power to win lifts
     if (cardPlayed.Suit == trump) {
-      lift[playerTurn] += 100;
+      liftTemp[playerTurn] += 100;
     }
 
-    // If card played is not of the suit that was called or trumo, their card has less power to win lifts
+    // If card played is not of the suit that was called or trump, their card has less power to win lifts
     if (cardPlayed.Suit !== called && cardPlayed.Suit !== trump) {
-      lift[playerTurn] = lift[playerTurn] - 100;
+      liftTemp[playerTurn] = lift[playerTurn] - 100;
     }
+
+    setLift(liftTemp);
+    liftVar = liftTemp;
+    return liftTemp;
   }
 
+  /*
+    Check to see which player won the lift
+  */
   function checkLift(lift) {
     let highest=0;
     let highIndex=0;
-    for (var i=0; i<4; i++) {
+    for (var i=1; i<5; i++) {
       if (lift[i] > highest) {
         highest=lift[i];
         highIndex=i;
       }
     }
     return highIndex;
+  }
+
+  /*
+    Calculate how many points for game that the lift winner received
+  */
+  function getPoints(lift) {
+    let points = 0;
+    console.log("Lift: " + lift);
+    for (var i=1; i<5; i++) {
+      if (lift[i] === 10 || lift[i] === 110 || lift[i] === -90) {
+        points += 10;
+      }
+      if (lift[i] === 11 || lift[i] === 111 || lift[i] === -89) {
+        points += 1;
+      }
+      if (lift[i] === 12 || lift[i] === 112 || lift[i] === -88) {
+        points += 2;
+      }
+      if (lift[i] === 13 || lift[i] === 113 || lift[i] === -87) {
+        points += 3;
+      }
+      if (lift[i] === 14 || lift[i] === 114 || lift[i] === -86) {
+        points += 4;
+      }
+    }
+    if (liftWinner == 1 || liftWinner == 3) {
+      setT1Points(points);
+    }
+    else {
+      setT2Points(points);
+    }
+    return points;
+  }
+
+  /*
+    Determine whether or not a player tried to undertrump
+  */
+  function undertrump (lift, hand) {
+    let trumpPlayed=false;
+    var handValue;
+    for (var i=0; i<4; i++) {
+      if (lift[i] > 100) {
+        trumpPlayed = true;
+      }
+    }
+    if (trumpPlayed == false) {
+      return false;
+    }
+    if (hand.charAt(1) === "2") {
+      handValue = 102;
+    }
+    else if (hand.charAt(1) === "3") {
+      handValue = 103;
+    }
+    else if (hand.charAt(1) === "4") {
+      handValue = 104;
+    }
+    else if (hand.charAt(1) === "5") {
+      handValue = 105;
+    }
+    else if (hand.charAt(1) === "6") {
+      handValue = 106;
+    }
+    else if (hand.charAt(1) === "7") {
+      handValue = 107;
+    }
+    else if (hand.charAt(1) === "8") {
+      handValue = 108;
+    }
+    else if (hand.charAt(1) === "9") {
+      handValue = 109;
+    }
+    else if (hand.charAt(1) === "X") {
+      handValue = 110;
+    }
+    else if (hand.charAt(1) === "J") {
+      handValue = 111;
+    }
+    else if (hand.charAt(1) === "Q") {
+      handValue = 112;
+    }
+    else if (hand.charAt(1) === "K") {
+      handValue = 113;
+    }
+    else if (hand.charAt(1) === "A") {
+      handValue = 114;
+    }
+    for (var i=0; i<4; i++) {
+      if (lift[i] > handValue) {
+        return true;
+      }
+    }
+    return false;
   }
 
 
@@ -345,20 +450,28 @@ export default function FirstPost() {
   function playCard(event) {
     let team;
     let playerCards;
-    let bare;
-    let calledTemp;
+    let bare = true;
+    let calledVar;
     let cardPlayedId;
     let cardPlayed;
-    let liftWinner;
+    let liftWinnerVar;
     let playerId;
     let cardHand;
+    let points;
+    let player1CardsVar = "";
+    let player2CardsVar = "";
+    let player3CardsVar = "";
+    let player4CardsVar = "";
+    let undertrumped;
 
     // Get card played
     cardPlayedId = event.currentTarget.id;
     cardPlayed = getCard(cardPlayedId);
     cardHand = cardPlayedId.charAt(2);
     if (called == "any") { // If trump has not been called yet
-      called = cardPlayed.Suit;
+      setCalled(cardPlayed.Suit);
+      calledVar = cardPlayed.Suit;
+      bare = false;
     }
 
     // If card is being played from a hand that does not belong to the player whose turn it is, end function
@@ -388,10 +501,10 @@ export default function FirstPost() {
     else {
       playerCards = [...player4Cards];
     }
-    console.log("PC1:" + player1Cards);
+    console.log("Called: " + called);
     console.log("PC:" + playerCards);
 
-    
+    // Determine if a player does not have a card in the suit of the card that was called
     if (called !== "any") {
       for (var i=0; i<playerCards.length; i++) {
         if (playerCards[i].charAt(0) == called) {
@@ -400,10 +513,26 @@ export default function FirstPost() {
       }
     }
     if (bare === true) {
-      calledTemp = "any";
+      console.log("Bare");
     }
       
-    // Put undertrump code later
+    // Determine if player attempted to undertrump
+    undertrumped = undertrump(lift, cardPlayedId);
+   
+    // If the player:
+    // * Played a suit that wasn't called,
+    // * Wasn't the first player to play for the round,
+    // * Has cards in their hand that correspond to the called suit, and
+    // * the card played is not trump,
+    // then end function and do not add card to lift
+    if (cardPlayed.Suit !== called && called !== "any" && !bare && cardPlayed.Suit !== trump) {
+      return;
+    }
+
+    // If the player attempted to undertrump, end function and do not add card to lift
+    if (cardPlayed.Suit == trump && undertrumped == true) {
+      return;
+    }
 
     console.log("Kicked2: " + kickedCard);
     // If trump is played
@@ -440,25 +569,29 @@ export default function FirstPost() {
     // Update states
     if (playerTurn == 1) {
       setPlayer1Cards(playerCards);
+      player1CardsVar = playerCards;
     }
     else if (playerTurn == 2) {
       setPlayer2Cards(playerCards);
+      player2CardsVar = playerCards;
     }
     else if (playerTurn == 3) {
       setPlayer3Cards(playerCards);
+      player3CardsVar = playerCards;
     }
     else {
       setPlayer4Cards(playerCards);
+      player4CardsVar = playerCards;
     }
 
     // Put card in lift and determine if card would win or lose lift
-    getLift(cardPlayed);
+    liftVar = getLift(cardPlayed);
 
     // Increment player turn
     setPlayerTurn(playerTurn+1);
 
     // Increment count, count determines how many players have played a card for a lift already
-    count+=1;
+    setCount(count+1);
 
     // Loop back to player 1 after player 4 has played
     if (playerTurn == 4) {
@@ -467,17 +600,28 @@ export default function FirstPost() {
 
     // Lift end
     if (count == 4) {
-      count = 0;
+      setCount(1);
       if (jackHangerTeam > 0 && jackInPlay) {
       jackWinner[1] = jackHangerTeam;
       }
       jackHangerTeam = 0;
       jackHangerValue = 0; 
       jackInPlay = false;
-      called="any";
-      liftWinner=checkLift(lift);
-      console.log(liftWinner);
-      setPlayerTurn(liftWinner);
+      setCalled("any");
+
+      liftWinnerVar=checkLift(liftVar);
+      console.log("Lift Winner: " + liftWinnerVar);
+      setPlayerTurn(liftWinnerVar);
+      setLiftWinner(liftWinnerVar);
+      points = getPoints(liftVar);
+      console.log("Points: " + points);
+      setLift([-200, 0, 0 ,0, 0]);
+
+    }
+
+    
+    if (player1CardsVar.length == 0 && player2CardsVar.length == 0 && player3CardsVar.length == 0 && player4CardsVar.length == 0) {
+      console.log("We outties");
     }
 
 
@@ -498,11 +642,10 @@ export default function FirstPost() {
       for (var i = 0; i < 2; i++) {
         dealAll();
       }
-
       displayPlayerCards();
       checkKicked();
     }
-  });
+  }, [lift]);
 
   function testFunc(event) {
     let x;
@@ -520,10 +663,22 @@ export default function FirstPost() {
   return (
     <div className="container">
       <h1>Brawl Fours</h1>
-      <div className="score">
-        <p>Score: {score[0]} - {score[1]}</p>
-      </div>
       <div className="score row">
+        <div className="col-sm-1">
+          <p>Score: {score[0]} - {score[1]}</p>
+        </div>
+        <div className="col-sm-2">
+          <p>It is player {playerTurn}'s turn</p>
+        </div>
+      </div>
+      <div className="liftWinner">
+        { liftWinner > 0 ? 
+        (
+          <p>{liftWinner} won the lift</p>
+        ) : (null)
+        }
+      </div>
+      <div className="kicked row">
         <div className="col-sm-1">
           <p> Kicked: </p>
         </div>
