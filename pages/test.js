@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PlayingCard from "../components/PlayingCard"
+import PlayingCardM from "../components/PlayingCardM"
 
 
 export default function FirstPost() {
@@ -43,6 +44,12 @@ export default function FirstPost() {
   const [ player3Cards, setPlayer3Cards ] = useState([]);
   const [ player4Cards, setPlayer4Cards ] = useState([]);
 
+  // React states to manage what cards players played in a round
+  const [ player1CardPlayed, setPlayer1CardPlayed ] = useState("");
+  const [ player2CardPlayed, setPlayer2CardPlayed ] = useState("");
+  const [ player3CardPlayed, setPlayer3CardPlayed ] = useState("");
+  const [ player4CardPlayed, setPlayer4CardPlayed ] = useState("");
+
   // Manage team scores
   const [ score, setScore ] = useState([0, 0]);
 
@@ -60,6 +67,9 @@ export default function FirstPost() {
 
   // Manage cards in a lift
   const [ lift, setLift ] = useState([-200, 0, 0, 0, 0]);
+
+  // Indicate if round ended
+  const [ liftEnded, setLiftEnded ] = useState(0);
 
   // Indicate which team won a lift
   const [ liftWinner, setLiftWinner ] = useState(0);
@@ -464,6 +474,17 @@ export default function FirstPost() {
     let player4CardsVar = "";
     let undertrumped;
 
+    if (liftEnded == 2) {
+      setPlayer1CardPlayed("");
+      setPlayer2CardPlayed("");
+      setPlayer3CardPlayed("");
+      setPlayer4CardPlayed("");
+      setLiftEnded(0);
+    }
+    if (liftEnded == 1) {
+      setLiftEnded(2);
+    }
+
     // Get card played
     cardPlayedId = event.currentTarget.id;
     cardPlayed = getCard(cardPlayedId);
@@ -530,9 +551,11 @@ export default function FirstPost() {
     }
 
     // If the player attempted to undertrump, end function and do not add card to lift
-    if (cardPlayed.Suit == trump && undertrumped == true) {
+    if ((cardPlayed.Suit == trump && undertrumped == true) && called !== trump) {
       return;
     }
+
+    
 
     console.log("Kicked2: " + kickedCard);
     // If trump is played
@@ -569,18 +592,22 @@ export default function FirstPost() {
     // Update states
     if (playerTurn == 1) {
       setPlayer1Cards(playerCards);
+      setPlayer1CardPlayed(cardPlayedId);
       player1CardsVar = playerCards;
     }
     else if (playerTurn == 2) {
       setPlayer2Cards(playerCards);
+      setPlayer2CardPlayed(cardPlayedId);
       player2CardsVar = playerCards;
     }
     else if (playerTurn == 3) {
       setPlayer3Cards(playerCards);
+      setPlayer3CardPlayed(cardPlayedId);
       player3CardsVar = playerCards;
     }
     else {
       setPlayer4Cards(playerCards);
+      setPlayer4CardPlayed(cardPlayedId);
       player4CardsVar = playerCards;
     }
 
@@ -616,7 +643,7 @@ export default function FirstPost() {
       points = getPoints(liftVar);
       console.log("Points: " + points);
       setLift([-200, 0, 0 ,0, 0]);
-
+      setLiftEnded(1);
     }
 
     
@@ -679,10 +706,32 @@ export default function FirstPost() {
         }
       </div>
       <div className="kicked row">
-        <div className="col-sm-1">
+        <div className="col-sm-2">
           <p> Kicked: </p>
         </div>
-        <PlayingCard key={kickedCard} value={kickedCard}></PlayingCard>
+        <div className="col-sm-2">
+          <p> Player 1 Played: </p>
+        </div>
+        <div className="col-sm-2">
+          <p> Player 2 Played: </p>
+        </div>
+        <div className="col-sm-2">
+          <p> Player 3 Played: </p>
+        </div>
+        <div className="col-sm-2">
+          <p> Player 4 Played: </p>
+        </div>
+      </div>
+      <div className="kickedCard row">
+        <PlayingCard value={kickedCard}></PlayingCard>
+        <div className="col-sm-1"></div>
+        <PlayingCard value={player1CardPlayed}></PlayingCard>
+        <div className="col-sm-1"></div>
+        <PlayingCard value={player2CardPlayed}></PlayingCard>
+        <div className="col-sm-1"></div>
+        <PlayingCard value={player3CardPlayed}></PlayingCard>
+        <div className="col-sm-1"></div>
+        <PlayingCard value={player4CardPlayed}></PlayingCard>
       </div>
       <hr></hr>
       <div className="row hand player1" ref={player1Hand}>
