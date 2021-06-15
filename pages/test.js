@@ -10,10 +10,6 @@ export default function FirstPost() {
   let deck; // Cards left in deck
   let kicked; // Card that was kicked
   let dealer; // Which player is the dealer
-  let jackPlayer = 0; // Team who played jack
-  let jackInPlay = false // Indicate if jack is in play
-  let jackHangerTeam = 0; // Team who hung jack
-  let jackHangerValue = 0; // Value of card which hung jack
   let liftVar = [-200, 0, 0, 0, 0];
 
   if (!loaded) {
@@ -78,6 +74,18 @@ export default function FirstPost() {
   const [ low, setLow ] = useState(15);
   const [ game, setGame ] = useState(0);
   const [ jack, setJack ] = useState(1);
+
+  // Indicate which team played jack
+  const [ jackPlayer, setJackPlayer ] = useState(0);
+
+  // Indicate if jack is in the current lift 
+  const [ jackInPlay, setJackInPlay ] = useState(false);
+
+  // Indicate which team hung jack
+  const [ jackHangerTeam, setJackHangerTeam ] = useState(0);
+
+  // Indicate the power of the card which hung jack
+  const [ jackHangerValue, setJackHangerValue ] = useState(0);
 
   // Manage which team won what point
   const [ gameWinner, setGameWinner ] = useState(0);
@@ -471,6 +479,24 @@ export default function FirstPost() {
       return 2;
     }
   }
+  
+  /*
+    Determines which team won jack
+  */
+  function determineJackWinner(jackPlayer, jackWinner) {
+    if (jackPlayer == 1 && jackWinner == 1) { // Team 1 won, no hang
+      setJack(1);
+    }
+    else if (jackPlayer == 2 && jackWinner == 2) { //Team 2 won, no hang
+      setJack(2);
+    }
+    else if (jackPlayer == 2 && jackWinner == 1 ) { //Team 1 won, hang
+      setJack(3);
+    }
+    else if (jackPlayer == 1 && jackWinner == 2 ) { //Team 2 won, hang
+      setJack(4);
+    }
+  }
 
 
   /*
@@ -487,12 +513,18 @@ export default function FirstPost() {
     let cardHand;
     let points;
     let calledVar = [...called];
-    let player1CardsVar = "";
-    let player2CardsVar = "";
-    let player3CardsVar = "";
-    let player4CardsVar = "";
+    let player1CardsVar = [...player1Cards];
+    let player2CardsVar = [...player2Cards];
+    let player3CardsVar = [...player3Cards];
+    let player4CardsVar = [...player4Cards];
+    let jackInPlayVar = {...jackInPlay};
+    let jackHangerTeamVar = {...jackHangerTeam};
+    let jackHangerValueVar = {...jackHangerValue};
+    let jackWinnerVar = {...jackWinner};
+    let jackPlayerVar = {...jackPlayer};
     let undertrumped;
     let gameWinner;
+    let jackVar;
     let value;
 
     // Get card played
@@ -587,16 +619,25 @@ export default function FirstPost() {
         setLow(value);
       }
       if (value == 11 && jackPlayer == 0) { //If jack has not yet been played
-        jackPlayer = team;
+        setJackPlayer(team);
         setJackWinner(team);
-        jackInPlay = true;
+        setJackInPlay(true);
+        jackPlayerVar = team;
+        jackWinnerVar = team;
+        jackInPlayVar = true;
+        console.log("Jack played")
       }
       if (value > 11 && jackInPlay == true) { // If jack is in lift and a Queen or higher has been played
         setJackWinner(team);
+        jackWinnerVar = team;
+        console.log("Jack Winner")
       }
       if (value > 11 && value > jackHangerValue) { // If jack is in lift with a Queen or higher and a Card stronger than the previous royal is played
-        jackHangerTeam = team;
-        jackHangerValue = value;
+        setJackHangerTeam(team);
+        setJackHangerValue(value);
+        jackHangerTeamVar = team;
+        jackHangerValueVar = value;
+        console.log("Jack Hanger")
       }
     }
 
@@ -645,12 +686,14 @@ export default function FirstPost() {
     // Lift end
     if (count == 4) {
       setCount(1);
-      if (jackHangerTeam > 0 && jackInPlay) {
-      jackWinner[1] = jackHangerTeam;
+
+      // Set the team who hung jack as the jack winner
+      if (jackHangerTeamVar > 0 && jackInPlayVar) {
+        setJackWinner(jackHangerTeamVar);
       }
-      jackHangerTeam = 0;
-      jackHangerValue = 0; 
-      jackInPlay = false;
+      setJackHangerTeam(0);
+      setJackHangerValue(0);
+      setJackInPlay(false);
       setCalled("any");
 
       liftWinnerVar=checkLift(liftVar);
@@ -671,13 +714,15 @@ export default function FirstPost() {
       setPlayer4CardPlayed("");
     }
 
-    console.log("L1: " + player1Cards);
-    console.log("L2: " + player2Cards);
-    console.log("L3: " + player3Cards);
-    console.log("L4: " + player4Cards);
-    if (player1Cards.length == 0 && player2Cards.length == 0 && player3Cards.length == 0 && player4Cards.length == 0) {
+    console.log("L1: " + player1CardsVar);
+    console.log("L2: " + player2CardsVar);
+    console.log("L3: " + player3CardsVar);
+    console.log("L4: " + player4CardsVar);
+    if (player1CardsVar.length == 0 && player2CardsVar.length == 0 && player3CardsVar.length == 0 && player4CardsVar.length == 0) {
       gameWinner = determineGame();
+      jackVar = determineJackWinner(jackPlayerVar, jackWinnerVar);
       console.log("GW: " + gameWinner);
+      console.log("JW: " + jackVar);
       console.log("T1Points: " + t1Points);
       console.log("T2Points: " + t2Points);
       //setT1Points(0);
@@ -718,7 +763,7 @@ export default function FirstPost() {
   }
 
   function testFunc2() {
-    console.log(1 == "1");
+    setShow(1);
   }
 
   return (
@@ -746,6 +791,20 @@ export default function FirstPost() {
         { show > 0 ? 
         (
           <p>Team {lowWinner} won low with {low}</p>
+        ) : (null)
+        }
+      </div>
+      <div>
+        { show > 0 ? 
+        (
+          <p>Team {jackWinner} won jack</p>
+        ) : (null)
+        }
+      </div>
+      <div>
+        { show > 0 && jackWinner != jackPlayer ? 
+        (
+          <p>Team {jackWinner} hung jack!</p>
         ) : (null)
         }
       </div>
