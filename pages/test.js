@@ -96,6 +96,9 @@ export default function FirstPost() {
   const [ lowWinner, setLowWinner ] = useState(0);
   const [ jackWinner, setJackWinner ] = useState(0);
 
+  // Indicate if player is allowed to beg or not
+  const [ letBeg, setLetBeg ] = useState(false);
+
   // Indicate whether or not to show which team won what
   const [ show, setShow ] = useState(false);
 
@@ -154,12 +157,15 @@ export default function FirstPost() {
   function deal(player, deck) {
     let card;
     let tempPlayer = player;
+    let tempDeck = deck;
+    let resArray = [];
     for (var i = 0; i < 3; i++) {
-      card = deck.pop();
+      card = tempDeck.pop();
       tempPlayer.cards.push(card);
     }
     setDeck(deck);
-    return tempPlayer;
+    resArray = [tempPlayer, tempDeck];
+    return resArray;
   }
 
   /* 
@@ -167,11 +173,14 @@ export default function FirstPost() {
   */
   function dealAll(player, deck) {
     let tempPlayer = [];
+    let tempDeck = deck;
+    let resArray = [];
     for (var j = 0; j < 4; j++) {
-      tempPlayer[j] = deal(player[j], deck);
+      [tempPlayer[j], tempDeck] = deal(player[j], deck);
     }
     setPlayer(tempPlayer);
-    return tempPlayer;
+    resArray = [tempPlayer, tempDeck];
+    return resArray;
   }
 
   /* 
@@ -187,7 +196,6 @@ export default function FirstPost() {
     Render player cards on the screen
   */
   function displayPlayerCards(player, kicked) {
-
     // Arrays to store player cards as a string
     let p1Cards = [];
     let p2Cards = [];
@@ -195,7 +203,7 @@ export default function FirstPost() {
     let p4Cards = [];
 
     // Only run function once
-    if (!loaded) {
+    
       // For loops to initialise arrays for each player
       for (var i=0; i<player[0].cards.length; i++) {
         p1Cards[i] = player[0].cards[i].Suit + player[0].cards[i].Value;
@@ -219,7 +227,7 @@ export default function FirstPost() {
       setPlayer4Cards(p4Cards);
       setKickedCard(parseCard(kicked));
       setTrump(kicked.Suit);
-    }
+    
 
   }
 
@@ -236,7 +244,7 @@ export default function FirstPost() {
   /*
     Check to see what card that the dealer has kicked
   */
-  function checkKicked() {
+  function checkKicked(kicked) {
     let teamScore = [];
     teamScore = [...score];
     if (kicked.Value == 6) {
@@ -548,6 +556,43 @@ export default function FirstPost() {
     setScore(tempScore);
   }
 
+  /*
+    Function that deals additional cards when a player begs
+  */
+  function beg() {
+
+    if (!letBeg) {
+      return;
+    }
+
+    let kickedVar;
+    let tempDeck = [...deck];
+    let tempPlayer = [...player];
+    
+    // Get previously kicked card
+    const prevKicked = {...kickedCard};
+
+    // Deal 3 cards to all players
+    [tempPlayer, tempDeck] = dealAll(tempPlayer,tempDeck);
+    kickedVar = tempDeck.pop();
+    checkKicked(kickedVar);
+
+    if (kickedVar.Suit === prevKicked.Suit) {
+      [tempPlayer, tempDeck] = dealAll(tempPlayer,tempDeck);
+      kickedVar=tempDeck.pop();
+      checkKicked(kickedVar);
+      if (kickedVar.Suit === prevKicked.Suit) {
+        kickedVar=tempDeck.pop();
+        checkKicked(kickedVar);
+      }
+    }
+    displayPlayerCards(tempPlayer, kickedVar);
+    setDeck(tempDeck);
+
+    // Restrict a player from begging again
+    setLetBeg(false);
+  }
+
 
   /*
     Function that triggers when a card is clicked
@@ -641,6 +686,9 @@ export default function FirstPost() {
       console.log("Undertrump");
       return;
     }
+
+    // Restrict the player from being allowed to beg once a card has been played
+    setLetBeg(false);
 
     if (called == "any") { // If trump has not been called yet
       setCalled(cardPlayed.Suit);
@@ -774,17 +822,17 @@ export default function FirstPost() {
         setDealer(1);
         setPlayerTurn(2);
       }
-      else {
+      else if (dealer == 3) {
+        setPlayerTurn(1);
         setDealer(dealer+1);
-        setPlayerTurn(dealer+1);
+      }
+      else {
+        setPlayerTurn(dealer+2);
+        setDealer(dealer+1);
       }
 
       setShow(true);
       setLoaded(false);
-
-      deckVar = createDeck();
-      setKickedCard(deckVar.pop());
-      setDeck(deckVar);
     }
 
 
@@ -795,23 +843,24 @@ export default function FirstPost() {
   */
   useEffect(() => {
     if (!loaded) {
-      setDealer(4);
       deckVar = createDeck();
       kicked = deckVar.pop();
       setKickedCard(kicked);
       setDeck(deckVar);
+      setLetBeg(true);
       setLoaded(true); // Indicate that player cards have been rendered
       let tempPlayer = [...player];
+      let tempDeck = [...deck];
 
       for (var i = 0; i < 4; i++) {
         tempPlayer[i] = new Hand();
       }
 
       for (var i = 0; i < 2; i++) {
-        tempPlayer = dealAll(tempPlayer, deckVar);
+        [tempPlayer, tempDeck] = dealAll(tempPlayer, deckVar);
       }
       displayPlayerCards(tempPlayer, kicked);
-      checkKicked();
+      checkKicked(kicked);
     }
   }, [lift, called, player1Cards, player2Cards, player3Cards, player4Cards]);
 
@@ -939,7 +988,7 @@ export default function FirstPost() {
           ))
         }
       </div>
-      <button value="Press" onClick={testFunc2}>Press</button>
+      <button value="Press" onClick={beg}>Press</button>
     </div>
   )
 }
