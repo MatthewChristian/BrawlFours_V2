@@ -6,19 +6,9 @@ export default function FirstPost() {
   // Indicate if the game has been initialised as yet
   const [ loaded, setLoaded ] = useState(false);
 
-  let player; // Array to store cards in all players' hands
-  let deck; // Cards left in deck
+  let deckVar; // Cards left in deck
   let kicked; // Card that was kicked
-  let dealer; // Which player is the dealer
   let liftVar = [-200, 0, 0, 0, 0];
-
-  if (!loaded) {
-    player = [];
-    dealer = 1;
-    deck = createDeck();
-    kicked = deck.pop();
-    console.log("Kicked: " + kicked.Suit + kicked.Value);
-  }
 
   // React refs for player hand div
   const player1Hand = useRef(null);
@@ -38,6 +28,12 @@ export default function FirstPost() {
   const [ player3CardPlayed, setPlayer3CardPlayed ] = useState("");
   const [ player4CardPlayed, setPlayer4CardPlayed ] = useState("");
 
+  // Manage player hands
+  const [ player, setPlayer ] = useState([]);
+
+  // Manage deck of cards
+  const [ deck, setDeck ] = useState([]);
+
   // Manage team scores
   const [ score, setScore ] = useState([0, 0]);
 
@@ -49,6 +45,9 @@ export default function FirstPost() {
 
   // Manage which suit is trump
   const [ trump, setTrump ] = useState(null);
+
+  // Manage which player is currently the dealer
+  const [ dealer, setDealer ] = useState(4);
 
   // Manage whose turn it is to play
   const [ playerTurn, setPlayerTurn ] = useState(1);
@@ -68,6 +67,10 @@ export default function FirstPost() {
   // Manage each team's points for game
   const [ t1Points, setT1Points ] = useState(0);
   const [ t2Points, setT2Points ] = useState(0);
+
+  // Manage each team's total score
+  const [ t1Score, setT1Score ] = useState(0);
+  const [ t2Score, setT2Score] = useState(0);
 
   // Manage values for high, low, game and jack
   const [ high, setHigh ] = useState(0);
@@ -95,6 +98,10 @@ export default function FirstPost() {
 
   // Indicate whether or not to show which team won what
   const [ show, setShow ] = useState(false);
+
+  if (!loaded) {
+    
+  }
 
   class Hand {
     constructor() {
@@ -144,21 +151,27 @@ export default function FirstPost() {
   /*
     Deal 3 cards to a player
   */
-  function deal(player) {
+  function deal(player, deck) {
     let card;
+    let tempPlayer = player;
     for (var i = 0; i < 3; i++) {
       card = deck.pop();
-      player.cards.push(card);
+      tempPlayer.cards.push(card);
     }
+    setDeck(deck);
+    return tempPlayer;
   }
 
   /* 
     Deal 3 cards to all players
   */
-  function dealAll() {
+  function dealAll(player, deck) {
+    let tempPlayer = [];
     for (var j = 0; j < 4; j++) {
-      deal(player[j]);
+      tempPlayer[j] = deal(player[j], deck);
     }
+    setPlayer(tempPlayer);
+    return tempPlayer;
   }
 
   /* 
@@ -173,14 +186,14 @@ export default function FirstPost() {
   /*
     Render player cards on the screen
   */
-  function displayPlayerCards() {
+  function displayPlayerCards(player, kicked) {
 
     // Arrays to store player cards as a string
     let p1Cards = [];
     let p2Cards = [];
     let p3Cards = [];
     let p4Cards = [];
-    
+
     // Only run function once
     if (!loaded) {
       // For loops to initialise arrays for each player
@@ -244,7 +257,6 @@ export default function FirstPost() {
       else
         teamScore[1]++;
     }
-    console.log("TS: " + teamScore);
     setScore(teamScore);
   }
 
@@ -377,8 +389,6 @@ export default function FirstPost() {
   */
   function getPoints(lift, liftWinner) {
     let points = 0;
-    console.log("Lift: " + lift);
-    console.log("LiftWinner: " + liftWinner);
     for (var i=1; i<5; i++) {
       if (lift[i] === 10 || lift[i] === 110 || lift[i] === -90) {
         points += 10;
@@ -470,8 +480,6 @@ export default function FirstPost() {
     Determine which team won game
   */
   function determineGame() {
-    console.log("t1: " + t1Points);
-    console.log("t2: " + t2Points);
     if (t1Points > t2Points) {
       return 1;
     }
@@ -498,6 +506,48 @@ export default function FirstPost() {
     }
   }
 
+  /*
+    Determine score at the end of the round
+  */
+  function determineScore(gameWinner, highWinner, lowWinner, jack) {
+    let tempT1Score = {...t1Score};
+    let tempT2Score = {...t2Score};
+    let tempScore = [...score];
+    if (gameWinner == 1) {
+      tempScore[0] += 1;
+    }
+    else {
+      tempScore[1] += 1;
+    }
+    if (highWinner == 1) {
+      tempScore[0] += 1;
+    }
+    else {
+      tempScore[1] += 1;
+    }
+    if (lowWinner == 1) {
+      tempScore[0] += 1;
+    }
+    else {
+      tempScore[1] += 1;
+    }
+    if (jack == 1) {
+      tempScore[0] += 1;
+    }
+    else if (jack == 2) {
+      tempScore[1] += 1;
+    }
+    else if (jack == 3) {
+      tempScore[0] += 3;
+    }
+    else if (jack == 4) {
+      tempScore[1] += 3;
+    }
+    setT1Score(tempT1Score);
+    setT2Score(tempT2Score);
+    setScore(tempScore);
+  }
+
 
   /*
     Function that triggers when a card is clicked
@@ -522,8 +572,12 @@ export default function FirstPost() {
     let jackHangerValueVar = {...jackHangerValue};
     let jackWinnerVar = {...jackWinner};
     let jackPlayerVar = {...jackPlayer};
+    let highWinnerVar = {...highWinner};
+    let lowWinnerVar = {...lowWinner};
+    let highVar = {...high};
+    let lowVar = {...low};
     let undertrumped;
-    let gameWinner;
+    let gameWinnerVar = {...gameWinner};
     let jackVar;
     let value;
 
@@ -539,30 +593,7 @@ export default function FirstPost() {
 
     // Determine if player attempted to undertrump
     undertrumped = undertrump(lift, cardPlayedId);
-  
-    // If the player:
-    // * Played a suit that wasn't called,
-    // * Wasn't the first player to play for the round,
-    // * Has cards in their hand that correspond to the called suit, and
-    // * the card played is not trump,
-    // then end function and do not add card to lift
-    if (cardPlayed.Suit !== calledVar && calledVar !== "any" && !bare && cardPlayed.Suit != trump) {
-      console.log("Stop");
-      return;
-    }
-    console.log("Trump: " + trump);
-    // If the player attempted to undertrump, end function and do not add card to lift
-    if ((cardPlayed.Suit == trump && undertrumped == true) && calledVar != trump && !bare) {
-      console.log("Undertrump");
-      return;
-    }
 
-    if (called == "any") { // If trump has not been called yet
-      setCalled(cardPlayed.Suit);
-      calledVar = cardPlayed.Suit;
-      bare = false;
-    }
-  
     // Determine which team the player is on
     if (playerTurn == 1 || playerTurn == 3) {
       team = 1;
@@ -570,7 +601,6 @@ export default function FirstPost() {
     else {
       team = 2;
     } 
-    console.log("Team: " + team);
 
     // Get cards of the player whose turn it is
     if (playerTurn == 1) {
@@ -585,10 +615,7 @@ export default function FirstPost() {
     else {
       playerCards = [...player4Cards];
     }
-    console.log("Called: " + called);
-    console.log("CalledVar: " + calledVar);
-    console.log("PC:" + playerCards);
-
+    
     // Determine if a player does not have a card in the suit of the card that was called
     if (calledVar !== "any") {
       for (var i=0; i<playerCards.length; i++) {
@@ -597,26 +624,46 @@ export default function FirstPost() {
         } 
       }
     }
-    if (bare === true) {
-      console.log("Bare");
+
+    // If the player:
+    // * Played a suit that wasn't called,
+    // * Wasn't the first player to play for the round,
+    // * Has cards in their hand that correspond to the called suit, and
+    // * the card played is not trump,
+    // then end function and do not add card to lift
+    if (cardPlayed.Suit != calledVar && calledVar !== "any" && !bare && cardPlayed.Suit != trump) {
+      console.log("Stop");
+      return;
     }
-      
+    
+    // If the player attempted to undertrump, end function and do not add card to lift
+    if ((cardPlayed.Suit == trump && undertrumped == true) && calledVar != trump && !bare) {
+      console.log("Undertrump");
+      return;
+    }
+
+    if (called == "any") { // If trump has not been called yet
+      setCalled(cardPlayed.Suit);
+      calledVar = cardPlayed.Suit;
+      bare = false;
+    }
+  
 
     // If trump is played
-    console.log("Trump: " + trump);
     if (cardPlayed.Suit == trump) { 
       
-      console.log("H: " + high);
-      console.log("L: " + low);
       value=getCardValue(cardPlayed);
-      console.log("Val: " + value);
       if (value > high) {
         setHighWinner(team);
         setHigh(value);
+        highVar = value;
+        highWinnerVar = team;
       }
       if (value < low) {
         setLowWinner(team);
         setLow(value);
+        lowVar = value;
+        lowWinnerVar = team;
       }
       if (value == 11 && jackPlayer == 0) { //If jack has not yet been played
         setJackPlayer(team);
@@ -625,19 +672,16 @@ export default function FirstPost() {
         jackPlayerVar = team;
         jackWinnerVar = team;
         jackInPlayVar = true;
-        console.log("Jack played")
       }
       if (value > 11 && jackInPlay == true) { // If jack is in lift and a Queen or higher has been played
         setJackWinner(team);
         jackWinnerVar = team;
-        console.log("Jack Winner")
       }
       if (value > 11 && value > jackHangerValue) { // If jack is in lift with a Queen or higher and a Card stronger than the previous royal is played
         setJackHangerTeam(team);
         setJackHangerValue(value);
         jackHangerTeamVar = team;
         jackHangerValueVar = value;
-        console.log("Jack Hanger")
       }
     }
 
@@ -697,15 +741,9 @@ export default function FirstPost() {
       setCalled("any");
 
       liftWinnerVar=checkLift(liftVar);
-      console.log("Lift Winner: " + liftWinnerVar);
-      console.log("High: " + high);
-      console.log("High Winner: " + highWinner);
-      console.log("Low: " + low);
-      console.log("Low Winner: " + lowWinner);
       setPlayerTurn(liftWinnerVar);
       setLiftWinner(liftWinnerVar);
       points = getPoints(liftVar, liftWinnerVar);
-      console.log("Points: " + points);
       setLift([-200, 0, 0 ,0, 0]);
       setLiftEnded(1);
       setPlayer1CardPlayed("");
@@ -714,20 +752,39 @@ export default function FirstPost() {
       setPlayer4CardPlayed("");
     }
 
-    console.log("L1: " + player1CardsVar);
-    console.log("L2: " + player2CardsVar);
-    console.log("L3: " + player3CardsVar);
-    console.log("L4: " + player4CardsVar);
+    // When all players are out of cards
+
     if (player1CardsVar.length == 0 && player2CardsVar.length == 0 && player3CardsVar.length == 0 && player4CardsVar.length == 0) {
-      gameWinner = determineGame();
+      gameWinnerVar = determineGame();
       jackVar = determineJackWinner(jackPlayerVar, jackWinnerVar);
-      console.log("GW: " + gameWinner);
-      console.log("JW: " + jackVar);
-      console.log("T1Points: " + t1Points);
-      console.log("T2Points: " + t2Points);
-      //setT1Points(0);
-      //setT2Points(0);
+      determineScore(gameWinnerVar, highWinnerVar, lowWinnerVar, jackVar);
+
+      // Reset variables
+      setT1Points(0);
+      setT2Points(0);
+      setHigh(0);
+      setLow(15);
+      setHighWinner(0);
+      setLowWinner(0);
+      setJackWinner(0);
+      setJackPlayer(0);
+      setJack(0);
+
+      if (dealer == 4) {
+        setDealer(1);
+        setPlayerTurn(2);
+      }
+      else {
+        setDealer(dealer+1);
+        setPlayerTurn(dealer+1);
+      }
+
       setShow(true);
+      setLoaded(false);
+
+      deckVar = createDeck();
+      setKickedCard(deckVar.pop());
+      setDeck(deckVar);
     }
 
 
@@ -738,17 +795,22 @@ export default function FirstPost() {
   */
   useEffect(() => {
     if (!loaded) {
-      
+      setDealer(4);
+      deckVar = createDeck();
+      kicked = deckVar.pop();
+      setKickedCard(kicked);
+      setDeck(deckVar);
       setLoaded(true); // Indicate that player cards have been rendered
+      let tempPlayer = [...player];
 
       for (var i = 0; i < 4; i++) {
-        player[i] = new Hand();
+        tempPlayer[i] = new Hand();
       }
 
       for (var i = 0; i < 2; i++) {
-        dealAll();
+        tempPlayer = dealAll(tempPlayer, deckVar);
       }
-      displayPlayerCards();
+      displayPlayerCards(tempPlayer, kicked);
       checkKicked();
     }
   }, [lift, called, player1Cards, player2Cards, player3Cards, player4Cards]);
@@ -757,9 +819,7 @@ export default function FirstPost() {
     let x;
     let card;
     x = player1Cards;
-    console.log("Ev: " + event.currentTarget.id);
     card = getCard(event.currentTarget.id);
-    console.log("Card: " + card.Suit + card.Value);
   }
 
   function testFunc2() {
@@ -795,7 +855,7 @@ export default function FirstPost() {
         }
       </div>
       <div>
-        { show > 0 ? 
+        { show > 0 && jackWinner > 0 ? 
         (
           <p>Team {jackWinner} won jack</p>
         ) : (null)
