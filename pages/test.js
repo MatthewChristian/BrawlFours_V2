@@ -38,7 +38,7 @@ export default function FirstPost() {
   const [ score, setScore ] = useState([0, 0]);
 
   // Manage kicked card
-  const [ kickedCard, setKickedCard ] = useState(null);
+  const [ kickedCard, setKickedCard ] = useState([]);
 
   // Manage called card
   const [ called, setCalled ] = useState("any");
@@ -201,6 +201,7 @@ export default function FirstPost() {
     let p2Cards = [];
     let p3Cards = [];
     let p4Cards = [];
+    let kickedVar = [];
 
     // Only run function once
     
@@ -225,7 +226,9 @@ export default function FirstPost() {
       setPlayer2Cards(p2Cards);
       setPlayer3Cards(p3Cards);
       setPlayer4Cards(p4Cards);
-      setKickedCard(parseCard(kicked));
+
+      kickedVar[0] = parseCard(kicked);
+      setKickedCard(kickedVar);
       setTrump(kicked.Suit);
     
 
@@ -244,9 +247,9 @@ export default function FirstPost() {
   /*
     Check to see what card that the dealer has kicked
   */
-  function checkKicked(kicked) {
-    let teamScore = [];
-    teamScore = [...score];
+  function checkKicked(kicked, tempScore) {
+    let teamScore = tempScore;
+    console.log("Kiecked: " + kicked)
     if (kicked.Value == 6) {
       if (dealer == 1 || dealer == 3)
         teamScore[0]+=2;
@@ -266,6 +269,8 @@ export default function FirstPost() {
         teamScore[1]++;
     }
     setScore(teamScore);
+    console.log("TS: " + teamScore)
+    return teamScore;
   }
 
   /*
@@ -568,29 +573,41 @@ export default function FirstPost() {
     let kickedVar;
     let tempDeck = [...deck];
     let tempPlayer = [...player];
+    let tempScore = [...score];
     
     // Get previously kicked card
-    const prevKicked = {...kickedCard};
+    let kickedCardVar = [...kickedCard];
+    let prevKicked = kickedCardVar[0];
+
+    console.log("KC: " + kickedCardVar[0]);
 
     // Deal 3 cards to all players
     [tempPlayer, tempDeck] = dealAll(tempPlayer,tempDeck);
     kickedVar = tempDeck.pop();
-    checkKicked(kickedVar);
+    kickedCardVar[1] = parseCard(kickedVar);
+    tempScore = checkKicked(kickedVar, tempScore);
 
-    if (kickedVar.Suit === prevKicked.Suit) {
+    console.log("KV: " + kickedVar.Suit)
+    console.log("PK: " + prevKicked.charAt(0))
+    if (kickedVar.Suit === prevKicked.charAt(0)) {
       [tempPlayer, tempDeck] = dealAll(tempPlayer,tempDeck);
       kickedVar=tempDeck.pop();
-      checkKicked(kickedVar);
-      if (kickedVar.Suit === prevKicked.Suit) {
+      kickedCardVar[2] = parseCard(kickedVar);
+      tempScore = checkKicked(kickedVar, tempScore);
+      if (kickedVar.Suit === prevKicked.charAt(0)) {
         kickedVar=tempDeck.pop();
-        checkKicked(kickedVar);
+        kickedCardVar[3] = parseCard(kickedVar);
+        tempScore = checkKicked(kickedVar, tempScore);
       }
     }
     displayPlayerCards(tempPlayer, kickedVar);
     setDeck(tempDeck);
+    setKickedCard(kickedCardVar);
 
     // Restrict a player from begging again
     setLetBeg(false);
+
+
   }
 
 
@@ -843,9 +860,13 @@ export default function FirstPost() {
   */
   useEffect(() => {
     if (!loaded) {
+      let kickedVar = [];
+      let tempScore = [...score];
+      
       deckVar = createDeck();
       kicked = deckVar.pop();
-      setKickedCard(kicked);
+      kickedVar[0] = kicked;
+      setKickedCard(kickedVar);
       setDeck(deckVar);
       setLetBeg(true);
       setLoaded(true); // Indicate that player cards have been rendered
@@ -860,7 +881,8 @@ export default function FirstPost() {
         [tempPlayer, tempDeck] = dealAll(tempPlayer, deckVar);
       }
       displayPlayerCards(tempPlayer, kicked);
-      checkKicked(kicked);
+      console.log("K: " + kicked.Suit)
+      tempScore = checkKicked(kicked, tempScore);
     }
   }, [lift, called, player1Cards, player2Cards, player3Cards, player4Cards]);
 
@@ -949,7 +971,10 @@ export default function FirstPost() {
         </div>
       </div>
       <div className="kickedCard row">
-        <PlayingCard value={kickedCard}></PlayingCard>
+        <PlayingCard value={kickedCard[0]}></PlayingCard>
+        <PlayingCard value={kickedCard[1]}></PlayingCard>
+        <PlayingCard value={kickedCard[2]}></PlayingCard>
+        <PlayingCard value={kickedCard[3]}></PlayingCard>
         <div className="col-sm-1"></div>
         <PlayingCard value={player1CardPlayed}></PlayingCard>
         <div className="col-sm-1"></div>
