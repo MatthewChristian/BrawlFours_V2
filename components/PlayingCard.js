@@ -10,12 +10,20 @@ export default function PlayingCard(props) {
     }
 
     return (
-        <div className="col-sm-1" id={props.value} onClick={props.onClickHandler}>
+        <div className={`playing-card card-${props.iter} player-card-${props.player}`} id={props.value} onClick={props.onClickHandler}>
+          { !props.deckCard ? (
           <Image
             src={`/images/${card}.png`}
-            width={140}
-            height={190}
+            width={78.5}
+            height={120}
           />
+          ) : (
+          <Image
+            src={`/images/red_back.png`}
+            width={78.5}
+            height={120}
+          />
+          ) }
         </div>
     )
 }

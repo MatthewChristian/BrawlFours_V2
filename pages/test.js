@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import PlayingCard from "../components/PlayingCard"
+import PlayingCard from "../components/PlayingCard";
+import PlayingCardKicked from "../components/PlayingCardKicked";
+import Image from 'next/image'
 
 export default function FirstPost() {
 
@@ -587,8 +589,7 @@ export default function FirstPost() {
     kickedCardVar[1] = parseCard(kickedVar);
     tempScore = checkKicked(kickedVar, tempScore);
 
-    console.log("KV: " + kickedVar.Suit)
-    console.log("PK: " + prevKicked.charAt(0))
+    
     if (kickedVar.Suit === prevKicked.charAt(0)) {
       [tempPlayer, tempDeck] = dealAll(tempPlayer,tempDeck);
       kickedVar=tempDeck.pop();
@@ -899,121 +900,111 @@ export default function FirstPost() {
 
   return (
     <div className="container">
-      <h1>Brawl Fours</h1>
-      <div className="score row">
-        <div className="col-sm-1">
-          <p>Score: {score[0]} - {score[1]}</p>
-        </div>
-        <div className="col-sm-2">
-          <p>It is player {playerTurn}'s turn</p>
-        </div>
+      <div className="row">
+        <div className="col-sm-3 sidepanel">
+          <div className="score row">
+            <div className="col-sm-12">
+              <p>Score: {score[0]} - {score[1]}</p>
+            </div>
+            <div className="col-sm-12">
+              <p>It is player {playerTurn}'s turn</p>
+            </div>
+          </div>
+          <div className="game">
+            <p>Game: {t1Points} - {t2Points}</p>
+          </div>
+          <div>
+            { show ? 
+            (
+              <p>Team {highWinner} won high with {high}</p>
+            ) : (null)
+            }
+          </div>
+          <div>
+            { show > 0 ? 
+            (
+              <p>Team {lowWinner} won low with {low}</p>
+            ) : (null)
+            }
+          </div>
+          <div>
+            { show > 0 && jackWinner > 0 ? 
+            (
+              <p>Team {jackWinner} won jack</p>
+            ) : (null)
+            }
+          </div>
+          <div>
+            { show > 0 && jackWinner != jackPlayer ? 
+            (
+              <p>Team {jackWinner} hung jack!</p>
+            ) : (null)
+            }
+          </div>
+          <div>
+            { show > 0 ? 
+            (
+              <p>Team {lowWinner} won game {t1Points} - {t2Points}</p>
+            ) : (null)
+            }
+          </div>
+          <div className="liftWinner">
+            { liftWinner > 0 ? 
+            (
+              <p>Player {liftWinner} won the lift</p>
+            ) : (null)
+            }
+          </div>
+          <div className="kicked">
+            <div>
+              <p> Kicked: </p>
+              
+            </div>
+            <button value="Press" onClick={beg}>Press</button>
+          </div>
       </div>
-      <div className="game">
-        <p>Game: {t1Points} - {t2Points}</p>
+      <div className="col-sm-8 cardTable">
+      <div className="kickedCard">
+        <PlayingCard value={kickedCard[0]} player="kicked" iter="kicked-1"></PlayingCard>
+        <PlayingCard value={kickedCard[1]} player="kicked" iter="kicked-2"></PlayingCard>
+        <PlayingCard value={kickedCard[2]} player="kicked" iter="kicked-3"></PlayingCard>
+        <PlayingCard value={kickedCard[3]} player="kicked" iter="kicked-4"></PlayingCard>
+        <PlayingCard deckCard={true} iter="deck"></PlayingCard>
+        <PlayingCard value={player1CardPlayed} iter="played-1"></PlayingCard>
+        <PlayingCard value={player2CardPlayed} iter="played-2"></PlayingCard>
+        <PlayingCard value={player3CardPlayed} iter="played-3"></PlayingCard>
+        <PlayingCard value={player4CardPlayed} iter="played-4"></PlayingCard>
       </div>
-      <div>
-        { show ? 
-        (
-          <p>Team {highWinner} won high with {high}</p>
-        ) : (null)
-        }
-      </div>
-      <div>
-        { show > 0 ? 
-        (
-          <p>Team {lowWinner} won low with {low}</p>
-        ) : (null)
-        }
-      </div>
-      <div>
-        { show > 0 && jackWinner > 0 ? 
-        (
-          <p>Team {jackWinner} won jack</p>
-        ) : (null)
-        }
-      </div>
-      <div>
-        { show > 0 && jackWinner != jackPlayer ? 
-        (
-          <p>Team {jackWinner} hung jack!</p>
-        ) : (null)
-        }
-      </div>
-      <div>
-        { show > 0 ? 
-        (
-          <p>Team {lowWinner} won game {t1Points} - {t2Points}</p>
-        ) : (null)
-        }
-      </div>
-      <div className="liftWinner">
-        { liftWinner > 0 ? 
-        (
-          <p>Player {liftWinner} won the lift</p>
-        ) : (null)
-        }
-      </div>
-      <div className="kicked row">
-        <div className="col-sm-2">
-          <p> Kicked: </p>
-        </div>
-        <div className="col-sm-2">
-          <p> Player 1 Played: </p>
-        </div>
-        <div className="col-sm-2">
-          <p> Player 2 Played: </p>
-        </div>
-        <div className="col-sm-2">
-          <p> Player 3 Played: </p>
-        </div>
-        <div className="col-sm-2">
-          <p> Player 4 Played: </p>
-        </div>
-      </div>
-      <div className="kickedCard row">
-        <PlayingCard value={kickedCard[0]}></PlayingCard>
-        <PlayingCard value={kickedCard[1]}></PlayingCard>
-        <PlayingCard value={kickedCard[2]}></PlayingCard>
-        <PlayingCard value={kickedCard[3]}></PlayingCard>
-        <div className="col-sm-1"></div>
-        <PlayingCard value={player1CardPlayed}></PlayingCard>
-        <div className="col-sm-1"></div>
-        <PlayingCard value={player2CardPlayed}></PlayingCard>
-        <div className="col-sm-1"></div>
-        <PlayingCard value={player3CardPlayed}></PlayingCard>
-        <div className="col-sm-1"></div>
-        <PlayingCard value={player4CardPlayed}></PlayingCard>
-      </div>
-      <hr></hr>
-      <div className="row hand player1" ref={player1Hand}>
+      <div className="hand player1" ref={player1Hand}>
         {
           Array.from({ length: player1Cards.length }, (_, k) => (
-            <PlayingCard key={player1Cards[k]} value={player1Cards[k]+1} onClickHandler={playCard}></PlayingCard>
+            <PlayingCard key={player1Cards[k]} player="1" iter={k} value={player1Cards[k]+1} onClickHandler={playCard}></PlayingCard>
           ))
         }
       </div>
-      <div className="row hand player2" ref={player2Hand}>
+      <div className="hand player2" ref={player2Hand}>
         {
           Array.from({ length: player2Cards.length }, (_, k) => (
-            <PlayingCard key={player2Cards[k]} value={player2Cards[k]+2} onClickHandler={playCard}></PlayingCard>
+            <PlayingCard key={player2Cards[k]} player="2" iter={k} value={player2Cards[k]+2} onClickHandler={playCard}></PlayingCard>
           ))
         }
       </div>
-      <div className="row hand player3" ref={player3Hand}>
+      <div className="hand player3" ref={player3Hand}>
         {
           Array.from({ length: player3Cards.length }, (_, k) => (
-            <PlayingCard key={player3Cards[k]} value={player3Cards[k]+3} onClickHandler={playCard}></PlayingCard>
+            <PlayingCard key={player3Cards[k]} player="3" iter={k} value={player3Cards[k]+3} onClickHandler={playCard}></PlayingCard>
           ))
         }
       </div>
-      <div className="row hand player4" ref={player4Hand}>
+      <div className="hand player4" ref={player4Hand}>
         {
           Array.from({ length: player4Cards.length }, (_, k) => (
-            <PlayingCard key={player4Cards[k]} value={player4Cards[k]+4} onClickHandler={playCard}></PlayingCard>
+            <PlayingCard key={player4Cards[k]} player="4" iter={k} value={player4Cards[k]+4} onClickHandler={playCard}></PlayingCard>
           ))
         }
       </div>
-      <button value="Press" onClick={beg}>Press</button>
+      </div>
+      </div>
     </div>
   )
 }

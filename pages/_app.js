@@ -1,5 +1,6 @@
 
 import Head from "next/head";
+import "../assets/css/Game.css";
 
 function MyApp({ Component, pageProps }) {
 return (
