@@ -985,21 +985,21 @@ export default function FirstPost() {
       <div className="hand player2" ref={player2Hand}>
         {
           Array.from({ length: player2Cards.length }, (_, k) => (
-            <PlayingCard key={player2Cards[k]} len={player1Cards.length} player="2" iter={k} value={player2Cards[k]+2} onClickHandler={playCard}></PlayingCard>
+            <PlayingCard key={player2Cards[k]} len={player2Cards.length} player="2" iter={k} value={player2Cards[k]+2} onClickHandler={playCard}></PlayingCard>
           ))
         }
       </div>
       <div className="hand player3" ref={player3Hand}>
         {
           Array.from({ length: player3Cards.length }, (_, k) => (
-            <PlayingCard key={player3Cards[k]} len={player1Cards.length} player="3" iter={k} value={player3Cards[k]+3} onClickHandler={playCard}></PlayingCard>
+            <PlayingCard key={player3Cards[k]} len={player3Cards.length} player="3" iter={k} value={player3Cards[k]+3} onClickHandler={playCard}></PlayingCard>
           ))
         }
       </div>
       <div className="hand player4" ref={player4Hand}>
         {
           Array.from({ length: player4Cards.length }, (_, k) => (
-            <PlayingCard key={player4Cards[k]} len={player1Cards.length} player="4" iter={k} value={player4Cards[k]+4} onClickHandler={playCard}></PlayingCard>
+            <PlayingCard key={player4Cards[k]} len={player4Cards.length} player="4" iter={k} value={player4Cards[k]+4} onClickHandler={playCard}></PlayingCard>
           ))
         }
       </div>
