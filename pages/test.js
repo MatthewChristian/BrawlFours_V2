@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PlayingCard from "../components/PlayingCard";
-import PlayingCardKicked from "../components/PlayingCardKicked";
-import Image from 'next/image'
+import Lobby from "../components/Lobby";
 
 export default function FirstPost() {
 
@@ -103,6 +102,9 @@ export default function FirstPost() {
 
   // Indicate whether or not to show which team won what
   const [ show, setShow ] = useState(false);
+
+  // Indicate whether or not the game has started
+  const [ gameStarted, setGameStarted ] = useState(false);
 
   if (!loaded) {
     
@@ -900,6 +902,9 @@ export default function FirstPost() {
 
   return (
     <div className="container">
+      { gameStarted ? (
+        <Lobby></Lobby>
+      ) : (
       <div className="row">
         <div className="col-sm-3 sidepanel">
           <div className="score row">
@@ -1004,7 +1009,7 @@ export default function FirstPost() {
         }
       </div>
       </div>
-      </div>
+      </div> ) }
     </div>
   )
 }
