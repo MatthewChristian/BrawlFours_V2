@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
+import io from 'socket.io-client'
 import PlayingCard from "../components/PlayingCard";
 import Lobby from "../components/Lobby";
+
 
 export default function FirstPost() {
 
@@ -863,6 +865,13 @@ export default function FirstPost() {
   */
   useEffect(() => {
     if (!loaded) {
+
+      let socket = io();
+      socket.on('now', data => {
+        console.log("Loaded")
+      })
+
+
       let kickedVar = [];
       let tempScore = [...score];
       
