@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import io from 'socket.io-client'
+import Popup from 'reactjs-popup';
+import 'reactjs-popup/dist/index.css';
 
 export default function Lobby(props) {
 
@@ -12,10 +14,17 @@ export default function Lobby(props) {
     // Indicate if the game has been initialised as yet
      const [ loaded, setLoaded ] = useState(false);
 
+    // Store room ID of game that player created
+    const [ createdRoomId, setCreatedRoomId ] = useState("");
+
     // Create a room channel
     function createRoom(e) {
-        let tempSocket = io();
-        tempSocket.emit('createRoom');
+       
+        socket.emit('createRoom');
+
+        socket.on('newRoomCreated', data => {
+            console.log("Loaded: " + data.roomId)
+        })
     }
 
     function onPressJoin(e) {
@@ -24,8 +33,11 @@ export default function Lobby(props) {
 
 
     function joinRoom(value) {
-        roomId = value;
-        lobbyChannel = 'brawlfourslobby--' + roomId;
+       
+        var data = {
+            roomId : '123'
+        };
+        socket.emit('joinRoom', data);
     }
 
     useEffect(() => {
@@ -45,9 +57,14 @@ export default function Lobby(props) {
 
     return (
         <div>
-          <h1>Brawl Fours</h1>
-          <button onClick={(e) => createRoom()}> Create Lobby </button>
-          <button onClick={(e) => onPressJoin()}> Join Lobby </button>
+            <h1>Brawl Fours</h1>
+            <Popup trigger={<button onClick={(e) => createRoom()}> Create Lobby </button>} modal>
+                <div>Room created!</div>
+                <div>Share this code with your friends:</div>
+                <div></div>
+            </Popup>
+            <button onClick={(e) => createRoom()}> Create Lobby2 </button>
+            <button onClick={(e) => joinRoom()}> Join Lobby </button>
         </div>
     )
 }
