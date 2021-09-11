@@ -1,23 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
-import PubNub from 'pubnub';
-import * as PubNubReact from 'pubnub-react';
+import io from 'socket.io-client'
 
 export default function Lobby(props) {
 
-    let roomId;
+    let thisRoomId;
     let lobbyChannel;
-    let pubnub;
+
+    // Manage socket.io websocket
+    const [ socket, setSocket ] = useState(null);
+
+    // Indicate if the game has been initialised as yet
+     const [ loaded, setLoaded ] = useState(false);
 
     // Create a room channel
-    function onPressCreate(e) {
-        // Create a random name for the channel
-        roomId = "abcde"; // Fix later with shortid.generate().substring(0,5);
-        lobbyChannel = 'brawlfourslobby--' + roomId; // Lobby channel name
-        pubnub.subscribe({
-            channels: [lobbyChannel],
-            withPresence: true // Checks the number of people in the channel
-        });
-        alert("Lobby created: " + roomId);
+    function createRoom(e) {
+        let tempSocket = io();
+        tempSocket.emit('createRoom');
     }
 
     function onPressJoin(e) {
@@ -31,18 +29,25 @@ export default function Lobby(props) {
     }
 
     useEffect(() => {
-        pubnub = new PubNub({
-            publishKey: "pub-c-cbb9ab3c-426c-4448-b36a-10f7de9069db",
-            subscribeKey: "sub-c-ec649c58-b4cd-11ea-af7b-9a67fd50bac3"
-        }); 
+        if (!loaded) {
+            let tempSocket = io();
+            tempSocket.on('now', data => {
+                console.log("Loaded: " + data.count)
+            })
+            setSocket(tempSocket);
+
+            tempSocket.on('createRoom', createRoom);
+
+            setLoaded(true);
+        }
     });
 
 
     return (
         <div>
           <h1>Brawl Fours</h1>
-          <button onClick={(e) => this.onPressCreate()}> Create Lobby </button>
-          <button onClick={(e) => this.onPressJoin()}> Join Lobby </button>
+          <button onClick={(e) => createRoom()}> Create Lobby </button>
+          <button onClick={(e) => onPressJoin()}> Join Lobby </button>
         </div>
     )
 }
