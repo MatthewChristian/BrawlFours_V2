@@ -10,6 +10,7 @@
   "dependencies": {
     "bootstrap": "^5.0.0-beta3",
     "express": "^4.17.1",
+    "jquery": "^3.6.0",
     "net": "^1.0.2",
     "next": "^10.0.0",
     "next-images": "^1.7.0",
@@ -17,6 +18,7 @@
     "pubnub-react": "^2.1.0",
     "react": "17.0.1",
     "react-dom": "17.0.1",
+    "reactjs-popup": "^2.0.5",
     "socket.io": "^4.2.0",
     "socket.io-client": "^4.2.0",
     "url-loader": "^4.1.1"
