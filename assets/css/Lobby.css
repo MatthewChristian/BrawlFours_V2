@@ -63,4 +63,18 @@ body {
     border-color: #157cd1;
 }
 
+.lobby-card {
+    border-radius: 30px;
+    padding-top: 50px;
+    padding-bottom: 50px;
+    padding-left: 80px;
+    padding-right: 80px;
+}
 
+.nickname-field {
+    margin-bottom: 25px;
+}
+
+.room-field {
+    margin-bottom: 15px;
+}

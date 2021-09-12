@@ -30,6 +30,7 @@ export default function Lobby(props) {
 
     function createRoomPressed() {
         createRoom();
+        props.handleLobbyCreatedChange();
         setCreatedOpen(true);
     }
 
@@ -84,39 +85,40 @@ export default function Lobby(props) {
         <div>
             <h1>Brawl Fours</h1>
 
-            <input type="text" className="" id="join-nickname-field" ref={joinNickRef} placeholder="Enter your nickname" />
-            <br></br>
+            <div className="d-flex p-2 align-content-center align-items-center flex-column container">
 
+                <div className="card lobby-card">
             
-            <button className="game-button join-button lobby-button" onClick={(e) => joinRoomPressed()}> 
-                Join Room 
-            </button>
+                    <input type="text" className="nickname-field" id="join-nickname-field" ref={joinNickRef} placeholder="Enter your nickname..." />
+                
+                    <button className="game-button join-button lobby-button" onClick={(e) => joinRoomPressed()}> 
+                        Join Room 
+                    </button>
 
-            <Popup open={joinOpen} closeOnDocumentClick onClose={closeJoinModal}>
-                <div className="join-room-h1 room-modal">Enter room code:</div>
-                <input type="text" className="" id="join-room-field" ref={joinRoomRef} placeholder="Enter the room code" />
-                <br></br>
-                <button className="game-button join-button lobby-button" onClick={(e) => joinRoom()}> 
-                    Join
-                </button>
-            </Popup>
+                    <Popup open={joinOpen} closeOnDocumentClick onClose={closeJoinModal}>
+                     <div className="d-flex p-2 align-content-center align-items-center flex-column container">
+                        <div className="join-room-h1 room-modal room-field">Enter room code:</div>
+                        <input type="text" className="" id="join-room-field" ref={joinRoomRef} placeholder="Enter the room code..." />
+                        <br></br>
+                        <button className="game-button join-button lobby-button" onClick={(e) => joinRoom()}> 
+                            Join Room
+                        </button>
+                        </div>
+                    </Popup>
 
-            
+                    <br></br>
 
-            <br></br>
-
-            <button type="button" className="game-button create-button lobby-button" onClick={() => createRoomPressed()}>
-                Create Room
-            </button>
-            
-            <Popup open={createdOpen} closeOnDocumentClick onClose={closeCreatedModal}>
-                <div className="room-created-h1 room-modal">Room created!</div>
-                <div className="room-created-h2 room-modal">Share this code with your friends:</div>
-                <div className="room-created-id room-modal">{createdRoomId}</div>
-            </Popup>
-            
-
-
+                    <button type="button" className="game-button create-button lobby-button" onClick={() => createRoomPressed()}>
+                        Create Room
+                    </button>
+                    
+                    <Popup open={createdOpen} closeOnDocumentClick onClose={closeCreatedModal}>
+                        <div className="room-created-h1 room-modal">Room created!</div>
+                        <div className="room-created-h2 room-modal">Share this code with your friends:</div>
+                        <div className="room-created-id room-modal">{createdRoomId}</div>
+                    </Popup>
+                </div>
+            </div>
         </div>
     )
 }
