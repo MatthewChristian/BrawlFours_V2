@@ -14,7 +14,7 @@ body {
 }
 
 .room-created-id {
-    font-size: 56px;
+    font-size: 48px;
     font-weight: bold;
 }
 
@@ -42,8 +42,9 @@ body {
 
 .create-button {
     background-color: #16e04d;
-    border-color: #16e04d;
+    border-color: #12c442;
     color: white;
+    margin-top: 20px;
 }
 
 .create-button:hover {
@@ -54,7 +55,7 @@ body {
 
 .join-button {
     background-color: #2a9bf7;
-    border-color: #2a9bf7;
+    border-color: #157cd1;
     color: white;
 }
 
@@ -77,4 +78,10 @@ body {
 
 .room-field {
     margin-bottom: 15px;
+}
+
+.nickname-warning {
+    color: #fc3838;
+    position: relative;
+    bottom: 20px;
 }
