@@ -38,7 +38,7 @@ function createRoom() {
   // Return the Room ID (gameId) and the socket ID (mySocketId) to the browser client
   this.emit('newRoomCreated', {roomId: thisRoomId, mySocketId: this.id});
 
-  console.log('Room created: ' + thisRoomId + this.id);
+ console.log('Room created: ' + thisRoomId + this.id);
 
   // Join the Room and wait for the players
   this.join(thisRoomId.toString());
@@ -55,18 +55,28 @@ function joinRoom(data) {
   gameSocket.adapter.rooms.forEach(logMapElements);
   console.log("RID: " + gameSocket.adapter.rooms.get('123'));*/
 
+  //this is an ES6 Set of all client ids in the room
+  
+
   // If the room exists...
   if(gameSocket.adapter.rooms.get(data.roomId)){
+      gameSocket.adapter.rooms.forEach(logMapElements);
+      console.log("Heyo " + gameSocket.adapter.rooms.get(data.roomId).size)
+      if(gameSocket.adapter.rooms.get(data.roomId).size < 4){
       // attach the socket id to the data object.
       data.mySocketId = playerSocket.id;
 
       // Join the room
       playerSocket.join(data.roomId);
 
-      console.log('Player joining game: ' + data.roomId );
+      console.log('Player ' + data.nickname + ' joining game: ' + data.roomId );
 
       // Emit an event notifying the clients that the player has joined the room.
       gameSocket.in(data.roomId).emit('playerJoinedRoom', data);
+      }
+      else {
+        console.log("Full room")
+      }
 
   } else {
       // Otherwise, send an error message back to the player.
@@ -78,6 +88,8 @@ function joinRoom(data) {
 function playerJoinedRoom () {
   console.log('Player joined room');
 }
+
+
 
 nextApp.prepare()
 .then(() => {
