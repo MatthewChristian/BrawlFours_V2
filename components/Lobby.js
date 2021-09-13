@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import io from 'socket.io-client'
 import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
+import Room from "../components/Room";
 
 export default function Lobby(props) {
 
@@ -12,10 +13,16 @@ export default function Lobby(props) {
     const [ socket, setSocket ] = useState(null);
 
     // Indicate if the game has been initialised as yet
-     const [ loaded, setLoaded ] = useState(false);
+    const [ loaded, setLoaded ] = useState(false);
+
+    // Indicate if user is in a room waiting
+    const [ inRoom, setInRoom ] = useState(false);
 
     // Store room ID of game that player created
     const [ createdRoomId, setCreatedRoomId ] = useState("");
+
+    // Store room ID of game that player created
+    const [ showNickWarning, setShowNickWarning ] = useState(false);
 
     // Used to open and close modal form
     const [createdOpen, setCreatedOpen] = useState(false);
@@ -25,20 +32,33 @@ export default function Lobby(props) {
     const closeJoinModal = () => setJoinOpen(false);
 
     // React ref to access text field values
-    const joinRoomRef = useRef(null)
-    const joinNickRef = useRef(null)
+    const joinRoomRef = useRef(null);
+    const joinNickRef = useRef(null);
 
     function createRoomPressed() {
-        createRoom();
-        props.handleLobbyCreatedChange();
-        setCreatedOpen(true);
+        const nickVal = joinNickRef.current.value
+        if (!nickVal) {
+            setShowNickWarning(true);
+        }
+        else {
+            createRoom();
+            //props.handleLobbyCreatedChange();
+            setInRoom(true);
+            setCreatedOpen(true);
+        }
     }
 
     function joinRoomPressed() {
-        setJoinOpen(true);
+        const nickVal = joinNickRef.current.value
+        if (!nickVal) {
+            setShowNickWarning(true);
+        }
+        else {
+            setJoinOpen(true);
+        }
     }
 
-    // Create a room channel
+    // Create a room
     function createRoom(e) {
        
         socket.emit('createRoom');
@@ -49,16 +69,10 @@ export default function Lobby(props) {
         })
     }
 
-    function onPressJoin(e) {
-        joinRoom("abcde");
-    }
-
-
+    // Join a room
     function joinRoom(value) {
-        const roomIdVal = joinRoomRef.current.value
-        const nickVal = joinNickRef.current.value
-        console.log("Room val: " + roomIdVal);
-        console.log("Nick val: " + nickVal);
+        const roomIdVal = joinRoomRef.current.value;
+        const nickVal = joinNickRef.current.value;
         var data = {
             roomId : String(roomIdVal),
             nickname: String(nickVal)
@@ -86,11 +100,17 @@ export default function Lobby(props) {
             <h1>Brawl Fours</h1>
 
             <div className="d-flex p-2 align-content-center align-items-center flex-column container">
-
+                { inRoom ? (
+                    <Room roomId={createdRoomId}></Room>
+                ) : (
                 <div className="card lobby-card">
-            
+                    
                     <input type="text" className="nickname-field" id="join-nickname-field" ref={joinNickRef} placeholder="Enter your nickname..." />
-                
+                    { showNickWarning ? (
+                        <div className="nickname-warning">Must enter a nickname first!</div>
+                    ) : 
+                        (null)
+                    }
                     <button className="game-button join-button lobby-button" onClick={(e) => joinRoomPressed()}> 
                         Join Room 
                     </button>
@@ -106,18 +126,12 @@ export default function Lobby(props) {
                         </div>
                     </Popup>
 
-                    <br></br>
-
                     <button type="button" className="game-button create-button lobby-button" onClick={() => createRoomPressed()}>
                         Create Room
                     </button>
-                    
-                    <Popup open={createdOpen} closeOnDocumentClick onClose={closeCreatedModal}>
-                        <div className="room-created-h1 room-modal">Room created!</div>
-                        <div className="room-created-h2 room-modal">Share this code with your friends:</div>
-                        <div className="room-created-id room-modal">{createdRoomId}</div>
-                    </Popup>
+                   
                 </div>
+                ) }
             </div>
         </div>
     )
