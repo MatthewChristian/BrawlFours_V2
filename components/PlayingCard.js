@@ -8,14 +8,14 @@ export default function PlayingCard(props) {
     let p1Start = 52 + (horizontalGap * (props.len - 6)) - (horizontalGap * ((props.len - 6)/3)) - ((props.len - 6)/2);
     let p2Start = 34 - (verticalGap * (props.len - 6)) + (verticalGap * ((props.len - 6)/3)) + ((props.len - 6)/2);
 
-    // Get suit and value of card
+    // Get suit and value of card.
     if(props.value) {
       card = props.value.charAt(0) + props.value.charAt(1);
     }
 
 
     return (
-        <div className={`playing-card card-${props.iter} player-card-${props.player}`} 
+        <div className={`playing-card card-${props.iter} player-card-${props.player}`}
           id={props.value}
           onClick={props.onClickHandler}
           style={{
