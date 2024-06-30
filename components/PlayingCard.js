@@ -24,11 +24,12 @@ export default function PlayingCard(props) {
             top: props.player == "2" || props.player == "4" ?  `${p2Start + (verticalGap * props.iter)}%` : null,
           }}>
           { !props.deckCard ? (
-          <Image
-            src={`/images/${card}.png`}
-            width={78.5}
-            height={120}
-          />
+            card &&
+              <Image
+                src={`/images/${card}.png`}
+                width={78.5}
+                height={120}
+              />
           ) : (
           <Image
             src={`/images/red_back.png`}
