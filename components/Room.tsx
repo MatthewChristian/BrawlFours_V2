@@ -1,24 +1,32 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, RefObject } from 'react';
 import io, { Socket } from 'socket.io-client'
 import { PlayerSocket } from '../models/PlayerSocket';
 
 interface Props {
     roomId?: string;
-    socket: Socket;
+    socket: RefObject<Socket>;
 }
 
 export default function Room({ roomId, socket }: Props) {
 
-    const [players, setPlayers] = useState<PlayerSocket[]>([]);
+    const [players, setPlayers] = useState<string[]>([]);
 
     useEffect(() => {
+        if (!socket.current) {
+            return;
+        }
+
         console.log("Sock: ", socket);
 
-        socket.on('playerJoinedRoom', (player) => {
+        socket.current.on('playerJoinedRoom', (player) => {
             console.log("Player: ", player);
-            setPlayers((prev) => [...prev, player]);
         });
-    }, [socket, players]);
+
+        socket.current.on('playersInRoom', (player) => {
+            console.log("PIR: ", player);
+            setPlayers((prev) => player);
+        });
+    }, [socket]);
 
     return (
         <div className="card lobby-card">
@@ -32,7 +40,7 @@ export default function Room({ roomId, socket }: Props) {
                 <div className='flex flex-col'>
                 {
                     players.map((el, i) =>
-                        <div key={i}>{el.nickname}</div>
+                        <div key={i}>{el}</div>
                     )
                 }
                 </div>

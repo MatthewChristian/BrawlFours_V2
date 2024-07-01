@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import io from 'socket.io-client'
+import io, { Socket } from 'socket.io-client'
 import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
 import Room from "./Room";
@@ -10,7 +10,7 @@ export default function Lobby(props) {
     let lobbyChannel;
 
     // Manage socket.io websocket
-    const socket = io();
+    const socket = useRef<Socket>(io("http://localhost:3000"));
 
     // Indicate if the game has been initialised as yet
     const [ loaded, setLoaded ] = useState<boolean>(false);
@@ -67,9 +67,9 @@ export default function Lobby(props) {
             nickname: String(nickVal)
         }
 
-        socket.emit('createRoom', data);
+        socket.current.emit('createRoom', data);
 
-        socket.on('newRoomCreated', data => {
+        socket.current.on('newRoomCreated', data => {
             console.log("Loaded: " + data.roomId);
             setCreatedRoomId(data.roomId);
         })
@@ -86,23 +86,30 @@ export default function Lobby(props) {
         };
 
         console.log("Data: ", data);
-        socket.emit('joinRoom', data);
+        socket.current.emit('joinRoom', data);
         setInRoom(true);
+        setCreatedRoomId(String(roomIdVal));
     }
 
     useEffect(() => {
         if (!loaded) {
-            let tempSocket = io();
-            tempSocket.on('now', data => {
+            // let tempSocket = io();
+            socket.current.on('now', data => {
                 console.log("Loaded: " + data.count)
             })
             // setSocket(tempSocket);
 
-            tempSocket.on('createRoom', createRoom);
+            socket.current.on('createRoom', createRoom);
 
             setLoaded(true);
         }
-    });
+    },[]);
+
+    useEffect(() => {
+        socket.current.on("connnection", () => {
+            console.log("connected to server");
+        });
+    }, []);
 
 
     return (
