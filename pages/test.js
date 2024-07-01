@@ -84,7 +84,7 @@ export default function FirstPost() {
   // Indicate which team played jack
   const [ jackPlayer, setJackPlayer ] = useState(0);
 
-  // Indicate if jack is in the current lift 
+  // Indicate if jack is in the current lift
   const [ jackInPlay, setJackInPlay ] = useState(false);
 
   // Indicate which team hung jack
@@ -109,7 +109,7 @@ export default function FirstPost() {
   const [ gameStarted, setGameStarted ] = useState(false);
 
   if (!loaded) {
-    
+
   }
 
   class Hand {
@@ -174,7 +174,7 @@ export default function FirstPost() {
     return resArray;
   }
 
-  /* 
+  /*
     Deal 3 cards to all players
   */
   function dealAll(player, deck) {
@@ -189,8 +189,8 @@ export default function FirstPost() {
     return resArray;
   }
 
-  /* 
-    Use Suit and Value values of a card object to form a string 
+  /*
+    Use Suit and Value values of a card object to form a string
   */
   function parseCard(card) {
     let string;
@@ -210,7 +210,7 @@ export default function FirstPost() {
     let kickedVar = [];
 
     // Only run function once
-    
+
       // For loops to initialise arrays for each player
       for (var i=0; i<player[0].cards.length; i++) {
         p1Cards[i] = player[0].cards[i].Suit + player[0].cards[i].Value;
@@ -236,7 +236,7 @@ export default function FirstPost() {
       kickedVar[0] = parseCard(kicked);
       setKickedCard(kickedVar);
       setTrump(kicked.Suit);
-    
+
 
   }
 
@@ -332,7 +332,7 @@ export default function FirstPost() {
   function getLift(cardPlayed) {
 
     let liftTemp = [...lift];
-      
+
     if (cardPlayed.Value === "2") {
       liftTemp[playerTurn] = 2;
     }
@@ -372,7 +372,7 @@ export default function FirstPost() {
     else if (cardPlayed.Value === "A") {
       liftTemp[playerTurn] = 14;
     }
-    
+
     // If card played is trump, their card has more power to win lifts
     if (cardPlayed.Suit == trump) {
       liftTemp[playerTurn] += 100;
@@ -506,7 +506,7 @@ export default function FirstPost() {
       return 2;
     }
   }
-  
+
   /*
     Determines which team won jack
   */
@@ -580,7 +580,7 @@ export default function FirstPost() {
     let tempDeck = [...deck];
     let tempPlayer = [...player];
     let tempScore = [...score];
-    
+
     // Get previously kicked card
     let kickedCardVar = [...kickedCard];
     let prevKicked = kickedCardVar[0];
@@ -593,7 +593,7 @@ export default function FirstPost() {
     kickedCardVar[1] = parseCard(kickedVar);
     tempScore = checkKicked(kickedVar, tempScore);
 
-    
+
     if (kickedVar.Suit === prevKicked.charAt(0)) {
       [tempPlayer, tempDeck] = dealAll(tempPlayer,tempDeck);
       kickedVar=tempDeck.pop();
@@ -667,7 +667,7 @@ export default function FirstPost() {
     }
     else {
       team = 2;
-    } 
+    }
 
     // Get cards of the player whose turn it is
     if (playerTurn == 1) {
@@ -682,13 +682,13 @@ export default function FirstPost() {
     else {
       playerCards = [...player4Cards];
     }
-    
+
     // Determine if a player does not have a card in the suit of the card that was called
     if (calledVar !== "any") {
       for (var i=0; i<playerCards.length; i++) {
         if (playerCards[i].charAt(0) == calledVar) {
           bare=false;
-        } 
+        }
       }
     }
 
@@ -702,7 +702,7 @@ export default function FirstPost() {
       console.log("Stop");
       return;
     }
-    
+
     // If the player attempted to undertrump, end function and do not add card to lift
     if ((cardPlayed.Suit == trump && undertrumped == true) && calledVar != trump && !bare) {
       console.log("Undertrump");
@@ -717,11 +717,11 @@ export default function FirstPost() {
       calledVar = cardPlayed.Suit;
       bare = false;
     }
-  
+
 
     // If trump is played
-    if (cardPlayed.Suit == trump) { 
-      
+    if (cardPlayed.Suit == trump) {
+
       value=getCardValue(cardPlayed);
       if (value > high) {
         setHighWinner(team);
@@ -874,7 +874,7 @@ export default function FirstPost() {
 
       let kickedVar = [];
       let tempScore = [...score];
-      
+
       deckVar = createDeck();
       kicked = deckVar.pop();
       kickedVar[0] = kicked;
@@ -911,7 +911,7 @@ export default function FirstPost() {
 
   return (
     <div className="container">
-      { gameStarted ? (
+      { !gameStarted ? (
         <Lobby></Lobby>
       ) : (
       <div className="row">
@@ -928,42 +928,42 @@ export default function FirstPost() {
             <p>Game: {t1Points} - {t2Points}</p>
           </div>
           <div>
-            { show ? 
+            { show ?
             (
               <p>Team {highWinner} won high with {high}</p>
             ) : (null)
             }
           </div>
           <div>
-            { show > 0 ? 
+            { show > 0 ?
             (
               <p>Team {lowWinner} won low with {low}</p>
             ) : (null)
             }
           </div>
           <div>
-            { show > 0 && jackWinner > 0 ? 
+            { show > 0 && jackWinner > 0 ?
             (
               <p>Team {jackWinner} won jack</p>
             ) : (null)
             }
           </div>
           <div>
-            { show > 0 && jackWinner != jackPlayer ? 
+            { show > 0 && jackWinner != jackPlayer ?
             (
               <p>Team {jackWinner} hung jack!</p>
             ) : (null)
             }
           </div>
           <div>
-            { show > 0 ? 
+            { show > 0 ?
             (
               <p>Team {lowWinner} won game {t1Points} - {t2Points}</p>
             ) : (null)
             }
           </div>
           <div className="liftWinner">
-            { liftWinner > 0 ? 
+            { liftWinner > 0 ?
             (
               <p>Player {liftWinner} won the lift</p>
             ) : (null)
@@ -972,7 +972,7 @@ export default function FirstPost() {
           <div className="kicked">
             <div>
               <p> Kicked: </p>
-              
+
             </div>
             <button value="Press" onClick={beg}>Press</button>
           </div>

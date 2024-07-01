@@ -2,18 +2,20 @@ import React, { useState, useEffect, useRef } from 'react';
 import io from 'socket.io-client'
 import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
-import Room from "../components/Room";
+import Room from "./Room";
+import { Socket } from 'socket.io';
 
 export default function Lobby(props) {
 
     let thisRoomId;
     let lobbyChannel;
 
+
     // Manage socket.io websocket
-    const [ socket, setSocket ] = useState(null);
+    const socket = io();
 
     // Indicate if the game has been initialised as yet
-    const [ loaded, setLoaded ] = useState(false);
+    const [ loaded, setLoaded ] = useState<boolean>(false);
 
     // Indicate if user is in a room waiting
     const [ inRoom, setInRoom ] = useState(false);
@@ -32,11 +34,11 @@ export default function Lobby(props) {
     const closeJoinModal = () => setJoinOpen(false);
 
     // React ref to access text field values
-    const joinRoomRef = useRef(null);
-    const joinNickRef = useRef(null);
+    const joinRoomRef = useRef<React.LegacyRef<HTMLInputElement>>(null);
+    const joinNickRef = useRef<React.LegacyRef<HTMLInputElement>>(null);
 
     function createRoomPressed() {
-        const nickVal = joinNickRef.current.value
+        const nickVal = joinNickRef.current?.value
         if (!nickVal) {
             setShowNickWarning(true);
         }
@@ -49,7 +51,7 @@ export default function Lobby(props) {
     }
 
     function joinRoomPressed() {
-        const nickVal = joinNickRef.current.value
+        const nickVal = joinNickRef.current?.value;
         if (!nickVal) {
             setShowNickWarning(true);
         }
@@ -59,8 +61,8 @@ export default function Lobby(props) {
     }
 
     // Create a room
-    function createRoom(e) {
-       
+    function createRoom() {
+
         socket.emit('createRoom');
 
         socket.on('newRoomCreated', data => {
@@ -71,12 +73,15 @@ export default function Lobby(props) {
 
     // Join a room
     function joinRoom(value) {
-        const roomIdVal = joinRoomRef.current.value;
-        const nickVal = joinNickRef.current.value;
+        console.log("JR: ", value);
+        const roomIdVal = joinRoomRef.current?.value;
+        const nickVal = joinNickRef.current?.value;
         var data = {
             roomId : String(roomIdVal),
             nickname: String(nickVal)
         };
+
+        console.log("Data: ", data);
         socket.emit('joinRoom', data);
     }
 
@@ -86,7 +91,7 @@ export default function Lobby(props) {
             tempSocket.on('now', data => {
                 console.log("Loaded: " + data.count)
             })
-            setSocket(tempSocket);
+            // setSocket(tempSocket);
 
             tempSocket.on('createRoom', createRoom);
 
@@ -104,15 +109,15 @@ export default function Lobby(props) {
                     <Room roomId={createdRoomId}></Room>
                 ) : (
                 <div className="card lobby-card">
-                    
+
                     <input type="text" className="nickname-field" id="join-nickname-field" ref={joinNickRef} placeholder="Enter your nickname..." />
                     { showNickWarning ? (
                         <div className="nickname-warning">Must enter a nickname first!</div>
-                    ) : 
+                    ) :
                         (null)
                     }
-                    <button className="game-button join-button lobby-button" onClick={(e) => joinRoomPressed()}> 
-                        Join Room 
+                    <button className="game-button join-button lobby-button" onClick={(e) => joinRoomPressed()}>
+                        Join Room
                     </button>
 
                     <Popup open={joinOpen} closeOnDocumentClick onClose={closeJoinModal}>
@@ -120,7 +125,7 @@ export default function Lobby(props) {
                         <div className="join-room-h1 room-modal room-field">Enter room code:</div>
                         <input type="text" className="" id="join-room-field" ref={joinRoomRef} placeholder="Enter the room code..." />
                         <br></br>
-                        <button className="game-button join-button lobby-button" onClick={(e) => joinRoom()}> 
+                        <button className="game-button join-button lobby-button" onClick={(e) => joinRoom(e)}>
                             Join Room
                         </button>
                         </div>
@@ -129,7 +134,7 @@ export default function Lobby(props) {
                     <button type="button" className="game-button create-button lobby-button" onClick={() => createRoomPressed()}>
                         Create Room
                     </button>
-                   
+
                 </div>
                 ) }
             </div>

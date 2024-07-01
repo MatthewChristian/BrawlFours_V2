@@ -3,6 +3,17 @@ import io from 'socket.io-client'
 
 export default function Room(props) {
 
+    const socket = io();
+
+
+    useEffect(() => {
+        console.log("Load", socket);
+
+        socket.on('playerJoinedRoom', (msg) => {
+            console.log("MSG: ", msg);
+        });
+    }, []);
+
     return (
         <div className="card lobby-card">
             <div className="room-created-h2">Share this code with your friends:</div>
