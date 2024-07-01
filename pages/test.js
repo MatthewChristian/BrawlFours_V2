@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import io from 'socket.io-client'
-import PlayingCard from "../components/PlayingCard";
-import Lobby from "../components/Lobby";
+import PlayingCard from "../features/PlayingCard";
+import Lobby from "../features/Lobby";
 
 
 export default function FirstPost() {
