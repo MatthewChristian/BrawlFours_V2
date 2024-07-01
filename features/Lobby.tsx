@@ -32,8 +32,8 @@ export default function Lobby(props) {
     const closeJoinModal = () => setJoinOpen(false);
 
     // React ref to access text field values
-    const joinRoomRef = useRef<React.LegacyRef<HTMLInputElement>>(null);
-    const joinNickRef = useRef<React.LegacyRef<HTMLInputElement>>(null);
+    const joinRoomRef = useRef<HTMLInputElement>(null);
+    const joinNickRef = useRef<HTMLInputElement>(null);
 
     function createRoomPressed() {
         const nickVal = joinNickRef.current?.value
