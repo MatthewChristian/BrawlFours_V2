@@ -62,8 +62,6 @@ function joinRoom(data) {
 
   //this is an ES6 Set of all client ids in the room
 
-  console.log("DataR: ", data);
-
   // If the room exists...
   if (gameSocket.adapter.rooms.get(data.roomId)) {
     gameSocket.adapter.rooms.forEach(logMapElements);
@@ -75,10 +73,10 @@ function joinRoom(data) {
       // Join the room
       playerSocket.join(data.roomId);
 
-      console.log('Player ' + data.nickname + ' joining game: ' + data.roomId);
+      console.log('Player ' + data.nickname + ' joining game: ' + data.roomId + ' with socket ID of :' + playerSocket.id);
 
       // Emit an event notifying the clients that the player has joined the room.
-      gameSocket.in(data.roomId).emit('playerJoinedRoom', data);
+      gameSocket.emit('playerJoinedRoom', data);
     }
     else {
       console.log("Full room")
