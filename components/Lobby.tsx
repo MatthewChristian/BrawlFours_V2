@@ -3,13 +3,11 @@ import io from 'socket.io-client'
 import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
 import Room from "./Room";
-import { Socket } from 'socket.io';
 
 export default function Lobby(props) {
 
     let thisRoomId;
     let lobbyChannel;
-
 
     // Manage socket.io websocket
     const socket = io();
@@ -63,7 +61,13 @@ export default function Lobby(props) {
     // Create a room
     function createRoom() {
 
-        socket.emit('createRoom');
+        const nickVal = joinNickRef.current?.value;
+
+        let data = {
+            nickname: String(nickVal)
+        }
+
+        socket.emit('createRoom', data);
 
         socket.on('newRoomCreated', data => {
             console.log("Loaded: " + data.roomId);
@@ -76,13 +80,14 @@ export default function Lobby(props) {
         console.log("JR: ", value);
         const roomIdVal = joinRoomRef.current?.value;
         const nickVal = joinNickRef.current?.value;
-        var data = {
+        let data = {
             roomId : String(roomIdVal),
             nickname: String(nickVal)
         };
 
         console.log("Data: ", data);
         socket.emit('joinRoom', data);
+        setInRoom(true);
     }
 
     useEffect(() => {
@@ -106,7 +111,7 @@ export default function Lobby(props) {
 
             <div className="d-flex p-2 align-content-center align-items-center flex-column container">
                 { inRoom ? (
-                    <Room roomId={createdRoomId}></Room>
+                    <Room roomId={createdRoomId} socket={socket}></Room>
                 ) : (
                 <div className="card lobby-card">
 

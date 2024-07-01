@@ -16,6 +16,8 @@ let port = 3000
 let count = 0;
 let gameSocket;
 
+let roomUsers = {};
+
 io.on('connect', socket => {
   count = count + 1;
   socket.emit('now', {
@@ -26,30 +28,31 @@ io.on('connect', socket => {
 
 io.on('connection', (socket) => {
   console.log('a user connected');
-  gameSocket = socket;
-  socket.on('createRoom', createRoom);
-  socket.on('joinRoom', joinRoom);
-  socket.on('playerJoinedRoom', playerJoinedRoom)
+  socket.on('createRoom', (data) => createRoom(data, socket));
+  socket.on('joinRoom', (data) => joinRoom(data, socket));
+  socket.on('playerJoinedRoom', (data) => playerJoinedRoom(data, socket))
 });
 
 function logMapElements(value, key, map) {
   console.log(`m[${key}] = ${value}`);
 }
 
-function createRoom() {
+function createRoom(data, gameSocket) {
   // Create a unique numbered room
   var thisRoomId = (Math.random() * 100000) | 0;
 
   // Return the Room ID (gameId) and the socket ID (mySocketId) to the browser client
-  this.emit('newRoomCreated', { roomId: thisRoomId, mySocketId: this.id });
+  io.emit('newRoomCreated', { roomId: thisRoomId, mySocketId: this.id });
 
   console.log('Room created: ' + thisRoomId + this.id);
 
   // Join the Room and wait for the players
-  this.join(thisRoomId.toString());
+  gameSocket.join(thisRoomId.toString());
+
+  io.emit('playerJoinedRoom', data);
 };
 
-function joinRoom(data) {
+function joinRoom(data, gameSocket) {
   // A reference to the player's Socket.IO socket object
   var playerSocket = this;
 
@@ -64,7 +67,7 @@ function joinRoom(data) {
 
   // If the room exists...
   if (gameSocket.adapter.rooms.get(data.roomId)) {
-    gameSocket.adapter.rooms.forEach(logMapElements);
+    // gameSocket.adapter.rooms.forEach(logMapElements);
     console.log("Heyo " + gameSocket.adapter.rooms.get(data.roomId).size)
     if (gameSocket.adapter.rooms.get(data.roomId).size < 4) {
       // attach the socket id to the data object.
@@ -74,6 +77,15 @@ function joinRoom(data) {
       playerSocket.join(data.roomId);
 
       console.log('Player ' + data.nickname + ' joining game: ' + data.roomId + ' with socket ID of :' + playerSocket.id);
+
+      if (roomUsers[data.roomId]) {
+        roomUsers[data.roomId].push(data.nickname);
+      }
+      else {
+        roomUsers[data.roomId] = [data.nickname];
+      }
+
+      console.log("Room Users for Room " + data.roomId + ': ', roomUsers);
 
       // Emit an event notifying the clients that the player has joined the room.
       gameSocket.emit('playerJoinedRoom', data);
@@ -89,7 +101,7 @@ function joinRoom(data) {
   }
 }
 
-function playerJoinedRoom(data) {
+function playerJoinedRoom(data, gameSocket) {
   console.log('Player joined room: ', data);
   console.log('GS: ', gameSocket.adapter.rooms);
 }

@@ -1,27 +1,30 @@
 import React, { useState, useEffect, useRef } from 'react';
-import io from 'socket.io-client'
+import io, { Socket } from 'socket.io-client'
 import { PlayerSocket } from '../models/PlayerSocket';
 
-export default function Room(props) {
+interface Props {
+    roomId?: string;
+    socket: Socket;
+}
+
+export default function Room({ roomId, socket }: Props) {
 
     const [players, setPlayers] = useState<PlayerSocket[]>([]);
 
-    const socket = io();
-
     useEffect(() => {
-        console.log("UE");
+        console.log("Sock: ", socket);
 
         socket.on('playerJoinedRoom', (player) => {
             console.log("Player: ", player);
             setPlayers((prev) => [...prev, player]);
         });
-    }, [socket]);
+    }, [socket, players]);
 
     return (
         <div className="card lobby-card">
             <div className="room-created-h2">Share this code with your friends:</div>
             <div className="room-header">
-                <p className="room-created-id">{props.roomId}</p>
+                <p className="room-created-id">{roomId}</p>
             </div>
 
             <div className="player-list">
