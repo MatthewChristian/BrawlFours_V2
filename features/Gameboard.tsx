@@ -6,10 +6,10 @@ import { DeckCard } from '../models/DeckCard';
 import { PlayerHand } from '../models/PlayerHand';
 
 
-export default function FirstPost() {
+export default function Gameboard() {
 
   // Indicate if the game has been initialised as yet
-  const [ loaded, setLoaded ] = useState(false);
+  const [loaded, setLoaded] = useState(false);
 
   // React refs for player hand div
   const player1Hand = useRef(null);
@@ -36,7 +36,7 @@ export default function FirstPost() {
   const [deck, setDeck] = useState<DeckCard[]>([]); // Cards in deck
 
   // Manage team scores
-  const [ score, setScore ] = useState<number[]>([0, 0]);
+  const [score, setScore] = useState<number[]>([0, 0]);
 
   // Manage kicked card
   const [kickedCard, setKickedCard] = useState<DeckCard[]>();
@@ -45,10 +45,10 @@ export default function FirstPost() {
   const [called, setCalled] = useState<DeckCard>();
 
   // Manage which suit is trump
-  const [ trump, setTrump ] = useState<string>();
+  const [trump, setTrump] = useState<string>();
 
   // Manage which player is currently the dealer
-  const [ dealer, setDealer ] = useState<number>(4);
+  const [dealer, setDealer] = useState<number>(4);
 
   // Manage whose turn it is to play
   const [playerTurn, setPlayerTurn] = useState<number>(1);
@@ -203,19 +203,19 @@ export default function FirstPost() {
     // Only run function once
 
     // For loops to initialise arrays for each player
-    for (var i=0; i<player[0].cards.length; i++) {
+    for (var i = 0; i < player[0].cards.length; i++) {
       p1Cards[i] = player[0].cards[i];
     }
 
-    for (var i=0; i<player[1].cards.length; i++) {
+    for (var i = 0; i < player[1].cards.length; i++) {
       p2Cards[i] = player[1].cards[i];
     }
 
-    for (var i=0; i<player[2].cards.length; i++) {
+    for (var i = 0; i < player[2].cards.length; i++) {
       p3Cards[i] = player[2].cards[i];
     }
 
-    for (var i=0; i<player[3].cards.length; i++) {
+    for (var i = 0; i < player[3].cards.length; i++) {
       p4Cards[i] = player[3].cards[i];
     }
 
@@ -237,15 +237,15 @@ export default function FirstPost() {
 
     if (kicked.value == '6') {
       if (dealer == 1 || dealer == 3)
-        teamScore[0]+=2;
+        teamScore[0] += 2;
       else
-        teamScore[1]+=2;
+        teamScore[1] += 2;
     }
     if (kicked.value == "J") {
       if (dealer == 1 || dealer == 3)
-        teamScore[0]+=3;
+        teamScore[0] += 3;
       else
-        teamScore[1]+=3;
+        teamScore[1] += 3;
     }
     if (kicked.value == "A") {
       if (dealer == 1 || dealer == 3)
@@ -262,45 +262,45 @@ export default function FirstPost() {
     Get value of card to determine lift winner
   */
   function getCardValue(card?: DeckCard) {
-    var value=0;
+    var value = 0;
     if (card?.value == "2") {
-      value=2;
+      value = 2;
     }
     else if (card?.value == "3") {
-      value=3;
+      value = 3;
     }
     else if (card?.value == "4") {
-      value=4;
+      value = 4;
     }
     else if (card?.value == "5") {
-      value=5;
+      value = 5;
     }
     else if (card?.value == "6") {
-      value=6;
+      value = 6;
     }
     else if (card?.value == "7") {
-      value=7;
+      value = 7;
     }
     else if (card?.value == "8") {
-      value=8;
+      value = 8;
     }
     else if (card?.value == "9") {
-      value=9;
+      value = 9;
     }
     else if (card?.value == "X") {
-      value=10;
+      value = 10;
     }
     else if (card?.value == "J") {
-      value=11;
+      value = 11;
     }
     else if (card?.value == "Q") {
-      value=12;
+      value = 12;
     }
     else if (card?.value == "K") {
-      value=13;
+      value = 13;
     }
     else if (card?.value == "A") {
-      value=14;
+      value = 14;
     }
     return value;
   }
@@ -370,12 +370,12 @@ export default function FirstPost() {
     Check to see which player won the lift
   */
   function checkLift(lift: number[]) {
-    let highest=0;
-    let highIndex=0;
-    for (var i=1; i<5; i++) {
+    let highest = 0;
+    let highIndex = 0;
+    for (var i = 1; i < 5; i++) {
       if (lift[i] > highest) {
-        highest=lift[i];
-        highIndex=i;
+        highest = lift[i];
+        highIndex = i;
       }
     }
     return highIndex;
@@ -386,7 +386,7 @@ export default function FirstPost() {
   */
   function getPoints(lift: number[], liftWinner: number) {
     let points = 0;
-    for (var i=1; i<5; i++) {
+    for (var i = 1; i < 5; i++) {
       if (lift[i] == 10 || lift[i] == 110 || lift[i] == -90) {
         points += 10;
       }
@@ -416,9 +416,9 @@ export default function FirstPost() {
     Determine whether or not a player tried to undertrump
   */
   function didUndertrump(hand?: DeckCard) {
-    let trumpPlayed=false;
+    let trumpPlayed = false;
     var handValue;
-    for (var i=0; i<4; i++) {
+    for (var i = 0; i < 4; i++) {
       if (lift[i] > 100) {
         trumpPlayed = true;
       }
@@ -465,7 +465,7 @@ export default function FirstPost() {
     else if (hand?.value == "A") {
       handValue = 114;
     }
-    for (var i=0; i<4; i++) {
+    for (var i = 0; i < 4; i++) {
       if (lift[i] > handValue) {
         return true;
       }
@@ -497,11 +497,11 @@ export default function FirstPost() {
       setJack(2);
       return 2;
     }
-    else if (jackPlayer == 2 && jackWinner == 1 ) { //Team 1 won, hang
+    else if (jackPlayer == 2 && jackWinner == 1) { //Team 1 won, hang
       setJack(3);
       return 3;
     }
-    else if (jackPlayer == 1 && jackWinner == 2 ) { //Team 2 won, hang
+    else if (jackPlayer == 1 && jackWinner == 2) { //Team 2 won, hang
       setJack(4);
       return 4;
     }
@@ -590,7 +590,7 @@ export default function FirstPost() {
 
 
     if (kickedVar.suit === prevKicked.suit) {
-      const resp2 = dealAll(tempPlayer,tempDeck);
+      const resp2 = dealAll(tempPlayer, tempDeck);
 
       tempPlayer = resp2.playerHands;
       tempDeck = resp2.deck;
@@ -607,7 +607,7 @@ export default function FirstPost() {
       tempScore = checkKicked(kickedVar, tempScore);
 
       if (kickedVar.suit === prevKicked.suit) {
-        kickedVar=tempDeck.pop();
+        kickedVar = tempDeck.pop();
 
         if (!kickedVar) {
           console.error('Undefined kick');
@@ -675,10 +675,10 @@ export default function FirstPost() {
       playerCards = [...player1Cards];
     }
     else if (playerTurn == 2) {
-      playerCards =  [...player2Cards];
+      playerCards = [...player2Cards];
     }
     else if (playerTurn == 3) {
-      playerCards =  [...player3Cards];
+      playerCards = [...player3Cards];
     }
     else {
       playerCards = [...player4Cards];
@@ -686,9 +686,9 @@ export default function FirstPost() {
 
     // Determine if a player does not have a card in the suit of the card that was called
     if (calledVar) {
-      for (var i=0; i<playerCards.length; i++) {
+      for (var i = 0; i < playerCards.length; i++) {
         if (playerCards[i].suit == calledVar.suit) {
-          bare=false;
+          bare = false;
         }
       }
     }
@@ -723,7 +723,7 @@ export default function FirstPost() {
     // If trump is played
     if (cardPlayed?.suit == trump) {
 
-      value=getCardValue(cardPlayed);
+      value = getCardValue(cardPlayed);
       if (value > high) {
         setHighWinner(team);
         setHigh(value);
@@ -785,10 +785,10 @@ export default function FirstPost() {
     const liftVar = getLift(cardPlayed);
 
     // Increment player turn
-    setPlayerTurn(playerTurn+1);
+    setPlayerTurn(playerTurn + 1);
 
     // Increment count, count determines how many players have played a card for a lift already
-    setCount(count+1);
+    setCount(count + 1);
 
     // Loop back to player 1 after player 4 has played
     if (playerTurn == 4) {
@@ -808,11 +808,11 @@ export default function FirstPost() {
       setJackInPlay(false);
       setCalled(undefined);
 
-      liftWinnerVar=checkLift(liftVar);
+      liftWinnerVar = checkLift(liftVar);
       setPlayerTurn(liftWinnerVar);
       setLiftWinner(liftWinnerVar);
       getPoints(liftVar, liftWinnerVar);
-      setLift([-200, 0, 0 ,0, 0]);
+      setLift([-200, 0, 0, 0, 0]);
       setLiftEnded(1);
       setPlayer1CardPlayed(undefined);
       setPlayer2CardPlayed(undefined);
@@ -844,11 +844,11 @@ export default function FirstPost() {
       }
       else if (dealer == 3) {
         setPlayerTurn(1);
-        setDealer(dealer+1);
+        setDealer(dealer + 1);
       }
       else {
-        setPlayerTurn(dealer+2);
-        setDealer(dealer+1);
+        setPlayerTurn(dealer + 2);
+        setDealer(dealer + 1);
       }
 
       setShow(true);
@@ -908,9 +908,6 @@ export default function FirstPost() {
 
   return (
     <div className="container">
-      { gameStarted ? (
-        <Lobby></Lobby>
-      ) : (
       <div className="row">
         <div className="col-sm-3 sidepanel">
           <div className="score row">
@@ -925,45 +922,45 @@ export default function FirstPost() {
             <p>Game: {t1Points} - {t2Points}</p>
           </div>
           <div>
-            { show ?
-            (
-              <p>Team {highWinner} won high with {high}</p>
-            ) : (null)
+            {show ?
+              (
+                <p>Team {highWinner} won high with {high}</p>
+              ) : (null)
             }
           </div>
           <div>
-            { show ?
-            (
-              <p>Team {lowWinner} won low with {low}</p>
-            ) : (null)
+            {show ?
+              (
+                <p>Team {lowWinner} won low with {low}</p>
+              ) : (null)
             }
           </div>
           <div>
-            { show && jackWinner > 0 ?
-            (
-              <p>Team {jackWinner} won jack</p>
-            ) : (null)
+            {show && jackWinner > 0 ?
+              (
+                <p>Team {jackWinner} won jack</p>
+              ) : (null)
             }
           </div>
           <div>
-            { show && jackWinner != jackPlayer ?
-            (
-              <p>Team {jackWinner} hung jack!</p>
-            ) : (null)
+            {show && jackWinner != jackPlayer ?
+              (
+                <p>Team {jackWinner} hung jack!</p>
+              ) : (null)
             }
           </div>
           <div>
-            { show ?
-            (
-              <p>Team {lowWinner} won game {t1Points} - {t2Points}</p>
-            ) : (null)
+            {show ?
+              (
+                <p>Team {lowWinner} won game {t1Points} - {t2Points}</p>
+              ) : (null)
             }
           </div>
           <div className="liftWinner">
-            { liftWinner > 0 ?
-            (
-              <p>Player {liftWinner} won the lift</p>
-            ) : (null)
+            {liftWinner > 0 ?
+              (
+                <p>Player {liftWinner} won the lift</p>
+              ) : (null)
             }
           </div>
           <div className="kicked">
@@ -973,49 +970,49 @@ export default function FirstPost() {
             </div>
             <button value="Press" onClick={beg}>Press</button>
           </div>
+        </div>
+        <div className="col-sm-8 cardTable">
+          <div className="kickedCard">
+            <PlayingCard cardData={kickedCard ? kickedCard[0] : undefined} cardClassName="kicked-1" isKickedCard></PlayingCard>
+            <PlayingCard cardData={kickedCard ? kickedCard[1] : undefined} cardClassName="kicked-2" isKickedCard></PlayingCard>
+            <PlayingCard cardData={kickedCard ? kickedCard[2] : undefined} cardClassName="kicked-3" isKickedCard></PlayingCard>
+            <PlayingCard cardData={kickedCard ? kickedCard[3] : undefined} cardClassName="kicked-4" isKickedCard></PlayingCard>
+            <PlayingCard isDeckCard cardClassName="deck"></PlayingCard>
+            <PlayingCard cardData={player1CardPlayed} cardClassName="played-1"></PlayingCard>
+            <PlayingCard cardData={player2CardPlayed} cardClassName="played-2"></PlayingCard>
+            <PlayingCard cardData={player3CardPlayed} cardClassName="played-3"></PlayingCard>
+            <PlayingCard cardData={player4CardPlayed} cardClassName="played-4"></PlayingCard>
+          </div>
+          <div className="hand player1" ref={player1Hand}>
+            {
+              Array.from({ length: player1Cards.length }, (_, k) => (
+                <PlayingCard key={'1' + k} len={player1Cards.length} player={1} iter={k} cardData={player1Cards[k]} onClickHandler={playCard}></PlayingCard>
+              ))
+            }
+          </div>
+          <div className="hand player2" ref={player2Hand}>
+            {
+              Array.from({ length: player2Cards.length }, (_, k) => (
+                <PlayingCard key={'2' + k} len={player2Cards.length} player={2} iter={k} cardData={player2Cards[k]} onClickHandler={playCard}></PlayingCard>
+              ))
+            }
+          </div>
+          <div className="hand player3" ref={player3Hand}>
+            {
+              Array.from({ length: player3Cards.length }, (_, k) => (
+                <PlayingCard key={'3' + k} len={player3Cards.length} player={3} iter={k} cardData={player3Cards[k]} onClickHandler={playCard}></PlayingCard>
+              ))
+            }
+          </div>
+          <div className="hand player4" ref={player4Hand}>
+            {
+              Array.from({ length: player4Cards.length }, (_, k) => (
+                <PlayingCard key={'4' + k} len={player4Cards.length} player={4} iter={k} cardData={player4Cards[k]} onClickHandler={playCard}></PlayingCard>
+              ))
+            }
+          </div>
+        </div>
       </div>
-      <div className="col-sm-8 cardTable">
-      <div className="kickedCard">
-        <PlayingCard cardData={kickedCard ? kickedCard[0] : undefined} cardClassName="kicked-1" isKickedCard></PlayingCard>
-                <PlayingCard cardData={kickedCard ? kickedCard[1] : undefined} cardClassName="kicked-2" isKickedCard></PlayingCard>
-                <PlayingCard cardData={kickedCard ? kickedCard[2] : undefined} cardClassName="kicked-3" isKickedCard></PlayingCard>
-                <PlayingCard cardData={kickedCard ? kickedCard[3] : undefined} cardClassName="kicked-4" isKickedCard></PlayingCard>
-        <PlayingCard isDeckCard cardClassName="deck"></PlayingCard>
-        <PlayingCard cardData={player1CardPlayed} cardClassName="played-1"></PlayingCard>
-        <PlayingCard cardData={player2CardPlayed} cardClassName="played-2"></PlayingCard>
-        <PlayingCard cardData={player3CardPlayed} cardClassName="played-3"></PlayingCard>
-        <PlayingCard cardData={player4CardPlayed} cardClassName="played-4"></PlayingCard>
-      </div>
-      <div className="hand player1" ref={player1Hand}>
-        {
-          Array.from({ length: player1Cards.length }, (_, k) => (
-            <PlayingCard key={'1' + k} len={player1Cards.length} player={1} iter={k} cardData={player1Cards[k]} onClickHandler={playCard}></PlayingCard>
-          ))
-        }
-      </div>
-      <div className="hand player2" ref={player2Hand}>
-        {
-          Array.from({ length: player2Cards.length }, (_, k) => (
-            <PlayingCard key={'2' + k} len={player2Cards.length} player={2} iter={k} cardData={player2Cards[k]} onClickHandler={playCard}></PlayingCard>
-          ))
-        }
-      </div>
-      <div className="hand player3" ref={player3Hand}>
-        {
-          Array.from({ length: player3Cards.length }, (_, k) => (
-            <PlayingCard key={'3' + k} len={player3Cards.length} player={3} iter={k} cardData={player3Cards[k]} onClickHandler={playCard}></PlayingCard>
-          ))
-        }
-      </div>
-      <div className="hand player4" ref={player4Hand}>
-        {
-          Array.from({ length: player4Cards.length }, (_, k) => (
-            <PlayingCard key={'4' + k} len={player4Cards.length} player={4} iter={k} cardData={player4Cards[k]} onClickHandler={playCard}></PlayingCard>
-          ))
-        }
-      </div>
-      </div>
-      </div> ) }
     </div>
   )
 }

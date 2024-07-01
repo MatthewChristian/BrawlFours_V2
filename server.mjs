@@ -37,13 +37,13 @@ function createRoom(data, gameSocket) {
   // Create a unique numbered room
   var thisRoomId = ((Math.random() * 100000) | 0).toString();
 
-  // Return the Room ID (gameId) and the socket ID (mySocketId) to the browser client
-  io.emit('newRoomCreated', { roomId: thisRoomId, mySocketId: gameSocket.id });
-
   console.log('Room created: ' + thisRoomId + gameSocket.id);
 
   // Join the Room and wait for the players
   gameSocket.join(thisRoomId);
+
+  // Return the Room ID (gameId) and the socket ID (mySocketId) to the browser client
+  io.to(thisRoomId).emit('newRoomCreated', { roomId: thisRoomId, mySocketId: gameSocket.id });
 
   console.log("CData: ", data);
 

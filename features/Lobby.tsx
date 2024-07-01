@@ -1,16 +1,18 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, RefObject } from 'react';
 import io, { Socket } from 'socket.io-client'
 import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
 import Room from "./Room";
+import { useRouter } from 'next/router';
 
-export default function Lobby(props) {
+interface Props {
+    roomId?: string;
+    socket: RefObject<Socket>;
+}
 
-    let thisRoomId;
-    let lobbyChannel;
+export default function Lobby({ roomId, socket }: Props) {
 
-    // Manage socket.io websocket
-    const socket = useRef<Socket>(io("http://localhost:3000"));
+    const router = useRouter();
 
     // Indicate if the game has been initialised as yet
     const [ loaded, setLoaded ] = useState<boolean>(false);
@@ -42,7 +44,6 @@ export default function Lobby(props) {
         }
         else {
             createRoom();
-            //props.handleLobbyCreatedChange();
             setInRoom(true);
             setCreatedOpen(true);
         }
@@ -67,17 +68,11 @@ export default function Lobby(props) {
             nickname: String(nickVal)
         }
 
-        socket.current.emit('createRoom', data);
-
-        socket.current.on('newRoomCreated', data => {
-            console.log("Loaded: " + data.roomId);
-            setCreatedRoomId(data.roomId);
-        })
+        socket.current?.emit('createRoom', data);
     }
 
     // Join a room
-    function joinRoom(value) {
-        console.log("JR: ", value);
+    function joinRoom() {
         const roomIdVal = joinRoomRef.current?.value;
         const nickVal = joinNickRef.current?.value;
         let data = {
@@ -86,40 +81,25 @@ export default function Lobby(props) {
         };
 
         console.log("Data: ", data);
-        socket.current.emit('joinRoom', data);
+        socket.current?.emit('joinRoom', data);
         setInRoom(true);
         setCreatedRoomId(String(roomIdVal));
     }
 
     useEffect(() => {
-        if (!loaded) {
-            // let tempSocket = io();
-            socket.current.on('now', data => {
-                console.log("Loaded: " + data.count)
-            })
-            // setSocket(tempSocket);
-
-            socket.current.on('createRoom', createRoom);
-
-            setLoaded(true);
-        }
-    },[]);
-
-    useEffect(() => {
-        socket.current.on("connnection", () => {
-            console.log("connected to server");
-        });
-    }, []);
-
+        socket.current?.on('newRoomCreated', data => {
+            console.log("Loaded: " + data.roomId);
+            setCreatedRoomId(data.roomId);
+        })
+    }, [socket]);
 
     return (
         <div>
             <h1>Brawl Fours</h1>
-
+            {inRoom ? (
+                <Room roomId={createdRoomId} socket={socket}></Room>
+            ) : (
             <div className="d-flex p-2 align-content-center align-items-center flex-column container">
-                { inRoom ? (
-                    <Room roomId={createdRoomId} socket={socket}></Room>
-                ) : (
                 <div className="card lobby-card">
 
                     <input type="text" className="nickname-field" id="join-nickname-field" ref={joinNickRef} placeholder="Enter your nickname..." />
@@ -137,7 +117,7 @@ export default function Lobby(props) {
                         <div className="join-room-h1 room-modal room-field">Enter room code:</div>
                         <input type="text" className="" id="join-room-field" ref={joinRoomRef} placeholder="Enter the room code..." />
                         <br></br>
-                        <button className="game-button join-button lobby-button" onClick={(e) => joinRoom(e)}>
+                        <button className="game-button join-button lobby-button" onClick={joinRoom}>
                             Join Room
                         </button>
                         </div>
@@ -148,8 +128,9 @@ export default function Lobby(props) {
                     </button>
 
                 </div>
-                ) }
+
             </div>
+            )}
         </div>
     )
 }

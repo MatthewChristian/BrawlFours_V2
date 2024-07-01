@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useRef, RefObject } from 'react';
-import io, { Socket } from 'socket.io-client'
-import { PlayerSocket } from '../models/PlayerSocket';
+import React, { useState, useEffect, RefObject } from 'react';
+import { Socket } from 'socket.io-client'
 import Button from '../core/components/Button';
 
 interface Props {
@@ -23,9 +22,9 @@ export default function Room({ roomId, socket }: Props) {
             console.log("Player: ", player);
         });
 
-        socket.current.on('playersInRoom', (player) => {
-            console.log("PIR: ", player);
-            setPlayers((prev) => player);
+        socket.current.on('playersInRoom', (playerList) => {
+            console.log("PIR: ", playerList);
+            setPlayers(playerList);
         });
     }, [socket]);
 
