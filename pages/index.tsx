@@ -1,6 +1,6 @@
 
 import { Socket } from 'socket.io-client';
-import Lobby from '../features/Lobby'
+import Lobby from '../features/Game/Lobby'
 import React, { RefObject } from 'react'
 
 interface Props {

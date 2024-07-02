@@ -1,6 +1,6 @@
 import React, { useState, useEffect, RefObject } from 'react';
 import { Socket } from 'socket.io-client'
-import Button from '../core/components/Button';
+import Button from '../../core/components/Button';
 
 interface Props {
     roomId?: string;

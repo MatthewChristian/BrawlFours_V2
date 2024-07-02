@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import Image from 'next/image'
-import { DeckCard } from '../models/DeckCard';
-import { getCardShortcode } from '../core/services/parseCard';
+import { DeckCard } from '../../models/DeckCard';
+import { getCardShortcode } from '../../core/services/parseCard';
 
 interface Props {
   len?: number;

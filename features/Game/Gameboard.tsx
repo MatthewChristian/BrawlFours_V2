@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import io from 'socket.io-client'
-import PlayingCard from "../features/PlayingCard";
-import Lobby from "../features/Lobby";
-import { DeckCard } from '../models/DeckCard';
-import { PlayerHand } from '../models/PlayerHand';
+import { DeckCard } from '../../models/DeckCard';
+import { PlayerHand } from '../../models/PlayerHand';
+import PlayingCard from './PlayingCard';
 
 
 export default function Gameboard() {

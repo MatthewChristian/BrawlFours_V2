@@ -95,7 +95,7 @@ export default function Lobby({ roomId, socket }: Props) {
 
     return (
         <div>
-            <h1>Brawl Fours</h1>
+            <h1 className='text-red-500'>Brawl Fours</h1>
             {inRoom ? (
                 <Room roomId={createdRoomId} socket={socket}></Room>
             ) : (
