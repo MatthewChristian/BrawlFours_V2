@@ -1,4 +1,4 @@
-import next from 'next'
+import next from 'next';
 import { Server, Socket } from 'socket.io';
 import express from 'express';
 import { createServer } from 'node:http';
@@ -6,13 +6,14 @@ import { createServer } from 'node:http';
 const app = express();
 const server = createServer(app);
 
-const dev = process.env.NODE_ENV !== 'production'
+// eslint-disable-next-line no-undef
+const dev = process.env.NODE_ENV !== 'production';
 const nextApp = next({ dev });
 const handle = nextApp.getRequestHandler();
 
 const io = new Server(server);
 
-let port = 3000
+let port = 3000;
 let count = 0;
 
 let roomUsers = {};
@@ -23,7 +24,7 @@ io.on('connect', socket => {
     message: 'test',
     count: count
   });
-})
+});
 
 io.on('connection', (socket) => {
   console.log('a user connected');
@@ -31,6 +32,7 @@ io.on('connection', (socket) => {
   socket.on('joinRoom', (data) => joinRoom(data, socket));
   socket.on('playerJoinedRoom', (data) => playerJoinedRoom(data, socket));
   socket.on('playersInRoom', (data) => console.log('PIR'));
+  socket.on('leaveRoom', (data) => leaveRoom(data, socket));
 });
 
 function createRoom(data, gameSocket) {
@@ -45,18 +47,22 @@ function createRoom(data, gameSocket) {
   // Return the Room ID (gameId) and the socket ID (mySocketId) to the browser client
   io.to(thisRoomId).emit('newRoomCreated', { roomId: thisRoomId, mySocketId: gameSocket.id });
 
-  console.log("CData: ", data);
-
   if (roomUsers[thisRoomId]) {
-    roomUsers[thisRoomId].push(data.nickname);
+    roomUsers[thisRoomId].push({
+      nickname: data.nickname,
+      id: gameSocket.id
+    });
   }
   else {
-    roomUsers[thisRoomId] = [data.nickname];
+    roomUsers[thisRoomId] = [{
+      nickname: data.nickname,
+      id: gameSocket.id
+    }];
   }
 
   io.to(thisRoomId).emit('playerJoinedRoom', data);
   io.to(thisRoomId).emit('playersInRoom', roomUsers[thisRoomId]);
-};
+}
 
 function joinRoom(data, gameSocket) {
   // Look up the room ID in the Socket.IO manager object.
@@ -66,7 +72,7 @@ function joinRoom(data, gameSocket) {
   // If the room exists...
   if (gameSocket.adapter.rooms.get(data.roomId)) {
     // gameSocket.adapter.rooms.forEach(logMapElements);
-    console.log("Heyo " + gameSocket.adapter.rooms.get(data.roomId).size)
+    console.log('Heyo ' + gameSocket.adapter.rooms.get(data.roomId).size);
     if (gameSocket.adapter.rooms.get(data.roomId).size < 4) {
       // attach the socket id to the data object.
       data.mySocketId = gameSocket.id;
@@ -77,28 +83,34 @@ function joinRoom(data, gameSocket) {
       console.log('Player ' + data.nickname + ' joining game: ' + data.roomId + ' with socket ID of :' + gameSocket.id);
 
       if (roomUsers[data.roomId]) {
-        roomUsers[data.roomId].push(data.nickname);
+        roomUsers[data.roomId].push({
+          nickname: data.nickname,
+          id: gameSocket.id
+        });
       }
       else {
-        roomUsers[data.roomId] = [data.nickname];
+        roomUsers[data.roomId] = [{
+          nickname: data.nickname,
+          id: gameSocket.id
+        }];
       }
 
-      console.log("Room Users for Room " + data.roomId + ': ', roomUsers);
+      console.log('Room Users for Room ' + data.roomId + ': ', roomUsers);
 
-      console.log("Rooms: ", gameSocket.adapter.rooms);
+      console.log('Rooms: ', gameSocket.adapter.rooms);
 
       // Emit an event notifying the clients that the player has joined the room.
       io.to(data.roomId).emit('playerJoinedRoom', data);
       io.to(data.roomId).emit('playersInRoom', roomUsers[data.roomId]);
     }
     else {
-      console.log("Full room")
+      console.log('Full room');
     }
 
   } else {
     // Otherwise, send an error message back to the player.
-    gameSocket.emit('error', { message: "This room does not exist." });
-    console.log("Room doesnt exist");
+    gameSocket.emit('error', { message: 'This room does not exist.' });
+    console.log('Room doesnt exist');
   }
 }
 
@@ -107,19 +119,35 @@ function playerJoinedRoom(data, gameSocket) {
   console.log('GS: ', gameSocket.adapter.rooms);
 }
 
+function leaveRoom(data, gameSocket) {
+  // If the room exists...
+  if (gameSocket.adapter.rooms.get(data.roomId)) {
+    gameSocket.leave(data.roomId);
+
+    const index = roomUsers[data.roomId]?.findIndex((el) => el.id == gameSocket.id);
+
+    if (index >= 0) {
+      roomUsers[data.roomId].splice(index, 1);
+    }
+
+    io.to(data.roomId).emit('playersInRoom', roomUsers[data.roomId]);
+  }
+}
+
 nextApp.prepare()
   .then(() => {
 
     app.get('*', (req, res) => {
-      return handle(req, res)
-    })
+      return handle(req, res);
+    });
 
     server.listen(port, (err) => {
-      if (err) throw err
-      console.log(`> Ready on http://localhost:${port}`)
-    })
+      if (err) throw err;
+      console.log(`> Ready on http://localhost:${port}`);
+    });
   })
   .catch((ex) => {
-    console.error(ex.stack)
-    process.exit(1)
-  })
+    console.error(ex.stack);
+    // eslint-disable-next-line no-undef
+    process.exit(1);
+  });

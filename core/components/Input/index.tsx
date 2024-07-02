@@ -1,13 +1,14 @@
 import React, { RefObject } from 'react';
 
 interface Props {
-  inputRef: RefObject<HTMLInputElement>;
+  inputRef?: RefObject<HTMLInputElement>;
   className?: string;
   placeholder?: string;
   onChange?: (val: string) => void;
+  defaultValue?: string;
 }
 
-export default function Input({ inputRef, className, placeholder, onChange  }: Props) {
+export default function Input({ inputRef, className, placeholder, onChange, defaultValue  }: Props) {
   return (
     <input
       type="text"
@@ -15,6 +16,7 @@ export default function Input({ inputRef, className, placeholder, onChange  }: P
       ref={inputRef}
       placeholder={placeholder ?? 'Enter input...'}
       onChange={(val) => onChange ? onChange(val.target.value) : undefined}
+      defaultValue={defaultValue}
     />
   );
 }

@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef, RefObject } from 'react';
-import io, { Socket } from 'socket.io-client';
+import { Socket } from 'socket.io-client';
 import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
 import Room from './Room';
-import { useRouter } from 'next/router';
 import Button from '../../core/components/Button';
 import Input from '../../core/components/Input';
 
@@ -14,11 +13,6 @@ interface Props {
 
 export default function Lobby({ roomId, socket }: Props) {
 
-  const router = useRouter();
-
-  // Indicate if the game has been initialised as yet
-  const [loaded, setLoaded] = useState<boolean>(false);
-
   // Indicate if user is in a room waiting
   const [inRoom, setInRoom] = useState(false);
 
@@ -28,33 +22,26 @@ export default function Lobby({ roomId, socket }: Props) {
   // Store room ID of game that player created
   const [showNickWarning, setShowNickWarning] = useState(false);
 
-  // Used to open and close modal form
-  const [createdOpen, setCreatedOpen] = useState(false);
-  const closeCreatedModal = () => setCreatedOpen(false);
-
   const [joinOpen, setJoinOpen] = useState(false);
   const closeJoinModal = () => setJoinOpen(false);
 
   // React ref to access text field values
   const joinRoomRef = useRef<HTMLInputElement>(null);
-  const joinNickRef = useRef<HTMLInputElement>(null);
+
+  const [nickname, setNickname] = useState<string>();
 
   function createRoomPressed() {
-    const nickVal = joinNickRef.current?.value;
-    if (!nickVal) {
+    if (!nickname) {
       setShowNickWarning(true);
     }
     else {
       createRoom();
       setInRoom(true);
-      setCreatedOpen(true);
     }
   }
 
   function joinRoomPressed() {
-    const nickVal = joinNickRef.current?.value;
-
-    if (!nickVal) {
+    if (!nickname) {
       setShowNickWarning(true);
     }
     else {
@@ -65,10 +52,8 @@ export default function Lobby({ roomId, socket }: Props) {
   // Create a room
   function createRoom() {
 
-    const nickVal = joinNickRef.current?.value;
-
     const data = {
-      nickname: String(nickVal)
+      nickname: String(nickname)
     };
 
     socket.current?.emit('createRoom', data);
@@ -77,24 +62,31 @@ export default function Lobby({ roomId, socket }: Props) {
   // Join a room
   function joinRoom() {
     const roomIdVal = joinRoomRef.current?.value;
-    const nickVal = joinNickRef.current?.value;
     const data = {
       roomId: String(roomIdVal),
-      nickname: String(nickVal)
+      nickname: String(nickname)
     };
 
     socket.current?.emit('joinRoom', data);
     setInRoom(true);
     setCreatedRoomId(String(roomIdVal));
+    setJoinOpen(false);
   }
 
   function handleNickChange(val: string) {
+    setNickname(val);
+
     if (!val) {
       setShowNickWarning(true);
     }
     else {
       setShowNickWarning(false);
     }
+  }
+
+  function handleLeaveRoom() {
+    setInRoom(false);
+    setCreatedRoomId(undefined);
   }
 
   useEffect(() => {
@@ -108,16 +100,15 @@ export default function Lobby({ roomId, socket }: Props) {
       <div className='bg-white rounded-lg border border-gray-400 p-10'>
         <div className='text-3xl mb-5 text-center'>Brawl Fours</div>
         {inRoom ? (
-          <Room roomId={createdRoomId} socket={socket}></Room>
+          <Room roomId={createdRoomId} socket={socket} onLeaveRoom={handleLeaveRoom}></Room>
         ) : (
           <div className="">
             <div className="">
-
               <Input
-                inputRef={joinNickRef}
                 placeholder="Enter nickname..."
                 className='w-full'
                 onChange={handleNickChange}
+                defaultValue={nickname}
               />
               {showNickWarning ? (
                 <div className="text-red-500 mt-1">Must enter a nickname first!</div>

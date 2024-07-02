@@ -3,13 +3,24 @@ import { Socket } from 'socket.io-client';
 import Button from '../../core/components/Button';
 
 interface Props {
-    roomId?: string;
-    socket: RefObject<Socket>;
+  roomId?: string;
+  socket: RefObject<Socket>;
+  onLeaveRoom: () => void;
 }
 
-export default function Room({ roomId, socket }: Props) {
+export default function Room({ roomId, socket, onLeaveRoom}: Props) {
 
-  const [players, setPlayers] = useState<string[]>([]);
+  const [players, setPlayers] = useState<{ nickname: string, id: string }[]>([]);
+
+  function leaveRoom() {
+
+    const data = {
+      roomId: String(roomId),
+    };
+
+    socket.current?.emit('leaveRoom', data);
+    onLeaveRoom();
+  }
 
   useEffect(() => {
     if (!socket.current) {
@@ -21,6 +32,7 @@ export default function Room({ roomId, socket }: Props) {
     });
 
     socket.current.on('playersInRoom', (playerList) => {
+      console.log('PL: ', playerList);
       setPlayers(playerList);
     });
   }, [socket]);
@@ -37,7 +49,7 @@ export default function Room({ roomId, socket }: Props) {
         <div className='flex flex-col rounded-lg border border-gray-400'>
           {
             players.map((el, i) =>
-              <div key={i} className={`text-center ${i == players.length - 1 ? '' : 'border-b border-gray-400'}`}>{el}</div>
+              <div key={i} className={`text-center ${i == players.length - 1 ? '' : 'border-b border-gray-400'}`}>{el.nickname}</div>
             )
           }
         </div>
@@ -45,11 +57,11 @@ export default function Room({ roomId, socket }: Props) {
 
       <div className='flex flex-row gap-5 mt-5'>
         <Button className='green-button'>
-        Start Game
+          Start Game
         </Button>
 
-        <Button className='red-button'>
-         Leave Room
+        <Button className='red-button' onClick={leaveRoom}>
+          Leave Room
         </Button>
       </div>
 
