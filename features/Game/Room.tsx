@@ -16,39 +16,42 @@ export default function Room({ roomId, socket }: Props) {
       return;
     }
 
-    console.log('Sock: ', socket);
-
     socket.current.on('playerJoinedRoom', (player) => {
       console.log('Player: ', player);
     });
 
     socket.current.on('playersInRoom', (playerList) => {
-      console.log('PIR: ', playerList);
       setPlayers(playerList);
     });
   }, [socket]);
 
   return (
-    <div className="card lobby-card bg-green-200">
-      <div className="room-created-h2">Share this code with your friends:</div>
-      <div className="room-header">
-        <p className="room-created-id">{roomId}</p>
+    <div className="flex flex-col justify-center items-center">
+      <div className="">Share this code with your friends:</div>
+      <div className="">
+        <p className="text-5xl font-semibold mt-2">{roomId}</p>
       </div>
 
-      <div className="player-list">
-        <p>Players</p>
-        <div className='flex flex-col'>
+      <div className="mt-3">
+        <div className='text-sm text-gray-500'>Players waiting in Lobby</div>
+        <div className='flex flex-col rounded-lg border border-gray-400'>
           {
             players.map((el, i) =>
-              <div key={i}>{el}</div>
+              <div key={i} className={`text-center ${i == players.length - 1 ? '' : 'border-b border-gray-400'}`}>{el}</div>
             )
           }
         </div>
       </div>
 
-      <Button className='bg-red-500'>
+      <div className='flex flex-row gap-5 mt-5'>
+        <Button className='green-button'>
+        Start Game
+        </Button>
+
+        <Button className='red-button'>
          Leave Room
-      </Button>
+        </Button>
+      </div>
 
     </div>
   );
