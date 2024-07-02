@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 
 interface Props {
   children?: JSX.Element | string;
@@ -8,10 +8,8 @@ interface Props {
 
 export default function Button({ children, onClick, className }: Props) {
   return (
-    <div>
-      <button className={'rounded-lg' + className} onClick={() => onClick ? onClick() : undefined}>
-        {children}
-      </button>
+    <div className={`rounded-lg p-2 w-fit transition-colors cursor-pointer ${className}`} onClick={() => onClick ? onClick() : undefined}>
+      {children}
     </div>
-  )
+  );
 }

@@ -1,7 +1,7 @@
 
 import { Socket } from 'socket.io-client';
-import Lobby from '../features/Game/Lobby'
-import React, { RefObject } from 'react'
+import Lobby from '../features/Game/Lobby';
+import React, { RefObject } from 'react';
 
 interface Props {
   socket: RefObject<Socket>;
@@ -9,8 +9,6 @@ interface Props {
 
 export default function Home({ socket }: Props) {
   return (
-    <div>
-      <Lobby socket={socket} />
-    </div>
-  )
+    <Lobby socket={socket} />
+  );
 }

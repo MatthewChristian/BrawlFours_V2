@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import io from 'socket.io-client'
+import io from 'socket.io-client';
 import { DeckCard } from '../../models/DeckCard';
 import { PlayerHand } from '../../models/PlayerHand';
 import PlayingCard from './PlayingCard';
@@ -105,20 +105,17 @@ export default function Gameboard() {
   // Indicate whether or not the game has started
   const [gameStarted, setGameStarted] = useState<boolean>(false);
 
-  if (!loaded) {
-
-  }
 
   /*
     Create deck of cards
   */
   function createDeck() {
-    let suits = ["s", "d", "c", "h"]; // s=Spades, d=Dimes, c=Clubs, h=Hearts
-    let values = ["2", "3", "4", "5", "6", "7", "8", "9", "X", "J", "Q", "K", "A"];
-    let deck: DeckCard[] = [];
+    const suits = ['s', 'd', 'c', 'h']; // s=Spades, d=Dimes, c=Clubs, h=Hearts
+    const values = ['2', '3', '4', '5', '6', '7', '8', '9', 'X', 'J', 'Q', 'K', 'A'];
+    const deck: DeckCard[] = [];
     let card;
-    for (var i = 0; i < suits.length; i++) {
-      for (var j = 0; j < values.length; j++) {
+    for (let i = 0; i < suits.length; i++) {
+      for (let j = 0; j < values.length; j++) {
         card = { suit: suits[i], value: values[j] };
         deck.push(card);
       }
@@ -134,7 +131,7 @@ export default function Gameboard() {
     let loc1;
     let loc2;
     let temp;
-    for (var i = 0; i < 1000; i++) {
+    for (let i = 0; i < 1000; i++) {
       loc1 = Math.floor((Math.random() * deck.length));
       loc2 = Math.floor((Math.random() * deck.length));
       temp = deck[loc1];
@@ -148,10 +145,10 @@ export default function Gameboard() {
   */
   function deal(player: PlayerHand, deck: DeckCard[]) {
     let card: DeckCard | undefined;
-    let tempPlayer: PlayerHand = player;
-    let tempDeck: DeckCard[] = deck;
+    const tempPlayer: PlayerHand = player;
+    const tempDeck: DeckCard[] = deck;
 
-    for (var i = 0; i < 3; i++) {
+    for (let i = 0; i < 3; i++) {
       card = tempDeck.pop();
 
       if (card) {
@@ -169,14 +166,14 @@ export default function Gameboard() {
     Deal 3 cards to all players
   */
   function dealAll(player: PlayerHand[], deck: DeckCard[]) {
-    let tempPlayer: PlayerHand[] = [];
+    const tempPlayer: PlayerHand[] = [];
     let tempDeck: DeckCard[] = deck;
 
     for (let j = 0; j < 4; j++) {
       const resp = deal(player[j], tempDeck);
 
       tempPlayer[j] = resp.hand;
-      tempDeck = resp.deck
+      tempDeck = resp.deck;
     }
 
     setPlayer(tempPlayer);
@@ -194,27 +191,27 @@ export default function Gameboard() {
   */
   function displayPlayerCards(player: PlayerHand[], kicked: DeckCard) {
     // Arrays to store player cards as a string
-    let p1Cards: DeckCard[] = [];
-    let p2Cards: DeckCard[] = [];
-    let p3Cards: DeckCard[] = [];
-    let p4Cards: DeckCard[] = [];
+    const p1Cards: DeckCard[] = [];
+    const p2Cards: DeckCard[] = [];
+    const p3Cards: DeckCard[] = [];
+    const p4Cards: DeckCard[] = [];
 
     // Only run function once
 
     // For loops to initialise arrays for each player
-    for (var i = 0; i < player[0].cards.length; i++) {
+    for (let i = 0; i < player[0].cards.length; i++) {
       p1Cards[i] = player[0].cards[i];
     }
 
-    for (var i = 0; i < player[1].cards.length; i++) {
+    for (let i = 0; i < player[1].cards.length; i++) {
       p2Cards[i] = player[1].cards[i];
     }
 
-    for (var i = 0; i < player[2].cards.length; i++) {
+    for (let i = 0; i < player[2].cards.length; i++) {
       p3Cards[i] = player[2].cards[i];
     }
 
-    for (var i = 0; i < player[3].cards.length; i++) {
+    for (let i = 0; i < player[3].cards.length; i++) {
       p4Cards[i] = player[3].cards[i];
     }
 
@@ -232,7 +229,7 @@ export default function Gameboard() {
     Check to see what card that the dealer has kicked
   */
   function checkKicked(kicked: DeckCard, tempScore: number[]) {
-    let teamScore = tempScore;
+    const teamScore = tempScore;
 
     if (kicked.value == '6') {
       if (dealer == 1 || dealer == 3)
@@ -240,13 +237,13 @@ export default function Gameboard() {
       else
         teamScore[1] += 2;
     }
-    if (kicked.value == "J") {
+    if (kicked.value == 'J') {
       if (dealer == 1 || dealer == 3)
         teamScore[0] += 3;
       else
         teamScore[1] += 3;
     }
-    if (kicked.value == "A") {
+    if (kicked.value == 'A') {
       if (dealer == 1 || dealer == 3)
         teamScore[0]++;
       else
@@ -261,44 +258,44 @@ export default function Gameboard() {
     Get value of card to determine lift winner
   */
   function getCardValue(card?: DeckCard) {
-    var value = 0;
-    if (card?.value == "2") {
+    let value = 0;
+    if (card?.value == '2') {
       value = 2;
     }
-    else if (card?.value == "3") {
+    else if (card?.value == '3') {
       value = 3;
     }
-    else if (card?.value == "4") {
+    else if (card?.value == '4') {
       value = 4;
     }
-    else if (card?.value == "5") {
+    else if (card?.value == '5') {
       value = 5;
     }
-    else if (card?.value == "6") {
+    else if (card?.value == '6') {
       value = 6;
     }
-    else if (card?.value == "7") {
+    else if (card?.value == '7') {
       value = 7;
     }
-    else if (card?.value == "8") {
+    else if (card?.value == '8') {
       value = 8;
     }
-    else if (card?.value == "9") {
+    else if (card?.value == '9') {
       value = 9;
     }
-    else if (card?.value == "X") {
+    else if (card?.value == 'X') {
       value = 10;
     }
-    else if (card?.value == "J") {
+    else if (card?.value == 'J') {
       value = 11;
     }
-    else if (card?.value == "Q") {
+    else if (card?.value == 'Q') {
       value = 12;
     }
-    else if (card?.value == "K") {
+    else if (card?.value == 'K') {
       value = 13;
     }
-    else if (card?.value == "A") {
+    else if (card?.value == 'A') {
       value = 14;
     }
     return value;
@@ -309,45 +306,45 @@ export default function Gameboard() {
   */
   function getLift(cardPlayed?: DeckCard) {
 
-    let liftTemp = [...lift];
+    const liftTemp = [...lift];
 
-    if (cardPlayed?.value === "2") {
+    if (cardPlayed?.value === '2') {
       liftTemp[playerTurn] = 2;
     }
-    else if (cardPlayed?.value === "3") {
+    else if (cardPlayed?.value === '3') {
       liftTemp[playerTurn] = 3;
     }
-    else if (cardPlayed?.value === "4") {
+    else if (cardPlayed?.value === '4') {
       liftTemp[playerTurn] = 4;
     }
-    else if (cardPlayed?.value === "5") {
+    else if (cardPlayed?.value === '5') {
       liftTemp[playerTurn] = 5;
     }
-    else if (cardPlayed?.value === "6") {
+    else if (cardPlayed?.value === '6') {
       liftTemp[playerTurn] = 6;
     }
-    else if (cardPlayed?.value === "7") {
+    else if (cardPlayed?.value === '7') {
       liftTemp[playerTurn] = 7;
     }
-    else if (cardPlayed?.value === "8") {
+    else if (cardPlayed?.value === '8') {
       liftTemp[playerTurn] = 8;
     }
-    else if (cardPlayed?.value === "9") {
+    else if (cardPlayed?.value === '9') {
       liftTemp[playerTurn] = 9;
     }
-    else if (cardPlayed?.value === "X") {
+    else if (cardPlayed?.value === 'X') {
       liftTemp[playerTurn] = 10;
     }
-    else if (cardPlayed?.value === "J") {
+    else if (cardPlayed?.value === 'J') {
       liftTemp[playerTurn] = 11;
     }
-    else if (cardPlayed?.value === "Q") {
+    else if (cardPlayed?.value === 'Q') {
       liftTemp[playerTurn] = 12;
     }
-    else if (cardPlayed?.value === "K") {
+    else if (cardPlayed?.value === 'K') {
       liftTemp[playerTurn] = 13;
     }
-    else if (cardPlayed?.value === "A") {
+    else if (cardPlayed?.value === 'A') {
       liftTemp[playerTurn] = 14;
     }
 
@@ -371,7 +368,7 @@ export default function Gameboard() {
   function checkLift(lift: number[]) {
     let highest = 0;
     let highIndex = 0;
-    for (var i = 1; i < 5; i++) {
+    for (let i = 1; i < 5; i++) {
       if (lift[i] > highest) {
         highest = lift[i];
         highIndex = i;
@@ -385,7 +382,7 @@ export default function Gameboard() {
   */
   function getPoints(lift: number[], liftWinner: number) {
     let points = 0;
-    for (var i = 1; i < 5; i++) {
+    for (let i = 1; i < 5; i++) {
       if (lift[i] == 10 || lift[i] == 110 || lift[i] == -90) {
         points += 10;
       }
@@ -416,8 +413,8 @@ export default function Gameboard() {
   */
   function didUndertrump(hand?: DeckCard) {
     let trumpPlayed = false;
-    var handValue;
-    for (var i = 0; i < 4; i++) {
+    let handValue;
+    for (let i = 0; i < 4; i++) {
       if (lift[i] > 100) {
         trumpPlayed = true;
       }
@@ -425,46 +422,46 @@ export default function Gameboard() {
     if (trumpPlayed == false) {
       return false;
     }
-    if (hand?.value == "2") {
+    if (hand?.value == '2') {
       handValue = 102;
     }
-    else if (hand?.value == "3") {
+    else if (hand?.value == '3') {
       handValue = 103;
     }
-    else if (hand?.value == "4") {
+    else if (hand?.value == '4') {
       handValue = 104;
     }
-    else if (hand?.value == "5") {
+    else if (hand?.value == '5') {
       handValue = 105;
     }
-    else if (hand?.value == "6") {
+    else if (hand?.value == '6') {
       handValue = 106;
     }
-    else if (hand?.value == "7") {
+    else if (hand?.value == '7') {
       handValue = 107;
     }
-    else if (hand?.value == "8") {
+    else if (hand?.value == '8') {
       handValue = 108;
     }
-    else if (hand?.value == "9") {
+    else if (hand?.value == '9') {
       handValue = 109;
     }
-    else if (hand?.value == "X") {
+    else if (hand?.value == 'X') {
       handValue = 110;
     }
-    else if (hand?.value == "J") {
+    else if (hand?.value == 'J') {
       handValue = 111;
     }
-    else if (hand?.value == "Q") {
+    else if (hand?.value == 'Q') {
       handValue = 112;
     }
-    else if (hand?.value == "K") {
+    else if (hand?.value == 'K') {
       handValue = 113;
     }
-    else if (hand?.value == "A") {
+    else if (hand?.value == 'A') {
       handValue = 114;
     }
-    for (var i = 0; i < 4; i++) {
+    for (let i = 0; i < 4; i++) {
       if (lift[i] > handValue) {
         return true;
       }
@@ -512,9 +509,9 @@ export default function Gameboard() {
     Determine score at the end of the round
   */
   function determineScore(gameWinner: number, highWinner: number, lowWinner: number, jack: number) {
-    let tempT1Score = t1Score;
-    let tempT2Score = t2Score;
-    let tempScore = [...score];
+    const tempT1Score = t1Score;
+    const tempT2Score = t2Score;
+    const tempScore = [...score];
     if (gameWinner == 1) {
       tempScore[0] += 1;
     }
@@ -565,10 +562,10 @@ export default function Gameboard() {
     let tempScore: number[] = [...score];
 
     // Get previously kicked card
-    let kickedCardVar = [...kickedCard];
-    let prevKicked = kickedCardVar[0];
+    const kickedCardVar = [...kickedCard];
+    const prevKicked = kickedCardVar[0];
 
-    console.log("KC: " + kickedCardVar[0]);
+    console.log('KC: ' + kickedCardVar[0]);
 
     // Deal 3 cards to all players
     const resp = dealAll(tempPlayer, tempDeck);
@@ -634,7 +631,7 @@ export default function Gameboard() {
   function playCard(cardPlayed?: DeckCard, cardHand?: number) {
     let team: number;
     let playerCards: DeckCard[];
-    let bare: boolean = true;
+    let bare = true;
     let liftWinnerVar: number;
 
     let calledVar: DeckCard | undefined = called;
@@ -648,7 +645,6 @@ export default function Gameboard() {
     let jackPlayerVar: number = jackPlayer;
     let highWinnerVar: number = highWinner;
     let lowWinnerVar: number = lowWinner;
-    let undertrumped: boolean;
     let gameWinnerVar: number = gameWinner;
     let jackVar: number;
     let value: number;
@@ -659,7 +655,7 @@ export default function Gameboard() {
     }
 
     // Determine if player attempted to undertrump
-    undertrumped = didUndertrump(cardPlayed);
+    const undertrumped = didUndertrump(cardPlayed);
 
     // Determine which team the player is on
     if (playerTurn == 1 || playerTurn == 3) {
@@ -685,7 +681,7 @@ export default function Gameboard() {
 
     // Determine if a player does not have a card in the suit of the card that was called
     if (calledVar) {
-      for (var i = 0; i < playerCards.length; i++) {
+      for (let i = 0; i < playerCards.length; i++) {
         if (playerCards[i].suit == calledVar.suit) {
           bare = false;
         }
@@ -699,13 +695,13 @@ export default function Gameboard() {
     // * the card played is not trump,
     // then end function and do not add card to lift
     if (cardPlayed?.suit != calledVar?.suit && calledVar && !bare && cardPlayed?.suit != trump) {
-      console.log("Stop");
+      console.log('Stop');
       return;
     }
 
     // If the player attempted to undertrump, end function and do not add card to lift
     if ((cardPlayed?.suit == trump && undertrumped == true) && calledVar?.suit != trump && !bare) {
-      console.log("Undertrump");
+      console.log('Undertrump');
       return;
     }
 
@@ -753,7 +749,7 @@ export default function Gameboard() {
     }
 
     // Find card in playerCards array that correspond to the card clicked
-    let card = playerCards.findIndex(element => element.suit === cardPlayed?.suit && element.value === cardPlayed?.value);
+    const card = playerCards.findIndex(element => element.suit === cardPlayed?.suit && element.value === cardPlayed?.value);
 
     // Remove card clicked from array
     playerCards.splice(card, 1);
@@ -863,13 +859,13 @@ export default function Gameboard() {
   useEffect(() => {
     if (!loaded) {
 
-      let socket = io();
+      const socket = io();
       socket.on('now', data => {
-        console.log("Loaded")
-      })
+        console.log('Loaded');
+      });
 
 
-      let kickedVar: DeckCard[] = [];
+      const kickedVar: DeckCard[] = [];
       let tempScore: number[] = [...score];
 
       const deckVar = createDeck();
@@ -887,20 +883,20 @@ export default function Gameboard() {
       let tempPlayer = [...player];
       let tempDeck = [...deck];
 
-      for (var i = 0; i < 4; i++) {
+      for (let i = 0; i < 4; i++) {
         tempPlayer[i] = {
           canPlay: false,
           cards: []
-        } as PlayerHand
+        } as PlayerHand;
       }
 
-      for (var i = 0; i < 2; i++) {
+      for (let i = 0; i < 2; i++) {
         const resp = dealAll(tempPlayer, deckVar);
         tempPlayer = resp.playerHands;
         tempDeck = resp.deck;
       }
       displayPlayerCards(tempPlayer, kicked);
-      console.log("K: " + kicked.suit)
+      console.log('K: ' + kicked.suit);
       tempScore = checkKicked(kicked, tempScore);
     }
   }, [lift, called, player1Cards, player2Cards, player3Cards, player4Cards]);
@@ -914,7 +910,7 @@ export default function Gameboard() {
               <p>Score: {score[0]} - {score[1]}</p>
             </div>
             <div className="col-sm-12">
-              <p>It is player {playerTurn}'s turn</p>
+              <p>It is player {playerTurn}&apos;s turn</p>
             </div>
           </div>
           <div className="game">
@@ -1013,5 +1009,5 @@ export default function Gameboard() {
         </div>
       </div>
     </div>
-  )
+  );
 }

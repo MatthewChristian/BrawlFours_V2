@@ -1,3 +1,14 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.blue-button {
+  background-color: #2a9bf7;
+  border-color: #157cd1;
+  color: white;
+}
+
+.blue-button:hover {
+  background-color: #157cd1;
+  border-color: #157cd1;
+}
