@@ -5,6 +5,7 @@ import 'reactjs-popup/dist/index.css';
 import Room from './Room';
 import { useRouter } from 'next/router';
 import Button from '../../core/components/Button';
+import Input from '../../core/components/Input';
 
 interface Props {
     roomId?: string;
@@ -52,6 +53,7 @@ export default function Lobby({ roomId, socket }: Props) {
 
   function joinRoomPressed() {
     const nickVal = joinNickRef.current?.value;
+
     if (!nickVal) {
       setShowNickWarning(true);
     }
@@ -81,58 +83,77 @@ export default function Lobby({ roomId, socket }: Props) {
       nickname: String(nickVal)
     };
 
-    console.log('Data: ', data);
     socket.current?.emit('joinRoom', data);
     setInRoom(true);
     setCreatedRoomId(String(roomIdVal));
   }
 
+  function handleNickChange(val: string) {
+    if (!val) {
+      setShowNickWarning(true);
+    }
+    else {
+      setShowNickWarning(false);
+    }
+  }
+
   useEffect(() => {
     socket.current?.on('newRoomCreated', data => {
-      console.log('Loaded: ' + data.roomId);
       setCreatedRoomId(data.roomId);
     });
   }, [socket]);
 
   return (
-    <div className='bg-slate-200 h-full'>
-      <div className='text-3xl'>Brawl Fours</div>
-      {inRoom ? (
-        <Room roomId={createdRoomId} socket={socket}></Room>
-      ) : (
-        <div className="">
+    <div className='bg-slate-200 h-screen flex flex-col justify-center items-center'>
+      <div className='bg-white rounded-lg border border-gray-400 p-10'>
+        <div className='text-3xl mb-5 text-center'>Brawl Fours</div>
+        {inRoom ? (
+          <Room roomId={createdRoomId} socket={socket}></Room>
+        ) : (
           <div className="">
+            <div className="">
 
-            <input type="text" className="nickname-field" id="join-nickname-field" ref={joinNickRef} placeholder="Enter your nickname..." />
-            {showNickWarning ? (
-              <div className="nickname-warning">Must enter a nickname first!</div>
-            ) :
-              (null)
-            }
+              <Input
+                inputRef={joinNickRef}
+                placeholder="Enter nickname..."
+                className='w-full'
+                onChange={handleNickChange}
+              />
+              {showNickWarning ? (
+                <div className="text-red-500 mt-1">Must enter a nickname first!</div>
+              ) :
+                (null)
+              }
 
-            <Button className='blue-button'  onClick={() => joinRoomPressed()}>
+              <div className='flex flex-row gap-5 mt-5'>
+                <Button className='blue-button' onClick={() => joinRoomPressed()}>
                 Join Room
-            </Button>
+                </Button>
 
-            <Popup open={joinOpen} closeOnDocumentClick onClose={closeJoinModal}>
-              <div className="">
-                <div className="">Enter room code:</div>
-                <input type="text" className="" id="join-room-field" ref={joinRoomRef} placeholder="Enter the room code..." />
-                <br></br>
-                <button className="" onClick={joinRoom}>
-                    Join Room
-                </button>
+                <Button className="green-button" onClick={() => createRoomPressed()}>
+                Create Room
+                </Button>
               </div>
-            </Popup>
 
-            <button type="button" className="" onClick={() => createRoomPressed()}>
-                 Create Room
-            </button>
+              <Popup open={joinOpen} closeOnDocumentClick onClose={closeJoinModal}>
+                <div className="flex flex-col justify-center items-center">
+                  <div className="">Enter room code:</div>
+                  <Input
+                    inputRef={joinRoomRef}
+                    placeholder=""
+                  />
+
+                  <Button className='blue-button mt-5' onClick={() => joinRoom()}>
+                    Join Room
+                  </Button>
+                </div>
+              </Popup>
+
+            </div>
 
           </div>
-
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

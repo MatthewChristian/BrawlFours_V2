@@ -6,16 +6,19 @@ import '../assets/css/global.css';
 import React, { RefObject, useRef } from 'react';
 import { Socket, io } from 'socket.io-client';
 
-function MyApp({ Component, pageProps }) {
+interface Props {
+  Component: any;
+  pageProps: any;
+}
+
+function MyApp({ Component, pageProps }: Props) {
 
   // Manage socket.io websocket
   const socket = useRef<Socket>(io('http://localhost:3000'));
 
 
   return (
-    <>
-      <Component {...pageProps} socket={socket} />
-    </>
+    <Component {...pageProps} socket={socket} />
   );
 }
 export default MyApp;
