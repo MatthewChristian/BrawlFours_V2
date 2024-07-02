@@ -33,6 +33,7 @@ io.on('connection', (socket) => {
   socket.on('playerJoinedRoom', (data) => playerJoinedRoom(data, socket));
   socket.on('playersInRoom', (data) => console.log('PIR'));
   socket.on('leaveRoom', (data) => leaveRoom(data, socket));
+  socket.on('setTeams', (data) => setTeams(data, socket));
 });
 
 function generateRoomId(gameSocket) {
@@ -130,6 +131,34 @@ function leaveRoom(data, gameSocket) {
     }
 
     io.to(data.roomId).emit('playersInRoom', roomUsers[data.roomId]);
+  }
+}
+
+function setTeams(data, gameSocket) {
+  // If the room exists...
+  console.log('Setting teams');
+
+  if (gameSocket.adapter.rooms.get(data.roomId) && gameSocket.adapter.rooms.get(data.roomId).size == 4 && roomUsers[data.roomId]) {
+
+    console.log('Checked');
+    // Loop through users in room
+    roomUsers[data.roomId].forEach((el, i) => {
+
+      // Set host and their chosen partner to team 1
+      if (el.id == gameSocket.id || el.id == data.partnerId) {
+        roomUsers[data.roomId][i].team = 1;
+      }
+      else { // Set other users to team 2
+        roomUsers[data.roomId][i].team = 2;
+      }
+    });
+
+    console.log('RU: ', roomUsers[data.roomId]);
+
+    io.to(data.roomId).emit('playersInRoom', roomUsers[data.roomId]);
+  }
+  else {
+    console.log('Error');
   }
 }
 

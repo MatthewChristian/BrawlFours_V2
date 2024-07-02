@@ -46,6 +46,18 @@
   background-color: #fcd34d !important;
 }
 
+.white-button {
+  background-color: white !important;
+  border-width: 1px !important;
+  border-color: black !important;
+  border-style: solid;
+  color: black !important;
+}
+
+.white-button:hover {
+  background-color: #e2e8f0 !important;
+}
+
 .disabled-button {
   background-color: #cbd5e1 !important;
   border: 0 !important;
