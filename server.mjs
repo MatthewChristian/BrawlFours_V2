@@ -35,11 +35,18 @@ io.on('connection', (socket) => {
   socket.on('leaveRoom', (data) => leaveRoom(data, socket));
 });
 
+function generateRoomId(gameSocket) {
+  let randomNumber;
+  do {
+    randomNumber = (Math.floor(Math.random() * 90000) + 10000).toString();
+  } while (gameSocket.adapter.rooms.get(randomNumber)); // Regenerate if ID is not uniqute
+
+  return randomNumber.toString();
+}
+
 function createRoom(data, gameSocket) {
   // Create a unique numbered room
-  var thisRoomId = ((Math.random() * 100000) | 0).toString();
-
-  console.log('Room created: ' + thisRoomId + gameSocket.id);
+  let thisRoomId = generateRoomId(gameSocket);
 
   // Join the Room and wait for the players
   gameSocket.join(thisRoomId);
@@ -60,27 +67,24 @@ function createRoom(data, gameSocket) {
     }];
   }
 
-  io.to(thisRoomId).emit('playerJoinedRoom', data);
+  io.to(thisRoomId).emit('playerJoinedRoom', { success: true, room_id: thisRoomId });
   io.to(thisRoomId).emit('playersInRoom', roomUsers[thisRoomId]);
 }
 
 function joinRoom(data, gameSocket) {
   // Look up the room ID in the Socket.IO manager object.
-
   //this is an ES6 Set of all client ids in the room
 
   // If the room exists...
   if (gameSocket.adapter.rooms.get(data.roomId)) {
-    // gameSocket.adapter.rooms.forEach(logMapElements);
-    console.log('Heyo ' + gameSocket.adapter.rooms.get(data.roomId).size);
+
+    // If room is not full
     if (gameSocket.adapter.rooms.get(data.roomId).size < 4) {
       // attach the socket id to the data object.
       data.mySocketId = gameSocket.id;
 
       // Join the room
       gameSocket.join(data.roomId);
-
-      console.log('Player ' + data.nickname + ' joining game: ' + data.roomId + ' with socket ID of :' + gameSocket.id);
 
       if (roomUsers[data.roomId]) {
         roomUsers[data.roomId].push({
@@ -95,28 +99,23 @@ function joinRoom(data, gameSocket) {
         }];
       }
 
-      console.log('Room Users for Room ' + data.roomId + ': ', roomUsers);
-
-      console.log('Rooms: ', gameSocket.adapter.rooms);
-
       // Emit an event notifying the clients that the player has joined the room.
-      io.to(data.roomId).emit('playerJoinedRoom', data);
+      io.to(data.roomId).emit('playerJoinedRoom', { success: true, room_id: data.roomId });
       io.to(data.roomId).emit('playersInRoom', roomUsers[data.roomId]);
     }
     else {
-      console.log('Full room');
+      gameSocket.emit('playerJoinedRoom', { success: false, errorMsg: 'Sorry, this room is full!' });
     }
 
   } else {
     // Otherwise, send an error message back to the player.
-    gameSocket.emit('error', { message: 'This room does not exist.' });
+    gameSocket.emit('playerJoinedRoom', { success: false, errorMsg: 'Sorry, this room does not exist!' });
     console.log('Room doesnt exist');
   }
 }
 
 function playerJoinedRoom(data, gameSocket) {
   console.log('Player joined room: ', data);
-  console.log('GS: ', gameSocket.adapter.rooms);
 }
 
 function leaveRoom(data, gameSocket) {

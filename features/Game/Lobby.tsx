@@ -30,6 +30,8 @@ export default function Lobby({ roomId, socket }: Props) {
 
   const [nickname, setNickname] = useState<string>();
 
+  const [errorMsg, setErrorMsg] = useState<string>();
+
   function createRoomPressed() {
     if (!nickname) {
       setShowNickWarning(true);
@@ -68,9 +70,9 @@ export default function Lobby({ roomId, socket }: Props) {
     };
 
     socket.current?.emit('joinRoom', data);
-    setInRoom(true);
-    setCreatedRoomId(String(roomIdVal));
-    setJoinOpen(false);
+    // setInRoom(true);
+    // setCreatedRoomId(String(roomIdVal));
+    // setJoinOpen(false);
   }
 
   function handleNickChange(val: string) {
@@ -92,6 +94,18 @@ export default function Lobby({ roomId, socket }: Props) {
   useEffect(() => {
     socket.current?.on('newRoomCreated', data => {
       setCreatedRoomId(data.roomId);
+    });
+
+    socket.current?.on('playerJoinedRoom', data => {
+      if (data.success) {
+        setInRoom(true);
+        setCreatedRoomId(String(data.room_id));
+        setJoinOpen(false);
+        setErrorMsg(undefined);
+      }
+      else {
+        setErrorMsg(data.errorMsg);
+      }
     });
   }, [socket]);
 
@@ -133,6 +147,13 @@ export default function Lobby({ roomId, socket }: Props) {
                     inputRef={joinRoomRef}
                     placeholder=""
                   />
+
+                  { errorMsg ?
+                    <div className='mt-5 text-red-500'>
+                      {errorMsg}
+                    </div>
+                    : undefined
+                  }
 
                   <Button className='blue-button mt-5' onClick={() => joinRoom()}>
                     Join Room

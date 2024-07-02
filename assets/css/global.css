@@ -45,3 +45,13 @@
 .yellow-button:hover {
   background-color: #fcd34d !important;
 }
+
+.disabled-button {
+  background-color: #cbd5e1 !important;
+  border: 0 !important;
+  color: #64748b !important;
+}
+
+.disabled-button:hover {
+  background-color: #cbd5e1 !important;
+}
