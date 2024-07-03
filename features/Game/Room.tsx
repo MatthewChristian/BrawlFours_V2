@@ -2,6 +2,8 @@ import React, { useState, useEffect, RefObject } from 'react';
 import { Socket } from 'socket.io-client';
 import Button from '../../core/components/Button';
 import { FaCrown } from 'react-icons/fa';
+import { IoDice } from 'react-icons/io5';
+
 import Popup from 'reactjs-popup';
 
 interface Props {
@@ -35,13 +37,24 @@ export default function Room({ roomId, socket, onLeaveRoom}: Props) {
     socket.current?.emit('setTeams', data);
   }
 
+  function randomPartner() {
+    const partnerIndex = Math.floor(Math.random() * 3) + 1;
+
+    const data = {
+      roomId: String(roomId),
+      partnerId: players[partnerIndex].id.toString()
+    };
+
+    socket.current?.emit('setTeams', data);
+
+  }
+
   useEffect(() => {
     if (!socket.current) {
       return;
     }
 
     socket.current.on('playersInRoom', (playerList) => {
-      console.log('PL: ', playerList);
       setPlayers(playerList);
     });
   }, [socket]);
@@ -100,7 +113,7 @@ export default function Room({ roomId, socket, onLeaveRoom}: Props) {
               )}
           </div>
 
-          <Button className='blue-button mt-5'>
+          <Button className='blue-button mt-5' icon={<IoDice size={24} />} onClick={() => randomPartner()}>
             Randomise Teams
           </Button>
         </div>
