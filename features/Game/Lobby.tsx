@@ -7,8 +7,8 @@ import Button from '../../core/components/Button';
 import Input from '../../core/components/Input';
 
 interface Props {
-    roomId?: string;
-    socket: RefObject<Socket>;
+  roomId?: string;
+  socket: RefObject<Socket>;
 }
 
 export default function Lobby({ roomId, socket }: Props) {

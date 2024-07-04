@@ -1,16 +1,11 @@
-import React, { useState, useEffect, useRef, RefObject } from 'react';
-import io, { Socket } from 'socket.io-client';
+import React, { useState, useEffect, useRef } from 'react';
+import io from 'socket.io-client';
 import { DeckCard } from '../../models/DeckCard';
 import { PlayerHand } from '../../models/PlayerHand';
 import PlayingCard from './PlayingCard';
 
-interface Props {
-  socket: RefObject<Socket>;
-  roomId?: string;
-}
 
-
-export default function Gameboard({ socket, roomId }: Props) {
+export default function Gameboard() {
 
   // Indicate if the game has been initialised as yet
   const [loaded, setLoaded] = useState(false);
@@ -864,6 +859,12 @@ export default function Gameboard({ socket, roomId }: Props) {
   useEffect(() => {
     if (!loaded) {
 
+      const socket = io();
+      socket.on('now', data => {
+        console.log('Loaded');
+      });
+
+
       const kickedVar: DeckCard[] = [];
       let tempScore: number[] = [...score];
 
@@ -899,22 +900,6 @@ export default function Gameboard({ socket, roomId }: Props) {
       tempScore = checkKicked(kicked, tempScore);
     }
   }, [lift, called, player1Cards, player2Cards, player3Cards, player4Cards]);
-
-  useEffect(() => {
-    const data = {
-      roomId: String(roomId),
-    };
-
-    socket.current?.emit('playersInRoom', data);
-  }, [roomId]);
-
-  useEffect(() => {
-    console.log('GSocket: ', socket);
-
-    socket.current.on('playersInRoom', (playerList) => {
-      console.log('GPL: ', playerList);
-    });
-  }, [socket]);
 
   return (
     <div className="container">

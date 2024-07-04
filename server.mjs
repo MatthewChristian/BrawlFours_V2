@@ -31,9 +31,10 @@ io.on('connection', (socket) => {
   socket.on('createRoom', (data) => createRoom(data, socket));
   socket.on('joinRoom', (data) => joinRoom(data, socket));
   socket.on('playerJoinedRoom', (data) => playerJoinedRoom(data, socket));
-  socket.on('playersInRoom', (data) => console.log('PIR'));
+  socket.on('playersInRoom', (data) =>playersInRoom(data, socket));
   socket.on('leaveRoom', (data) => leaveRoom(data, socket));
   socket.on('setTeams', (data) => setTeams(data, socket));
+  socket.on('gameStarted', (data) => gameStarted(data, socket));
 });
 
 function generateRoomId(gameSocket) {
@@ -119,6 +120,15 @@ function playerJoinedRoom(data, gameSocket) {
   console.log('Player joined room: ', data);
 }
 
+function playersInRoom(data, gameSocket) {
+  if (gameSocket.adapter.rooms.get(data.roomId)) {
+    io.to(data.roomId).emit('playersInRoom', roomUsers[data.roomId]);
+  }
+  else {
+    console.log('Room doesnt exist');
+  }
+}
+
 function leaveRoom(data, gameSocket) {
   // If the room exists...
   if (gameSocket.adapter.rooms.get(data.roomId)) {
@@ -136,11 +146,8 @@ function leaveRoom(data, gameSocket) {
 
 function setTeams(data, gameSocket) {
   // If the room exists...
-  console.log('Setting teams');
-
   if (gameSocket.adapter.rooms.get(data.roomId) && gameSocket.adapter.rooms.get(data.roomId).size == 4 && roomUsers[data.roomId]) {
 
-    console.log('Checked');
     // Loop through users in room
     roomUsers[data.roomId].forEach((el, i) => {
 
@@ -153,14 +160,26 @@ function setTeams(data, gameSocket) {
       }
     });
 
-    console.log('RU: ', roomUsers[data.roomId]);
-
     io.to(data.roomId).emit('playersInRoom', roomUsers[data.roomId]);
   }
   else {
     console.log('Error');
   }
 }
+
+
+function gameStarted(data, gameSocket) {
+
+  // If the room exists...
+  if (gameSocket.adapter.rooms.get(data.roomId)) {
+
+    io.to(data.roomId).emit('gameStarted', true);
+  }
+  else {
+    console.log('Error');
+  }
+}
+
 
 nextApp.prepare()
   .then(() => {
