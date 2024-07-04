@@ -3,6 +3,8 @@ import io, { Socket } from 'socket.io-client';
 import { DeckCard } from '../../models/DeckCard';
 import { PlayerHand } from '../../models/PlayerHand';
 import PlayingCard from './PlayingCard';
+import { useAppSelector } from '../../store/hooks';
+import { getPlayerList } from '../../slices/game.slice';
 
 interface Props {
   socket: RefObject<Socket>;
@@ -11,6 +13,8 @@ interface Props {
 
 
 export default function Gameboard({ socket, roomId }: Props) {
+
+  const players = useAppSelector(getPlayerList);
 
   // Indicate if the game has been initialised as yet
   const [loaded, setLoaded] = useState(false);
@@ -900,21 +904,17 @@ export default function Gameboard({ socket, roomId }: Props) {
     }
   }, [lift, called, player1Cards, player2Cards, player3Cards, player4Cards]);
 
+  // useEffect(() => {
+  //   const data = {
+  //     roomId: String(roomId),
+  //   };
+
+  //   socket.current?.emit('playersInRoom', data);
+  // }, [roomId]);
+
   useEffect(() => {
-    const data = {
-      roomId: String(roomId),
-    };
-
-    socket.current?.emit('playersInRoom', data);
-  }, [roomId]);
-
-  useEffect(() => {
-    console.log('GSocket: ', socket);
-
-    socket.current.on('playersInRoom', (playerList) => {
-      console.log('GPL: ', playerList);
-    });
-  }, [socket]);
+    console.log('GPlayers: ', players);
+  }, [players]);
 
   return (
     <div className="container">

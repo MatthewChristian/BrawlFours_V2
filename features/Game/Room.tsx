@@ -6,6 +6,8 @@ import { IoDice } from 'react-icons/io5';
 
 import Popup from 'reactjs-popup';
 import { useRouter } from 'next/router';
+import { useAppSelector } from '../../store/hooks';
+import { getPlayerList } from '../../slices/game.slice';
 
 interface Props {
   roomId?: string;
@@ -17,8 +19,10 @@ export default function Room({ roomId, socket, onLeaveRoom}: Props) {
 
   const router = useRouter();
 
-  const [players, setPlayers] = useState<{ nickname: string, id: string }[]>([]);
+  // const [players, setPlayers] = useState<{ nickname: string, id: string }[]>([]);
   const [chooseModalOpen, setChooseModalOpen] = useState<boolean>(false);
+
+  const players = useAppSelector(getPlayerList);
 
   function leaveRoom() {
 
@@ -53,28 +57,17 @@ export default function Room({ roomId, socket, onLeaveRoom}: Props) {
   }
 
   useEffect(() => {
-    console.log('UE: ', {...socket});
-    if (!socket.current) {
-      return;
+
+    if (players && players[0] && players[0].team) {
+      router.push({
+        pathname: '/game',
+        query: {
+          roomId: String(roomId)
+        }
+      });
     }
 
-
-    socket.current.on('playersInRoom', (playerList) => {
-
-      console.log('PL: ', playerList);
-
-      setPlayers(playerList);
-
-      if (playerList && playerList[0] && playerList[0].team) {
-        router.push({
-          pathname: '/game',
-          query: {
-            roomId: String(roomId)
-          }
-        });
-      }
-    });
-  }, [socket, roomId]);
+  }, [players]);
 
   return (
     <div className="flex flex-col justify-center items-center">

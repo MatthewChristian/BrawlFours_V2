@@ -1,10 +1,10 @@
 
-import Head from 'next/head';
 import '../assets/css/Game.css';
 import '../assets/css/Lobby.css';
 import '../assets/css/global.css';
-import React, { RefObject, useRef } from 'react';
-import { Socket, io } from 'socket.io-client';
+import React, {  } from 'react';
+import StoreProvider from '../store/StoreProvider';
+import Layout from '../features/Layout';
 
 interface Props {
   Component: any;
@@ -13,12 +13,10 @@ interface Props {
 
 function MyApp({ Component, pageProps }: Props) {
 
-  // Manage socket.io websocket
-  const socket = useRef<Socket>(io('http://localhost:3000'));
-
-
   return (
-    <Component {...pageProps} socket={socket} />
+    <StoreProvider>
+      <Layout Component={Component} pageProps={pageProps} />
+    </StoreProvider>
   );
 }
 export default MyApp;
