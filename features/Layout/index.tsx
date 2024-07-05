@@ -1,6 +1,6 @@
 import React, {  useEffect, useRef } from 'react';
 import { Socket, io } from 'socket.io-client';
-import { setPlayerList } from '../../slices/game.slice';
+import { setErrorMsg, setJoinModalOpen, setPlayerList, setRoomId } from '../../slices/game.slice';
 import { useAppDispatch } from '../../store/hooks';
 
 interface Props {
@@ -25,6 +25,21 @@ export default function Layout({ Component, pageProps }: Props) {
 
     socket.current.on('playersInRoom', (players) => {
       dispatch(setPlayerList(players));
+    });
+
+    socket.current?.on('newRoomCreated', data => {
+      dispatch(setRoomId(String(data.room_id)));
+    });
+
+    socket.current?.on('playerJoinedRoom', data => {
+      if (data.success) {
+        dispatch(setRoomId(String(data.room_id)));
+        dispatch(setJoinModalOpen(false));
+        dispatch(setErrorMsg(undefined));
+      }
+      else {
+        dispatch(setErrorMsg(data.errorMsg));
+      }
     });
   }, [socket]);
 

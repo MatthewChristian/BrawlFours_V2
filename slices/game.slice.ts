@@ -9,9 +9,13 @@ import { PlayerSocket } from '../models/PlayerSocket';
  */
 interface GameSlice {
   playerList: PlayerSocket[];
+  roomId?: string;
+  joinModalOpen: boolean;
+  errorMsg?: string;
 }
 const initialState: GameSlice = {
-  playerList: []
+  playerList: [],
+  joinModalOpen: false,
 };
 
 /**
@@ -26,6 +30,18 @@ export const gameSlice = createSlice({
       state.playerList = action.payload;
     },
 
+    setRoomId: (state, action: PayloadAction<string | undefined>) => {
+      state.roomId = action.payload;
+    },
+
+    setJoinModalOpen: (state, action: PayloadAction<boolean>) => {
+      state.joinModalOpen = action.payload;
+    },
+
+    setErrorMsg: (state, action: PayloadAction<string | undefined>) => {
+      state.errorMsg = action.payload;
+    },
+
   }
 });
 
@@ -37,8 +53,17 @@ export default gameSlice.reducer;
 // Actions
 export const {
   setPlayerList,
+  setRoomId,
+  setErrorMsg,
+  setJoinModalOpen
 } =  gameSlice.actions;
 
 // Selectors
 
 export const getPlayerList = (state: RootState): PlayerSocket[] => state.gameSlice.playerList;
+
+export const getRoomId = (state: RootState): string | undefined => state.gameSlice.roomId;
+
+export const getJoinModalOpen = (state: RootState): boolean => state.gameSlice.joinModalOpen;
+
+export const getErrorMsg = (state: RootState): string | undefined => state.gameSlice.errorMsg;

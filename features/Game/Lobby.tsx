@@ -5,32 +5,32 @@ import 'reactjs-popup/dist/index.css';
 import Room from './Room';
 import Button from '../../core/components/Button';
 import Input from '../../core/components/Input';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { getErrorMsg, getJoinModalOpen, getRoomId, setJoinModalOpen, setRoomId } from '../../slices/game.slice';
 
 interface Props {
-  roomId?: string;
   socket: RefObject<Socket>;
 }
 
-export default function Lobby({ roomId, socket }: Props) {
+export default function Lobby({ socket }: Props) {
 
-  // Indicate if user is in a room waiting
-  const [inRoom, setInRoom] = useState(false);
+  const dispatch = useAppDispatch();
 
   // Store room ID of game that player created
-  const [createdRoomId, setCreatedRoomId] = useState('');
+  const roomId = useAppSelector(getRoomId);
 
   // Store room ID of game that player created
   const [showNickWarning, setShowNickWarning] = useState(false);
-
-  const [joinOpen, setJoinOpen] = useState(false);
-  const closeJoinModal = () => setJoinOpen(false);
 
   // React ref to access text field values
   const joinRoomRef = useRef<HTMLInputElement>(null);
 
   const [nickname, setNickname] = useState<string>();
 
-  const [errorMsg, setErrorMsg] = useState<string>();
+  const errorMsg = useAppSelector(getErrorMsg);
+  const joinModalOpen = useAppSelector(getJoinModalOpen);
+
+  const closeJoinModal = () => dispatch(setJoinModalOpen(false));
 
   function createRoomPressed() {
     if (!nickname) {
@@ -38,7 +38,6 @@ export default function Lobby({ roomId, socket }: Props) {
     }
     else {
       createRoom();
-      setInRoom(true);
     }
   }
 
@@ -47,7 +46,7 @@ export default function Lobby({ roomId, socket }: Props) {
       setShowNickWarning(true);
     }
     else {
-      setJoinOpen(true);
+      dispatch(setJoinModalOpen(true));
     }
   }
 
@@ -87,34 +86,15 @@ export default function Lobby({ roomId, socket }: Props) {
   }
 
   function handleLeaveRoom() {
-    setInRoom(false);
-    setCreatedRoomId(undefined);
+    dispatch(setRoomId(undefined));
   }
-
-  useEffect(() => {
-    socket.current?.on('newRoomCreated', data => {
-      setCreatedRoomId(data.roomId);
-    });
-
-    socket.current?.on('playerJoinedRoom', data => {
-      if (data.success) {
-        setInRoom(true);
-        setCreatedRoomId(String(data.room_id));
-        setJoinOpen(false);
-        setErrorMsg(undefined);
-      }
-      else {
-        setErrorMsg(data.errorMsg);
-      }
-    });
-  }, [socket]);
 
   return (
     <div className='bg-slate-200 h-screen flex flex-col justify-center items-center'>
       <div className='bg-white rounded-lg border border-gray-400 p-10'>
         <div className='text-3xl mb-5 text-center'>Brawl Fours</div>
-        {inRoom ? (
-          <Room roomId={createdRoomId} socket={socket} onLeaveRoom={handleLeaveRoom}></Room>
+        {roomId ? (
+          <Room roomId={roomId} socket={socket} onLeaveRoom={handleLeaveRoom}></Room>
         ) : (
           <div className="">
             <div className="">
@@ -140,7 +120,7 @@ export default function Lobby({ roomId, socket }: Props) {
                 </Button>
               </div>
 
-              <Popup open={joinOpen} closeOnDocumentClick onClose={closeJoinModal}>
+              <Popup open={joinModalOpen} closeOnDocumentClick onClose={closeJoinModal}>
                 <div className="flex flex-col justify-center items-center">
                   <div className="">Enter room code:</div>
                   <Input
