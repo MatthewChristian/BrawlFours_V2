@@ -1,6 +1,6 @@
 import React, {  useEffect, useRef } from 'react';
 import { Socket, io } from 'socket.io-client';
-import { setErrorMsg, setJoinModalOpen, setPlayerList, setRoomId } from '../../slices/game.slice';
+import { setDeck, setErrorMsg, setJoinModalOpen, setKickedCards, setPlayerCards, setPlayerList, setRoomId } from '../../slices/game.slice';
 import { useAppDispatch } from '../../store/hooks';
 
 interface Props {
@@ -40,6 +40,19 @@ export default function Layout({ Component, pageProps }: Props) {
       else {
         dispatch(setErrorMsg(data.errorMsg));
       }
+    });
+
+    socket.current.on('deck', (deck) => {
+      dispatch(setDeck(deck));
+    });
+
+    socket.current.on('kickedCards', (cards) => {
+      dispatch(setKickedCards(cards));
+    });
+
+    socket.current.on('playerCards', (cards) => {
+      console.log('PC: ', cards);
+      dispatch(setPlayerCards(cards));
     });
   }, [socket]);
 

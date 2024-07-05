@@ -58,6 +58,8 @@ export default function Room({ roomId, socket, onLeaveRoom}: Props) {
 
   useEffect(() => {
 
+    console.log('P: ', players);
+
     if (players && players[0] && players[0].team) {
       router.push({
         pathname: '/game',
@@ -80,7 +82,7 @@ export default function Room({ roomId, socket, onLeaveRoom}: Props) {
         <div className='text-sm text-gray-500'>Players waiting in Lobby</div>
         <div className='flex flex-col rounded-lg border border-gray-400'>
           {
-            players.map((el, i) =>
+            players?.map((el, i) =>
               <div key={i} className={`text-center ${i == players.length - 1 ? '' : 'border-b border-gray-400'}`}>
                 <div className='flex flex-row items-center justify-start pt-1'>
                   { i == 0 ?
@@ -98,7 +100,7 @@ export default function Room({ roomId, socket, onLeaveRoom}: Props) {
       </div>
 
       <div className='flex flex-row gap-5 mt-5'>
-        { players.length > 0 && socket.current.id == players[0].id ?
+        { players?.length > 0 && socket.current.id == players[0].id ?
           <Button className='green-button' disabled={players.length < 4} onClick={() => setChooseModalOpen(true)}>
             Start Game
           </Button> : undefined
@@ -115,7 +117,7 @@ export default function Room({ roomId, socket, onLeaveRoom}: Props) {
           <div className="">Choose your partner</div>
           <div className='w-full'>
             {
-              players.map((el, i) => i != 0 ? <div key={'partner_' + i}>
+              players?.map((el, i) => i != 0 ? <div key={'partner_' + i}>
                 <Button className='white-button mt-5 w-full text-center' onClick={() => choosePartner(el.id)}>
                   {el.nickname}
                 </Button>

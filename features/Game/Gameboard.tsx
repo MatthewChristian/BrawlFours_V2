@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useRef, RefObject } from 'react';
+import React, { useState, useEffect, useRef, RefObject, useMemo } from 'react';
 import io, { Socket } from 'socket.io-client';
 import { DeckCard } from '../../models/DeckCard';
 import { PlayerHand } from '../../models/PlayerHand';
 import PlayingCard from './PlayingCard';
 import { useAppSelector } from '../../store/hooks';
-import { getPlayerList } from '../../slices/game.slice';
+import { getDeck, getKickedCards, getPlayerCards, getPlayerList } from '../../slices/game.slice';
 
 interface Props {
   socket: RefObject<Socket>;
@@ -15,6 +15,19 @@ interface Props {
 export default function Gameboard({ socket, roomId }: Props) {
 
   const players = useAppSelector(getPlayerList);
+
+  const deck = useAppSelector(getDeck);
+
+  const kickedCards = useAppSelector(getKickedCards);
+
+  // Cards in the hand of the client player
+  const playerCards = useAppSelector(getPlayerCards);
+
+  const socketData = useMemo(() => {
+    return ({
+      roomId: String(roomId),
+    });
+  }, [roomId]);
 
   // Indicate if the game has been initialised as yet
   const [loaded, setLoaded] = useState(false);
@@ -41,7 +54,7 @@ export default function Gameboard({ socket, roomId }: Props) {
   const [player, setPlayer] = useState<PlayerHand[]>([]);
 
   // Manage deck of cards
-  const [deck, setDeck] = useState<DeckCard[]>([]); // Cards in deck
+  // const [deck, setDeck] = useState<DeckCard[]>([]); // Cards in deck
 
   // Manage team scores
   const [score, setScore] = useState<number[]>([0, 0]);
@@ -866,51 +879,53 @@ export default function Gameboard({ socket, roomId }: Props) {
     Initialise game
   */
   useEffect(() => {
-    if (!loaded) {
+    // if (!deck || !kickedCards || deck.length == 0 || kickedCards.length == 0 || loaded) {
+    //   return;
+    // }
 
-      const kickedVar: DeckCard[] = [];
-      let tempScore: number[] = [...score];
+    console.log('Deck: ', deck);
+    console.log('Kicked: ', kickedCards);
 
-      const deckVar = createDeck();
-      const kicked = deckVar.pop();
+    socket.current?.emit('playerCards', socketData);
 
-      if (!kicked) {
-        return;
-      }
+    // let tempScore: number[] = [...score];
 
-      kickedVar.push(kicked);
-      setKickedCard(kickedVar);
-      setDeck(deckVar);
-      setLetBeg(true);
-      setLoaded(true); // Indicate that player cards have been rendered
-      let tempPlayer = [...player];
-      let tempDeck = [...deck];
+    // const deckVar = deck;
 
-      for (let i = 0; i < 4; i++) {
-        tempPlayer[i] = {
-          canPlay: false,
-          cards: []
-        } as PlayerHand;
-      }
+    // setLetBeg(true);
+    // setLoaded(true); // Indicate that player cards have been rendered
+    // let tempPlayer = [...player];
+    // let tempDeck = [...deck];
 
-      for (let i = 0; i < 2; i++) {
-        const resp = dealAll(tempPlayer, deckVar);
-        tempPlayer = resp.playerHands;
-        tempDeck = resp.deck;
-      }
-      displayPlayerCards(tempPlayer, kicked);
-      console.log('K: ' + kicked.suit);
-      tempScore = checkKicked(kicked, tempScore);
-    }
-  }, [lift, called, player1Cards, player2Cards, player3Cards, player4Cards]);
+    // for (let i = 0; i < 4; i++) {
+    //   tempPlayer[i] = {
+    //     canPlay: false,
+    //     cards: []
+    //   } as PlayerHand;
+    // }
 
-  // useEffect(() => {
-  //   const data = {
-  //     roomId: String(roomId),
-  //   };
+    // for (let i = 0; i < 2; i++) {
+    //   const resp = dealAll(tempPlayer, deckVar);
+    //   tempPlayer = resp.playerHands;
+    //   tempDeck = resp.deck;
+    // }
+    // displayPlayerCards(tempPlayer, kickedCards[0]);
+    // console.log('K: ' + kickedCards[0].suit);
+    // tempScore = checkKicked(kickedCards[0], tempScore);
 
-  //   socket.current?.emit('playersInRoom', data);
-  // }, [roomId]);
+  }, [deck, kickedCards]);
+
+  useEffect(() => {
+    console.log('Player Cards: ', playerCards);
+  }, [playerCards]);
+
+
+  /*
+    Generate deck
+  */
+  useEffect(() => {
+    socket.current?.emit('generateDeck', socketData);
+  }, [socketData]);
 
   useEffect(() => {
     console.log('GPlayers: ', players);

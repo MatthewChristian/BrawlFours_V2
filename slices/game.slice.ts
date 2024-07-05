@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../store/store';
 import { PlayerSocket } from '../models/PlayerSocket';
+import { DeckCard } from '../models/DeckCard';
 
 
 
@@ -12,10 +13,16 @@ interface GameSlice {
   roomId?: string;
   joinModalOpen: boolean;
   errorMsg?: string;
+  deck: DeckCard[];
+  kickedCards: DeckCard[];
+  playerCards: DeckCard[];
 }
 const initialState: GameSlice = {
   playerList: [],
   joinModalOpen: false,
+  deck: [],
+  kickedCards: [],
+  playerCards: []
 };
 
 /**
@@ -42,6 +49,18 @@ export const gameSlice = createSlice({
       state.errorMsg = action.payload;
     },
 
+    setDeck: (state, action: PayloadAction<DeckCard[]>) => {
+      state.deck = action.payload;
+    },
+
+    setKickedCards: (state, action: PayloadAction<DeckCard[]>) => {
+      state.kickedCards = action.payload;
+    },
+
+    setPlayerCards: (state, action: PayloadAction<DeckCard[]>) => {
+      state.playerCards = action.payload;
+    },
+
   }
 });
 
@@ -55,7 +74,10 @@ export const {
   setPlayerList,
   setRoomId,
   setErrorMsg,
-  setJoinModalOpen
+  setJoinModalOpen,
+  setDeck,
+  setKickedCards,
+  setPlayerCards
 } =  gameSlice.actions;
 
 // Selectors
@@ -67,3 +89,9 @@ export const getRoomId = (state: RootState): string | undefined => state.gameSli
 export const getJoinModalOpen = (state: RootState): boolean => state.gameSlice.joinModalOpen;
 
 export const getErrorMsg = (state: RootState): string | undefined => state.gameSlice.errorMsg;
+
+export const getDeck = (state: RootState): DeckCard[] => state.gameSlice.deck;
+
+export const getKickedCards = (state: RootState): DeckCard[] => state.gameSlice.kickedCards;
+
+export const getPlayerCards = (state: RootState): DeckCard[] => state.gameSlice.playerCards;
