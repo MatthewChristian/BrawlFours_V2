@@ -88,8 +88,11 @@ function joinRoom(data, gameSocket) {
 
     // If room is not full
     if (gameSocket.adapter.rooms.get(data.roomId).size < 4) {
-      // attach the socket id to the data object.
-      data.mySocketId = gameSocket.id;
+
+      if (roomUsers[data.roomId] && roomUsers[data.roomId].users && roomUsers[data.roomId].users.find(el => el.id == gameSocket.id)) {
+        console.log('Player ', data.nickname, ' is already in this room.');
+        return;
+      }
 
       // Join the room
       gameSocket.join(data.roomId);

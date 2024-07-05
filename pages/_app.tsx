@@ -2,9 +2,12 @@
 import '../assets/css/Game.css';
 import '../assets/css/Lobby.css';
 import '../assets/css/global.css';
+import 'react-toastify/dist/ReactToastify.css';
 import React, {  } from 'react';
 import StoreProvider from '../store/StoreProvider';
 import Layout from '../features/Layout';
+import { ToastContainer } from 'react-toastify';
+
 
 interface Props {
   Component: any;
@@ -16,6 +19,7 @@ function MyApp({ Component, pageProps }: Props) {
   return (
     <StoreProvider>
       <Layout Component={Component} pageProps={pageProps} />
+      <ToastContainer />
     </StoreProvider>
   );
 }

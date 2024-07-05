@@ -5,6 +5,7 @@ import { PlayerHand } from '../../models/PlayerHand';
 import PlayingCard from './PlayingCard';
 import { useAppSelector } from '../../store/hooks';
 import { getDeck, getKickedCards, getPlayerCards, getPlayerList } from '../../slices/game.slice';
+import { useRouter } from 'next/router';
 
 interface Props {
   socket: RefObject<Socket>;
@@ -13,6 +14,8 @@ interface Props {
 
 
 export default function Gameboard({ socket, roomId }: Props) {
+
+  const router = useRouter();
 
   const players = useAppSelector(getPlayerList);
 
@@ -919,7 +922,6 @@ export default function Gameboard({ socket, roomId }: Props) {
     console.log('Player Cards: ', playerCards);
   }, [playerCards]);
 
-
   /*
     Generate deck
   */
@@ -927,9 +929,18 @@ export default function Gameboard({ socket, roomId }: Props) {
     socket.current?.emit('generateDeck', socketData);
   }, [socketData]);
 
+
   useEffect(() => {
     console.log('GPlayers: ', players);
   }, [players]);
+
+  useEffect(() => {
+    if (!roomId) {
+      return;
+    }
+
+    socket.current.emit('joinRoom', socketData);
+  }, [roomId]);
 
   return (
     <div className="container">

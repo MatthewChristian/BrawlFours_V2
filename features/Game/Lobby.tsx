@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, RefObject } from 'react';
+import React, { useState, useRef, RefObject } from 'react';
 import { Socket } from 'socket.io-client';
 import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
