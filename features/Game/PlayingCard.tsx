@@ -44,12 +44,13 @@ export default function PlayingCard({ iter, len, onClickHandler, player, cardDat
       }}>
       { !isDeckCard ? (
         card &&
-              <Image
-                src={`/images/${card}.png`}
-                width={78.5}
-                height={120}
-                alt='card'
-              />
+          <Image
+            src={`/images/${card}.png`}
+            width={78.5}
+            height={120}
+            // style={{ width: 'auto', height: 'auto' }}
+            alt='card'
+          />
       ) : (
         <Image
           src={'/images/red_back.png'}

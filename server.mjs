@@ -86,18 +86,19 @@ function joinRoom(data, gameSocket) {
   // If the room exists...
   if (gameSocket.adapter.rooms.get(data.roomId)) {
 
+    // If player is already in room
+    if (roomUsers[data.roomId] && roomUsers[data.roomId].users && roomUsers[data.roomId].users.find(el => el.id == gameSocket.id)) {
+      console.log('Player ', data.nickname, ' is already in this room.');
+      return;
+    }
+
     // If room is not full
     if (gameSocket.adapter.rooms.get(data.roomId).size < 4) {
-
-      if (roomUsers[data.roomId] && roomUsers[data.roomId].users && roomUsers[data.roomId].users.find(el => el.id == gameSocket.id)) {
-        console.log('Player ', data.nickname, ' is already in this room.');
-        return;
-      }
 
       // Join the room
       gameSocket.join(data.roomId);
 
-      if (roomUsers[data.roomId]) {
+      if (roomUsers[data.roomId] && roomUsers[data.roomId].users) {
         roomUsers[data.roomId].users.push({
           nickname: data.nickname,
           id: gameSocket.id
@@ -135,7 +136,20 @@ function playerJoinedRoom(data, gameSocket) {
 
 function playersInRoom(data, gameSocket) {
   if (gameSocket.adapter.rooms.get(data.roomId)) {
-    io.to(data.roomId).emit('playersInRoom', roomUsers[data.roomId].users);
+
+    if (!roomUsers[data.roomId].users) {
+      return;
+    }
+
+    const playersData = roomUsers[data.roomId].users.map(el => {
+      return {
+        ...el,
+        numCards: el.cards?.length ?? 0,
+        cards: undefined
+      };
+    });
+
+    io.to(data.roomId).emit('playersInRoom', playersData);
   }
   else {
     console.log('Room doesnt exist');
@@ -161,15 +175,31 @@ function setTeams(data, gameSocket) {
   // If the room exists...
   if (gameSocket.adapter.rooms.get(data.roomId) && gameSocket.adapter.rooms.get(data.roomId).size == 4 && roomUsers[data.roomId]) {
 
+    let isTeam2MemberSetAlready = false;
+
     // Loop through users in room
     roomUsers[data.roomId].users.forEach((el, i) => {
 
-      // Set host and their chosen partner to team 1
-      if (el.id == gameSocket.id || el.id == data.partnerId) {
+      // Set host to team 1 and as player 1
+      if (el.id == gameSocket.id) {
         roomUsers[data.roomId].users[i].team = 1;
+        roomUsers[data.roomId].users[i].player = 1;
+      }
+      else if (el.id == data.partnerId) { // Set host's chosen partner to team 1 and as player 3
+        roomUsers[data.roomId].users[i].team = 1;
+        roomUsers[data.roomId].users[i].player = 3;
       }
       else { // Set other users to team 2
         roomUsers[data.roomId].users[i].team = 2;
+
+
+        if (!isTeam2MemberSetAlready) { // If a player has not been added to team 2 as yet, assign them as player 2
+          roomUsers[data.roomId].users[i].player = 2;
+          isTeam2MemberSetAlready = true;
+        }
+        else { // Else assign them as player 4
+          roomUsers[data.roomId].users[i].player = 4;
+        }
       }
     });
 
@@ -236,7 +266,6 @@ function generateDeck(data, gameSocket) {
 
   roomUsers[data.roomId].deck = deck;
 
-  console.log('About to emit kickCard');
   kickCard(data, gameSocket);
 }
 
@@ -246,13 +275,13 @@ function kickCard(data, gameSocket) {
     return;
   }
 
-  if (roomUsers[data.roomId].kicked) {
-    io.to(data.roomId).emit('kickedCards', roomUsers[data.roomId].kicked);
-    return;
-  }
+  // if (roomUsers[data.roomId].kicked) {
+  //   io.to(data.roomId).emit('kickedCards', roomUsers[data.roomId].kicked);
+  //   return;
+  // }
 
   // Kick card
-  roomUsers[data.roomId].deck.pop();
+  roomUsers[data.roomId].kicked = [roomUsers[data.roomId].deck.pop()];
 
   // Deal 3 cards to each player twice
   dealAll(data, gameSocket);
@@ -272,7 +301,6 @@ function deal(player, deck) {
 
     if (card) {
       if (tempPlayer.cards) {
-        console.log('TPC: ', tempPlayer.cards);
         tempPlayer.cards.push(card);
       }
       else {
@@ -308,6 +336,8 @@ function dealAll(data, gameSocket) {
   }
 
   roomUsers[data.roomId].deck = tempDeck;
+
+  playersInRoom(data, gameSocket);
 
   io.to(data.roomId).emit('deck', tempDeck);
   io.to(data.roomId).emit('kickedCards', roomUsers[data.roomId].kicked);

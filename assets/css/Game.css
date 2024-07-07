@@ -8,7 +8,7 @@
 }
 
 
-/* Player hand positioning */ 
+/* Player hand positioning */
 
 .player-card-1 {
     position: absolute;
@@ -38,7 +38,7 @@
 .card-deck {
     position: absolute;
     top:40%;
-    right: 45%;  
+    right: 45%;
 }
 
 
@@ -52,17 +52,17 @@
 
 .card-kicked-2 {
     position: absolute;
-    right: 39% !important;  
+    right: 39% !important;
 }
 
 .card-kicked-3 {
     position: absolute;
-    right: 38% !important;  
+    right: 38% !important;
 }
 
 .card-kicked-4 {
     position: absolute;
-    right: 37% !important;  
+    right: 37% !important;
 }
 
 
@@ -92,5 +92,3 @@
     right: 30%;
     top: 40%;
 }
-
-

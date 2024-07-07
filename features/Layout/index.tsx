@@ -42,14 +42,11 @@ export default function Layout({ Component, pageProps }: Props) {
       }
       else {
         console.log('Error Msg: ', data.errorMsg);
-        if (data.errorMsg == 'Sorry, this room does not exist!') {
-          router.push('/');
-        }
+        router.push('/');
         toast(data.errorMsg, {
           type: 'error',
           hideProgressBar: true
         });
-        // dispatch(setErrorMsg(data.errorMsg));
       }
     });
 
