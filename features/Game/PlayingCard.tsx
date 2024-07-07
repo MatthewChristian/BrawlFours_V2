@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { HTMLAttributes, useMemo } from 'react';
 import Image from 'next/image';
 import { DeckCard } from '../../models/DeckCard';
 import { getCardShortcode } from '../../core/services/parseCard';
@@ -11,10 +11,12 @@ interface Props {
   onClickHandler?: (val?: DeckCard, player?: number) => void;
   isDeckCard?: boolean;
   isKickedCard?: boolean;
-  cardClassName?: string;
+  isTeam2Card?: boolean;
+  className?: string;
+  style?: React.CSSProperties
 }
 
-export default function PlayingCard({ iter, len, onClickHandler, player, cardData, isDeckCard, isKickedCard, cardClassName }: Props) {
+export default function PlayingCard({ className, style, iter, len, onClickHandler, player, cardData, isDeckCard, isKickedCard, isTeam2Card  }: Props) {
 
   const card = useMemo(() => {
     return getCardShortcode(cardData);
@@ -26,7 +28,7 @@ export default function PlayingCard({ iter, len, onClickHandler, player, cardDat
 
   const p1Start = useMemo(() => {
     const tempLen = len ?? 0;
-    return 52 + (horizontalGap * (tempLen - 6)) - (horizontalGap * ((tempLen - 6) / 3)) - ((tempLen - 6) / 2);
+    return 49 + (horizontalGap * (tempLen - 6)) - (horizontalGap * ((tempLen - 6) / 3)) - ((tempLen - 6) / 2);
   }, [len]);
 
   const p2Start = useMemo(() => {
@@ -35,29 +37,28 @@ export default function PlayingCard({ iter, len, onClickHandler, player, cardDat
   }, [len]);
 
   return (
-    <div className={`playing-card card-${cardClassName} player-card-${player} ${isKickedCard ? 'player-card-kicked' : ''}`}
+    <div className={`${className}`}
       onClick={() => onClickHandler ? onClickHandler(cardData, player) : undefined}
-      style={{
-        position: 'absolute',
-        right: (player == 1 || player == 3) ? `${p1Start - (horizontalGap * (iter ?? 0))}%` : undefined,
-        top: (player == 2 || player == 4) ? `${p2Start + (verticalGap * (iter ?? 0))}%` : undefined,
-      }}>
+      style={style}>
       { !isDeckCard ? (
         card &&
+        <div style={{position: 'relative', height: 120, width: 80 }}>
           <Image
             src={`/images/${card}.png`}
-            width={78.5}
-            height={120}
-            // style={{ width: 'auto', height: 'auto' }}
+            fill
+            style={{ objectFit: 'contain' }}
             alt='card'
           />
+        </div>
       ) : (
-        <Image
-          src={'/images/red_back.png'}
-          width={78.5}
-          height={120}
-          alt='card'
-        />
+        <div style={{ position: 'relative', height: 120, width: 80}}>
+          <Image
+            src={'/images/red_back.png'}
+            fill
+            style={{ objectFit: 'contain' }}
+            alt='card'
+          />
+        </div>
       ) }
     </div>
   );

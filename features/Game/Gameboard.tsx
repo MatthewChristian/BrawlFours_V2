@@ -282,18 +282,31 @@ export default function Gameboard({ socket, roomId }: Props) {
   }, [roomId]);
 
   return (
-    <div className="container">
-      <div className="row">
-        <div className="col-sm-3 sidepanel">
-          <div className="score row">
-            <div className="col-sm-12">
+    <div className="h-screen w-screen">
+
+      <div className='flex flex-row'>
+
+        <div className="bg-red-100 p-2 h-screen w-1/5">
+
+          <div className='flex flex-row'>
+            <PlayingCard isDeckCard className="deck"></PlayingCard>
+            <div className='flex flex-row'>
+              <PlayingCard cardData={kickedCard ? kickedCard[0] : undefined} className="kicked-1" isKickedCard style={{ marginRight: -60 }}></PlayingCard>
+              <PlayingCard cardData={kickedCard ? kickedCard[1] : undefined} className="kicked-2" isKickedCard style={{ marginRight: -60 }}></PlayingCard>
+              <PlayingCard cardData={kickedCard ? kickedCard[2] : undefined} className="kicked-3" isKickedCard style={{ marginRight: -60 }}></PlayingCard>
+              <PlayingCard cardData={kickedCard ? kickedCard[3] : undefined} className="kicked-4" isKickedCard style={{ marginRight: -60 }}></PlayingCard>
+            </div>
+          </div>
+
+          <div>
+            <div>
               <p>Score: {score[0]} - {score[1]}</p>
             </div>
-            <div className="col-sm-12">
+            <div>
               <p>It is player {playerTurn}&apos;s turn</p>
             </div>
           </div>
-          <div className="game">
+          <div>
             <p>Game: {t1Points} - {t2Points}</p>
           </div>
           <div>
@@ -331,14 +344,14 @@ export default function Gameboard({ socket, roomId }: Props) {
               ) : (null)
             }
           </div>
-          <div className="liftWinner">
+          <div>
             {liftWinner > 0 ?
               (
                 <p>Player {liftWinner} won the lift</p>
               ) : (null)
             }
           </div>
-          <div className="kicked">
+          <div>
             <div>
               <p> Kicked: </p>
 
@@ -346,47 +359,53 @@ export default function Gameboard({ socket, roomId }: Props) {
             <button value="Press" onClick={beg}>Press</button>
           </div>
         </div>
-        <div className="col-sm-8 cardTable">
-          <div className="kickedCard">
-            <PlayingCard cardData={kickedCard ? kickedCard[0] : undefined} cardClassName="kicked-1" isKickedCard></PlayingCard>
-            <PlayingCard cardData={kickedCard ? kickedCard[1] : undefined} cardClassName="kicked-2" isKickedCard></PlayingCard>
-            <PlayingCard cardData={kickedCard ? kickedCard[2] : undefined} cardClassName="kicked-3" isKickedCard></PlayingCard>
-            <PlayingCard cardData={kickedCard ? kickedCard[3] : undefined} cardClassName="kicked-4" isKickedCard></PlayingCard>
-            <PlayingCard isDeckCard cardClassName="deck"></PlayingCard>
-            <PlayingCard cardData={player1CardPlayed} cardClassName="played-1"></PlayingCard>
-            <PlayingCard cardData={player2CardPlayed} cardClassName="played-2"></PlayingCard>
-            <PlayingCard cardData={player3CardPlayed} cardClassName="played-3"></PlayingCard>
-            <PlayingCard cardData={player4CardPlayed} cardClassName="played-4"></PlayingCard>
-          </div>
-          <div className="hand player1" ref={player1Hand}>
 
-            {
-              Array.from({ length: player1Cards.length }, (_, k) => (
-                <PlayingCard key={'1' + k} len={player1Cards.length} player={1} iter={k} cardData={player1Cards[k]} onClickHandler={playCard}></PlayingCard>
-              ))
-            }
-          </div>
-          <div className="hand player2" ref={player2Hand}>
-            <div>Player 2 Name: {player2Data.nickname}</div>
-            {
-              Array.from({ length: player2Data.numCards }, (_, k) => (
-                <PlayingCard key={'2' + k} len={player2Data.numCards} player={2} iter={k} isDeckCard></PlayingCard>
-              ))
-            }
-          </div>
-          <div className="hand player3" ref={player3Hand}>
-            <div>Player 3 Name: {player3Data.nickname}</div>
+
+        <div className="bg-sky-100 h-screen w-4/5">
+
+
+
+          <div className="bg-yellow-500 w-full flex flex-row justify-center mt-12" ref={player3Hand}>
             {
               Array.from({ length: player3Data.numCards }, (_, k) => (
-                <PlayingCard key={'3' + k} len={player3Data.numCards} player={3} iter={k} isDeckCard></PlayingCard>
+                <PlayingCard key={'3' + k} len={player3Data.numCards} player={3} iter={k} isDeckCard className='-mx-2 p-0'></PlayingCard>
               ))
             }
           </div>
-          <div className="hand player4" ref={player4Hand}>
-            <div>Player 4 Name: {player4Data.nickname}</div>
+
+          <div className='flex flex-row'>
+
+            <div className="bg-blue-500 w-1/6 h-[60vh] flex flex-col items-center justify-center gap-0" ref={player2Hand}>
+              {
+                Array.from({ length: player2Data.numCards }, (_, k) => (
+                  <PlayingCard key={'2' + k} len={player2Data.numCards} player={2} iter={k} isDeckCard className='rotate-90 p-0' style={{ marginTop: -6 * player2Data.numCards, marginBottom: -6 * player2Data.numCards }} ></PlayingCard>
+                ))
+              }
+            </div>
+
+            <div className='bg-sky-200 w-4/6 flex justify-center items-center'>
+
+
+              <PlayingCard cardData={player1CardPlayed} className="played-1"></PlayingCard>
+              <PlayingCard cardData={player2CardPlayed} className="played-2"></PlayingCard>
+              <PlayingCard cardData={player3CardPlayed} className="played-3"></PlayingCard>
+              <PlayingCard cardData={player4CardPlayed} className="played-4"></PlayingCard>
+            </div>
+
+            <div className="bg-green-500 w-1/6 h-[60vh] flex flex-col items-center justify-center gap-0" ref={player4Hand}>
+              {
+                Array.from({ length: player4Data.numCards }, (_, k) => (
+                  <PlayingCard key={'4' + k} len={player4Data.numCards} player={4} iter={k} isDeckCard className='rotate-90 p-0' style={{ marginTop: -6 * player4Data.numCards, marginBottom: -6 * player4Data.numCards }}></PlayingCard>
+                ))
+              }
+            </div>
+
+          </div>
+
+          <div className="bg-red-500 w-full flex flex-row justify-center" ref={player1Hand}>
             {
-              Array.from({ length: player4Data.numCards }, (_, k) => (
-                <PlayingCard key={'4' + k} len={player4Data.numCards} player={4} iter={k} isDeckCard></PlayingCard>
+              Array.from({ length: player1Cards.length }, (_, k) => (
+                <PlayingCard key={'1' + k} len={player1Cards.length} player={1} iter={k} cardData={player1Cards[k]} onClickHandler={playCard} className='-mx-2'></PlayingCard>
               ))
             }
           </div>

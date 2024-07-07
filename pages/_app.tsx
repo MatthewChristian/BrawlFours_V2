@@ -1,5 +1,5 @@
 
-import '../assets/css/Game.css';
+// import '../assets/css/Game.css';
 import '../assets/css/Lobby.css';
 import '../assets/css/global.css';
 import 'react-toastify/dist/ReactToastify.css';
