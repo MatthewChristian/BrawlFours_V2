@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, RefObject, useMemo } from 'react';
-import io, { Socket } from 'socket.io-client';
+import { Socket } from 'socket.io-client';
 import { DeckCard } from '../../models/DeckCard';
 import { PlayerHand } from '../../models/PlayerHand';
 import PlayingCard from './PlayingCard';
@@ -8,7 +8,8 @@ import { getBeg, getDealer, getDeck, getKickedCards, getPlayerCards, getPlayerLi
 import { useRouter } from 'next/router';
 import { PlayerData } from '../../models/PlayerData';
 import { PlayerSocket } from '../../models/PlayerSocket';
-import StatusIcon from '../../core/components/StatusIcon';
+import DealerIcon from './StatusIcons/DealerIcon';
+import TurnIcon from './StatusIcons/TurnIcon';
 
 interface Props {
   socket: RefObject<Socket>;
@@ -19,6 +20,10 @@ interface Props {
 export default function Gameboard({ socket, roomId }: Props) {
 
   const router = useRouter();
+
+  const player2StatusIconsRef = useRef<HTMLDivElement>(null);
+  const player4StatusIconsRef = useRef<HTMLDivElement>(null);
+
 
   const players = useAppSelector(getPlayerList);
 
@@ -34,6 +39,7 @@ export default function Gameboard({ socket, roomId }: Props) {
 
   // Cards in the hand of the client player
   const playerCards = useAppSelector(getPlayerCards);
+
 
   const socketData = useMemo(() => {
     return ({
@@ -135,6 +141,30 @@ export default function Gameboard({ socket, roomId }: Props) {
   // Indicate whether or not the game has started
   const [gameStarted, setGameStarted] = useState<boolean>(false);
 
+  function getTeam2CardMargins(length: number) {
+    return ({
+      marginTop: (-6 + (length / 3) - 2) * length,
+      marginBottom: (-6 + (length / 3) - 2) * length
+    });
+  }
+
+  function getTeam2GridCols(statusRef: RefObject<HTMLDivElement>) {
+    if (!statusRef?.current) {
+      return '';
+    }
+
+    console.log('L: ', statusRef.current.childNodes.length);
+
+    if (statusRef.current.childNodes.length == 1) {
+      return 'grid-cols-1';
+    }
+    else if (statusRef.current.childNodes.length == 2) {
+      return 'grid-cols-2';
+    }
+    else {
+      return 'grid-cols-3';
+    }
+  }
 
   /*
     Render player cards on the screen
@@ -377,34 +407,48 @@ export default function Gameboard({ socket, roomId }: Props) {
         </div>
 
 
-        <div className="bg-sky-100 h-screen w-4/5">
+        <div className="h-screen w-4/5">
 
-          <div className='flex justify-center'>
-            {
-              player3Data.nickname
-            }
-          </div>
+          <div className='h-[25vh] flex flex-col justify-between  bg-orange-200'>
+            <div className='flex flex-col items-center justify-center p-3'>
+              <div className='flex justify-center'>
+                {
+                  player3Data.nickname
+                }
+              </div>
 
-          <div className="bg-yellow-500 w-full flex flex-row justify-center" ref={player3Hand}>
-            {
-              Array.from({ length: player3Data.numCards }, (_, k) => (
-                <PlayingCard key={'3' + k} len={player3Data.numCards} player={3} iter={k} isDeckCard className='-mx-2 p-0'></PlayingCard>
-              ))
-            }
+              <div className='flex flex-row gap-2'>
+                <DealerIcon active={dealer == 3} />
+              </div>
+            </div>
+
+            <div className="bg-yellow-500 w-full flex flex-row justify-center" ref={player3Hand}>
+              {
+                Array.from({ length: player3Data.numCards }, (_, k) => (
+                  <PlayingCard key={'3' + k} len={player3Data.numCards} player={3} iter={k} isDeckCard className='-mx-2 p-0'></PlayingCard>
+                ))
+              }
+            </div>
           </div>
 
           <div className='flex flex-row'>
 
-            <div className='flex justify-center items-center'>
-              {
-                player4Data.nickname
-              }
+            <div className='flex flex-col justify-center items-center w-2/12'>
+              <div >
+                {
+                  player4Data.nickname
+                }
+              </div>
+
+              <div className={`grid gap-2 ${getTeam2GridCols(player4StatusIconsRef)}`} ref={player4StatusIconsRef}>
+                <DealerIcon active={dealer == 4} />
+              </div>
             </div>
 
-            <div className="bg-blue-500 w-1/6 h-[60vh] flex flex-col items-center justify-center gap-0" ref={player2Hand}>
+            <div className="bg-blue-500 w-1/6 h-[50vh] flex flex-col items-center justify-center gap-0" ref={player2Hand}>
               {
                 Array.from({ length: player4Data.numCards }, (_, k) => (
-                  <PlayingCard key={'4' + k} len={player4Data.numCards} player={4} iter={k} isDeckCard className='rotate-90 p-0' style={{ marginTop: -6 * player4Data.numCards, marginBottom: -6 * player4Data.numCards }} ></PlayingCard>
+                  <PlayingCard key={'4' + k} len={player4Data.numCards} player={4} iter={k} isDeckCard className='rotate-90 p-0' style={getTeam2CardMargins(player4Data.numCards)} ></PlayingCard>
                 ))
               }
             </div>
@@ -418,39 +462,52 @@ export default function Gameboard({ socket, roomId }: Props) {
               <PlayingCard cardData={player4CardPlayed} className="played-4"></PlayingCard>
             </div>
 
-            <div className="bg-green-500 w-1/6 h-[60vh] flex flex-col items-center justify-center gap-0" ref={player4Hand}>
+            <div className="bg-green-500 w-1/6 h-[50vh] flex flex-col items-center justify-center gap-0" ref={player4Hand}>
               {
                 Array.from({ length: player2Data.numCards }, (_, k) => (
-                  <PlayingCard key={'2' + k} len={player2Data.numCards} player={2} iter={k} isDeckCard className='rotate-90 p-0' style={{ marginTop: -6 * player2Data.numCards, marginBottom: -6 * player2Data.numCards }}></PlayingCard>
+                  <PlayingCard key={'2' + k} len={player2Data.numCards} player={2} iter={k} isDeckCard className='rotate-90 p-0' style={getTeam2CardMargins(player2Data.numCards)}></PlayingCard>
                 ))
               }
 
             </div>
 
-            <div className='flex justify-center items-center'>
-              {
-                player2Data.nickname
-              }
+            <div className='flex flex-col justify-center items-center w-2/12'>
+              <div >
+                {
+                  player2Data.nickname
+                }
+              </div>
+
+              <div className={`grid gap-2 ${getTeam2GridCols(player2StatusIconsRef)}`} ref={player2StatusIconsRef}>
+                <DealerIcon active={dealer == 2} />
+                <TurnIcon active={playerTurn == 2} />
+              </div>
             </div>
 
           </div>
 
-          <div className="bg-red-500 w-full flex flex-row justify-center" ref={player1Hand}>
-            {
-              Array.from({ length: player1Cards.length }, (_, k) => (
-                <PlayingCard key={'1' + k} len={player1Cards.length} player={1} iter={k} cardData={player1Cards[k]} onClickHandler={playCard} className='-mx-2'></PlayingCard>
-              ))
-            }
-          </div>
-
-          <div className='flex flex-col items-center justify-center'>
-            <div>
+          <div className='h-[25vh] bg-purple-200'>
+            <div className="bg-red-500 w-full flex flex-row justify-center" ref={player1Hand}>
               {
-                player1Data.nickname
+                Array.from({ length: player1Cards.length }, (_, k) => (
+                  <PlayingCard key={'1' + k} len={player1Cards.length} player={1} iter={k} cardData={player1Cards[k]} onClickHandler={playCard} className='-mx-2'></PlayingCard>
+                ))
               }
             </div>
 
+            <div className='flex flex-col items-center justify-center p-3'>
+              <div>
+                {
+                  player1Data.nickname
+                }
+              </div>
 
+              <div className='flex flex-row gap-2'>
+                <DealerIcon active={dealer == 1}/>
+                <TurnIcon active={playerTurn == 1} />
+              </div>
+
+            </div>
           </div>
 
         </div>

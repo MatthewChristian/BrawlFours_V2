@@ -1,10 +1,19 @@
 import React from 'react';
 import StatusIcon from '../../../core/components/StatusIcon';
 
-export default function DealerIcon() {
+interface Props {
+  active?: boolean;
+}
+
+export default function DealerIcon({ active }: Props) {
   return (
-    <StatusIcon
-      icon={<div className='bg-blue-200 border-2 border-blue-500 text-blue-500 rounded-lg h-7 w-7 flex flex-row justify-center items-center'>D</div>}
-    />
+    active ?
+      <StatusIcon
+        icon={<div className='font-bold'>D</div>}
+        twBgColour='bg-blue-200'
+        twTextColour='text-blue-500'
+        twBorderColour='border-blue-500'
+      />
+      : <></>
   );
 }
