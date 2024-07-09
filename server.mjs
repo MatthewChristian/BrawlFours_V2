@@ -248,6 +248,7 @@ function generateDeck(data, gameSocket) {
   }
 
   if (roomUsers[data.roomId].deck) {
+    console.log('Deck already generated');
     gameSocket.emit('deck', roomUsers[data.roomId].deck);
     return;
   }
@@ -266,7 +267,7 @@ function generateDeck(data, gameSocket) {
 
   roomUsers[data.roomId].deck = deck;
 
-  kickCard(data, gameSocket);
+  initialiseGame(data, gameSocket);
 }
 
 function kickCard(data, gameSocket) {
@@ -282,10 +283,6 @@ function kickCard(data, gameSocket) {
 
   // Kick card
   roomUsers[data.roomId].kicked = [roomUsers[data.roomId].deck.pop()];
-
-  // Deal 3 cards to each player twice
-  dealAll(data, gameSocket);
-  dealAll(data, gameSocket);
 }
 
 /*
@@ -341,6 +338,41 @@ function dealAll(data, gameSocket) {
 
   io.to(data.roomId).emit('deck', tempDeck);
   io.to(data.roomId).emit('kickedCards', roomUsers[data.roomId].kicked);
+}
+
+function initialiseGame(data, gameSocket) {
+  // Kick card
+  kickCard(data, gameSocket);
+
+  // Deal 3 cards to each player twice
+  dealAll(data, gameSocket);
+  dealAll(data, gameSocket);
+
+  // Determine who is the dealer
+  if (!roomUsers[data.roomId].dealer || roomUsers[data.roomId].dealer == 4) {
+    roomUsers[data.roomId].dealer = 1;
+  }
+  else {
+    roomUsers[data.roomId].dealer = roomUsers[data.roomId].dealer + 1;
+  }
+
+  // Determine whose turn it is
+  if (!roomUsers[data.roomId].turn) { // This means it is a new game
+    roomUsers[data.roomId].turn = 2;
+
+    // Set beg state to 'begging' to let game know that a player is currently deciding whether to beg or not
+    roomUsers[data.roomId].beg = 'begging';
+  }
+  else if (roomUsers[data.roomId].turn == 4) {
+    roomUsers[data.roomId].turn = 1;
+  }
+  else {
+    roomUsers[data.roomId].turn = roomUsers[data.roomId].turn + 1;
+  }
+
+  io.to(data.roomId).emit('dealer', roomUsers[data.roomId].dealer);
+  io.to(data.roomId).emit('turn', roomUsers[data.roomId].turn);
+  io.to(data.roomId).emit('beg', roomUsers[data.roomId].beg);
 }
 
 

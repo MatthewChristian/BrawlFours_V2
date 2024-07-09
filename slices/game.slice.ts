@@ -16,6 +16,9 @@ interface GameSlice {
   deck: DeckCard[];
   kickedCards: DeckCard[];
   playerCards: DeckCard[];
+  dealer?: number;
+  turn?: number;
+  beg?: 'begging' | 'begged' | 'stand';
 }
 const initialState: GameSlice = {
   playerList: [],
@@ -61,6 +64,18 @@ export const gameSlice = createSlice({
       state.playerCards = action.payload;
     },
 
+    setDealer: (state, action: PayloadAction<number>) => {
+      state.dealer = action.payload;
+    },
+
+    setTurn: (state, action: PayloadAction<number>) => {
+      state.turn = action.payload;
+    },
+
+    setBeg: (state, action: PayloadAction<'begging' | 'begged' | 'stand' | undefined>) => {
+      state.beg = action.payload;
+    },
+
   }
 });
 
@@ -77,7 +92,10 @@ export const {
   setJoinModalOpen,
   setDeck,
   setKickedCards,
-  setPlayerCards
+  setPlayerCards,
+  setBeg,
+  setDealer,
+  setTurn
 } =  gameSlice.actions;
 
 // Selectors
@@ -95,3 +113,9 @@ export const getDeck = (state: RootState): DeckCard[] => state.gameSlice.deck;
 export const getKickedCards = (state: RootState): DeckCard[] => state.gameSlice.kickedCards;
 
 export const getPlayerCards = (state: RootState): DeckCard[] => state.gameSlice.playerCards;
+
+export const getDealer = (state: RootState): number => state.gameSlice.dealer;
+
+export const getTurn = (state: RootState): number => state.gameSlice.turn;
+
+export const getBeg = (state: RootState): 'begging' | 'begged' | 'stand' | undefined => state.gameSlice.beg;
