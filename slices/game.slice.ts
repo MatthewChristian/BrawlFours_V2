@@ -18,7 +18,7 @@ interface GameSlice {
   playerCards: DeckCard[];
   dealer?: number;
   turn?: number;
-  beg?: 'begging' | 'begged' | 'stand';
+  beg?: 'begging' | 'begged' | 'stand' | 'give' | 'run';
 }
 const initialState: GameSlice = {
   playerList: [],
@@ -72,7 +72,7 @@ export const gameSlice = createSlice({
       state.turn = action.payload;
     },
 
-    setBeg: (state, action: PayloadAction<'begging' | 'begged' | 'stand' | undefined>) => {
+    setBeg: (state, action: PayloadAction<'begging' | 'begged' | 'stand' | 'give' | 'run' | undefined>) => {
       state.beg = action.payload;
     },
 
@@ -118,4 +118,4 @@ export const getDealer = (state: RootState): number => state.gameSlice.dealer;
 
 export const getTurn = (state: RootState): number => state.gameSlice.turn;
 
-export const getBeg = (state: RootState): 'begging' | 'begged' | 'stand' | undefined => state.gameSlice.beg;
+export const getBeg = (state: RootState): 'begging' | 'begged' | 'stand' | 'give' | 'run' | undefined => state.gameSlice.beg;

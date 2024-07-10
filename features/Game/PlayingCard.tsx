@@ -1,4 +1,4 @@
-import React, { HTMLAttributes, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import Image from 'next/image';
 import { DeckCard } from '../../models/DeckCard';
 import { getCardShortcode } from '../../core/services/parseCard';
@@ -16,25 +16,11 @@ interface Props {
   style?: React.CSSProperties
 }
 
-export default function PlayingCard({ className, style, iter, len, onClickHandler, player, cardData, isDeckCard, isKickedCard, isTeam2Card  }: Props) {
+export default function PlayingCard({ className, style, onClickHandler, player, cardData, isDeckCard }: Props) {
 
   const card = useMemo(() => {
     return getCardShortcode(cardData);
   }, [cardData]);
-
-  const horizontalGap = 4;
-  const verticalGap = 3;
-
-
-  const p1Start = useMemo(() => {
-    const tempLen = len ?? 0;
-    return 49 + (horizontalGap * (tempLen - 6)) - (horizontalGap * ((tempLen - 6) / 3)) - ((tempLen - 6) / 2);
-  }, [len]);
-
-  const p2Start = useMemo(() => {
-    const tempLen = len ?? 0;
-    return 34 - (verticalGap * (tempLen - 6)) + (verticalGap * ((tempLen - 6) / 3)) + ((tempLen - 6) / 2);
-  }, [len]);
 
   return (
     <div className={`${className}`}

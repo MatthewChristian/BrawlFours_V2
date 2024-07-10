@@ -10,6 +10,10 @@ import { PlayerData } from '../../models/PlayerData';
 import { PlayerSocket } from '../../models/PlayerSocket';
 import DealerIcon from './StatusIcons/DealerIcon';
 import TurnIcon from './StatusIcons/TurnIcon';
+import Popup from 'reactjs-popup';
+import Modal from '../../core/components/Modal';
+import Button from '../../core/components/Button';
+import { toast } from 'react-toastify';
 
 interface Props {
   socket: RefObject<Socket>;
@@ -41,11 +45,50 @@ export default function Gameboard({ socket, roomId }: Props) {
   const playerCards = useAppSelector(getPlayerCards);
 
 
+  const [begModalVisible, setBegModalVisible] = useState<boolean>(false);
+  const [begResponseModalVisible, setBegResponseModalVisible] = useState<boolean>(false);
+  const [waitingBegResponseModalVisible, setWaitingBegResponseModalVisible] = useState<boolean>(false);
+
+
   const socketData = useMemo(() => {
     return ({
       roomId: String(roomId),
     });
   }, [roomId]);
+
+  // Get player number from server
+  const playerNumber = useMemo(() => {
+    return players.find(el => el.id == socket.current.id)?.player;
+  }, [players]);
+
+  // Determine whether or not it is the turn of the client player
+  const isPlayer1Turn = useMemo(() => {
+    if (playerNumber == playerTurn) {
+      return true;
+    }
+
+    return false;
+  }, [playerTurn, playerNumber]);
+
+  // Determine whether or not client player is the dealer
+  const isPlayer1Dealer = useMemo(() => {
+    if (playerNumber == dealer) {
+      return true;
+    }
+
+    return false;
+  }, [dealer, playerNumber]);
+
+  // Get name of player whose turn it is
+  const turnPlayerName = useMemo(() => {
+    return players.find(el => el.player == playerTurn)?.nickname;
+  }, [playerTurn, players]);
+
+
+  // Get name of dealer
+  const dealerName = useMemo(() => {
+    return players.find(el => el.player == dealer)?.nickname;
+  }, [dealer, players]);
 
   // Indicate if the game has been initialised as yet
   const [loaded, setLoaded] = useState(false);
@@ -220,15 +263,10 @@ export default function Gameboard({ socket, roomId }: Props) {
 
 
   useEffect(() => {
-    console.log('GPlayers: ', players);
 
     if (!players || players.length == 0) {
       return;
     }
-
-    // const playerIndex = players.findIndex(el => el.id == socket.current.id);
-
-    const playerNumber = players.find(el => el.id == socket.current.id)?.player;
 
     const playerDataServer: PlayerSocket[] = [];
 
@@ -309,15 +347,61 @@ export default function Gameboard({ socket, roomId }: Props) {
     }
 
 
-  }, [players]);
+  }, [players, playerNumber]);
 
   useEffect(() => {
-    console.log('Dealer: ', dealer);
-  }, [dealer]);
+    if (begState == 'begging' && isPlayer1Turn) {
+      setBegModalVisible(true);
+    }
+  }, [begState, isPlayer1Turn]);
 
   useEffect(() => {
-    console.log('Beg state: ', begState);
-  }, [begState]);
+    if (!begState) {
+      return;
+    }
+
+    if (begState == 'begged') {
+      if (isPlayer1Dealer) {
+        setBegResponseModalVisible(true);
+      }
+      else if (isPlayer1Turn) {
+        setBegModalVisible(false);
+        setWaitingBegResponseModalVisible(true);
+      }
+      else {
+        toast(turnPlayerName + ' begged!', {
+          type: 'default',
+          hideProgressBar: true,
+          position: 'top-center'
+        });
+      }
+    }
+    else if (begState == 'stand') {
+      toast(turnPlayerName + ' stood!', {
+        type: 'default',
+        hideProgressBar: true,
+        position: 'top-center'
+      });
+    }
+    else if (begState == 'give') {
+      setBegResponseModalVisible(false);
+      setWaitingBegResponseModalVisible(false);
+      toast(dealerName + ' gave a point!', {
+        type: 'default',
+        hideProgressBar: true,
+        position: 'top-center'
+      });
+    }
+    else if (begState == 'run') {
+      setBegResponseModalVisible(false);
+      setWaitingBegResponseModalVisible(false);
+      toast(dealerName + ' ran the pack!', {
+        type: 'default',
+        hideProgressBar: true,
+        position: 'top-center'
+      });
+    }
+  }, [begState, isPlayer1Dealer, isPlayer1Turn, turnPlayerName, dealerName]);
 
   useEffect(() => {
     if (!roomId) {
@@ -512,6 +596,46 @@ export default function Gameboard({ socket, roomId }: Props) {
 
         </div>
       </div>
+
+
+
+      <Modal open={begModalVisible} closeOnDocumentClick={false} onClose={() => setBegModalVisible(false)}>
+        <div className="flex flex-col justify-center items-center mx-5">
+          <div className="">Do you want to beg or stand?</div>
+          <div className='w-full flex flex-row justify-center gap-5'>
+            <Button className='blue-button mt-5' onClick={() => socket.current.emit('begResponse', { ...socketData, response: 'begged' })}>
+              Beg
+            </Button>
+
+            <Button className='green-button mt-5' onClick={() => socket.current.emit('begResponse', { ...socketData, response: 'stand' })}>
+              Stand
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+
+      <Modal open={begResponseModalVisible} closeOnDocumentClick={false} onClose={() => setBegResponseModalVisible(false)}>
+        <div className="flex flex-col justify-center items-center mx-5">
+          <div className="">{turnPlayerName} has begged!</div>
+          <div className='w-full flex flex-row justify-center gap-5'>
+            <Button className='blue-button mt-5' onClick={() => socket.current.emit('begResponse', { ...socketData, response: 'give' })}>
+              Give one
+            </Button>
+
+            <Button className='green-button mt-5' onClick={() => socket.current.emit('begResponse', { ...socketData, response: 'run' })}>
+              Run pack
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal open={waitingBegResponseModalVisible} closeOnDocumentClick={false} onClose={() => setWaitingBegResponseModalVisible(false)}>
+        <div className="flex flex-col justify-center items-center mx-5">
+          <div className="">Waiting for response from {dealerName}...</div>
+        </div>
+      </Modal>
+
     </div>
   );
 }

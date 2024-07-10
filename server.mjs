@@ -37,6 +37,7 @@ io.on('connection', (socket) => {
   socket.on('generateDeck', (data) => generateDeck(data, socket));
   socket.on('kickCard', (data) => kickCard(data, socket));
   socket.on('playerCards', (data) => playerCards(data, socket));
+  socket.on('begResponse', (data) => begResponse(data, socket));
 });
 
 function generateRoomId(gameSocket) {
@@ -388,6 +389,30 @@ function playerCards(data, gameSocket) {
         return;
       }
     });
+  }
+  else {
+    console.log('Room doesnt exist');
+  }
+}
+
+function begResponse(data, gameSocket) {
+  if (gameSocket.adapter.rooms.get(data.roomId)) {
+
+    if (data.response == 'begged') {
+      roomUsers[data.roomId].beg = 'begged';
+
+    }
+    else if (data.response == 'stand') {
+      roomUsers[data.roomId].beg = 'stand';
+    }
+    else if (data.response == 'give') {
+      roomUsers[data.roomId].beg = 'give';
+    }
+    else if (data.response == 'run') {
+      roomUsers[data.roomId].beg = 'run';
+    }
+
+    io.to(data.roomId).emit('beg', roomUsers[data.roomId].beg);
   }
   else {
     console.log('Room doesnt exist');
