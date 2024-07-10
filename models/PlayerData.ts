@@ -3,4 +3,5 @@ export interface PlayerData {
   nickname?: string;
   turn?: boolean;
   dealer?: boolean;
+  team?: number;
 }

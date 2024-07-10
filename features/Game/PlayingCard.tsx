@@ -4,14 +4,10 @@ import { DeckCard } from '../../models/DeckCard';
 import { getCardShortcode } from '../../core/services/parseCard';
 
 interface Props {
-  len?: number;
   player?: number;
-  iter?: number;
   cardData?: DeckCard;
   onClickHandler?: (val?: DeckCard, player?: number) => void;
   isDeckCard?: boolean;
-  isKickedCard?: boolean;
-  isTeam2Card?: boolean;
   className?: string;
   style?: React.CSSProperties
 }

@@ -19,13 +19,15 @@ interface GameSlice {
   dealer?: number;
   turn?: number;
   beg?: 'begging' | 'begged' | 'stand' | 'give' | 'run';
+  teamScore?: number[];
 }
 const initialState: GameSlice = {
   playerList: [],
   joinModalOpen: false,
   deck: [],
   kickedCards: [],
-  playerCards: []
+  playerCards: [],
+  teamScore: [0, 0]
 };
 
 /**
@@ -76,6 +78,10 @@ export const gameSlice = createSlice({
       state.beg = action.payload;
     },
 
+    setTeamScore: (state, action: PayloadAction<number[]>) => {
+      state.teamScore = action.payload;
+    },
+
   }
 });
 
@@ -95,7 +101,8 @@ export const {
   setPlayerCards,
   setBeg,
   setDealer,
-  setTurn
+  setTurn,
+  setTeamScore
 } =  gameSlice.actions;
 
 // Selectors
@@ -119,3 +126,5 @@ export const getDealer = (state: RootState): number => state.gameSlice.dealer;
 export const getTurn = (state: RootState): number => state.gameSlice.turn;
 
 export const getBeg = (state: RootState): 'begging' | 'begged' | 'stand' | 'give' | 'run' | undefined => state.gameSlice.beg;
+
+export const getTeamScore = (state: RootState): number[] => state.gameSlice.teamScore;

@@ -14,6 +14,7 @@ import Popup from 'reactjs-popup';
 import Modal from '../../core/components/Modal';
 import Button from '../../core/components/Button';
 import { toast } from 'react-toastify';
+import GameInfo from './GameInfo';
 
 interface Props {
   socket: RefObject<Socket>;
@@ -113,76 +114,6 @@ export default function Gameboard({ socket, roomId }: Props) {
   const [player3CardPlayed, setPlayer3CardPlayed] = useState<DeckCard>();
   const [player4CardPlayed, setPlayer4CardPlayed] = useState<DeckCard>();
 
-  // Manage player hands
-  const [player, setPlayer] = useState<PlayerHand[]>([]);
-
-  // Manage deck of cards
-  // const [deck, setDeck] = useState<DeckCard[]>([]); // Cards in deck
-
-  // Manage team scores
-  const [score, setScore] = useState<number[]>([0, 0]);
-
-  // Manage kicked card
-  const [kickedCard, setKickedCard] = useState<DeckCard[]>();
-
-  // Manage called card
-  const [called, setCalled] = useState<DeckCard>();
-
-  // Manage which suit is trump
-  const [trump, setTrump] = useState<string>();
-
-  // Manage cards in a lift
-  const [lift, setLift] = useState<number[]>([-200, 0, 0, 0, 0]);
-
-  // Indicate if round ended
-  const [liftEnded, setLiftEnded] = useState<number>(0);
-
-  // Indicate which team won a lift
-  const [liftWinner, setLiftWinner] = useState<number>(0);
-
-  // Manage how many players have played in a round
-  const [count, setCount] = useState<number>(1);
-
-  // Manage each team's points for game
-  const [t1Points, setT1Points] = useState<number>(0);
-  const [t2Points, setT2Points] = useState<number>(0);
-
-  // Manage each team's total score
-  const [t1Score, setT1Score] = useState<number>(0);
-  const [t2Score, setT2Score] = useState<number>(0);
-
-  // Manage values for high, low, game and jack
-  const [high, setHigh] = useState<number>(0);
-  const [low, setLow] = useState<number>(15);
-  const [game, setGame] = useState<number>(0);
-  const [jack, setJack] = useState<number>(1);
-
-  // Indicate which team played jack
-  const [jackPlayer, setJackPlayer] = useState<number>(0);
-
-  // Indicate if jack is in the current lift
-  const [jackInPlay, setJackInPlay] = useState<boolean>(false);
-
-  // Indicate which team hung jack
-  const [jackHangerTeam, setJackHangerTeam] = useState<number>(0);
-
-  // Indicate the power of the card which hung jack
-  const [jackHangerValue, setJackHangerValue] = useState<number>(0);
-
-  // Manage which team won what point
-  const [gameWinner, setGameWinner] = useState<number>(0);
-  const [highWinner, setHighWinner] = useState<number>(0);
-  const [lowWinner, setLowWinner] = useState<number>(0);
-  const [jackWinner, setJackWinner] = useState<number>(0);
-
-  // Indicate if player is allowed to beg or not
-  const [letBeg, setLetBeg] = useState<boolean>(false);
-
-  // Indicate whether or not to show which team won what
-  const [show, setShow] = useState<boolean>(false);
-
-  // Indicate whether or not the game has started
-  const [gameStarted, setGameStarted] = useState<boolean>(false);
 
   function getTeam2CardMargins(length: number) {
     return ({
@@ -212,15 +143,8 @@ export default function Gameboard({ socket, roomId }: Props) {
   /*
     Render player cards on the screen
   */
-  function displayPlayerCards(player: DeckCard[], kicked: DeckCard) {
-
-    console.log('Ps: ', player);
+  function displayPlayerCards(player: DeckCard[]) {
     setPlayer1Cards(player);
-
-    console.log('KS: ', kicked);
-
-    setKickedCard([kicked]);
-    setTrump(kicked.suit);
   }
 
   function beg() {
@@ -234,24 +158,18 @@ export default function Gameboard({ socket, roomId }: Props) {
   /*
     Initialise game
   */
-  useEffect(() => {
-    // if (!deck || !kickedCards || deck.length == 0 || kickedCards.length == 0 || loaded) {
-    //   return;
-    // }
+  // useEffect(() => {
 
-    console.log('Deck: ', deck);
-    console.log('Kicked: ', kickedCards);
+  //   socket.current?.emit('playerCards', socketData);
 
-    socket.current?.emit('playerCards', socketData);
-
-  }, [deck, kickedCards]);
+  // }, [deck, kickedCards]);
 
   useEffect(() => {
     if (!kickedCards || !playerCards || kickedCards.length == 0 || playerCards.length == 0) {
       return;
     }
 
-    displayPlayerCards(playerCards, kickedCards[0]);
+    displayPlayerCards(playerCards);
   }, [playerCards, kickedCards]);
 
   /*
@@ -276,39 +194,46 @@ export default function Gameboard({ socket, roomId }: Props) {
 
     setPlayer1Data({
       numCards: playerDataServer[playerNumber].numCards,
-      nickname: playerDataServer[playerNumber].nickname
+      nickname: playerDataServer[playerNumber].nickname,
+      team: playerDataServer[playerNumber].team,
     });
 
     if (playerNumber == 1) {
       setPlayer2Data({
         numCards: playerDataServer[2].numCards,
-        nickname: playerDataServer[2].nickname
+        nickname: playerDataServer[2].nickname,
+        team: playerDataServer[2].team,
       });
 
       setPlayer3Data({
         numCards: playerDataServer[3].numCards,
-        nickname: playerDataServer[3].nickname
+        nickname: playerDataServer[3].nickname,
+        team: playerDataServer[3].team,
       });
 
       setPlayer4Data({
         numCards: playerDataServer[4].numCards,
-        nickname: playerDataServer[4].nickname
+        nickname: playerDataServer[4].nickname,
+        team: playerDataServer[4].team,
       });
     }
     else if (playerNumber == 2) {
       setPlayer2Data({
         numCards: playerDataServer[3].numCards,
-        nickname: playerDataServer[3].nickname
+        nickname: playerDataServer[3].nickname,
+        team: playerDataServer[3].team,
       });
 
       setPlayer3Data({
         numCards: playerDataServer[4].numCards,
-        nickname: playerDataServer[4].nickname
+        nickname: playerDataServer[4].nickname,
+        team: playerDataServer[4].team,
       });
 
       setPlayer4Data({
         numCards: playerDataServer[1].numCards,
-        nickname: playerDataServer[1].nickname
+        nickname: playerDataServer[1].nickname,
+        team: playerDataServer[1].team,
       });
 
 
@@ -316,36 +241,41 @@ export default function Gameboard({ socket, roomId }: Props) {
     else if (playerNumber == 3) {
       setPlayer2Data({
         numCards: playerDataServer[4].numCards,
-        nickname: playerDataServer[4].nickname
+        nickname: playerDataServer[4].nickname,
+        team: playerDataServer[3].team,
       });
 
       setPlayer3Data({
         numCards: playerDataServer[1].numCards,
-        nickname: playerDataServer[1].nickname
+        nickname: playerDataServer[1].nickname,
+        team: playerDataServer[1].team,
       });
 
       setPlayer4Data({
         numCards: playerDataServer[2].numCards,
-        nickname: playerDataServer[2].nickname
+        nickname: playerDataServer[2].nickname,
+        team: playerDataServer[2].team,
       });
     }
     else if (playerNumber == 4) {
       setPlayer2Data({
         numCards: playerDataServer[1].numCards,
-        nickname: playerDataServer[1].nickname
+        nickname: playerDataServer[1].nickname,
+        team: playerDataServer[1].team,
       });
 
       setPlayer3Data({
         numCards: playerDataServer[2].numCards,
-        nickname: playerDataServer[2].nickname
+        nickname: playerDataServer[2].nickname,
+        team: playerDataServer[2].team,
       });
 
       setPlayer4Data({
         numCards: playerDataServer[3].numCards,
-        nickname: playerDataServer[3].nickname
+        nickname: playerDataServer[3].nickname,
+        team: playerDataServer[3].team,
       });
     }
-
 
   }, [players, playerNumber]);
 
@@ -377,6 +307,7 @@ export default function Gameboard({ socket, roomId }: Props) {
       }
     }
     else if (begState == 'stand') {
+      setBegModalVisible(false);
       toast(turnPlayerName + ' stood!', {
         type: 'default',
         hideProgressBar: true,
@@ -416,80 +347,7 @@ export default function Gameboard({ socket, roomId }: Props) {
 
       <div className='flex flex-row'>
 
-        <div className="bg-red-100 p-2 h-screen w-1/5">
-
-          <div className='flex flex-row'>
-            <PlayingCard isDeckCard className="deck"></PlayingCard>
-            <div className='flex flex-row'>
-              <PlayingCard cardData={kickedCard ? kickedCard[0] : undefined} className="kicked-1" isKickedCard style={{ marginRight: -60 }}></PlayingCard>
-              <PlayingCard cardData={kickedCard ? kickedCard[1] : undefined} className="kicked-2" isKickedCard style={{ marginRight: -60 }}></PlayingCard>
-              <PlayingCard cardData={kickedCard ? kickedCard[2] : undefined} className="kicked-3" isKickedCard style={{ marginRight: -60 }}></PlayingCard>
-              <PlayingCard cardData={kickedCard ? kickedCard[3] : undefined} className="kicked-4" isKickedCard style={{ marginRight: -60 }}></PlayingCard>
-            </div>
-          </div>
-
-          <div>
-            <div>
-              <p>Score: {score[0]} - {score[1]}</p>
-            </div>
-            <div>
-              <p>It is player {playerTurn}&apos;s turn</p>
-            </div>
-          </div>
-          <div>
-            <p>Game: {t1Points} - {t2Points}</p>
-          </div>
-          <div>
-            {show ?
-              (
-                <p>Team {highWinner} won high with {high}</p>
-              ) : (null)
-            }
-          </div>
-          <div>
-            {show ?
-              (
-                <p>Team {lowWinner} won low with {low}</p>
-              ) : (null)
-            }
-          </div>
-          <div>
-            {show && jackWinner > 0 ?
-              (
-                <p>Team {jackWinner} won jack</p>
-              ) : (null)
-            }
-          </div>
-          <div>
-            {show && jackWinner != jackPlayer ?
-              (
-                <p>Team {jackWinner} hung jack!</p>
-              ) : (null)
-            }
-          </div>
-          <div>
-            {show ?
-              (
-                <p>Team {lowWinner} won game {t1Points} - {t2Points}</p>
-              ) : (null)
-            }
-          </div>
-          <div>
-            {liftWinner > 0 ?
-              (
-                <p>Player {liftWinner} won the lift</p>
-              ) : (null)
-            }
-          </div>
-          <div>
-            <div>
-              <p> Kicked: </p>
-
-            </div>
-            <button value="Press" onClick={beg}>Press</button>
-          </div>
-        </div>
-
+        <GameInfo playerTurn={playerTurn} />
 
         <div className="h-screen w-4/5">
 
@@ -509,7 +367,7 @@ export default function Gameboard({ socket, roomId }: Props) {
             <div className="bg-yellow-500 w-full flex flex-row justify-center" ref={player3Hand}>
               {
                 Array.from({ length: player3Data.numCards }, (_, k) => (
-                  <PlayingCard key={'3' + k} len={player3Data.numCards} player={3} iter={k} isDeckCard className='-mx-2 p-0'></PlayingCard>
+                  <PlayingCard key={'3' + k} player={3} isDeckCard className='-mx-2 p-0'></PlayingCard>
                 ))
               }
             </div>
@@ -532,7 +390,7 @@ export default function Gameboard({ socket, roomId }: Props) {
             <div className="bg-blue-500 w-1/6 h-[50vh] flex flex-col items-center justify-center gap-0" ref={player2Hand}>
               {
                 Array.from({ length: player4Data.numCards }, (_, k) => (
-                  <PlayingCard key={'4' + k} len={player4Data.numCards} player={4} iter={k} isDeckCard className='rotate-90 p-0' style={getTeam2CardMargins(player4Data.numCards)} ></PlayingCard>
+                  <PlayingCard key={'4' + k} player={4} isDeckCard className='rotate-90 p-0' style={getTeam2CardMargins(player4Data.numCards)} ></PlayingCard>
                 ))
               }
             </div>
@@ -549,7 +407,7 @@ export default function Gameboard({ socket, roomId }: Props) {
             <div className="bg-green-500 w-1/6 h-[50vh] flex flex-col items-center justify-center gap-0" ref={player4Hand}>
               {
                 Array.from({ length: player2Data.numCards }, (_, k) => (
-                  <PlayingCard key={'2' + k} len={player2Data.numCards} player={2} iter={k} isDeckCard className='rotate-90 p-0' style={getTeam2CardMargins(player2Data.numCards)}></PlayingCard>
+                  <PlayingCard key={'2' + k} player={2} isDeckCard className='rotate-90 p-0' style={getTeam2CardMargins(player2Data.numCards)}></PlayingCard>
                 ))
               }
 
@@ -573,8 +431,8 @@ export default function Gameboard({ socket, roomId }: Props) {
           <div className='h-[25vh] bg-purple-200'>
             <div className="bg-red-500 w-full flex flex-row justify-center" ref={player1Hand}>
               {
-                Array.from({ length: player1Cards.length }, (_, k) => (
-                  <PlayingCard key={'1' + k} len={player1Cards.length} player={1} iter={k} cardData={player1Cards[k]} onClickHandler={playCard} className='-mx-2'></PlayingCard>
+                Array.from({ length: player1Cards.length == 0 ? player1Data.numCards : player1Cards.length}, (_, k) => (
+                  <PlayingCard key={'1' + k} player={1} cardData={player1Cards[k]} isDeckCard={player1Cards.length == 0 ? true : false} onClickHandler={playCard} className='-mx-2'></PlayingCard>
                 ))
               }
             </div>
