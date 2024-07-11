@@ -1,6 +1,6 @@
 import React, {  useEffect, useRef } from 'react';
 import { Socket, io } from 'socket.io-client';
-import { setBeg, setDealer, setDeck, setErrorMsg, setJoinModalOpen, setKickedCards, setPlayerCards, setPlayerList, setRoomId, setTeamScore, setTurn } from '../../slices/game.slice';
+import { setBeg, setCardsRevealed, setDealer, setDeck, setErrorMsg, setJoinModalOpen, setKickedCards, setPlayerCards, setPlayerList, setRoomId, setTeamScore, setTurn } from '../../slices/game.slice';
 import { useAppDispatch } from '../../store/hooks';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/router';
@@ -12,7 +12,7 @@ interface Props {
 
 export default function Layout({ Component, pageProps }: Props) {
   // Manage socket.io websocket
-  const socket = useRef<Socket>(io());
+  const socket = useRef<Socket>(io('http://localhost:3000'));
 
   const router = useRouter();
 
@@ -75,6 +75,11 @@ export default function Layout({ Component, pageProps }: Props) {
 
     socket.current.on('teamScore', (state) => {
       dispatch(setTeamScore(state));
+    });
+
+    socket.current.on('cardsRevealed', (state) => {
+      console.log('CR: ', state);
+      dispatch(setCardsRevealed(state));
     });
   }, [socket]);
 

@@ -34,7 +34,7 @@ io.on('connection', (socket) => {
   socket.on('leaveRoom', (data) => leaveRoom(data, socket));
   socket.on('setTeams', (data) => setTeams(data, socket));
   socket.on('gameStarted', (data) => gameStarted(data, socket));
-  socket.on('generateDeck', (data) => generateDeck(data, socket));
+  socket.on('initialiseGame', (data) => initialiseGame(data, socket));
   socket.on('kickCard', (data) => kickCard(data, socket));
   socket.on('playerCards', (data) => playerCards(data, socket));
   socket.on('begResponse', (data) => begResponse(data, socket));
@@ -89,7 +89,6 @@ function joinRoom(data, gameSocket) {
 
     // If player is already in room
     if (roomUsers[data.roomId] && roomUsers[data.roomId].users && roomUsers[data.roomId].users.find(el => el.id == gameSocket.id)) {
-      console.log('Player ', data.nickname, ' is already in this room.');
       return;
     }
 
@@ -253,7 +252,7 @@ function generateDeck(data, gameSocket) {
     return;
   }
 
-  const suits = ['s', 'd', 'c', 'h']; // s=Spades, d=Dimes, c=Clubs, h=Hearts
+  const suits = ['s', 's', 's', 's']; // s=Spades, d=Dimes, c=Clubs, h=Hearts
   const values = ['2', '3', '4', '5', '6', '7', '8', '9', 'X', 'J', 'Q', 'K', 'A'];
   const deck = [];
   let card;
@@ -266,35 +265,39 @@ function generateDeck(data, gameSocket) {
   shuffle(deck);
 
   roomUsers[data.roomId].deck = deck;
-
-  initialiseGame(data, gameSocket);
 }
 
 /*
    Check to see what card that the dealer has kicked
  */
-function checkKicked(kicked, dealer, roomId) {
+function checkKicked(kicked, roomId, dealerTeam) {
   if (!roomUsers[roomId].teamScore) {
     roomUsers[roomId].teamScore = [0, 0];
   }
 
   if (kicked.value == '6') {
-    if (dealer == 1 || dealer == 3)
+    if (dealerTeam == 1) {
       roomUsers[roomId].teamScore[0] += 2;
-    else
+    }
+    else {
       roomUsers[roomId].teamScore[1] += 2;
+    }
   }
   if (kicked.value == 'J') {
-    if (dealer == 1 || dealer == 3)
+    if (dealerTeam == 1) {
       roomUsers[roomId].teamScore[0] += 3;
-    else
+    }
+    else {
       roomUsers[roomId].teamScore[1] += 3;
+    }
   }
   if (kicked.value == 'A') {
-    if (dealer == 1 || dealer == 3)
+    if (dealerTeam == 1) {
       roomUsers[roomId].teamScore[0]++;
-    else
+    }
+    else {
       roomUsers[roomId].teamScore[1]++;
+    }
   }
 
 }
@@ -315,7 +318,9 @@ function kickCard(data, gameSocket) {
     roomUsers[data.roomId].kicked.push(kickVal);
   }
 
-  checkKicked(kickVal, roomUsers[data.roomId].dealer, data.roomId);
+  const dealerTeam = roomUsers[data.roomId].users.find(el => el.player == roomUsers[data.roomId].dealer).team;
+
+  checkKicked(kickVal, data.roomId, dealerTeam);
 
   io.to(data.roomId).emit('teamScore', roomUsers[data.roomId].teamScore);
 }
@@ -377,6 +382,7 @@ function dealAll(data, gameSocket) {
 
 function resetGameState(roomId) {
   roomUsers[roomId].deck = undefined;
+
   roomUsers[roomId].kicked = undefined;
   roomUsers[roomId].teamScore = undefined;
 
@@ -391,6 +397,8 @@ function resetGameState(roomId) {
 
 function initialiseGameCards(data, gameSocket) {
   resetGameState(data.roomId);
+
+  generateDeck(data, gameSocket);
 
   // Kick card
   kickCard(data, gameSocket);
@@ -408,12 +416,23 @@ function initialiseGameCards(data, gameSocket) {
 
     // Send player card data to player who is begging and dealer
     if (el.player == roomUsers[data.roomId].turn || el.player == roomUsers[data.roomId].dealer) {
-      gameSocket.emit('playerCards', roomUsers[data.roomId].users[i].cards);
+      io.to(el.id).emit('playerCards', roomUsers[data.roomId].users[i].cards);
     }
   });
 }
 
 function initialiseGame(data, gameSocket) {
+  if (!roomUsers[data.roomId] || !gameSocket.adapter.rooms.get(data.roomId)) {
+    console.log('generateDeck: Error');
+    return;
+  }
+
+  if (roomUsers[data.roomId].deck) {
+    console.log('Deck already generated');
+    gameSocket.emit('deck', roomUsers[data.roomId].deck);
+    return;
+  }
+
   // Determine who is the dealer
   if (!roomUsers[data.roomId].dealer || roomUsers[data.roomId].dealer == 4) {
     roomUsers[data.roomId].dealer = 1;
@@ -442,10 +461,9 @@ function playerCards(data, gameSocket) {
 
     // Loop through users in room
     roomUsers[data.roomId].users.forEach((el, i) => {
-
       // Send player card data to player
       if (el.id == gameSocket.id) {
-        gameSocket.emit('playerCards', roomUsers[data.roomId].users[i].cards);
+        gameSocket.emit('playerCards', el.cards);
         return;
       }
     });
@@ -464,26 +482,40 @@ function beg(data, gameSocket) {
 
   dealAll(data, gameSocket);
 
+  console.log('Kicked Cards: ', roomUsers[data.roomId].kicked);
+
+  console.log('Same suit kicked: ', roomUsers[data.roomId].kicked[1].suit == roomUsers[data.roomId].kicked[0].suit);
+
   // If same suit is kicked again (1)
-  if (roomUsers[data.roomId].kicked[1].suit == roomUsers[data.roomId].kicked[0]) {
+  if (roomUsers[data.roomId].kicked[1].suit == roomUsers[data.roomId].kicked[0].suit) {
     kickCard(data, gameSocket);
 
     dealAll(data, gameSocket);
 
     // If same suit is kicked again (2)
-    if (roomUsers[data.roomId].kicked[2].suit == roomUsers[data.roomId].kicked[1]) {
+    if (roomUsers[data.roomId].kicked[2].suit == roomUsers[data.roomId].kicked[1].suit) {
       kickCard(data, gameSocket);
 
       // If same suit is kicked again (3)
-      if (roomUsers[data.roomId].kicked[3].suit == roomUsers[data.roomId].kicked[2]) {
+      if (roomUsers[data.roomId].kicked[3].suit == roomUsers[data.roomId].kicked[2].suit) {
         // Redeal
-        io.to(data.roomId).emit('message', 'The deck has run out of cards!');
-        initialiseGameCards(data, gameSocket);
+        io.to(data.roomId).emit('message', {
+          message: 'The deck has run out of cards and must be redealt!',
+          shortcode: 'REDEAL'
+        });
+        roomUsers[data.roomId].turn = undefined;
+        io.to(data.roomId).emit('turn', roomUsers[data.roomId].turn);
       }
 
     }
 
   }
+
+  // Loop through users in room
+  roomUsers[data.roomId].users.forEach((el, i) => {
+    // Send player card data to each player
+    io.to(el.id).emit('playerCards', el.cards);
+  });
 
 }
 
@@ -492,16 +524,25 @@ function begResponse(data, gameSocket) {
 
     if (data.response == 'begged') {
       roomUsers[data.roomId].beg = 'begged';
-      beg(data, gameSocket);
     }
     else if (data.response == 'stand') {
       roomUsers[data.roomId].beg = 'stand';
     }
     else if (data.response == 'give') {
       roomUsers[data.roomId].beg = 'give';
+
+      const beggerTeam = roomUsers[data.roomId].users.find(el => el.player == roomUsers[data.roomId].player).team;
+      if (beggerTeam == 1) {
+        roomUsers[data.roomId].teamScore[0]++;
+      }
+      else {
+        roomUsers[data.roomId].teamScore[1]++;
+      }
     }
     else if (data.response == 'run') {
       roomUsers[data.roomId].beg = 'run';
+      beg(data, gameSocket);
+      playerCards(data, gameSocket);
     }
 
     io.to(data.roomId).emit('beg', roomUsers[data.roomId].beg);
@@ -510,16 +551,6 @@ function begResponse(data, gameSocket) {
     console.log('Room doesnt exist');
   }
 }
-
-function cardsRevealed(data, gameSocket) {
-  if (gameSocket.adapter.rooms.get(data.roomId)) {
-    playerCards(data, gameSocket);
-  }
-  else {
-    console.log('Room doesnt exist');
-  }
-}
-
 
 
 nextApp.prepare()

@@ -104,7 +104,7 @@ export default function GameInfo({ playerTurn, playerTeam } : Props) {
         </div>
       </div>
       <div>
-        <p>Game: {teamScoreOrdered[0]} - {teamScoreOrdered[2]}</p>
+        <p>Game: {teamScoreOrdered[0]} - {teamScoreOrdered[1]}</p>
       </div>
       <div>
         {show ?

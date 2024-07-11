@@ -20,6 +20,7 @@ interface GameSlice {
   turn?: number;
   beg?: 'begging' | 'begged' | 'stand' | 'give' | 'run';
   teamScore?: number[];
+  cardsRevealed: boolean;
 }
 const initialState: GameSlice = {
   playerList: [],
@@ -27,7 +28,8 @@ const initialState: GameSlice = {
   deck: [],
   kickedCards: [],
   playerCards: [],
-  teamScore: [0, 0]
+  teamScore: [0, 0],
+  cardsRevealed: false
 };
 
 /**
@@ -82,6 +84,10 @@ export const gameSlice = createSlice({
       state.teamScore = action.payload;
     },
 
+    setCardsRevealed: (state, action: PayloadAction<boolean>) => {
+      state.cardsRevealed = action.payload;
+    },
+
   }
 });
 
@@ -102,7 +108,8 @@ export const {
   setBeg,
   setDealer,
   setTurn,
-  setTeamScore
+  setTeamScore,
+  setCardsRevealed,
 } =  gameSlice.actions;
 
 // Selectors
@@ -128,3 +135,5 @@ export const getTurn = (state: RootState): number => state.gameSlice.turn;
 export const getBeg = (state: RootState): 'begging' | 'begged' | 'stand' | 'give' | 'run' | undefined => state.gameSlice.beg;
 
 export const getTeamScore = (state: RootState): number[] => state.gameSlice.teamScore;
+
+export const getCardsRevealed = (state: RootState): boolean => state.gameSlice.cardsRevealed;

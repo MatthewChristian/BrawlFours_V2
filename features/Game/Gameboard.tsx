@@ -4,7 +4,7 @@ import { DeckCard } from '../../models/DeckCard';
 import { PlayerHand } from '../../models/PlayerHand';
 import PlayingCard from './PlayingCard';
 import { useAppSelector } from '../../store/hooks';
-import { getBeg, getDealer, getDeck, getKickedCards, getPlayerCards, getPlayerList, getTurn } from '../../slices/game.slice';
+import { getBeg, getCardsRevealed, getDealer, getDeck, getKickedCards, getPlayerCards, getPlayerList, getTurn } from '../../slices/game.slice';
 import { useRouter } from 'next/router';
 import { PlayerData } from '../../models/PlayerData';
 import { PlayerSocket } from '../../models/PlayerSocket';
@@ -41,6 +41,8 @@ export default function Gameboard({ socket, roomId }: Props) {
   const playerTurn = useAppSelector(getTurn);
 
   const begState = useAppSelector(getBeg);
+
+  const cardsRevealed = useAppSelector(getCardsRevealed);
 
   // Cards in the hand of the client player
   const playerCards = useAppSelector(getPlayerCards);
@@ -80,16 +82,18 @@ export default function Gameboard({ socket, roomId }: Props) {
     return false;
   }, [dealer, playerNumber]);
 
-  // Get name of player whose turn it is
-  const turnPlayerName = useMemo(() => {
-    return players.find(el => el.player == playerTurn)?.nickname;
+  // Get data of player whose turn it is
+  const turnPlayerData = useMemo(() => {
+    return players.find(el => el.player == playerTurn);
   }, [playerTurn, players]);
 
 
-  // Get name of dealer
-  const dealerName = useMemo(() => {
-    return players.find(el => el.player == dealer)?.nickname;
+  // Get data of dealer
+  const dealerData = useMemo(() => {
+    return players.find(el => el.player == dealer);
   }, [dealer, players]);
+
+  //
 
   // Indicate if the game has been initialised as yet
   const [loaded, setLoaded] = useState(false);
@@ -103,10 +107,10 @@ export default function Gameboard({ socket, roomId }: Props) {
   // React states to manage what cards players have
   const [player1Cards, setPlayer1Cards] = useState<DeckCard[]>([]);
 
-  const [player1Data, setPlayer1Data] = useState<PlayerData>({});
-  const [player2Data, setPlayer2Data] = useState<PlayerData>({});
-  const [player3Data, setPlayer3Data] = useState<PlayerData>({});
-  const [player4Data, setPlayer4Data] = useState<PlayerData>({});
+  const [player1Data, setPlayer1Data] = useState<PlayerSocket>({});
+  const [player2Data, setPlayer2Data] = useState<PlayerSocket>({});
+  const [player3Data, setPlayer3Data] = useState<PlayerSocket>({});
+  const [player4Data, setPlayer4Data] = useState<PlayerSocket>({});
 
   // React states to manage what cards players played in a round
   const [player1CardPlayed, setPlayer1CardPlayed] = useState<DeckCard>();
@@ -126,8 +130,6 @@ export default function Gameboard({ socket, roomId }: Props) {
     if (!statusRef?.current) {
       return '';
     }
-
-    console.log('L: ', statusRef.current.childNodes.length);
 
     if (statusRef.current.childNodes.length == 1) {
       return 'grid-cols-1';
@@ -173,10 +175,10 @@ export default function Gameboard({ socket, roomId }: Props) {
   }, [playerCards, kickedCards]);
 
   /*
-    Generate deck
+    Initialise game
   */
   useEffect(() => {
-    socket.current?.emit('generateDeck', socketData);
+    socket.current?.emit('initialiseGame', socketData);
   }, [socketData]);
 
 
@@ -192,89 +194,37 @@ export default function Gameboard({ socket, roomId }: Props) {
       playerDataServer[el.player] = el;
     });
 
-    setPlayer1Data({
-      numCards: playerDataServer[playerNumber].numCards,
-      nickname: playerDataServer[playerNumber].nickname,
-      team: playerDataServer[playerNumber].team,
-    });
+    setPlayer1Data(playerDataServer[playerNumber]);
 
     if (playerNumber == 1) {
-      setPlayer2Data({
-        numCards: playerDataServer[2].numCards,
-        nickname: playerDataServer[2].nickname,
-        team: playerDataServer[2].team,
-      });
+      setPlayer2Data(playerDataServer[2]);
 
-      setPlayer3Data({
-        numCards: playerDataServer[3].numCards,
-        nickname: playerDataServer[3].nickname,
-        team: playerDataServer[3].team,
-      });
+      setPlayer3Data(playerDataServer[3]);
 
-      setPlayer4Data({
-        numCards: playerDataServer[4].numCards,
-        nickname: playerDataServer[4].nickname,
-        team: playerDataServer[4].team,
-      });
+      setPlayer4Data(playerDataServer[4]);
     }
     else if (playerNumber == 2) {
-      setPlayer2Data({
-        numCards: playerDataServer[3].numCards,
-        nickname: playerDataServer[3].nickname,
-        team: playerDataServer[3].team,
-      });
+      setPlayer2Data(playerDataServer[3]);
 
-      setPlayer3Data({
-        numCards: playerDataServer[4].numCards,
-        nickname: playerDataServer[4].nickname,
-        team: playerDataServer[4].team,
-      });
+      setPlayer3Data(playerDataServer[4]);
 
-      setPlayer4Data({
-        numCards: playerDataServer[1].numCards,
-        nickname: playerDataServer[1].nickname,
-        team: playerDataServer[1].team,
-      });
+      setPlayer4Data(playerDataServer[1]);
 
 
     }
     else if (playerNumber == 3) {
-      setPlayer2Data({
-        numCards: playerDataServer[4].numCards,
-        nickname: playerDataServer[4].nickname,
-        team: playerDataServer[3].team,
-      });
+      setPlayer2Data(playerDataServer[4]);
 
-      setPlayer3Data({
-        numCards: playerDataServer[1].numCards,
-        nickname: playerDataServer[1].nickname,
-        team: playerDataServer[1].team,
-      });
+      setPlayer3Data(playerDataServer[1]);
 
-      setPlayer4Data({
-        numCards: playerDataServer[2].numCards,
-        nickname: playerDataServer[2].nickname,
-        team: playerDataServer[2].team,
-      });
+      setPlayer4Data(playerDataServer[2]);
     }
     else if (playerNumber == 4) {
-      setPlayer2Data({
-        numCards: playerDataServer[1].numCards,
-        nickname: playerDataServer[1].nickname,
-        team: playerDataServer[1].team,
-      });
+      setPlayer2Data(playerDataServer[1]);
 
-      setPlayer3Data({
-        numCards: playerDataServer[2].numCards,
-        nickname: playerDataServer[2].nickname,
-        team: playerDataServer[2].team,
-      });
+      setPlayer3Data(playerDataServer[2]);
 
-      setPlayer4Data({
-        numCards: playerDataServer[3].numCards,
-        nickname: playerDataServer[3].nickname,
-        team: playerDataServer[3].team,
-      });
+      setPlayer4Data(playerDataServer[3]);
     }
 
   }, [players, playerNumber]);
@@ -299,7 +249,7 @@ export default function Gameboard({ socket, roomId }: Props) {
         setWaitingBegResponseModalVisible(true);
       }
       else {
-        toast(turnPlayerName + ' begged!', {
+        toast(turnPlayerData?.nickname + ' begged!', {
           type: 'default',
           hideProgressBar: true,
           position: 'top-center'
@@ -308,7 +258,7 @@ export default function Gameboard({ socket, roomId }: Props) {
     }
     else if (begState == 'stand') {
       setBegModalVisible(false);
-      toast(turnPlayerName + ' stood!', {
+      toast(turnPlayerData?.nickname + ' stood!', {
         type: 'default',
         hideProgressBar: true,
         position: 'top-center'
@@ -317,7 +267,7 @@ export default function Gameboard({ socket, roomId }: Props) {
     else if (begState == 'give') {
       setBegResponseModalVisible(false);
       setWaitingBegResponseModalVisible(false);
-      toast(dealerName + ' gave a point!', {
+      toast(dealerData?.nickname + ' gave a point!', {
         type: 'default',
         hideProgressBar: true,
         position: 'top-center'
@@ -326,13 +276,13 @@ export default function Gameboard({ socket, roomId }: Props) {
     else if (begState == 'run') {
       setBegResponseModalVisible(false);
       setWaitingBegResponseModalVisible(false);
-      toast(dealerName + ' ran the pack!', {
+      toast(dealerData?.nickname + ' ran the pack!', {
         type: 'default',
         hideProgressBar: true,
         position: 'top-center'
       });
     }
-  }, [begState, isPlayer1Dealer, isPlayer1Turn, turnPlayerName, dealerName]);
+  }, [begState, isPlayer1Dealer, isPlayer1Turn, turnPlayerData, dealerData]);
 
   useEffect(() => {
     if (!roomId) {
@@ -342,12 +292,19 @@ export default function Gameboard({ socket, roomId }: Props) {
     socket.current.emit('joinRoom', socketData);
   }, [roomId]);
 
+  // useEffect(() => {
+  //   if (cardsRevealed) {
+  //     console.log('Emitting for player cards');
+  //     socket.current?.emit('playerCards', socketData);
+  //   }
+  // }, [cardsRevealed]);
+
   return (
     <div className="h-screen w-screen">
 
       <div className='flex flex-row'>
 
-        <GameInfo playerTurn={playerTurn} />
+        <GameInfo playerTurn={playerTurn} playerTeam={player1Data.team} />
 
         <div className="h-screen w-4/5">
 
@@ -360,7 +317,8 @@ export default function Gameboard({ socket, roomId }: Props) {
               </div>
 
               <div className='flex flex-row gap-2'>
-                <DealerIcon active={dealer == 3} />
+                <DealerIcon active={dealerData && player3Data.id == dealerData.id} />
+                <TurnIcon active={turnPlayerData && player3Data.id == turnPlayerData.id} />
               </div>
             </div>
 
@@ -383,7 +341,8 @@ export default function Gameboard({ socket, roomId }: Props) {
               </div>
 
               <div className={`grid gap-2 ${getTeam2GridCols(player4StatusIconsRef)}`} ref={player4StatusIconsRef}>
-                <DealerIcon active={dealer == 4} />
+                <DealerIcon active={dealerData && player4Data.id == dealerData.id} />
+                <TurnIcon active={turnPlayerData && player4Data.id == turnPlayerData.id} />
               </div>
             </div>
 
@@ -421,8 +380,8 @@ export default function Gameboard({ socket, roomId }: Props) {
               </div>
 
               <div className={`grid gap-2 ${getTeam2GridCols(player2StatusIconsRef)}`} ref={player2StatusIconsRef}>
-                <DealerIcon active={dealer == 2} />
-                <TurnIcon active={playerTurn == 2} />
+                <DealerIcon active={dealerData && player2Data.id == dealerData.id} />
+                <TurnIcon active={turnPlayerData && player2Data.id == turnPlayerData.id} />
               </div>
             </div>
 
@@ -445,8 +404,8 @@ export default function Gameboard({ socket, roomId }: Props) {
               </div>
 
               <div className='flex flex-row gap-2'>
-                <DealerIcon active={dealer == 1}/>
-                <TurnIcon active={playerTurn == 1} />
+                <DealerIcon active={dealerData && player1Data.id == dealerData.id}/>
+                <TurnIcon active={turnPlayerData && player1Data.id == turnPlayerData.id} />
               </div>
 
             </div>
@@ -475,7 +434,7 @@ export default function Gameboard({ socket, roomId }: Props) {
 
       <Modal open={begResponseModalVisible} closeOnDocumentClick={false} onClose={() => setBegResponseModalVisible(false)}>
         <div className="flex flex-col justify-center items-center mx-5">
-          <div className="">{turnPlayerName} has begged!</div>
+          <div className="">{turnPlayerData?.nickname} has begged!</div>
           <div className='w-full flex flex-row justify-center gap-5'>
             <Button className='blue-button mt-5' onClick={() => socket.current.emit('begResponse', { ...socketData, response: 'give' })}>
               Give one
@@ -490,7 +449,7 @@ export default function Gameboard({ socket, roomId }: Props) {
 
       <Modal open={waitingBegResponseModalVisible} closeOnDocumentClick={false} onClose={() => setWaitingBegResponseModalVisible(false)}>
         <div className="flex flex-col justify-center items-center mx-5">
-          <div className="">Waiting for response from {dealerName}...</div>
+          <div className="">Waiting for response from {dealerData?.nickname}...</div>
         </div>
       </Modal>
 
