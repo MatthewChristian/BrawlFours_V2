@@ -30,6 +30,7 @@ export default function PlayingCard({ className, style, onClickHandler, player, 
             fill
             style={{ objectFit: 'contain' }}
             alt='card'
+
           />
         </div>
       ) : (

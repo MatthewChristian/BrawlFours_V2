@@ -2,6 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../store/store';
 import { PlayerSocket } from '../models/PlayerSocket';
 import { DeckCard } from '../models/DeckCard';
+import { ServerMessage } from '../models/ServerMessage';
 
 
 
@@ -20,7 +21,7 @@ interface GameSlice {
   turn?: number;
   beg?: 'begging' | 'begged' | 'stand' | 'give' | 'run';
   teamScore?: number[];
-  cardsRevealed: boolean;
+  message?: ServerMessage;
 }
 const initialState: GameSlice = {
   playerList: [],
@@ -29,7 +30,6 @@ const initialState: GameSlice = {
   kickedCards: [],
   playerCards: [],
   teamScore: [0, 0],
-  cardsRevealed: false
 };
 
 /**
@@ -84,8 +84,8 @@ export const gameSlice = createSlice({
       state.teamScore = action.payload;
     },
 
-    setCardsRevealed: (state, action: PayloadAction<boolean>) => {
-      state.cardsRevealed = action.payload;
+    setMessage: (state, action: PayloadAction<ServerMessage | undefined>) => {
+      state.message = action.payload;
     },
 
   }
@@ -109,7 +109,7 @@ export const {
   setDealer,
   setTurn,
   setTeamScore,
-  setCardsRevealed,
+  setMessage
 } =  gameSlice.actions;
 
 // Selectors
@@ -136,4 +136,4 @@ export const getBeg = (state: RootState): 'begging' | 'begged' | 'stand' | 'give
 
 export const getTeamScore = (state: RootState): number[] => state.gameSlice.teamScore;
 
-export const getCardsRevealed = (state: RootState): boolean => state.gameSlice.cardsRevealed;
+export const getMessage = (state: RootState): ServerMessage | undefined => state.gameSlice.message;

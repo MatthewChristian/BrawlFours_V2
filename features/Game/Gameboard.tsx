@@ -1,16 +1,13 @@
 import React, { useState, useEffect, useRef, RefObject, useMemo } from 'react';
 import { Socket } from 'socket.io-client';
 import { DeckCard } from '../../models/DeckCard';
-import { PlayerHand } from '../../models/PlayerHand';
 import PlayingCard from './PlayingCard';
-import { useAppSelector } from '../../store/hooks';
-import { getBeg, getCardsRevealed, getDealer, getDeck, getKickedCards, getPlayerCards, getPlayerList, getTurn } from '../../slices/game.slice';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { getBeg, getDealer, getDeck, getKickedCards, getMessage, getPlayerCards, getPlayerList, getTurn, setMessage } from '../../slices/game.slice';
 import { useRouter } from 'next/router';
-import { PlayerData } from '../../models/PlayerData';
 import { PlayerSocket } from '../../models/PlayerSocket';
 import DealerIcon from './StatusIcons/DealerIcon';
 import TurnIcon from './StatusIcons/TurnIcon';
-import Popup from 'reactjs-popup';
 import Modal from '../../core/components/Modal';
 import Button from '../../core/components/Button';
 import { toast } from 'react-toastify';
@@ -25,6 +22,8 @@ interface Props {
 export default function Gameboard({ socket, roomId }: Props) {
 
   const router = useRouter();
+
+  const dispatch = useAppDispatch();
 
   const player2StatusIconsRef = useRef<HTMLDivElement>(null);
   const player4StatusIconsRef = useRef<HTMLDivElement>(null);
@@ -42,7 +41,7 @@ export default function Gameboard({ socket, roomId }: Props) {
 
   const begState = useAppSelector(getBeg);
 
-  const cardsRevealed = useAppSelector(getCardsRevealed);
+  const message = useAppSelector(getMessage);
 
   // Cards in the hand of the client player
   const playerCards = useAppSelector(getPlayerCards);
@@ -51,6 +50,7 @@ export default function Gameboard({ socket, roomId }: Props) {
   const [begModalVisible, setBegModalVisible] = useState<boolean>(false);
   const [begResponseModalVisible, setBegResponseModalVisible] = useState<boolean>(false);
   const [waitingBegResponseModalVisible, setWaitingBegResponseModalVisible] = useState<boolean>(false);
+  const [redealModalVisible, setRedealModalVisible] = useState<boolean>(false);
 
 
   const socketData = useMemo(() => {
@@ -230,12 +230,6 @@ export default function Gameboard({ socket, roomId }: Props) {
   }, [players, playerNumber]);
 
   useEffect(() => {
-    if (begState == 'begging' && isPlayer1Turn) {
-      setBegModalVisible(true);
-    }
-  }, [begState, isPlayer1Turn]);
-
-  useEffect(() => {
     if (!begState) {
       return;
     }
@@ -248,39 +242,24 @@ export default function Gameboard({ socket, roomId }: Props) {
         setBegModalVisible(false);
         setWaitingBegResponseModalVisible(true);
       }
-      else {
-        toast(turnPlayerData?.nickname + ' begged!', {
-          type: 'default',
-          hideProgressBar: true,
-          position: 'top-center'
-        });
-      }
     }
     else if (begState == 'stand') {
       setBegModalVisible(false);
-      toast(turnPlayerData?.nickname + ' stood!', {
-        type: 'default',
-        hideProgressBar: true,
-        position: 'top-center'
-      });
     }
     else if (begState == 'give') {
       setBegResponseModalVisible(false);
       setWaitingBegResponseModalVisible(false);
-      toast(dealerData?.nickname + ' gave a point!', {
-        type: 'default',
-        hideProgressBar: true,
-        position: 'top-center'
-      });
     }
     else if (begState == 'run') {
       setBegResponseModalVisible(false);
       setWaitingBegResponseModalVisible(false);
-      toast(dealerData?.nickname + ' ran the pack!', {
-        type: 'default',
-        hideProgressBar: true,
-        position: 'top-center'
-      });
+    }
+    else if (begState == 'begging') {
+      setRedealModalVisible(false);
+
+      if (isPlayer1Turn) {
+        setBegModalVisible(true);
+      }
     }
   }, [begState, isPlayer1Dealer, isPlayer1Turn, turnPlayerData, dealerData]);
 
@@ -292,12 +271,29 @@ export default function Gameboard({ socket, roomId }: Props) {
     socket.current.emit('joinRoom', socketData);
   }, [roomId]);
 
-  // useEffect(() => {
-  //   if (cardsRevealed) {
-  //     console.log('Emitting for player cards');
-  //     socket.current?.emit('playerCards', socketData);
-  //   }
-  // }, [cardsRevealed]);
+  useEffect(() => {
+    if (message) {
+      if (isPlayer1Dealer && message.shortcode == 'REDEAL') {
+        setRedealModalVisible(true);
+      }
+      else if (
+        isPlayer1Dealer && message.shortcode == 'GIVE'
+        || (isPlayer1Turn || isPlayer1Dealer) && message.shortcode == 'BEGGED'
+        || isPlayer1Dealer && message.shortcode == 'RUN'
+      ) {
+        //
+      }
+      else {
+        toast(message.message, {
+          type: 'default',
+          hideProgressBar: true,
+          position: 'top-center'
+        });
+      }
+
+      dispatch(setMessage(undefined));
+    }
+  }, [message, isPlayer1Dealer, isPlayer1Turn]);
 
   return (
     <div className="h-screen w-screen">
@@ -450,6 +446,17 @@ export default function Gameboard({ socket, roomId }: Props) {
       <Modal open={waitingBegResponseModalVisible} closeOnDocumentClick={false} onClose={() => setWaitingBegResponseModalVisible(false)}>
         <div className="flex flex-col justify-center items-center mx-5">
           <div className="">Waiting for response from {dealerData?.nickname}...</div>
+        </div>
+      </Modal>
+
+      <Modal open={redealModalVisible} closeOnDocumentClick={false} onClose={() => setBegResponseModalVisible(false)}>
+        <div className="flex flex-col justify-center items-center mx-5">
+          <div className="">The deck has run out of cards and must be redealt!</div>
+          <div className='w-full flex flex-row justify-center gap-5'>
+            <Button className='blue-button mt-5' onClick={() => socket.current.emit('redeal', socketData)}>
+              Redeal
+            </Button>
+          </div>
         </div>
       </Modal>
 

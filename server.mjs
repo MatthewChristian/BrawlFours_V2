@@ -38,6 +38,7 @@ io.on('connection', (socket) => {
   socket.on('kickCard', (data) => kickCard(data, socket));
   socket.on('playerCards', (data) => playerCards(data, socket));
   socket.on('begResponse', (data) => begResponse(data, socket));
+  socket.on('redeal', (data) => initialiseGameCards(data, socket));
 });
 
 function generateRoomId(gameSocket) {
@@ -248,7 +249,6 @@ function generateDeck(data, gameSocket) {
 
   if (roomUsers[data.roomId].deck) {
     console.log('Deck already generated');
-    gameSocket.emit('deck', roomUsers[data.roomId].deck);
     return;
   }
 
@@ -322,6 +322,7 @@ function kickCard(data, gameSocket) {
 
   checkKicked(kickVal, data.roomId, dealerTeam);
 
+  io.to(data.roomId).emit('kickedCards', roomUsers[data.roomId].kicked);
   io.to(data.roomId).emit('teamScore', roomUsers[data.roomId].teamScore);
 }
 
@@ -376,15 +377,12 @@ function dealAll(data, gameSocket) {
 
   playersInRoom(data, gameSocket);
 
-  io.to(data.roomId).emit('deck', tempDeck);
-  io.to(data.roomId).emit('kickedCards', roomUsers[data.roomId].kicked);
 }
 
 function resetGameState(roomId) {
   roomUsers[roomId].deck = undefined;
 
   roomUsers[roomId].kicked = undefined;
-  roomUsers[roomId].teamScore = undefined;
 
   // Set beg state to 'begging' to let game know that a player is currently deciding whether to beg or not
   roomUsers[roomId].beg = 'begging';
@@ -418,6 +416,9 @@ function initialiseGameCards(data, gameSocket) {
     if (el.player == roomUsers[data.roomId].turn || el.player == roomUsers[data.roomId].dealer) {
       io.to(el.id).emit('playerCards', roomUsers[data.roomId].users[i].cards);
     }
+    else {
+      io.to(el.id).emit('playerCards', undefined);
+    }
   });
 }
 
@@ -429,7 +430,6 @@ function initialiseGame(data, gameSocket) {
 
   if (roomUsers[data.roomId].deck) {
     console.log('Deck already generated');
-    gameSocket.emit('deck', roomUsers[data.roomId].deck);
     return;
   }
 
@@ -478,13 +478,16 @@ function beg(data, gameSocket) {
     console.log('Missing data');
   }
 
+  io.to(data.roomId).emit('message', {
+    message: roomUsers[data.roomId].users.find(el => el.player == roomUsers[data.roomId].dealer).nickname + ' ran the pack!',
+    shortcode: 'RUN'
+  });
+
   kickCard(data, gameSocket);
 
   dealAll(data, gameSocket);
 
-  console.log('Kicked Cards: ', roomUsers[data.roomId].kicked);
-
-  console.log('Same suit kicked: ', roomUsers[data.roomId].kicked[1].suit == roomUsers[data.roomId].kicked[0].suit);
+  console.log('Kicked Cards1: ', roomUsers[data.roomId].kicked);
 
   // If same suit is kicked again (1)
   if (roomUsers[data.roomId].kicked[1].suit == roomUsers[data.roomId].kicked[0].suit) {
@@ -498,13 +501,14 @@ function beg(data, gameSocket) {
 
       // If same suit is kicked again (3)
       if (roomUsers[data.roomId].kicked[3].suit == roomUsers[data.roomId].kicked[2].suit) {
+        console.log('Kicked Cards3: ', roomUsers[data.roomId].kicked);
         // Redeal
         io.to(data.roomId).emit('message', {
           message: 'The deck has run out of cards and must be redealt!',
           shortcode: 'REDEAL'
         });
-        roomUsers[data.roomId].turn = undefined;
-        io.to(data.roomId).emit('turn', roomUsers[data.roomId].turn);
+        // roomUsers[data.roomId].turn = undefined;
+        // io.to(data.roomId).emit('turn', roomUsers[data.roomId].turn);
       }
 
     }
@@ -524,20 +528,36 @@ function begResponse(data, gameSocket) {
 
     if (data.response == 'begged') {
       roomUsers[data.roomId].beg = 'begged';
+      io.to(data.roomId).emit('message', {
+        message: roomUsers[data.roomId].users.find(el => el.player == roomUsers[data.roomId].turn).nickname + ' has begged!',
+        shortcode: 'BEGGED'
+      });
     }
     else if (data.response == 'stand') {
       roomUsers[data.roomId].beg = 'stand';
+      // io.to(data.roomId).emit('message', {
+      //   message: roomUsers[data.roomId].users.find(el => el.player == roomUsers[data.roomId].turn).nickname + ' has stood!',
+      //   shortcode: 'STAND'
+      // });
     }
     else if (data.response == 'give') {
       roomUsers[data.roomId].beg = 'give';
 
-      const beggerTeam = roomUsers[data.roomId].users.find(el => el.player == roomUsers[data.roomId].player).team;
+      const beggerTeam = roomUsers[data.roomId].users.find(el => el.player == roomUsers[data.roomId].turn).team;
+
       if (beggerTeam == 1) {
         roomUsers[data.roomId].teamScore[0]++;
       }
       else {
         roomUsers[data.roomId].teamScore[1]++;
       }
+
+      io.to(data.roomId).emit('teamScore', roomUsers[data.roomId].teamScore);
+
+      io.to(data.roomId).emit('message', {
+        message: roomUsers[data.roomId].users.find(el => el.player == roomUsers[data.roomId].dealer).nickname + ' gave a point!',
+        shortcode: 'GIVE'
+      });
     }
     else if (data.response == 'run') {
       roomUsers[data.roomId].beg = 'run';
