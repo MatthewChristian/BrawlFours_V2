@@ -254,11 +254,12 @@ function generateDeck(data, gameSocket) {
 
   const suits = ['s', 's', 's', 's']; // s=Spades, d=Dimes, c=Clubs, h=Hearts
   const values = ['2', '3', '4', '5', '6', '7', '8', '9', 'X', 'J', 'Q', 'K', 'A'];
+  const power = [2, 3, 4, 5, 6, 7, 8, 9 , 10, 11, 12, 13, 14];
   const deck = [];
   let card;
   for (let i = 0; i < suits.length; i++) {
     for (let j = 0; j < values.length; j++) {
-      card = { suit: suits[i], value: values[j] };
+      card = { suit: suits[i], value: values[j], power: power[j] };
       deck.push(card);
     }
   }
@@ -318,9 +319,13 @@ function kickCard(data, gameSocket) {
     roomUsers[data.roomId].kicked.push(kickVal);
   }
 
+  roomUsers[data.roomId].trump = kickVal.suit;
+
   const dealerTeam = roomUsers[data.roomId].users.find(el => el.player == roomUsers[data.roomId].dealer).team;
 
   checkKicked(kickVal, data.roomId, dealerTeam);
+
+  roomUsers[data.roomId].trump = kickVal.suit;
 
   io.to(data.roomId).emit('kickedCards', roomUsers[data.roomId].kicked);
   io.to(data.roomId).emit('teamScore', roomUsers[data.roomId].teamScore);
@@ -487,8 +492,6 @@ function beg(data, gameSocket) {
 
   dealAll(data, gameSocket);
 
-  console.log('Kicked Cards1: ', roomUsers[data.roomId].kicked);
-
   // If same suit is kicked again (1)
   if (roomUsers[data.roomId].kicked[1].suit == roomUsers[data.roomId].kicked[0].suit) {
     kickCard(data, gameSocket);
@@ -501,7 +504,7 @@ function beg(data, gameSocket) {
 
       // If same suit is kicked again (3)
       if (roomUsers[data.roomId].kicked[3].suit == roomUsers[data.roomId].kicked[2].suit) {
-        console.log('Kicked Cards3: ', roomUsers[data.roomId].kicked);
+
         // Redeal
         io.to(data.roomId).emit('message', {
           message: 'The deck has run out of cards and must be redealt!',
@@ -570,6 +573,114 @@ function begResponse(data, gameSocket) {
   else {
     console.log('Room doesnt exist');
   }
+}
+
+
+/*
+    Determine whether or not a player tried to undertrump
+  */
+function didUndertrump(data) {
+  if (!roomUsers[data.roomId].lift || !roomUsers[data.roomId].trump || data.card?.suit != roomUsers[data.roomId].trump) {
+    return false;
+  }
+
+  roomUsers[data.roomId].lift.forEach(el => {
+    if (el.card.suit == roomUsers[data.roomId].trump && el.card?.power > data.card.power) {
+      return true;
+    }
+  });
+
+  return false;
+}
+
+
+function playCard(data, gameSocket) {
+  if (!gameSocket.adapter.rooms.get(data.roomId)) {
+    console.log('Room doesnt exist');
+  }
+
+  if (data.player != roomUsers[data.roomId].turn) {
+    console.log('It is not this players turn to play ');
+  }
+
+  const undertrumped = didUndertrump(data);
+
+  const player = roomUsers[data.roomId].users.find(el => el.id == data.id);
+
+  const playerTeam = player.team;
+
+  const playerCards = player.cards;
+
+  const trump = roomUsers[data.roomId].trump;
+
+  let bare = true;
+
+  // Determine if a player does not have a card in the suit of the card that was called
+  if (roomUsers[data.roomId].called) {
+    playerCards.forEach((el) => {
+      if (el.suit == roomUsers[data.roomId].called.suit) {
+        bare = false;
+      }
+    });
+  }
+
+  // If the player:
+  // * Played a suit that wasn't called,
+  // * Wasn't the first player to play for the round,
+  // * Has cards in their hand that correspond to the called suit, and
+  // * the card played is not trump,
+  // then end function and do not add card to lift
+  if (roomUsers[data.roomId].called && data.card.suit != roomUsers[data.roomId].called.suit && !bare && data.card.suit != trump) {
+    console.log('Invalid card played');
+    return;
+  }
+
+  // If the player attempted to undertrump, end function and do not add card to lift
+  if ((data.card.suit == roomUsers[data.roomId].trump && undertrumped == true) && roomUsers[data.roomId].called.suit != trump && !bare) {
+    console.log('Undertrump');
+    return;
+  }
+
+  // If trump has not been called yet
+  if (!roomUsers[data.roomId].called) {
+    roomUsers[data.roomId].called = data.card;
+  }
+
+
+  // If trump is played
+  if (data.card.suit == trump) {
+
+    const value = data.card.power;
+    if (value > roomUsers[data.roomId].high) {
+      roomUsers[data.roomId].highWinner = playerTeam;
+      roomUsers[data.roomId].high = value;
+    }
+    if (value < roomUsers[data.roomId].low) {
+      roomUsers[data.roomId].lowWinner = playerTeam;
+      roomUsers[data.roomId].low = value;
+    }
+    if (data.card.value == 'J' && roomUsers[data.roomId].lift) {
+      setJackPlayer(team);
+      setJackWinner(team);
+      setJackInPlay(true);
+      jackPlayerVar = team;
+      jackWinnerVar = team;
+      jackInPlayVar = true;
+    }
+    if (value > 11 && jackInPlay == true) { // If jack is in lift and a Queen or higher has been played
+      setJackWinner(team);
+      jackWinnerVar = team;
+    }
+    if (value > 11 && value > jackHangerValue) { // If jack is in lift with a Queen or higher and a Card stronger than the previous royal is played
+      setJackHangerTeam(team);
+      setJackHangerValue(value);
+      jackHangerTeamVar = team;
+    }
+  }
+
+
+
+
 }
 
 

@@ -9,4 +9,14 @@ export interface RoomSocket {
   dealer?: number;
   turn?: number;
   beg?: 'begging' | 'begged' | 'stand' | 'give' | 'run';
+  trump?: string;
+  called?: DeckCard;
+  high?: DeckCard;
+  low?: DeckCard;
+  jack?: DeckCard;
+  game?: number[];
+  highWinner?: number;
+  lowWinner?: number;
+  jackWinner?: number;
+  lift?: DeckCard[];
 }
