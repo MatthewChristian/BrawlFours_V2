@@ -56,7 +56,7 @@ export default function GameInfo({ playerTurn, playerTeam } : Props) {
   // Manage values for high, low, game and jack
   const [high, setHigh] = useState<number>(0);
   const [low, setLow] = useState<number>(15);
-  const [game, setGame] = useState<number>(0);
+  const [game, setGame] = useState<number[]>([0, 0]);
   const [jack, setJack] = useState<number>(1);
 
   // Indicate which team played jack
@@ -97,14 +97,14 @@ export default function GameInfo({ playerTurn, playerTeam } : Props) {
 
       <div>
         <div>
-          <p>Score: {score[0]} - {score[1]}</p>
+          <p>Score: {teamScoreOrdered[0]} - {teamScoreOrdered[1]}</p>
         </div>
         <div>
           <p>It is player {playerTurn}&apos;s turn</p>
         </div>
       </div>
       <div>
-        <p>Game: {teamScoreOrdered[0]} - {teamScoreOrdered[1]}</p>
+        <p>Game: {game[0]} - {game[1]}</p>
       </div>
       <div>
         {show ?

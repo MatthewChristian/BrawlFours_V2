@@ -334,7 +334,7 @@ export default function Gameboard({ socket, roomId }: Props) {
   }, [message, isPlayer1Dealer, isPlayer1Turn]);
 
   return (
-    <div className="h-screen w-screen">
+    <div className="h-screen w-screen bg-slate-300">
 
       <div className='flex flex-row'>
 
@@ -344,7 +344,7 @@ export default function Gameboard({ socket, roomId }: Props) {
 
 
           {/* ------------------------ Player 3 Info  ------------------------*/}
-          <div className='h-[25vh] flex flex-col justify-between  bg-orange-200'>
+          <div className='h-[25vh] flex flex-col justify-between'>
             <div className='flex flex-col items-center justify-center p-3'>
               <div className='flex justify-center'>
                 {
@@ -358,7 +358,7 @@ export default function Gameboard({ socket, roomId }: Props) {
               </div>
             </div>
 
-            <div className="bg-yellow-500 w-full flex flex-row justify-center" ref={player3Hand}>
+            <div className="w-full flex flex-row justify-center" ref={player3Hand}>
               {
                 Array.from({ length: player3Data.numCards }, (_, k) => (
                   <PlayingCard
@@ -391,7 +391,7 @@ export default function Gameboard({ socket, roomId }: Props) {
               </div>
             </div>
 
-            <div className="bg-blue-500 w-1/6 h-[50vh] flex flex-col items-center justify-center gap-0" ref={player2Hand}>
+            <div className="w-1/6 h-[50vh] flex flex-col items-center justify-center gap-0" ref={player2Hand}>
               {
                 Array.from({ length: player4Data.numCards }, (_, k) => (
                   <PlayingCard
@@ -411,16 +411,16 @@ export default function Gameboard({ socket, roomId }: Props) {
 
 
             {/* ------------------------ Lift Info  ------------------------*/}
-            <div className='bg-sky-200 w-4/6 flex flex-col gap-2 items-center justify-center'>
+            <div className='w-4/6 flex flex-col gap-2 items-center justify-center'>
 
-              <PlayingCard cardData={player3CardPlayed}></PlayingCard>
+              <PlayingCard cardData={player3CardPlayed} isOutline></PlayingCard>
 
               <div className='flex flex-row gap-32'>
-                <PlayingCard cardData={player4CardPlayed}></PlayingCard>
-                <PlayingCard cardData={player2CardPlayed}></PlayingCard>
+                <PlayingCard cardData={player4CardPlayed} isOutline></PlayingCard>
+                <PlayingCard cardData={player2CardPlayed} isOutline></PlayingCard>
               </div>
 
-              <PlayingCard cardData={player1CardPlayed}></PlayingCard>
+              <PlayingCard cardData={player1CardPlayed} isOutline></PlayingCard>
 
             </div>
             {/* -------------------------------------------------------------*/}
@@ -430,7 +430,7 @@ export default function Gameboard({ socket, roomId }: Props) {
 
 
             {/* ------------------------ Player 2 Info  ------------------------*/}
-            <div className="bg-green-500 w-1/6 h-[50vh] flex flex-col items-center justify-center gap-0" ref={player4Hand}>
+            <div className="w-1/6 h-[50vh] flex flex-col items-center justify-center gap-0" ref={player4Hand}>
               {
                 Array.from({ length: player2Data.numCards }, (_, k) => (
                   <PlayingCard
@@ -466,8 +466,8 @@ export default function Gameboard({ socket, roomId }: Props) {
 
 
           {/* ------------------------ Player 1 Info  ------------------------*/}
-          <div className='h-[25vh] bg-purple-200'>
-            <div className="bg-red-500 w-full flex flex-row justify-center" ref={player1Hand}>
+          <div className='h-[25vh]'>
+            <div className="w-full flex flex-row justify-center" ref={player1Hand}>
               {
                 Array.from({ length: player1Cards.length == 0 ? player1Data.numCards : player1Cards.length}, (_, k) => (
                   <PlayingCard
