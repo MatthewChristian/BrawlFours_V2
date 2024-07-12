@@ -19,4 +19,5 @@ export interface RoomSocket {
   lowWinner?: number;
   jackWinner?: number;
   lift?: DeckCard[];
+  roundStarted?: boolean;
 }

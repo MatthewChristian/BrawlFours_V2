@@ -3,6 +3,7 @@ import { RootState } from '../store/store';
 import { PlayerSocket } from '../models/PlayerSocket';
 import { DeckCard } from '../models/DeckCard';
 import { ServerMessage } from '../models/ServerMessage';
+import { LiftCard } from '../models/LiftCard';
 
 
 
@@ -22,6 +23,7 @@ interface GameSlice {
   beg?: 'begging' | 'begged' | 'stand' | 'give' | 'run';
   teamScore?: number[];
   message?: ServerMessage;
+  lift: LiftCard[]
 }
 const initialState: GameSlice = {
   playerList: [],
@@ -30,6 +32,7 @@ const initialState: GameSlice = {
   kickedCards: [],
   playerCards: [],
   teamScore: [0, 0],
+  lift: []
 };
 
 /**
@@ -88,6 +91,10 @@ export const gameSlice = createSlice({
       state.message = action.payload;
     },
 
+    setLift: (state, action: PayloadAction<LiftCard[]>) => {
+      state.lift = action.payload;
+    },
+
   }
 });
 
@@ -109,7 +116,8 @@ export const {
   setDealer,
   setTurn,
   setTeamScore,
-  setMessage
+  setMessage,
+  setLift
 } =  gameSlice.actions;
 
 // Selectors
@@ -137,3 +145,5 @@ export const getBeg = (state: RootState): 'begging' | 'begged' | 'stand' | 'give
 export const getTeamScore = (state: RootState): number[] => state.gameSlice.teamScore;
 
 export const getMessage = (state: RootState): ServerMessage | undefined => state.gameSlice.message;
+
+export const getLift = (state: RootState): LiftCard[] => state.gameSlice.lift;

@@ -1,5 +1,5 @@
 import next from 'next';
-import { Server, Socket } from 'socket.io';
+import { Server } from 'socket.io';
 import express from 'express';
 import { createServer } from 'node:http';
 
@@ -39,6 +39,7 @@ io.on('connection', (socket) => {
   socket.on('playerCards', (data) => playerCards(data, socket));
   socket.on('begResponse', (data) => begResponse(data, socket));
   socket.on('redeal', (data) => initialiseGameCards(data, socket));
+  socket.on('playCard', (data) => playCard(data, socket));
 });
 
 function generateRoomId(gameSocket) {
@@ -252,7 +253,7 @@ function generateDeck(data, gameSocket) {
     return;
   }
 
-  const suits = ['s', 's', 's', 's']; // s=Spades, d=Dimes, c=Clubs, h=Hearts
+  const suits = ['s', 'd', 'c', 'h']; // s=Spades, d=Dimes, c=Clubs, h=Hearts
   const values = ['2', '3', '4', '5', '6', '7', '8', '9', 'X', 'J', 'Q', 'K', 'A'];
   const power = [2, 3, 4, 5, 6, 7, 8, 9 , 10, 11, 12, 13, 14];
   const deck = [];
@@ -478,6 +479,14 @@ function playerCards(data, gameSocket) {
   }
 }
 
+function emitPlayerCardData(data) {
+  // Loop through users in room
+  roomUsers[data.roomId].users.forEach((el, i) => {
+    // Send player card data to each player
+    io.to(el.id).emit('playerCards', el.cards);
+  });
+}
+
 function beg(data, gameSocket) {
   if (!roomUsers[data.roomId] || !roomUsers[data.roomId].kicked) {
     console.log('Missing data');
@@ -518,11 +527,7 @@ function beg(data, gameSocket) {
 
   }
 
-  // Loop through users in room
-  roomUsers[data.roomId].users.forEach((el, i) => {
-    // Send player card data to each player
-    io.to(el.id).emit('playerCards', el.cards);
-  });
+  emitPlayerCardData(data);
 
 }
 
@@ -585,7 +590,7 @@ function didUndertrump(data) {
   }
 
   roomUsers[data.roomId].lift.forEach(el => {
-    if (el.card.suit == roomUsers[data.roomId].trump && el.card?.power > data.card.power) {
+    if ((el.suit == roomUsers[data.roomId].trump) && (el.power > data.card.power)) {
       return true;
     }
   });
@@ -605,9 +610,7 @@ function playCard(data, gameSocket) {
 
   const undertrumped = didUndertrump(data);
 
-  const player = roomUsers[data.roomId].users.find(el => el.id == data.id);
-
-  const playerTeam = player.team;
+  const player = roomUsers[data.roomId].users.find(el => el.id == gameSocket.id);
 
   const playerCards = player.cards;
 
@@ -636,9 +639,17 @@ function playCard(data, gameSocket) {
   }
 
   // If the player attempted to undertrump, end function and do not add card to lift
-  if ((data.card.suit == roomUsers[data.roomId].trump && undertrumped == true) && roomUsers[data.roomId].called.suit != trump && !bare) {
+  if (roomUsers[data.roomId].called && (data.card.suit == roomUsers[data.roomId].trump && undertrumped == true) && roomUsers[data.roomId].called.suit != trump && !bare) {
     console.log('Undertrump');
     return;
+  }
+
+  // Add card to lift
+  if (!roomUsers[data.roomId].lift) {
+    roomUsers[data.roomId].lift = [{ ...data.card, player: player.player }];
+  }
+  else {
+    roomUsers[data.roomId].lift.push({ ...data.card, player: player.player });
   }
 
   // If trump has not been called yet
@@ -646,41 +657,59 @@ function playCard(data, gameSocket) {
     roomUsers[data.roomId].called = data.card;
   }
 
+  // Find card in playerCards array that correspond to the card clicked
+  const cardIndex = playerCards.findIndex(el => (el.suit == data.card.suit) && (el.value == data.card.value));
 
-  // If trump is played
-  if (data.card.suit == trump) {
+  // Remove card clicked from array
+  playerCards.splice(cardIndex, 1);
 
-    const value = data.card.power;
-    if (value > roomUsers[data.roomId].high) {
-      roomUsers[data.roomId].highWinner = playerTeam;
-      roomUsers[data.roomId].high = value;
-    }
-    if (value < roomUsers[data.roomId].low) {
-      roomUsers[data.roomId].lowWinner = playerTeam;
-      roomUsers[data.roomId].low = value;
-    }
-    if (data.card.value == 'J' && roomUsers[data.roomId].lift) {
-      setJackPlayer(team);
-      setJackWinner(team);
-      setJackInPlay(true);
-      jackPlayerVar = team;
-      jackWinnerVar = team;
-      jackInPlayVar = true;
-    }
-    if (value > 11 && jackInPlay == true) { // If jack is in lift and a Queen or higher has been played
-      setJackWinner(team);
-      jackWinnerVar = team;
-    }
-    if (value > 11 && value > jackHangerValue) { // If jack is in lift with a Queen or higher and a Card stronger than the previous royal is played
-      setJackHangerTeam(team);
-      setJackHangerValue(value);
-      jackHangerTeamVar = team;
-    }
+  // Increment player turn
+  if (roomUsers[data.roomId].turn >= 4) {
+    roomUsers[data.roomId].turn = 1;
+  }
+  else {
+    roomUsers[data.roomId].turn = roomUsers[data.roomId].turn + 1;
   }
 
+  gameSocket.emit('playerCards', playerCards);
+  io.to(data.roomId).emit('lift', roomUsers[data.roomId].lift);
+  io.to(data.roomId).emit('turn', roomUsers[data.roomId].turn);
+
+  if (!roomUsers[data.roomId].roundStarted) {
+    roomUsers[data.roomId].roundStarted = true;
+    emitPlayerCardData(data);
+  }
+
+}
+
+function liftScoring(data, gameSocket) {
+  // // If trump is played
+  // if (data.card.suit == trump) {
+
+  //   const power = data.card.power;
+  //   if (power > roomUsers[data.roomId].high) {
+  //     roomUsers[data.roomId].highWinner = playerTeam;
+  //     roomUsers[data.roomId].high = power;
+  //   }
+  //   if (power < roomUsers[data.roomId].low) {
+  //     roomUsers[data.roomId].lowWinner = playerTeam;
+  //     roomUsers[data.roomId].low = power;
+  //   }
+  //   if (data.card.value == 'J') {
+  //     const hangerInLift = roomUsers[data.roomId].lift.find(el => el.power > data.card.power);
 
 
-
+  //   }
+  //   if (value > 11 && jackInPlay == true) { // If jack is in lift and a Queen or higher has been played
+  //     setJackWinner(team);
+  //     jackWinnerVar = team;
+  //   }
+  //   if (value > 11 && value > jackHangerValue) { // If jack is in lift with a Queen or higher and a Card stronger than the previous royal is played
+  //     setJackHangerTeam(team);
+  //     setJackHangerValue(value);
+  //     jackHangerTeamVar = team;
+  //   }
+  // }
 }
 
 

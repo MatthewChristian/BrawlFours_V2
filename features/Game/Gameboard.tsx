@@ -3,7 +3,7 @@ import { Socket } from 'socket.io-client';
 import { DeckCard } from '../../models/DeckCard';
 import PlayingCard from './PlayingCard';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { getBeg, getDealer, getDeck, getKickedCards, getMessage, getPlayerCards, getPlayerList, getTurn, setMessage } from '../../slices/game.slice';
+import { getBeg, getDealer, getDeck, getKickedCards, getLift, getMessage, getPlayerCards, getPlayerList, getTurn, setMessage } from '../../slices/game.slice';
 import { useRouter } from 'next/router';
 import { PlayerSocket } from '../../models/PlayerSocket';
 import DealerIcon from './StatusIcons/DealerIcon';
@@ -25,13 +25,8 @@ export default function Gameboard({ socket, roomId }: Props) {
 
   const dispatch = useAppDispatch();
 
-  const player2StatusIconsRef = useRef<HTMLDivElement>(null);
-  const player4StatusIconsRef = useRef<HTMLDivElement>(null);
-
 
   const players = useAppSelector(getPlayerList);
-
-  const deck = useAppSelector(getDeck);
 
   const kickedCards = useAppSelector(getKickedCards);
 
@@ -43,6 +38,8 @@ export default function Gameboard({ socket, roomId }: Props) {
 
   const message = useAppSelector(getMessage);
 
+  const lift = useAppSelector(getLift);
+
   // Cards in the hand of the client player
   const playerCards = useAppSelector(getPlayerCards);
 
@@ -52,7 +49,26 @@ export default function Gameboard({ socket, roomId }: Props) {
   const [waitingBegResponseModalVisible, setWaitingBegResponseModalVisible] = useState<boolean>(false);
   const [redealModalVisible, setRedealModalVisible] = useState<boolean>(false);
 
+  // React refs for player hand div
+  const player1Hand = useRef<HTMLDivElement>(null);
+  const player2Hand = useRef<HTMLDivElement>(null);
+  const player3Hand = useRef<HTMLDivElement>(null);
+  const player4Hand = useRef<HTMLDivElement>(null);
 
+  // React refs for opposing team icons div
+  const player2StatusIconsRef = useRef<HTMLDivElement>(null);
+  const player4StatusIconsRef = useRef<HTMLDivElement>(null);
+
+
+  // React states to manage what cards players have
+  const [player1Cards, setPlayer1Cards] = useState<DeckCard[]>([]);
+
+  const [player1Data, setPlayer1Data] = useState<PlayerSocket>({});
+  const [player2Data, setPlayer2Data] = useState<PlayerSocket>({});
+  const [player3Data, setPlayer3Data] = useState<PlayerSocket>({});
+  const [player4Data, setPlayer4Data] = useState<PlayerSocket>({});
+
+  // Data to send to socket
   const socketData = useMemo(() => {
     return ({
       roomId: String(roomId),
@@ -93,30 +109,48 @@ export default function Gameboard({ socket, roomId }: Props) {
     return players.find(el => el.player == dealer);
   }, [dealer, players]);
 
-  //
+  // Lift cards
+  const player1CardPlayed = useMemo(() => {
+    if (!lift) {
+      return undefined;
+    }
 
-  // Indicate if the game has been initialised as yet
-  const [loaded, setLoaded] = useState(false);
+    return lift.find(el => el.player == playerNumber);
+  }, [lift]);
 
-  // React refs for player hand div
-  const player1Hand = useRef(null);
-  const player2Hand = useRef(null);
-  const player3Hand = useRef(null);
-  const player4Hand = useRef(null);
+  const player2CardPlayed = useMemo(() => {
+    if (!lift || !playerNumber) {
+      return undefined;
+    }
 
-  // React states to manage what cards players have
-  const [player1Cards, setPlayer1Cards] = useState<DeckCard[]>([]);
+    const player2Number = playerNumber == 4 ? 1 : playerNumber + 1;
 
-  const [player1Data, setPlayer1Data] = useState<PlayerSocket>({});
-  const [player2Data, setPlayer2Data] = useState<PlayerSocket>({});
-  const [player3Data, setPlayer3Data] = useState<PlayerSocket>({});
-  const [player4Data, setPlayer4Data] = useState<PlayerSocket>({});
+    return lift.find(el => el.player == player2Number);
 
-  // React states to manage what cards players played in a round
-  const [player1CardPlayed, setPlayer1CardPlayed] = useState<DeckCard>();
-  const [player2CardPlayed, setPlayer2CardPlayed] = useState<DeckCard>();
-  const [player3CardPlayed, setPlayer3CardPlayed] = useState<DeckCard>();
-  const [player4CardPlayed, setPlayer4CardPlayed] = useState<DeckCard>();
+  }, [lift, playerNumber]);
+
+  const player3CardPlayed = useMemo(() => {
+    if (!lift) {
+      return undefined;
+    }
+
+    const player3Number = playerNumber + 2 > 4 ? (playerNumber + 2) % 4 : playerNumber + 2;
+
+    return lift.find(el => el.player == player3Number);
+
+
+  }, [lift]);
+
+  const player4CardPlayed = useMemo(() => {
+    if (!lift) {
+      return undefined;
+    }
+
+    const player4Number = playerNumber + 3 > 4 ? (playerNumber + 3) % 4 : playerNumber + 3;
+
+    return lift.find(el => el.player == player4Number);
+
+  }, [lift]);
 
 
   function getTeam2CardMargins(length: number) {
@@ -153,8 +187,14 @@ export default function Gameboard({ socket, roomId }: Props) {
     console.log('Begged');
   }
 
-  function playCard() {
-    console.log('Card clicked');
+  function playCard(card: DeckCard) {
+    console.log('Card clicked: ', card);
+
+    if (!isPlayer1Turn) {
+      return;
+    }
+
+    socket.current?.emit('playCard', { ...socketData, card: card, player: playerNumber });
   }
 
   /*
@@ -209,8 +249,6 @@ export default function Gameboard({ socket, roomId }: Props) {
       setPlayer3Data(playerDataServer[4]);
 
       setPlayer4Data(playerDataServer[1]);
-
-
     }
     else if (playerNumber == 3) {
       setPlayer2Data(playerDataServer[4]);
@@ -304,6 +342,8 @@ export default function Gameboard({ socket, roomId }: Props) {
 
         <div className="h-screen w-4/5">
 
+
+          {/* ------------------------ Player 3 Info  ------------------------*/}
           <div className='h-[25vh] flex flex-col justify-between  bg-orange-200'>
             <div className='flex flex-col items-center justify-center p-3'>
               <div className='flex justify-center'>
@@ -321,14 +361,23 @@ export default function Gameboard({ socket, roomId }: Props) {
             <div className="bg-yellow-500 w-full flex flex-row justify-center" ref={player3Hand}>
               {
                 Array.from({ length: player3Data.numCards }, (_, k) => (
-                  <PlayingCard key={'3' + k} player={3} isDeckCard className='-mx-2 p-0'></PlayingCard>
+                  <PlayingCard
+                    key={'3' + k}
+                    player={3}
+                    isDeckCard
+                    className='-mx-2 p-0'
+                  />
                 ))
               }
             </div>
           </div>
+          {/* -----------------------------------------------------------------*/}
+
+
+
 
           <div className='flex flex-row'>
-
+            {/* ------------------------ Player 4 Info  ------------------------*/}
             <div className='flex flex-col justify-center items-center w-2/12'>
               <div >
                 {
@@ -345,24 +394,52 @@ export default function Gameboard({ socket, roomId }: Props) {
             <div className="bg-blue-500 w-1/6 h-[50vh] flex flex-col items-center justify-center gap-0" ref={player2Hand}>
               {
                 Array.from({ length: player4Data.numCards }, (_, k) => (
-                  <PlayingCard key={'4' + k} player={4} isDeckCard className='rotate-90 p-0' style={getTeam2CardMargins(player4Data.numCards)} ></PlayingCard>
+                  <PlayingCard
+                    key={'4' + k}
+                    player={4}
+                    isDeckCard
+                    className='rotate-90 p-0'
+                    style={getTeam2CardMargins(player4Data.numCards)}
+                  />
                 ))
               }
             </div>
+            {/* -----------------------------------------------------------------*/}
 
-            <div className='bg-sky-200 w-4/6 flex justify-center items-center'>
 
 
-              <PlayingCard cardData={player1CardPlayed} className="played-1"></PlayingCard>
-              <PlayingCard cardData={player2CardPlayed} className="played-2"></PlayingCard>
-              <PlayingCard cardData={player3CardPlayed} className="played-3"></PlayingCard>
-              <PlayingCard cardData={player4CardPlayed} className="played-4"></PlayingCard>
+
+
+            {/* ------------------------ Lift Info  ------------------------*/}
+            <div className='bg-sky-200 w-4/6 flex flex-col gap-2 items-center justify-center'>
+
+              <PlayingCard cardData={player3CardPlayed}></PlayingCard>
+
+              <div className='flex flex-row gap-32'>
+                <PlayingCard cardData={player4CardPlayed}></PlayingCard>
+                <PlayingCard cardData={player2CardPlayed}></PlayingCard>
+              </div>
+
+              <PlayingCard cardData={player1CardPlayed}></PlayingCard>
+
             </div>
+            {/* -------------------------------------------------------------*/}
 
+
+
+
+
+            {/* ------------------------ Player 2 Info  ------------------------*/}
             <div className="bg-green-500 w-1/6 h-[50vh] flex flex-col items-center justify-center gap-0" ref={player4Hand}>
               {
                 Array.from({ length: player2Data.numCards }, (_, k) => (
-                  <PlayingCard key={'2' + k} player={2} isDeckCard className='rotate-90 p-0' style={getTeam2CardMargins(player2Data.numCards)}></PlayingCard>
+                  <PlayingCard
+                    key={'2' + k}
+                    player={2}
+                    isDeckCard
+                    className='rotate-90 p-0'
+                    style={getTeam2CardMargins(player2Data.numCards)}
+                  />
                 ))
               }
 
@@ -380,14 +457,26 @@ export default function Gameboard({ socket, roomId }: Props) {
                 <TurnIcon active={turnPlayerData && player2Data.id == turnPlayerData.id} />
               </div>
             </div>
-
+            {/* -----------------------------------------------------------------*/}
           </div>
 
+
+
+
+
+
+          {/* ------------------------ Player 1 Info  ------------------------*/}
           <div className='h-[25vh] bg-purple-200'>
             <div className="bg-red-500 w-full flex flex-row justify-center" ref={player1Hand}>
               {
                 Array.from({ length: player1Cards.length == 0 ? player1Data.numCards : player1Cards.length}, (_, k) => (
-                  <PlayingCard key={'1' + k} player={1} cardData={player1Cards[k]} isDeckCard={player1Cards.length == 0 ? true : false} onClickHandler={playCard} className='-mx-2'></PlayingCard>
+                  <PlayingCard
+                    key={'1' + k}
+                    player={1}
+                    cardData={player1Cards[k]}
+                    isDeckCard={player1Cards.length == 0 ? true : false}
+                    onClickHandler={() => player1Cards.length == 0 ? undefined : playCard(player1Cards[k])}
+                    className='-mx-2' />
                 ))
               }
             </div>
@@ -406,12 +495,13 @@ export default function Gameboard({ socket, roomId }: Props) {
 
             </div>
           </div>
+          {/* -----------------------------------------------------------------*/}
 
         </div>
       </div>
 
 
-
+      {/* ------------------------ Modals ------------------------*/}
       <Modal open={begModalVisible} closeOnDocumentClick={false} onClose={() => setBegModalVisible(false)}>
         <div className="flex flex-col justify-center items-center mx-5">
           <div className="">Do you want to beg or stand?</div>
@@ -459,6 +549,7 @@ export default function Gameboard({ socket, roomId }: Props) {
           </div>
         </div>
       </Modal>
+      {/* -----------------------------------------------------------*/}
 
     </div>
   );
