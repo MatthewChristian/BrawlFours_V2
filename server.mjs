@@ -255,12 +255,13 @@ function generateDeck(data, gameSocket) {
 
   const suits = ['s', 'd', 'c', 'h']; // s=Spades, d=Dimes, c=Clubs, h=Hearts
   const values = ['2', '3', '4', '5', '6', '7', '8', '9', 'X', 'J', 'Q', 'K', 'A'];
-  const power = [2, 3, 4, 5, 6, 7, 8, 9 , 10, 11, 12, 13, 14];
+  const power = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
+  const points = [0, 0, 0, 0, 0, 0, 0 , 0, 10, 1, 2, 3, 4];
   const deck = [];
   let card;
   for (let i = 0; i < suits.length; i++) {
     for (let j = 0; j < values.length; j++) {
-      card = { suit: suits[i], value: values[j], power: power[j] };
+      card = { suit: suits[i], value: values[j], power: power[j], points: points[j] };
       deck.push(card);
     }
   }
@@ -589,13 +590,16 @@ function didUndertrump(data) {
     return false;
   }
 
+  let undertrumped = false;
+
   roomUsers[data.roomId].lift.forEach(el => {
     if ((el.suit == roomUsers[data.roomId].trump) && (el.power > data.card.power)) {
-      return true;
+      console.log('True');
+      undertrumped = true;
     }
   });
 
-  return false;
+  return undertrumped;
 }
 
 
@@ -638,6 +642,8 @@ function playCard(data, gameSocket) {
     return;
   }
 
+  console.log('UT: ', undertrumped);
+
   // If the player attempted to undertrump, end function and do not add card to lift
   if (roomUsers[data.roomId].called && (data.card.suit == roomUsers[data.roomId].trump && undertrumped == true) && roomUsers[data.roomId].called.suit != trump && !bare) {
     console.log('Undertrump');
@@ -663,53 +669,145 @@ function playCard(data, gameSocket) {
   // Remove card clicked from array
   playerCards.splice(cardIndex, 1);
 
-  // Increment player turn
-  if (roomUsers[data.roomId].turn >= 4) {
-    roomUsers[data.roomId].turn = 1;
-  }
-  else {
-    roomUsers[data.roomId].turn = roomUsers[data.roomId].turn + 1;
-  }
+  console.log('PCs: ', playerCards);
 
+  // Emit data
   gameSocket.emit('playerCards', playerCards);
   io.to(data.roomId).emit('lift', roomUsers[data.roomId].lift);
   io.to(data.roomId).emit('turn', roomUsers[data.roomId].turn);
+  playersInRoom(data, gameSocket);
 
+  // Show player their cards if round has officially started (ie player stood and played a card)
   if (!roomUsers[data.roomId].roundStarted) {
     roomUsers[data.roomId].roundStarted = true;
     emitPlayerCardData(data);
   }
 
+  if (roomUsers[data.roomId].lift.length >= 4) {
+    liftScoring(data);
+  }
+  else {
+    // Increment player turn
+    if (roomUsers[data.roomId].turn >= 4) {
+      roomUsers[data.roomId].turn = 1;
+    }
+    else {
+      roomUsers[data.roomId].turn = roomUsers[data.roomId].turn + 1;
+    }
+
+    io.to(data.roomId).emit('turn', roomUsers[data.roomId].turn);
+  }
+
+  let roundEnded = true;
+
+  // Iterate through users cards and check if anybody still has cards in their hand
+  roomUsers[data.roomId].users.forEach(el => {
+    if (el.cards && el.cards.length > 0)  {
+      roundEnded = false;
+    }
+  });
+
+  if (roundEnded) {
+    roundScoring(data, gameSocket);
+  }
 }
 
-function liftScoring(data, gameSocket) {
-  // // If trump is played
-  // if (data.card.suit == trump) {
+function liftScoring(data) {
 
-  //   const power = data.card.power;
-  //   if (power > roomUsers[data.roomId].high) {
-  //     roomUsers[data.roomId].highWinner = playerTeam;
-  //     roomUsers[data.roomId].high = power;
-  //   }
-  //   if (power < roomUsers[data.roomId].low) {
-  //     roomUsers[data.roomId].lowWinner = playerTeam;
-  //     roomUsers[data.roomId].low = power;
-  //   }
-  //   if (data.card.value == 'J') {
-  //     const hangerInLift = roomUsers[data.roomId].lift.find(el => el.power > data.card.power);
+  let jackInLift = false;
+
+  let highestHangerPower = 0;
+  let highestHangerPlayer;
+  let jackOwnerPlayer;
+  let liftWinnerPlayer;
+
+  let highestPowerInLift = 0;
+  let liftPoints = 0;
 
 
-  //   }
-  //   if (value > 11 && jackInPlay == true) { // If jack is in lift and a Queen or higher has been played
-  //     setJackWinner(team);
-  //     jackWinnerVar = team;
-  //   }
-  //   if (value > 11 && value > jackHangerValue) { // If jack is in lift with a Queen or higher and a Card stronger than the previous royal is played
-  //     setJackHangerTeam(team);
-  //     setJackHangerValue(value);
-  //     jackHangerTeamVar = team;
-  //   }
-  // }
+  // Loop through lift
+  roomUsers[data.roomId].lift.forEach(el => {
+    // Add 100 points to power if card was trump, minus 100 points from power if card was not suit that was called
+    const power = el.power + (el.suit == roomUsers[data.roomId].trump ? 100 : el.suit != roomUsers[data.roomId].called.suit ? -100 : 0);
+    const player = roomUsers[data.roomId].users.find(usr => usr.player == el.player);
+
+    if (data.card.suit == roomUsers[data.roomId].trump) {
+
+      // Store potential high
+      if (power > roomUsers[data.roomId].high) {
+        roomUsers[data.roomId].highWinner = player;
+        roomUsers[data.roomId].high = power;
+      }
+
+      // Store potential low
+      if (power < roomUsers[data.roomId].low) {
+        roomUsers[data.roomId].lowWinner = player;
+        roomUsers[data.roomId].low = power;
+      }
+
+      // Determine if Jack is in lift
+      if (data.card.value == 'J') {
+        jackInLift = true;
+        jackOwnerPlayer = player;
+      }
+
+      // Determine if jack was hung
+      if (data.card.power > 11 && jackInLift && data.card.power > highestHangerPower) {
+        highestHangerPower = data.card.power;
+        highestHangerPlayer = player;
+      }
+
+    }
+
+    // Determine if card is winning the lift
+    if (power > highestPowerInLift) {
+      liftWinnerPlayer = player;
+      highestPowerInLift = power;
+    }
+
+    // Tally lift points
+    liftPoints = liftPoints + el.points;
+
+  });
+
+  if (!roomUsers[data.roomId].game) {
+    roomUsers[data.roomId].game = [0, 0];
+  }
+
+  console.log('LWP: ', liftWinnerPlayer);
+
+  // Assign points for game
+  if (liftWinnerPlayer.team == 1) {
+    roomUsers[data.roomId].game[0] = roomUsers[data.roomId].game[0] + liftPoints;
+  }
+  else if (liftWinnerPlayer.team == 2) {
+    roomUsers[data.roomId].game[1] = roomUsers[data.roomId].game[1] + liftPoints;
+  }
+
+  // Determine who won/hung Jack
+  if (jackOwnerPlayer) {
+    if (highestHangerPlayer && highestHangerPlayer.team != jackOwnerPlayer.team) { // Hang Jack
+      io.to(data.roomId).emit('message', { message: highestHangerPlayer.nickname + ' hung jack!!!', shortcode: 'HANG' });
+      roomUsers[data.roomId].jackWinner = highestHangerPlayer;
+      roomUsers[data.roomId].hangJack = true;
+    }
+    else {
+      roomUsers[data.roomId].jackWinner = jackOwnerPlayer;
+    }
+  }
+
+  roomUsers[data.roomId].lift = undefined;
+  roomUsers[data.roomId].called = undefined;
+  roomUsers[data.roomId].turn = liftWinnerPlayer.player;
+
+  io.to(data.roomId).emit('turn', roomUsers[data.roomId].turn);
+  io.to(data.roomId).emit('lift', undefined);
+  io.to(data.roomId).emit('game', roomUsers[data.roomId].game);
+}
+
+function roundScoring(data, gameSocket) {
+  io.to(data.roomId).emit('message', { message: 'Round over!', shortcode: 'ROUND_OVER' });
+  console.log('Round scoring!');
 }
 
 

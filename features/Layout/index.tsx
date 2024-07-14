@@ -1,6 +1,6 @@
 import React, {  useEffect, useRef } from 'react';
 import { Socket, io } from 'socket.io-client';
-import { setBeg, setDealer, setDeck, setErrorMsg, setJoinModalOpen, setKickedCards, setLift, setMessage, setPlayerCards, setPlayerList, setRoomId, setTeamScore, setTurn } from '../../slices/game.slice';
+import { setBeg, setDealer, setDeck, setErrorMsg, setGame, setJoinModalOpen, setKickedCards, setLift, setMessage, setPlayerCards, setPlayerList, setRoomId, setTeamScore, setTurn } from '../../slices/game.slice';
 import { useAppDispatch } from '../../store/hooks';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/router';
@@ -83,6 +83,11 @@ export default function Layout({ Component, pageProps }: Props) {
     socket.current.on('lift', (state) => {
       dispatch(setLift(state));
     });
+
+    socket.current.on('game', (state) => {
+      dispatch(setGame(state));
+    });
+
   }, [socket]);
 
   return (

@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import PlayingCard from './PlayingCard';
 import { useAppSelector } from '../../store/hooks';
-import { getKickedCards, getTeamScore } from '../../slices/game.slice';
+import { getGame, getKickedCards, getTeamScore } from '../../slices/game.slice';
 
 interface Props {
   playerTurn?: number;
@@ -15,18 +15,15 @@ export default function GameInfo({ playerTurn, playerTeam } : Props) {
 
   const teamScore = useAppSelector(getTeamScore);
 
-  const teamScoreOrdered = useMemo(() => {
-    if (!teamScore) {
-      return [0, 0];
-    }
+  const game = useAppSelector(getGame);
 
-    if (playerTeam == 1 || playerTeam == 3) {
-      return teamScore;
-    }
-    else {
-      return [...teamScore].reverse();
-    }
+  const teamScoreOrdered = useMemo(() => {
+    return orderScore(teamScore);
   }, [teamScore, playerTeam]);
+
+  const gameOrdered = useMemo(() => {
+    return orderScore(game);
+  }, [game, playerTeam]);
 
 
   // --------------------------------
@@ -56,7 +53,6 @@ export default function GameInfo({ playerTurn, playerTeam } : Props) {
   // Manage values for high, low, game and jack
   const [high, setHigh] = useState<number>(0);
   const [low, setLow] = useState<number>(15);
-  const [game, setGame] = useState<number[]>([0, 0]);
   const [jack, setJack] = useState<number>(1);
 
   // Indicate which team played jack
@@ -81,6 +77,19 @@ export default function GameInfo({ playerTurn, playerTeam } : Props) {
   // Indicate whether or not to show which team won what
   const [show, setShow] = useState<boolean>(false);
 
+  function orderScore(score?: number[]) {
+    if (!score) {
+      return [0, 0];
+    }
+
+    if (playerTeam == 1 || playerTeam == 3) {
+      return score;
+    }
+    else {
+      return [...score].reverse();
+    }
+  }
+
 
   return (
     <div className="bg-red-100 p-2 h-screen w-1/5">
@@ -104,7 +113,7 @@ export default function GameInfo({ playerTurn, playerTeam } : Props) {
         </div>
       </div>
       <div>
-        <p>Game: {game[0]} - {game[1]}</p>
+        <p>Game: {gameOrdered[0]} - {gameOrdered[1]}</p>
       </div>
       <div>
         {show ?

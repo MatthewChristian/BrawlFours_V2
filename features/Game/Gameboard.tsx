@@ -207,12 +207,8 @@ export default function Gameboard({ socket, roomId }: Props) {
   // }, [deck, kickedCards]);
 
   useEffect(() => {
-    if (!kickedCards || !playerCards || kickedCards.length == 0 || playerCards.length == 0) {
-      return;
-    }
-
-    displayPlayerCards(playerCards);
-  }, [playerCards, kickedCards]);
+    displayPlayerCards(playerCards ?? []);
+  }, [playerCards]);
 
   /*
     Initialise game

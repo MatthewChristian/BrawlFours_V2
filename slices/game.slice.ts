@@ -23,7 +23,8 @@ interface GameSlice {
   beg?: 'begging' | 'begged' | 'stand' | 'give' | 'run';
   teamScore?: number[];
   message?: ServerMessage;
-  lift: LiftCard[]
+  lift: LiftCard[];
+  game: number[];
 }
 const initialState: GameSlice = {
   playerList: [],
@@ -32,7 +33,8 @@ const initialState: GameSlice = {
   kickedCards: [],
   playerCards: [],
   teamScore: [0, 0],
-  lift: []
+  lift: [],
+  game: [0, 0]
 };
 
 /**
@@ -95,6 +97,10 @@ export const gameSlice = createSlice({
       state.lift = action.payload;
     },
 
+    setGame: (state, action: PayloadAction<number[]>) => {
+      state.game = action.payload;
+    },
+
   }
 });
 
@@ -117,7 +123,8 @@ export const {
   setTurn,
   setTeamScore,
   setMessage,
-  setLift
+  setLift,
+  setGame
 } =  gameSlice.actions;
 
 // Selectors
@@ -147,3 +154,5 @@ export const getTeamScore = (state: RootState): number[] => state.gameSlice.team
 export const getMessage = (state: RootState): ServerMessage | undefined => state.gameSlice.message;
 
 export const getLift = (state: RootState): LiftCard[] => state.gameSlice.lift;
+
+export const getGame = (state: RootState): number[] => state.gameSlice.game;
