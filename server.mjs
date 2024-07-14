@@ -400,6 +400,27 @@ function resetGameState(roomId) {
   }
 }
 
+function orderCards(roomId) {
+  const order = ['s', 'h', 'c', 'd'];
+
+  roomUsers[roomId].users.forEach(el => {
+    const orderedPlayerCards = [...el.cards];
+
+    orderedPlayerCards.sort(function (a, b) {
+      const aSuitIndex = order.findIndex(el => el == a.suit);
+      const bSuitIndex = order.findIndex(el => el == b.suit);
+
+      if (aSuitIndex < bSuitIndex) { return -1; }
+      if (aSuitIndex > bSuitIndex) { return 1; }
+      if (a.power < b.power) { return -1; }
+      if (a.power > b.power) { return 1; }
+      return 0;
+    });
+
+    el.cards = orderedPlayerCards;
+  });
+}
+
 function initialiseGameCards(data, gameSocket) {
   resetGameState(data.roomId);
 
@@ -411,6 +432,9 @@ function initialiseGameCards(data, gameSocket) {
   // Deal 3 cards to each player twice
   dealAll(data, gameSocket);
   dealAll(data, gameSocket);
+
+  // Order player cards by suit and value
+  orderCards(data.roomId);
 
   io.to(data.roomId).emit('dealer', roomUsers[data.roomId].dealer);
   io.to(data.roomId).emit('turn', roomUsers[data.roomId].turn);
@@ -528,6 +552,9 @@ function beg(data, gameSocket) {
 
   }
 
+  // Order player cards by suit and value
+  orderCards(data.roomId);
+
   emitPlayerCardData(data);
 
 }
@@ -594,7 +621,6 @@ function didUndertrump(data) {
 
   roomUsers[data.roomId].lift.forEach(el => {
     if ((el.suit == roomUsers[data.roomId].trump) && (el.power > data.card.power)) {
-      console.log('True');
       undertrumped = true;
     }
   });
@@ -642,8 +668,6 @@ function playCard(data, gameSocket) {
     return;
   }
 
-  console.log('UT: ', undertrumped);
-
   // If the player attempted to undertrump, end function and do not add card to lift
   if (roomUsers[data.roomId].called && (data.card.suit == roomUsers[data.roomId].trump && undertrumped == true) && roomUsers[data.roomId].called.suit != trump && !bare) {
     console.log('Undertrump');
@@ -668,8 +692,6 @@ function playCard(data, gameSocket) {
 
   // Remove card clicked from array
   playerCards.splice(cardIndex, 1);
-
-  console.log('PCs: ', playerCards);
 
   // Emit data
   gameSocket.emit('playerCards', playerCards);
@@ -773,8 +795,6 @@ function liftScoring(data) {
   if (!roomUsers[data.roomId].game) {
     roomUsers[data.roomId].game = [0, 0];
   }
-
-  console.log('LWP: ', liftWinnerPlayer);
 
   // Assign points for game
   if (liftWinnerPlayer.team == 1) {
