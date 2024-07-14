@@ -391,6 +391,8 @@ function resetGameState(roomId) {
 
   roomUsers[roomId].kicked = undefined;
 
+  roomUsers[roomId].game = undefined;
+
   // Set beg state to 'begging' to let game know that a player is currently deciding whether to beg or not
   roomUsers[roomId].beg = 'begging';
 
@@ -602,6 +604,7 @@ function begResponse(data, gameSocket) {
     }
 
     io.to(data.roomId).emit('beg', roomUsers[data.roomId].beg);
+    io.to(data.roomId).emit('roundWinners', undefined);
   }
   else {
     console.log('Room doesnt exist');
@@ -825,9 +828,43 @@ function liftScoring(data) {
   io.to(data.roomId).emit('game', roomUsers[data.roomId].game);
 }
 
+function resetRoundState(data) {
+  roomUsers[data.roomId].highWinner = undefined;
+  roomUsers[data.roomId].lowWinner = undefined;
+  roomUsers[data.roomId].jackWinner = undefined;
+  roomUsers[data.roomId].hangJack = undefined;
+  roomUsers[data.roomId].game = undefined;
+  roomUsers[data.roomId].high = undefined;
+  roomUsers[data.roomId].low = undefined;
+  roomUsers[data.roomId].jack = undefined;
+  roomUsers[data.roomId].roundStarted = false;
+}
+
 function roundScoring(data, gameSocket) {
-  io.to(data.roomId).emit('message', { message: 'Round over!', shortcode: 'ROUND_OVER' });
-  console.log('Round scoring!');
+  // Emit winners
+
+  const roundWinners = {
+    highWinner: roomUsers[data.roomId].highWinner,
+    high: roomUsers[data.roomId].high,
+    lowWinner: roomUsers[data.roomId].lowWinner,
+    low: roomUsers[data.roomId].low,
+    jackWinner: roomUsers[data.roomId].jackWinner,
+    jack: roomUsers[data.roomId].jack,
+    hangJack: roomUsers[data.roomId].hangJack,
+    game: roomUsers[data.roomId].game
+  };
+
+  io.to(data.roomId).emit('roundWinners', roundWinners);
+
+  // Set next dealer and turn
+  roomUsers[data.roomId].dealer = roomUsers[data.roomId].dealer == 4 ? 1 : roomUsers[data.roomId].dealer + 1;
+  roomUsers[data.roomId].turn = roomUsers[data.roomId].dealer == 4 ? 1 : roomUsers[data.roomId].dealer + 1;
+
+  // Reset round states
+  resetRoundState(data);
+
+  // Init new round
+  initialiseGameCards(data, gameSocket);
 }
 
 

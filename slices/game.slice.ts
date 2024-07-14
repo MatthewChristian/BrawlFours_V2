@@ -4,6 +4,7 @@ import { PlayerSocket } from '../models/PlayerSocket';
 import { DeckCard } from '../models/DeckCard';
 import { ServerMessage } from '../models/ServerMessage';
 import { LiftCard } from '../models/LiftCard';
+import { RoundWinners } from '../models/RoundWinners';
 
 
 
@@ -25,6 +26,7 @@ interface GameSlice {
   message?: ServerMessage;
   lift: LiftCard[];
   game: number[];
+  roundWinners?: RoundWinners;
 }
 const initialState: GameSlice = {
   playerList: [],
@@ -101,6 +103,10 @@ export const gameSlice = createSlice({
       state.game = action.payload;
     },
 
+    setRoundWinners: (state, action: PayloadAction<RoundWinners | undefined>) => {
+      state.roundWinners = action.payload;
+    },
+
   }
 });
 
@@ -124,7 +130,8 @@ export const {
   setTeamScore,
   setMessage,
   setLift,
-  setGame
+  setGame,
+  setRoundWinners
 } =  gameSlice.actions;
 
 // Selectors
@@ -156,3 +163,5 @@ export const getMessage = (state: RootState): ServerMessage | undefined => state
 export const getLift = (state: RootState): LiftCard[] => state.gameSlice.lift;
 
 export const getGame = (state: RootState): number[] => state.gameSlice.game;
+
+export const getRoundWinners = (state: RootState): RoundWinners | undefined => state.gameSlice.roundWinners;
