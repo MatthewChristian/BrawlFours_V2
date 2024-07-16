@@ -903,7 +903,7 @@ export default function Gameboard() {
 
   return (
     <div className="container">
-      <div className="row">
+      {/* <div className="row">
         <div className="col-sm-3 sidepanel">
           <div className="score row">
             <div className="col-sm-12">
@@ -1007,7 +1007,7 @@ export default function Gameboard() {
             }
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }

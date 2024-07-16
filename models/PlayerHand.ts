@@ -1,4 +1,4 @@
-import { DeckCard } from "./DeckCard";
+import { DeckCard } from './DeckCard';
 
 export interface PlayerHand {
   cards: DeckCard[]

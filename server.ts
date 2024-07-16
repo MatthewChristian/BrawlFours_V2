@@ -1,7 +1,16 @@
 import next from 'next';
-import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import express from 'express';
 import { createServer } from 'node:http';
+import { RoomSocket } from './models/RoomSocket';
+import { CreateRoomInput } from './models/CreateRoomInput';
+import { JoinRoomInput } from './models/JoinRoomInput';
+import { BasicRoomInput } from './models/BasicRoomInput';
+import { ChoosePartnerInput } from './models/ChoosePartnerInput';
+import { DeckCard } from './models/DeckCard';
+import { PlayerSocket } from './models/PlayerSocket';
+import { BegResponseInput } from './models/BegResponseInput';
+import { PlayCardInput } from './models/PlayCardInput';
 
 const app = express();
 const server = createServer(app);
@@ -13,10 +22,10 @@ const handle = nextApp.getRequestHandler();
 
 const io = new Server(server);
 
-let port = 3000;
+const port = 3000;
 let count = 0;
 
-let roomUsers = {};
+const roomUsers: { [key: string]: RoomSocket} = {};
 
 io.on('connect', socket => {
   count = count + 1;
@@ -29,31 +38,27 @@ io.on('connect', socket => {
 io.on('connection', (socket) => {
   socket.on('createRoom', (data) => createRoom(data, socket));
   socket.on('joinRoom', (data) => joinRoom(data, socket));
-  socket.on('playerJoinedRoom', (data) => playerJoinedRoom(data, socket));
-  socket.on('playersInRoom', (data) =>playersInRoom(data, socket));
   socket.on('leaveRoom', (data) => leaveRoom(data, socket));
   socket.on('setTeams', (data) => setTeams(data, socket));
-  socket.on('gameStarted', (data) => gameStarted(data, socket));
-  socket.on('initialiseGame', (data) => initialiseGame(data, socket));
-  socket.on('kickCard', (data) => kickCard(data, socket));
+  socket.on('initialiseGame', (data) => initialiseGame(data));
   socket.on('playerCards', (data) => playerCards(data, socket));
   socket.on('begResponse', (data) => begResponse(data, socket));
-  socket.on('redeal', (data) => initialiseGameCards(data, socket));
+  socket.on('redeal', (data) => initialiseGameCards(data));
   socket.on('playCard', (data) => playCard(data, socket));
 });
 
-function generateRoomId(gameSocket) {
-  let randomNumber;
+function generateRoomId() {
+  let randomNumber: string;
   do {
     randomNumber = (Math.floor(Math.random() * 90000) + 10000).toString();
-  } while (gameSocket.adapter.rooms.get(randomNumber)); // Regenerate if ID is not uniqute
+  } while (io.of('/').adapter.rooms.get(randomNumber)); // Regenerate if ID is not uniqute
 
   return randomNumber.toString();
 }
 
-function createRoom(data, gameSocket) {
+function createRoom(data: CreateRoomInput, gameSocket: Socket) {
   // Create a unique numbered room
-  let thisRoomId = generateRoomId(gameSocket);
+  const thisRoomId = generateRoomId();
 
   // Join the Room and wait for the players
   gameSocket.join(thisRoomId);
@@ -82,12 +87,12 @@ function createRoom(data, gameSocket) {
   io.to(thisRoomId).emit('playersInRoom', roomUsers[thisRoomId].users);
 }
 
-function joinRoom(data, gameSocket) {
+function joinRoom(data: JoinRoomInput, gameSocket: Socket) {
   // Look up the room ID in the Socket.IO manager object.
   //this is an ES6 Set of all client ids in the room
 
   // If the room exists...
-  if (gameSocket.adapter.rooms.get(data.roomId)) {
+  if (io.of('/').adapter.rooms.get(data.roomId)) {
 
     // If player is already in room
     if (roomUsers[data.roomId] && roomUsers[data.roomId].users && roomUsers[data.roomId].users.find(el => el.id == gameSocket.id)) {
@@ -95,7 +100,7 @@ function joinRoom(data, gameSocket) {
     }
 
     // If room is not full
-    if (gameSocket.adapter.rooms.get(data.roomId).size < 4) {
+    if (io.of('/').adapter.rooms.get(data.roomId).size < 4) {
 
       // Join the room
       gameSocket.join(data.roomId);
@@ -132,12 +137,8 @@ function joinRoom(data, gameSocket) {
   }
 }
 
-function playerJoinedRoom(data, gameSocket) {
-  console.log('Player joined room: ', data);
-}
-
-function playersInRoom(data, gameSocket) {
-  if (gameSocket.adapter.rooms.get(data.roomId)) {
+function playersInRoom(data: BasicRoomInput) {
+  if (io.of('/').adapter.rooms.get(data.roomId)) {
 
     if (!roomUsers[data.roomId].users) {
       return;
@@ -158,9 +159,9 @@ function playersInRoom(data, gameSocket) {
   }
 }
 
-function leaveRoom(data, gameSocket) {
+function leaveRoom(data: BasicRoomInput, gameSocket: Socket) {
   // If the room exists...
-  if (gameSocket.adapter.rooms.get(data.roomId)) {
+  if (io.of('/').adapter.rooms.get(data.roomId)) {
     gameSocket.leave(data.roomId);
 
     const index = roomUsers[data.roomId]?.users.findIndex((el) => el.id == gameSocket.id);
@@ -173,9 +174,9 @@ function leaveRoom(data, gameSocket) {
   }
 }
 
-function setTeams(data, gameSocket) {
+function setTeams(data: ChoosePartnerInput, gameSocket: Socket) {
   // If the room exists...
-  if (gameSocket.adapter.rooms.get(data.roomId) && gameSocket.adapter.rooms.get(data.roomId).size == 4 && roomUsers[data.roomId]) {
+  if (io.of('/').adapter.rooms.get(data.roomId) && io.of('/').adapter.rooms.get(data.roomId).size == 4 && roomUsers[data.roomId]) {
 
     let isTeam2MemberSetAlready = false;
 
@@ -213,26 +214,15 @@ function setTeams(data, gameSocket) {
 }
 
 
-function gameStarted(data, gameSocket) {
-  // If the room exists...
-  if (gameSocket.adapter.rooms.get(data.roomId)) {
-
-    io.to(data.roomId).emit('gameStarted', true);
-  }
-  else {
-    console.log('gameStarted: Error');
-  }
-}
-
-
 
 
 // Game Logic
 
-function shuffle(deck) {
-  let loc1;
-  let loc2;
-  let temp;
+function shuffle(deck: DeckCard[]) {
+  let loc1: number;
+  let loc2: number;
+  let temp: DeckCard;
+
   for (let i = 0; i < 1000; i++) {
     loc1 = Math.floor((Math.random() * deck.length));
     loc2 = Math.floor((Math.random() * deck.length));
@@ -242,8 +232,8 @@ function shuffle(deck) {
   }
 }
 
-function generateDeck(data, gameSocket) {
-  if (!roomUsers[data.roomId] || !gameSocket.adapter.rooms.get(data.roomId)) {
+function generateDeck(data: BasicRoomInput) {
+  if (!roomUsers[data.roomId] || !io.of('/').adapter.rooms.get(data.roomId)) {
     console.log('generateDeck: Error');
     return;
   }
@@ -273,7 +263,7 @@ function generateDeck(data, gameSocket) {
 /*
    Check to see what card that the dealer has kicked
  */
-function checkKicked(kicked, roomId, dealerTeam) {
+function checkKicked(kicked: DeckCard, roomId: string, dealerTeam: number) {
   if (!roomUsers[roomId].teamScore) {
     roomUsers[roomId].teamScore = [0, 0];
   }
@@ -305,8 +295,8 @@ function checkKicked(kicked, roomId, dealerTeam) {
 
 }
 
-function kickCard(data, gameSocket) {
-  if (!roomUsers[data.roomId] || !gameSocket.adapter.rooms.get(data.roomId) || !roomUsers[data.roomId].deck) {
+function kickCard(data: BasicRoomInput) {
+  if (!roomUsers[data.roomId] || !io.of('/').adapter.rooms.get(data.roomId) || !roomUsers[data.roomId].deck) {
     console.log('kickCard: Error');
     return;
   }
@@ -336,10 +326,11 @@ function kickCard(data, gameSocket) {
 /*
   Deal 3 cards to a player
 */
-function deal(player, deck) {
-  let card;
-  const tempPlayer = { ...player };
-  const tempDeck = [ ...deck ];
+function deal(player: PlayerSocket, deck: DeckCard[]) {
+  let card: DeckCard;
+
+  const tempPlayer: PlayerSocket = { ...player };
+  const tempDeck: DeckCard[] = [ ...deck ];
 
   for (let i = 0; i < 3; i++) {
     card = tempDeck.pop();
@@ -363,8 +354,8 @@ function deal(player, deck) {
 /*
   Deal 3 cards to all players
 */
-function dealAll(data, gameSocket) {
-  if (!roomUsers[data.roomId] || !gameSocket.adapter.rooms.get(data.roomId) || !roomUsers[data.roomId].deck) {
+function dealAll(data: BasicRoomInput) {
+  if (!roomUsers[data.roomId] || !io.of('/').adapter.rooms.get(data.roomId) || !roomUsers[data.roomId].deck) {
     console.log('dealAll: Error');
     return;
   }
@@ -382,11 +373,11 @@ function dealAll(data, gameSocket) {
 
   roomUsers[data.roomId].deck = tempDeck;
 
-  playersInRoom(data, gameSocket);
+  playersInRoom(data);
 
 }
 
-function resetGameState(roomId) {
+function resetGameState(roomId: string) {
   roomUsers[roomId].deck = undefined;
 
   roomUsers[roomId].kicked = undefined;
@@ -402,8 +393,8 @@ function resetGameState(roomId) {
   }
 }
 
-function orderCards(roomId) {
-  const order = ['s', 'h', 'c', 'd'];
+function orderCards(roomId: string) {
+  const order: string[] = ['s', 'h', 'c', 'd'];
 
   roomUsers[roomId].users.forEach(el => {
     const orderedPlayerCards = [...el.cards];
@@ -423,17 +414,17 @@ function orderCards(roomId) {
   });
 }
 
-function initialiseGameCards(data, gameSocket) {
+function initialiseGameCards(data) {
   resetGameState(data.roomId);
 
-  generateDeck(data, gameSocket);
+  generateDeck(data);
 
   // Kick card
-  kickCard(data, gameSocket);
+  kickCard(data);
 
   // Deal 3 cards to each player twice
-  dealAll(data, gameSocket);
-  dealAll(data, gameSocket);
+  dealAll(data);
+  dealAll(data);
 
   // Order player cards by suit and value
   orderCards(data.roomId);
@@ -455,8 +446,8 @@ function initialiseGameCards(data, gameSocket) {
   });
 }
 
-function initialiseGame(data, gameSocket) {
-  if (!roomUsers[data.roomId] || !gameSocket.adapter.rooms.get(data.roomId)) {
+function initialiseGame(data: BasicRoomInput) {
+  if (!roomUsers[data.roomId] || !io.of('/').adapter.rooms.get(data.roomId)) {
     console.log('generateDeck: Error');
     return;
   }
@@ -485,15 +476,15 @@ function initialiseGame(data, gameSocket) {
     roomUsers[data.roomId].turn = roomUsers[data.roomId].turn + 1;
   }
 
-  initialiseGameCards(data, gameSocket);
+  initialiseGameCards(data);
 }
 
 
-function playerCards(data, gameSocket) {
-  if (gameSocket.adapter.rooms.get(data.roomId)) {
+function playerCards(data, gameSocket: Socket) {
+  if (io.of('/').adapter.rooms.get(data.roomId)) {
 
     // Loop through users in room
-    roomUsers[data.roomId].users.forEach((el, i) => {
+    roomUsers[data.roomId].users.forEach((el) => {
       // Send player card data to player
       if (el.id == gameSocket.id) {
         gameSocket.emit('playerCards', el.cards);
@@ -506,15 +497,15 @@ function playerCards(data, gameSocket) {
   }
 }
 
-function emitPlayerCardData(data) {
+function emitPlayerCardData(data: BasicRoomInput) {
   // Loop through users in room
-  roomUsers[data.roomId].users.forEach((el, i) => {
+  roomUsers[data.roomId].users.forEach((el) => {
     // Send player card data to each player
     io.to(el.id).emit('playerCards', el.cards);
   });
 }
 
-function beg(data, gameSocket) {
+function beg(data: BasicRoomInput) {
   if (!roomUsers[data.roomId] || !roomUsers[data.roomId].kicked) {
     console.log('Missing data');
   }
@@ -524,19 +515,19 @@ function beg(data, gameSocket) {
     shortcode: 'RUN'
   });
 
-  kickCard(data, gameSocket);
+  kickCard(data);
 
-  dealAll(data, gameSocket);
+  dealAll(data);
 
   // If same suit is kicked again (1)
   if (roomUsers[data.roomId].kicked[1].suit == roomUsers[data.roomId].kicked[0].suit) {
-    kickCard(data, gameSocket);
+    kickCard(data);
 
-    dealAll(data, gameSocket);
+    dealAll(data);
 
     // If same suit is kicked again (2)
     if (roomUsers[data.roomId].kicked[2].suit == roomUsers[data.roomId].kicked[1].suit) {
-      kickCard(data, gameSocket);
+      kickCard(data);
 
       // If same suit is kicked again (3)
       if (roomUsers[data.roomId].kicked[3].suit == roomUsers[data.roomId].kicked[2].suit) {
@@ -561,8 +552,8 @@ function beg(data, gameSocket) {
 
 }
 
-function begResponse(data, gameSocket) {
-  if (gameSocket.adapter.rooms.get(data.roomId)) {
+function begResponse(data: BegResponseInput, gameSocket: Socket) {
+  if (io.of('/').adapter.rooms.get(data.roomId)) {
 
     if (data.response == 'begged') {
       roomUsers[data.roomId].beg = 'begged';
@@ -599,7 +590,7 @@ function begResponse(data, gameSocket) {
     }
     else if (data.response == 'run') {
       roomUsers[data.roomId].beg = 'run';
-      beg(data, gameSocket);
+      beg(data);
       playerCards(data, gameSocket);
     }
 
@@ -615,7 +606,7 @@ function begResponse(data, gameSocket) {
 /*
     Determine whether or not a player tried to undertrump
   */
-function didUndertrump(data) {
+function didUndertrump(data: PlayCardInput) {
   if (!roomUsers[data.roomId].lift || !roomUsers[data.roomId].trump || data.card?.suit != roomUsers[data.roomId].trump) {
     return false;
   }
@@ -632,8 +623,8 @@ function didUndertrump(data) {
 }
 
 
-function playCard(data, gameSocket) {
-  if (!gameSocket.adapter.rooms.get(data.roomId)) {
+function playCard(data: PlayCardInput, gameSocket: Socket) {
+  if (!io.of('/').adapter.rooms.get(data.roomId)) {
     console.log('Room doesnt exist');
   }
 
@@ -700,7 +691,7 @@ function playCard(data, gameSocket) {
   gameSocket.emit('playerCards', playerCards);
   io.to(data.roomId).emit('lift', roomUsers[data.roomId].lift);
   io.to(data.roomId).emit('turn', roomUsers[data.roomId].turn);
-  playersInRoom(data, gameSocket);
+  playersInRoom(data);
 
   // Show player their cards if round has officially started (ie player stood and played a card)
   if (!roomUsers[data.roomId].roundStarted) {
@@ -733,11 +724,11 @@ function playCard(data, gameSocket) {
   });
 
   if (roundEnded) {
-    roundScoring(data, gameSocket);
+    roundScoring(data);
   }
 }
 
-function liftScoring(data) {
+function liftScoring(data: PlayCardInput) {
 
   let jackInLift = false;
 
@@ -759,15 +750,15 @@ function liftScoring(data) {
     if (data.card.suit == roomUsers[data.roomId].trump) {
 
       // Store potential high
-      if (power > roomUsers[data.roomId].high) {
+      if (power > roomUsers[data.roomId].high.power) {
         roomUsers[data.roomId].highWinner = player;
-        roomUsers[data.roomId].high = power;
+        roomUsers[data.roomId].high.power = power;
       }
 
       // Store potential low
-      if (power < roomUsers[data.roomId].low) {
+      if (power < roomUsers[data.roomId].low.power) {
         roomUsers[data.roomId].lowWinner = player;
-        roomUsers[data.roomId].low = power;
+        roomUsers[data.roomId].low.power = power;
       }
 
       // Determine if Jack is in lift
@@ -828,7 +819,7 @@ function liftScoring(data) {
   io.to(data.roomId).emit('game', roomUsers[data.roomId].game);
 }
 
-function resetRoundState(data) {
+function resetRoundState(data: PlayCardInput) {
   roomUsers[data.roomId].highWinner = undefined;
   roomUsers[data.roomId].lowWinner = undefined;
   roomUsers[data.roomId].jackWinner = undefined;
@@ -840,7 +831,7 @@ function resetRoundState(data) {
   roomUsers[data.roomId].roundStarted = false;
 }
 
-function roundScoring(data, gameSocket) {
+function roundScoring(data: PlayCardInput) {
   // Emit winners
 
   const roundWinners = {
@@ -864,7 +855,7 @@ function roundScoring(data, gameSocket) {
   resetRoundState(data);
 
   // Init new round
-  initialiseGameCards(data, gameSocket);
+  initialiseGameCards(data);
 }
 
 
@@ -875,8 +866,7 @@ nextApp.prepare()
       return handle(req, res);
     });
 
-    server.listen(port, (err) => {
-      if (err) throw err;
+    server.listen(port, () => {
       console.log(`> Ready on http://localhost:${port}`);
     });
   })
