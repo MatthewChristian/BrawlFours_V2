@@ -28,6 +28,7 @@ interface GameSlice {
   lift: LiftCard[];
   game: number[];
   roundWinners?: RoundWinners;
+  matchWinner?: number;
 }
 const initialState: GameSlice = {
   playerList: [],
@@ -37,7 +38,7 @@ const initialState: GameSlice = {
   playerCards: [],
   teamScore: [0, 0],
   lift: [],
-  game: [0, 0]
+  game: [0, 0],
 };
 
 /**
@@ -108,6 +109,10 @@ export const gameSlice = createSlice({
       state.roundWinners = action.payload;
     },
 
+    setMatchWinner: (state, action: PayloadAction<number>) => {
+      state.matchWinner = action.payload;
+    },
+
   }
 });
 
@@ -132,7 +137,8 @@ export const {
   setMessage,
   setLift,
   setGame,
-  setRoundWinners
+  setRoundWinners,
+  setMatchWinner
 } =  gameSlice.actions;
 
 // Selectors
@@ -166,3 +172,5 @@ export const getLift = (state: RootState): LiftCard[] => state.gameSlice.lift;
 export const getGame = (state: RootState): number[] => state.gameSlice.game;
 
 export const getRoundWinners = (state: RootState): RoundWinners | undefined => state.gameSlice.roundWinners;
+
+export const getMatchWinner = (state: RootState): number => state.gameSlice.matchWinner;

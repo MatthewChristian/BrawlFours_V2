@@ -3,7 +3,7 @@ import { Socket } from 'socket.io-client';
 import { DeckCard } from '../../models/DeckCard';
 import PlayingCard from './PlayingCard';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { getBeg, getDealer, getKickedCards, getLift, getMessage, getPlayerCards, getPlayerList, getRoundWinners, getTurn, setMessage } from '../../slices/game.slice';
+import { getBeg, getDealer, getKickedCards, getLift, getMatchWinner, getMessage, getPlayerCards, getPlayerList, getRoundWinners, getTeamScore, getTurn, setMessage } from '../../slices/game.slice';
 import { useRouter } from 'next/router';
 import { PlayerSocket } from '../../models/PlayerSocket';
 import DealerIcon from './StatusIcons/DealerIcon';
@@ -29,8 +29,6 @@ export default function Gameboard({ socket, roomId }: Props) {
 
   const players = useAppSelector(getPlayerList);
 
-  const kickedCards = useAppSelector(getKickedCards);
-
   const dealer = useAppSelector(getDealer);
 
   const playerTurn = useAppSelector(getTurn);
@@ -43,6 +41,8 @@ export default function Gameboard({ socket, roomId }: Props) {
 
   const roundWinners = useAppSelector(getRoundWinners);
 
+  const matchWinner = useAppSelector(getMatchWinner);
+
   // Cards in the hand of the client player
   const playerCards = useAppSelector(getPlayerCards);
 
@@ -52,6 +52,9 @@ export default function Gameboard({ socket, roomId }: Props) {
   const [waitingBegResponseModalVisible, setWaitingBegResponseModalVisible] = useState<boolean>(false);
   const [redealModalVisible, setRedealModalVisible] = useState<boolean>(false);
   const [roundWinnersModalVisible, setRoundWinnersModalVisible] = useState<boolean>(false);
+  const [matchWinnerModalVisible, setMatchWinnerModalVisible] = useState<boolean>(false);
+
+  const [matchWinnerNames, setMatchWinnerNames] = useState<string[]>([]);
 
   // React refs for player hand div
   const player1Hand = useRef<HTMLDivElement>(null);
@@ -187,9 +190,6 @@ export default function Gameboard({ socket, roomId }: Props) {
     setPlayer1Cards(player);
   }
 
-  function beg() {
-    console.log('Begged');
-  }
 
   function playCard(card: DeckCard) {
     console.log('Card clicked: ', card);
@@ -201,14 +201,6 @@ export default function Gameboard({ socket, roomId }: Props) {
     socket.current?.emit('playCard', { ...socketData, card: card, player: playerNumber });
   }
 
-  /*
-    Initialise game
-  */
-  // useEffect(() => {
-
-  //   socket.current?.emit('playerCards', socketData);
-
-  // }, [deck, kickedCards]);
 
   useEffect(() => {
     displayPlayerCards(playerCards ?? []);
@@ -222,6 +214,9 @@ export default function Gameboard({ socket, roomId }: Props) {
   }, [socketData]);
 
 
+  /*
+    Set player data
+  */
   useEffect(() => {
 
     if (!players || players.length == 0) {
@@ -266,6 +261,12 @@ export default function Gameboard({ socket, roomId }: Props) {
     }
 
   }, [players, playerNumber]);
+
+  useEffect(() => {
+    if (roundWinners) {
+      setRoundWinnersModalVisible(true);
+    }
+  }, [roundWinners]);
 
   useEffect(() => {
     if (!begState) {
@@ -334,10 +335,24 @@ export default function Gameboard({ socket, roomId }: Props) {
   }, [message, isPlayer1Dealer, isPlayer1Turn]);
 
   useEffect(() => {
-    if (!roundWinners) {
-      setRoundWinnersModalVisible(true);
+    if (!matchWinner || !players || players.length == 0) {
+      return;
     }
-  }, [roundWinners]);
+
+    const winnerNames: string[] = [];
+
+    players.forEach(el => {
+      if (el.team == matchWinner) {
+        winnerNames.push(el.nickname);
+      }
+    });
+
+    setMatchWinnerNames(winnerNames);
+    setMatchWinnerModalVisible(true);
+
+  }, [matchWinner, players]);
+
+
 
   return (
     <div className="h-screen w-screen bg-slate-300">
@@ -531,8 +546,14 @@ export default function Gameboard({ socket, roomId }: Props) {
         </div>
       </Modal>
 
+      <Modal open={matchWinnerModalVisible && !roundWinnersModalVisible} closeOnDocumentClick={true} onClose={() => setMatchWinnerModalVisible(false)}>
+        <div className="flex flex-col justify-center items-center mx-5">
+          <div>{matchWinnerNames[0]} and {matchWinnerNames[1]} won the match!</div>
+        </div>
+      </Modal>
 
-      <Modal open={begModalVisible} closeOnDocumentClick={false} onClose={() => setBegModalVisible(false)}>
+
+      <Modal open={begModalVisible && !roundWinnersModalVisible} closeOnDocumentClick={false} onClose={() => setBegModalVisible(false)}>
         <div className="flex flex-col justify-center items-center mx-5">
           <div className="">Do you want to beg or stand?</div>
           <div className='w-full flex flex-row justify-center gap-5'>

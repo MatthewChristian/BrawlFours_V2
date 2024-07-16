@@ -6,6 +6,7 @@ export interface RoomSocket {
   deck?: DeckCard[];
   kicked?: DeckCard[];
   users?: PlayerSocket[];
+
   teamScore?: number[];
   dealer?: number;
   turn?: number;
@@ -26,4 +27,8 @@ export interface RoomSocket {
   lift?: LiftCard[];
   roundStarted?: boolean;
   hangJack?: boolean;
+
+  matchWinner?: number
+
+  gameIsTwo?: boolean;
 }

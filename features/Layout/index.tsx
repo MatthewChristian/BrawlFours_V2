@@ -1,6 +1,6 @@
 import React, {  useEffect, useRef } from 'react';
 import { Socket, io } from 'socket.io-client';
-import { setBeg, setDealer, setDeck, setErrorMsg, setGame, setJoinModalOpen, setKickedCards, setLift, setMessage, setPlayerCards, setPlayerList, setRoomId, setRoundWinners, setTeamScore, setTurn } from '../../slices/game.slice';
+import { setBeg, setDealer, setDeck, setErrorMsg, setGame, setJoinModalOpen, setKickedCards, setLift, setMatchWinner, setMessage, setPlayerCards, setPlayerList, setRoomId, setRoundWinners, setTeamScore, setTurn } from '../../slices/game.slice';
 import { useAppDispatch } from '../../store/hooks';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/router';
@@ -91,6 +91,11 @@ export default function Layout({ Component, pageProps }: Props) {
     socket.current.on('roundWinners', (state) => {
       console.log('RW: ', state);
       dispatch(setRoundWinners(state));
+    });
+
+    socket.current.on('matchWinner', (state) => {
+      console.log('MW: ', state);
+      dispatch(setMatchWinner(state));
     });
 
   }, [socket]);

@@ -293,6 +293,12 @@ function checkKicked(kicked: DeckCard, roomId: string, dealerTeam: number) {
     }
   }
 
+  const matchWinner = determineMatchEnd(roomId);
+  if (matchWinner) {
+    announceWinner(roomId);
+    return;
+  }
+
 }
 
 function kickCard(data: BasicRoomInput) {
@@ -393,6 +399,11 @@ function resetGameState(roomId: string) {
   }
 }
 
+function resetMatchState(roomId: string) {
+  roomUsers[roomId].matchWinner = undefined;
+  roomUsers[roomId].teamScore = undefined;
+}
+
 function orderCards(roomId: string) {
   const order: string[] = ['s', 'h', 'c', 'd'];
 
@@ -456,6 +467,9 @@ function initialiseGame(data: BasicRoomInput) {
     console.log('Deck already generated');
     return;
   }
+
+  // Reset match state
+  resetMatchState(data.roomId);
 
   // Determine who is the dealer
   if (!roomUsers[data.roomId].dealer || roomUsers[data.roomId].dealer == 4) {
@@ -730,12 +744,10 @@ function playCard(data: PlayCardInput, gameSocket: Socket) {
 
 function liftScoring(data: PlayCardInput) {
 
-  let jackInLift = false;
-
   let highestHangerPower = 0;
-  let highestHangerPlayer;
-  let jackOwnerPlayer;
-  let liftWinnerPlayer;
+  let highestHangerPlayer: PlayerSocket;
+  let jackOwnerPlayer: PlayerSocket;
+  let liftWinnerPlayer: PlayerSocket;
 
   let highestPowerInLift = 0;
   let liftPoints = 0;
@@ -750,25 +762,24 @@ function liftScoring(data: PlayCardInput) {
     if (data.card.suit == roomUsers[data.roomId].trump) {
 
       // Store potential high
-      if (power > roomUsers[data.roomId].high.power) {
+      if (!roomUsers[data.roomId].high || power > roomUsers[data.roomId].high.power) {
         roomUsers[data.roomId].highWinner = player;
-        roomUsers[data.roomId].high.power = power;
+        roomUsers[data.roomId].high = el;
       }
 
       // Store potential low
-      if (power < roomUsers[data.roomId].low.power) {
+      if (!roomUsers[data.roomId].low || power < roomUsers[data.roomId].low.power) {
         roomUsers[data.roomId].lowWinner = player;
-        roomUsers[data.roomId].low.power = power;
+        roomUsers[data.roomId].low = el;
       }
 
       // Determine if Jack is in lift
       if (data.card.value == 'J') {
-        jackInLift = true;
         jackOwnerPlayer = player;
       }
 
-      // Determine if jack was hung
-      if (data.card.power > 11 && jackInLift && data.card.power > highestHangerPower) {
+      // Determine if hanger in lift
+      if (data.card.power > 11 && data.card.power > highestHangerPower) {
         highestHangerPower = data.card.power;
         highestHangerPlayer = player;
       }
@@ -819,16 +830,16 @@ function liftScoring(data: PlayCardInput) {
   io.to(data.roomId).emit('game', roomUsers[data.roomId].game);
 }
 
-function resetRoundState(data: PlayCardInput) {
-  roomUsers[data.roomId].highWinner = undefined;
-  roomUsers[data.roomId].lowWinner = undefined;
-  roomUsers[data.roomId].jackWinner = undefined;
-  roomUsers[data.roomId].hangJack = undefined;
-  roomUsers[data.roomId].game = undefined;
-  roomUsers[data.roomId].high = undefined;
-  roomUsers[data.roomId].low = undefined;
-  roomUsers[data.roomId].jack = undefined;
-  roomUsers[data.roomId].roundStarted = false;
+function resetRoundState(roomId: string) {
+  roomUsers[roomId].highWinner = undefined;
+  roomUsers[roomId].lowWinner = undefined;
+  roomUsers[roomId].jackWinner = undefined;
+  roomUsers[roomId].hangJack = undefined;
+  roomUsers[roomId].game = undefined;
+  roomUsers[roomId].high = undefined;
+  roomUsers[roomId].low = undefined;
+  roomUsers[roomId].jack = undefined;
+  roomUsers[roomId].roundStarted = false;
 }
 
 function roundScoring(data: PlayCardInput) {
@@ -847,15 +858,110 @@ function roundScoring(data: PlayCardInput) {
 
   io.to(data.roomId).emit('roundWinners', roundWinners);
 
+  let matchWinner: number;
+
+  // Assign scores
+  if (!roomUsers[data.roomId].teamScore) {
+    roomUsers[data.roomId].teamScore = [0, 0];
+  }
+
+  // Assign points for high
+  if (roomUsers[data.roomId].highWinner) {
+    if (roomUsers[data.roomId].highWinner.team == 1){
+      roomUsers[data.roomId].teamScore[0] = roomUsers[data.roomId].teamScore[0] + 1;
+    }
+    else if (roomUsers[data.roomId].highWinner.team == 2) {
+      roomUsers[data.roomId].teamScore[1] = roomUsers[data.roomId].teamScore[1] + 1;
+    }
+  }
+  matchWinner = determineMatchEnd(data.roomId);
+  if (matchWinner) {
+    announceWinner(data.roomId);
+    return;
+  }
+
+  // Assign points for low
+  if (roomUsers[data.roomId].lowWinner) {
+    if (roomUsers[data.roomId].lowWinner.team == 1) {
+      roomUsers[data.roomId].teamScore[0] = roomUsers[data.roomId].teamScore[0] + 1;
+    }
+    else if (roomUsers[data.roomId].lowWinner.team == 2) {
+      roomUsers[data.roomId].teamScore[1] = roomUsers[data.roomId].teamScore[1] + 1;
+    }
+  }
+  matchWinner = determineMatchEnd(data.roomId);
+  if (matchWinner) {
+    announceWinner(data.roomId);
+    return;
+  }
+
+  // Assign points for jack
+  if (roomUsers[data.roomId].jackWinner) {
+    let jackPoints = 1;
+
+    if (roomUsers[data.roomId].hangJack) {
+      jackPoints = 3;
+    }
+
+    if (roomUsers[data.roomId].jackWinner.team == 1) {
+      roomUsers[data.roomId].teamScore[0] = roomUsers[data.roomId].teamScore[0] + jackPoints;
+    }
+    else if (roomUsers[data.roomId].jackWinner.team == 2) {
+      roomUsers[data.roomId].teamScore[1] = roomUsers[data.roomId].teamScore[1] + jackPoints;
+    }
+  }
+  matchWinner = determineMatchEnd(data.roomId);
+  if (matchWinner) {
+    announceWinner(data.roomId);
+    return;
+  }
+
+  // Assign points for game
+  if (roomUsers[data.roomId].game) {
+    if (roomUsers[data.roomId].game[0] > roomUsers[data.roomId].game[1]) {
+      roomUsers[data.roomId].teamScore[0] = roomUsers[data.roomId].teamScore[0] + (roomUsers[data.roomId].gameIsTwo ? 2 : 1);
+    }
+    else {
+      roomUsers[data.roomId].teamScore[1] = roomUsers[data.roomId].teamScore[1] + (roomUsers[data.roomId].gameIsTwo ? 2 : 1);
+    }
+  }
+  matchWinner = determineMatchEnd(data.roomId);
+  if (matchWinner) {
+    announceWinner(data.roomId);
+    return;
+  }
+
+  // Emit team scores
+  io.to(data.roomId).emit('teamScore', roomUsers[data.roomId].teamScore);
+
   // Set next dealer and turn
   roomUsers[data.roomId].dealer = roomUsers[data.roomId].dealer == 4 ? 1 : roomUsers[data.roomId].dealer + 1;
   roomUsers[data.roomId].turn = roomUsers[data.roomId].dealer == 4 ? 1 : roomUsers[data.roomId].dealer + 1;
 
   // Reset round states
-  resetRoundState(data);
+  resetRoundState(data.roomId);
 
   // Init new round
   initialiseGameCards(data);
+}
+
+function determineMatchEnd(roomId: string) {
+  if (roomUsers[roomId].teamScore[0] >= 4) {
+    roomUsers[roomId].matchWinner = 1;
+    return 1;
+  }
+  else if (roomUsers[roomId].teamScore[1] >= 4) {
+    roomUsers[roomId].matchWinner = 2;
+    return 2;
+  }
+
+  return undefined;
+}
+
+function announceWinner(roomId: string) {
+  io.to(roomId).emit('matchWinner', roomUsers[roomId].matchWinner);
+
+  resetRoundState(roomId);
 }
 
 
