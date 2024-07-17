@@ -201,6 +201,37 @@ export default function Gameboard({ socket, roomId }: Props) {
     socket.current?.emit('playCard', { ...socketData, card: card, player: playerNumber });
   }
 
+  function formatGameScore(score?: number[]) {
+
+    if (!score) {
+      return undefined;
+    }
+
+    const playersInTeam1: PlayerSocket[] = [];
+    const playersInTeam2: PlayerSocket[] = [];
+
+    players.forEach((el) => {
+      if (el.team == 1) {
+        playersInTeam1.push(el);
+      }
+      else {
+        playersInTeam2.push(el);
+      }
+    });
+
+    if (score[0] > score[1]) {
+      return <div>
+        <span className='font-bold'>{playersInTeam1[0].nickname}</span> and <span className='font-bold'>{playersInTeam1[1].nickname}</span> won <span className='font-bold text-blue-500'>game</span> {score[0]} - {score[1]}
+      </div>;
+    }
+    else {
+      return <div>
+        <span className='font-bold'>{playersInTeam2[0].nickname}</span> and <span className='font-bold'>{playersInTeam2[1].nickname}</span> won <span className='font-bold text-blue-500'>game</span> {score[1]} - {score[0]}
+      </div>;
+    }
+
+  }
+
 
   useEffect(() => {
     displayPlayerCards(playerCards ?? []);
@@ -523,34 +554,38 @@ export default function Gameboard({ socket, roomId }: Props) {
 
 
       {/* ------------------------ Modals ------------------------*/}
-      <Modal open={roundWinnersModalVisible} closeOnDocumentClick={true} onClose={() => setRoundWinnersModalVisible(false)}>
-        <div className="flex flex-col justify-center items-center mx-5">
+      <Modal open={!roundWinnersModalVisible} closeOnDocumentClick={true} onClose={() => setRoundWinnersModalVisible(false)}>
+        <div className="flex flex-col justify-center items-center mx-10">
           <div className="">Round Winners</div>
 
-          <div className='flex flex-row'>
-            <div>{roundWinners?.highWinner?.nickname} won high with {getCardShortcode(roundWinners?.high)}</div>
+          <div className='flex flex-row items-center justify-between w-full border-b border-slate-300 py-3'>
+            <div><span className='font-bold'>{roundWinners?.highWinner?.nickname}</span> won <span className='font-bold text-green-500'>high</span></div>
+            <div><PlayingCard cardData={roundWinners.high}/></div>
           </div>
 
-          <div className='flex flex-row'>
-            <div>{roundWinners?.lowWinner?.nickname} won low with {getCardShortcode(roundWinners?.low)}</div>
+
+          <div className='flex flex-row items-center justify-between w-full border-b border-slate-300 py-3'>
+            <div><span className='font-bold'>{roundWinners?.lowWinner?.nickname}</span> won <span className='font-bold text-red-500'>low</span></div>
+            <div><PlayingCard cardData={roundWinners.low} /></div>
           </div>
 
-          <div className='flex flex-row'>
-            <div>{roundWinners?.jackWinner?.nickname} won jack with {getCardShortcode(roundWinners?.jack)}</div>
+          <div className='flex flex-row items-center justify-between w-full border-b border-slate-300 py-3'>
+            <div><span className='font-bold'>{roundWinners?.jackWinner?.nickname}</span> won <span className='font-bold text-amber-500'>jack</span></div>
+            <div><PlayingCard cardData={roundWinners.jack} /></div>
           </div>
 
-          <div className='flex flex-row'>
-            <div>{roundWinners?.game}</div>
+          <div className='flex flex-row py-3 items-start justify-start w-full'>
+            <div>{formatGameScore(roundWinners?.game)}</div>
           </div>
 
         </div>
       </Modal>
 
-      <Modal open={matchWinnerModalVisible && !roundWinnersModalVisible} closeOnDocumentClick={true} onClose={() => setMatchWinnerModalVisible(false)}>
+      {/* <Modal open={matchWinnerModalVisible && !roundWinnersModalVisible} closeOnDocumentClick={true} onClose={() => setMatchWinnerModalVisible(false)}>
         <div className="flex flex-col justify-center items-center mx-5">
           <div>{matchWinnerNames[0]} and {matchWinnerNames[1]} won the match!</div>
         </div>
-      </Modal>
+      </Modal> */}
 
 
       <Modal open={begModalVisible && !roundWinnersModalVisible} closeOnDocumentClick={false} onClose={() => setBegModalVisible(false)}>

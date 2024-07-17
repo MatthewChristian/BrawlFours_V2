@@ -776,6 +776,7 @@ function liftScoring(data: PlayCardInput) {
       // Determine if Jack is in lift
       if (data.card.value == 'J') {
         jackOwnerPlayer = player;
+        roomUsers[data.roomId].jack = el;
       }
 
       // Determine if hanger in lift
@@ -855,6 +856,8 @@ function roundScoring(data: PlayCardInput) {
     hangJack: roomUsers[data.roomId].hangJack,
     game: roomUsers[data.roomId].game
   };
+
+  console.log('RW: ', roundWinners);
 
   io.to(data.roomId).emit('roundWinners', roundWinners);
 
