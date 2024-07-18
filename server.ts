@@ -430,6 +430,8 @@ function initialiseGameCards(data) {
 
   generateDeck(data);
 
+  resetRoundState(data.roomId);
+
   // Kick card
   kickCard(data);
 
@@ -963,8 +965,6 @@ function determineMatchEnd(roomId: string) {
 
 function announceWinner(roomId: string) {
   io.to(roomId).emit('matchWinner', roomUsers[roomId].matchWinner);
-
-  resetRoundState(roomId);
 }
 
 

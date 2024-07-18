@@ -1,4 +1,4 @@
-import React, { useState, useRef, RefObject } from 'react';
+import React, { useState, useRef, RefObject, useEffect } from 'react';
 import { Socket } from 'socket.io-client';
 import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
@@ -6,7 +6,9 @@ import Room from './Room';
 import Button from '../../core/components/Button';
 import Input from '../../core/components/Input';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { getErrorMsg, getJoinModalOpen, getRoomId, setJoinModalOpen, setRoomId } from '../../slices/game.slice';
+import { getErrorMsg, getJoinModalOpen, getMatchWinner, getPlayerList, getRoomId, getRoundWinners, setJoinModalOpen, setRoomId } from '../../slices/game.slice';
+import MatchWinnersModal from './Modals/MatchWinnersModal';
+import RoundWinnersModal from './Modals/RoundWinnersModal';
 
 interface Props {
   socket: RefObject<Socket>;
@@ -22,6 +24,9 @@ export default function Lobby({ socket }: Props) {
   // Store room ID of game that player created
   const [showNickWarning, setShowNickWarning] = useState(false);
 
+  const [matchWinnerModalVisible, setMatchWinnerModalVisible] = useState<boolean>(false);
+  const [roundWinnersModalVisible, setRoundWinnersModalVisible] = useState<boolean>(false);
+
   // React ref to access text field values
   const joinRoomRef = useRef<HTMLInputElement>(null);
 
@@ -29,6 +34,12 @@ export default function Lobby({ socket }: Props) {
 
   const errorMsg = useAppSelector(getErrorMsg);
   const joinModalOpen = useAppSelector(getJoinModalOpen);
+
+  const matchWinner = useAppSelector(getMatchWinner);
+
+  const players = useAppSelector(getPlayerList);
+
+  const roundWinners = useAppSelector(getRoundWinners);
 
   const closeJoinModal = () => dispatch(setJoinModalOpen(false));
 
@@ -89,6 +100,17 @@ export default function Lobby({ socket }: Props) {
     dispatch(setRoomId(undefined));
   }
 
+
+  useEffect(() => {
+    if (!matchWinner) {
+      return;
+    }
+
+    setMatchWinnerModalVisible(true);
+
+  }, [matchWinner]);
+
+
   return (
     <div className='bg-slate-200 h-screen flex flex-col justify-center items-center'>
       <div className='bg-white rounded-lg border border-gray-400 p-10'>
@@ -146,6 +168,10 @@ export default function Lobby({ socket }: Props) {
           </div>
         )}
       </div>
+
+      <RoundWinnersModal isVisible={roundWinnersModalVisible} setIsVisible={setRoundWinnersModalVisible} players={players} roundWinners={roundWinners} />
+
+      <MatchWinnersModal isVisible={matchWinnerModalVisible} setIsVisible={setMatchWinnerModalVisible} matchWinner={matchWinner} />
     </div>
   );
 }
