@@ -14,6 +14,7 @@ import { toast } from 'react-toastify';
 import GameInfo from './GameInfo';
 import { getCardShortcode } from '../../core/services/parseCard';
 import RoundWinnersModal from './Modals/RoundWinnersModal';
+import { RoundWinners } from '../../models/RoundWinners';
 
 interface Props {
   socket: RefObject<Socket>;
@@ -42,6 +43,8 @@ export default function Gameboard({ socket, roomId }: Props) {
 
   const roundWinners = useAppSelector(getRoundWinners);
 
+
+
   const matchWinner = useAppSelector(getMatchWinner);
 
   // Cards in the hand of the client player
@@ -53,6 +56,9 @@ export default function Gameboard({ socket, roomId }: Props) {
   const [waitingBegResponseModalVisible, setWaitingBegResponseModalVisible] = useState<boolean>(false);
   const [redealModalVisible, setRedealModalVisible] = useState<boolean>(false);
   const [roundWinnersModalVisible, setRoundWinnersModalVisible] = useState<boolean>(false);
+
+  // Store round winners in a state to keep round winners stored in case it is wiped from server
+  const [roundWinnersStored, setRoundWinnersStored] = useState<RoundWinners>();
 
 
 
@@ -265,6 +271,7 @@ export default function Gameboard({ socket, roomId }: Props) {
   useEffect(() => {
     if (roundWinners) {
       setRoundWinnersModalVisible(true);
+      setRoundWinnersStored(roundWinners);
     }
   }, [roundWinners]);
 
@@ -516,7 +523,7 @@ export default function Gameboard({ socket, roomId }: Props) {
 
 
       {/* ------------------------ Modals ------------------------*/}
-      <RoundWinnersModal isVisible={roundWinnersModalVisible} setIsVisible={setRoundWinnersModalVisible} players={players} roundWinners={roundWinners} />
+      <RoundWinnersModal isVisible={roundWinnersModalVisible} setIsVisible={setRoundWinnersModalVisible} players={players} roundWinners={roundWinnersStored} />
 
       <Modal open={begModalVisible && !roundWinnersModalVisible} closeOnDocumentClick={false} onClose={() => setBegModalVisible(false)}>
         <div className="flex flex-col justify-center items-center mx-5">

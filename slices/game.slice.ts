@@ -6,6 +6,7 @@ import { ServerMessage } from '../models/ServerMessage';
 import { LiftCard } from '../models/LiftCard';
 import { RoundWinners } from '../models/RoundWinners';
 import { BegResponseInput } from '../models/BegResponseInput';
+import { MatchWinner } from '../models/MatchWinner';
 
 
 
@@ -28,7 +29,7 @@ interface GameSlice {
   lift: LiftCard[];
   game: number[];
   roundWinners?: RoundWinners;
-  matchWinner?: number;
+  matchWinner?: MatchWinner;
 }
 const initialState: GameSlice = {
   playerList: [],
@@ -109,7 +110,7 @@ export const gameSlice = createSlice({
       state.roundWinners = action.payload;
     },
 
-    setMatchWinner: (state, action: PayloadAction<number>) => {
+    setMatchWinner: (state, action: PayloadAction<MatchWinner>) => {
       state.matchWinner = action.payload;
     },
 
@@ -173,4 +174,4 @@ export const getGame = (state: RootState): number[] => state.gameSlice.game;
 
 export const getRoundWinners = (state: RootState): RoundWinners | undefined => state.gameSlice.roundWinners;
 
-export const getMatchWinner = (state: RootState): number => state.gameSlice.matchWinner;
+export const getMatchWinner = (state: RootState): MatchWinner => state.gameSlice.matchWinner;

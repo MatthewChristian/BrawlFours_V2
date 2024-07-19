@@ -295,7 +295,7 @@ function checkKicked(kicked: DeckCard, roomId: string, dealerTeam: number) {
 
   const matchWinner = determineMatchEnd(roomId);
   if (matchWinner) {
-    announceWinner(roomId);
+    announceWinner(roomId, true);
     return;
   }
 
@@ -429,8 +429,6 @@ function initialiseGameCards(data) {
   resetGameState(data.roomId);
 
   generateDeck(data);
-
-  resetRoundState(data.roomId);
 
   // Kick card
   kickCard(data);
@@ -571,6 +569,9 @@ function beg(data: BasicRoomInput) {
 function begResponse(data: BegResponseInput, gameSocket: Socket) {
   if (io.of('/').adapter.rooms.get(data.roomId)) {
 
+    // Reset round states
+    resetRoundState(data.roomId);
+
     if (data.response == 'begged') {
       roomUsers[data.roomId].beg = 'begged';
       io.to(data.roomId).emit('message', {
@@ -591,9 +592,23 @@ function begResponse(data: BegResponseInput, gameSocket: Socket) {
       const beggerTeam = roomUsers[data.roomId].users.find(el => el.player == roomUsers[data.roomId].turn).team;
 
       if (beggerTeam == 1) {
+        if (roomUsers[data.roomId].teamScore[0] >= 13) {
+          io.to(gameSocket.id).emit('message', {
+            message: 'You cannot give a point as it will end the game!',
+            shortcode: 'WARNING'
+          });
+          return;
+        }
         roomUsers[data.roomId].teamScore[0]++;
       }
       else {
+        if (roomUsers[data.roomId].teamScore[1] >= 13) {
+          io.to(gameSocket.id).emit('message', {
+            message: 'You cannot give a point as it will end the game!',
+            shortcode: 'WARNING'
+          });
+          return;
+        }
         roomUsers[data.roomId].teamScore[1]++;
       }
 
@@ -711,6 +726,7 @@ function playCard(data: PlayCardInput, gameSocket: Socket) {
 
   // Show player their cards if round has officially started (ie player stood and played a card)
   if (!roomUsers[data.roomId].roundStarted) {
+    resetRoundState(data.roomId);
     roomUsers[data.roomId].roundStarted = true;
     emitPlayerCardData(data);
   }
@@ -842,7 +858,6 @@ function resetRoundState(roomId: string) {
   roomUsers[roomId].high = undefined;
   roomUsers[roomId].low = undefined;
   roomUsers[roomId].jack = undefined;
-  roomUsers[roomId].roundStarted = false;
 }
 
 function roundScoring(data: PlayCardInput) {
@@ -943,8 +958,7 @@ function roundScoring(data: PlayCardInput) {
   roomUsers[data.roomId].dealer = roomUsers[data.roomId].dealer == 4 ? 1 : roomUsers[data.roomId].dealer + 1;
   roomUsers[data.roomId].turn = roomUsers[data.roomId].dealer == 4 ? 1 : roomUsers[data.roomId].dealer + 1;
 
-  // Reset round states
-  resetRoundState(data.roomId);
+  roomUsers[data.roomId].roundStarted = false;
 
   // Init new round
   initialiseGameCards(data);
@@ -963,8 +977,34 @@ function determineMatchEnd(roomId: string) {
   return undefined;
 }
 
-function announceWinner(roomId: string) {
-  io.to(roomId).emit('matchWinner', roomUsers[roomId].matchWinner);
+function announceWinner(roomId: string, winByKick?: boolean) {
+
+  const winnerNames: string[] = [];
+  const gameWinners: string[] = [];
+
+  // Loop through users in room and get winner names and reset teams
+  roomUsers[roomId].users.forEach((el, i) => {
+    if (el.team == roomUsers[roomId].matchWinner) {
+      winnerNames.push(el.nickname);
+    }
+    if (roomUsers[roomId].game[0] > roomUsers[roomId].game[1]) {
+      if (el.team == 1) {
+        gameWinners.push(el.nickname);
+      }
+    }
+    else if (roomUsers[roomId].game[1] > roomUsers[roomId].game[0]) {
+      if (el.team == 2) {
+        gameWinners.push(el.nickname);
+      }
+    }
+    el.team = undefined;
+  });
+
+  io.to(roomId).emit('matchWinner', {
+    matchWinners: winnerNames,
+    winByKick: winByKick,
+    gameWinners: gameWinners
+  });
 }
 
 
