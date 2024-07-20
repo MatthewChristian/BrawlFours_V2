@@ -7,7 +7,7 @@ import { IoDice } from 'react-icons/io5';
 import Popup from 'reactjs-popup';
 import { useRouter } from 'next/router';
 import { useAppSelector } from '../../store/hooks';
-import { getPlayerList } from '../../slices/game.slice';
+import { getGameStarted, getMatchWinner, getPlayerList } from '../../slices/game.slice';
 
 interface Props {
   roomId?: string;
@@ -23,6 +23,8 @@ export default function Room({ roomId, socket, onLeaveRoom}: Props) {
   const [chooseModalOpen, setChooseModalOpen] = useState<boolean>(false);
 
   const players = useAppSelector(getPlayerList);
+  const gameStarted = useAppSelector(getGameStarted);
+  const matchWinner = useAppSelector(getMatchWinner);
 
   function leaveRoom() {
 
@@ -58,9 +60,7 @@ export default function Room({ roomId, socket, onLeaveRoom}: Props) {
 
   useEffect(() => {
 
-    console.log('P: ', players);
-
-    if (players && players[0] && players[0].team) {
+    if (players && players[0] && players[0].team && gameStarted && !matchWinner) {
       router.push({
         pathname: '/game',
         query: {
@@ -69,7 +69,7 @@ export default function Room({ roomId, socket, onLeaveRoom}: Props) {
       });
     }
 
-  }, [players]);
+  }, [players, gameStarted, matchWinner]);
 
   return (
     <div className="flex flex-col justify-center items-center">

@@ -171,7 +171,7 @@ export default function Lobby({ socket }: Props) {
 
       <RoundWinnersModal isVisible={roundWinnersModalVisible} setIsVisible={setRoundWinnersModalVisible} players={players} roundWinners={roundWinners} />
 
-      <MatchWinnersModal isVisible={matchWinnerModalVisible} setIsVisible={setMatchWinnerModalVisible} matchWinner={matchWinner} />
+      <MatchWinnersModal isVisible={matchWinnerModalVisible} setIsVisible={setMatchWinnerModalVisible} matchWinners={matchWinner} />
     </div>
   );
 }

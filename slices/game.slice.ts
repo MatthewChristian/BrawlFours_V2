@@ -30,6 +30,7 @@ interface GameSlice {
   game: number[];
   roundWinners?: RoundWinners;
   matchWinner?: MatchWinner;
+  gameStarted: boolean;
 }
 const initialState: GameSlice = {
   playerList: [],
@@ -40,6 +41,7 @@ const initialState: GameSlice = {
   teamScore: [0, 0],
   lift: [],
   game: [0, 0],
+  gameStarted: false
 };
 
 /**
@@ -114,6 +116,10 @@ export const gameSlice = createSlice({
       state.matchWinner = action.payload;
     },
 
+    setGameStarted: (state, action: PayloadAction<boolean>) => {
+      state.gameStarted = action.payload;
+    },
+
   }
 });
 
@@ -139,7 +145,8 @@ export const {
   setLift,
   setGame,
   setRoundWinners,
-  setMatchWinner
+  setMatchWinner,
+  setGameStarted
 } =  gameSlice.actions;
 
 // Selectors
@@ -175,3 +182,5 @@ export const getGame = (state: RootState): number[] => state.gameSlice.game;
 export const getRoundWinners = (state: RootState): RoundWinners | undefined => state.gameSlice.roundWinners;
 
 export const getMatchWinner = (state: RootState): MatchWinner => state.gameSlice.matchWinner;
+
+export const getGameStarted = (state: RootState): boolean => state.gameSlice.gameStarted;

@@ -17,33 +17,29 @@ export default function RoundWinnersModalContents({ roundWinners, players, gameW
       return undefined;
     }
 
-    if (gameWinnerNames) {
-      return <div>
-        <span className='font-bold'>{gameWinnerNames[0]}</span> and <span className='font-bold'>{gameWinnerNames[1]}</span> won <span className='font-bold text-blue-500'>game</span> {score[0]} - {score[1]}
-      </div>;
-    }
-
-
-    const playersInTeam1: PlayerSocket[] = [];
-    const playersInTeam2: PlayerSocket[] = [];
+    const playersInTeam1: string[] = [];
+    const playersInTeam2: string[] = [];
 
     players.forEach((el) => {
       if (el.team == 1) {
-        playersInTeam1.push(el);
+        playersInTeam1.push(el.nickname);
       }
       else {
-        playersInTeam2.push(el);
+        playersInTeam2.push(el.nickname);
       }
     });
 
+    const t1Names = gameWinnerNames ? gameWinnerNames : playersInTeam1;
+    const t2Names = gameWinnerNames ? gameWinnerNames : playersInTeam2;
+
     if (score[0] > score[1]) {
       return <div>
-        <span className='font-bold'>{playersInTeam1[0].nickname}</span> and <span className='font-bold'>{playersInTeam1[1].nickname}</span> won <span className='font-bold text-blue-500'>game</span> {score[0]} - {score[1]}
+        <span className='font-bold'>{t1Names[0]}</span> and <span className='font-bold'>{t1Names[1]}</span> won <span className='font-bold text-blue-500'>game</span> {score[0]} - {score[1]}
       </div>;
     }
     else {
       return <div>
-        <span className='font-bold'>{playersInTeam2[0].nickname}</span> and <span className='font-bold'>{playersInTeam2[1].nickname}</span> won <span className='font-bold text-blue-500'>game</span> {score[1]} - {score[0]}
+        <span className='font-bold'>{t2Names[0]}</span> and <span className='font-bold'>{t2Names[1]}</span> won <span className='font-bold text-blue-500'>game</span> {score[1]} - {score[0]}
       </div>;
     }
   }

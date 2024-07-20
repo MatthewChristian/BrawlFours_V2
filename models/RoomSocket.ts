@@ -3,6 +3,8 @@ import { LiftCard } from './LiftCard';
 import { PlayerSocket } from './PlayerSocket';
 
 export interface RoomSocket {
+  gameStarted?: boolean;
+
   deck?: DeckCard[];
   kicked?: DeckCard[];
   users?: PlayerSocket[];
