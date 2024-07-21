@@ -22,7 +22,7 @@ const handle = nextApp.getRequestHandler();
 
 const io = new Server(server);
 
-const port = 3000;
+const port = process.env.PORT || 3000;
 let count = 0;
 
 const roomUsers: { [key: string]: RoomSocket} = {};
