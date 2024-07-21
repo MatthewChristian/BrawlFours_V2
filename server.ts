@@ -206,6 +206,7 @@ function setTeams(data: ChoosePartnerInput, gameSocket: Socket) {
       }
     });
 
+    resetGameState(data.roomId);
     io.to(data.roomId).emit('roundWinners', undefined);
     io.to(data.roomId).emit('matchWinner', undefined);
     io.to(data.roomId).emit('playersInRoom', roomUsers[data.roomId].users);
@@ -298,9 +299,15 @@ function checkKicked(kicked: DeckCard, roomId: string, dealerTeam: number) {
 
   const matchWinner = determineMatchEnd(roomId);
   if (matchWinner) {
-    announceWinner(roomId, true);
-    return;
+    return {
+      matchWon: true
+    };
   }
+
+  return {
+    matchWon: false
+  };
+
 
 }
 
@@ -324,12 +331,14 @@ function kickCard(data: BasicRoomInput) {
 
   const dealerTeam = roomUsers[data.roomId].users.find(el => el.player == roomUsers[data.roomId].dealer).team;
 
-  checkKicked(kickVal, data.roomId, dealerTeam);
+  const matchWon = checkKicked(kickVal, data.roomId, dealerTeam);
 
   roomUsers[data.roomId].trump = kickVal.suit;
 
   io.to(data.roomId).emit('kickedCards', roomUsers[data.roomId].kicked);
   io.to(data.roomId).emit('teamScore', roomUsers[data.roomId].teamScore);
+
+  return matchWon;
 }
 
 /*
@@ -434,13 +443,20 @@ function orderCards(roomId: string) {
   });
 }
 
-function initialiseGameCards(data) {
+function initialiseGameCards(data: BasicRoomInput) {
+  console.log('Resetting game state from IGC');
   resetGameState(data.roomId);
 
   generateDeck(data);
 
   // Kick card
-  kickCard(data);
+  const matchWon = kickCard(data);
+
+  // If game was ended because team kicked a card that gave them enough points to win, then stop function
+  if (matchWon.matchWon) {
+    announceWinner(data.roomId, true);
+    return;
+  }
 
   // Deal 3 cards to each player twice
   dealAll(data);
@@ -538,19 +554,35 @@ function beg(data: BasicRoomInput) {
     shortcode: 'RUN'
   });
 
-  kickCard(data);
+  let matchWon = kickCard(data);
+
+  // If game was ended because team kicked a card that gave them enough points to win, then stop function
+  if (matchWon.matchWon) {
+    announceWinner(data.roomId, true);
+    return;
+  }
 
   dealAll(data);
 
   // If same suit is kicked again (1)
   if (roomUsers[data.roomId].kicked[1].suit == roomUsers[data.roomId].kicked[0].suit) {
-    kickCard(data);
+    matchWon = kickCard(data);
+
+    if (matchWon.matchWon) {
+      announceWinner(data.roomId, true);
+      return;
+    }
 
     dealAll(data);
 
     // If same suit is kicked again (2)
     if (roomUsers[data.roomId].kicked[2].suit == roomUsers[data.roomId].kicked[1].suit) {
-      kickCard(data);
+      matchWon = kickCard(data);
+
+      if (matchWon.matchWon) {
+        announceWinner(data.roomId, true);
+        return;
+      }
 
       // If same suit is kicked again (3)
       if (roomUsers[data.roomId].kicked[3].suit == roomUsers[data.roomId].kicked[2].suit) {
@@ -977,11 +1009,11 @@ function roundScoring(data: BasicRoomInput) {
 }
 
 function determineMatchEnd(roomId: string) {
-  if (roomUsers[roomId].teamScore[0] >= 3) {
+  if (roomUsers[roomId].teamScore[0] >= 14) {
     roomUsers[roomId].matchWinner = 1;
     return 1;
   }
-  else if (roomUsers[roomId].teamScore[1] >= 3) {
+  else if (roomUsers[roomId].teamScore[1] >= 14) {
     roomUsers[roomId].matchWinner = 2;
     return 2;
   }
@@ -994,25 +1026,36 @@ function announceWinner(roomId: string, winByKick?: boolean) {
   const winnerNames: string[] = [];
   const gameWinners: string[] = [];
 
-  // Loop through users in room and get winner names and reset teams
-  roomUsers[roomId].users.forEach((el, i) => {
-    if (el.team == roomUsers[roomId].matchWinner) {
-      winnerNames.push(el.nickname);
-    }
-    if (roomUsers[roomId].game[0] > roomUsers[roomId].game[1]) {
-      if (el.team == 1) {
-        gameWinners.push(el.nickname);
+  if (roomUsers[roomId].game) {
+    // Loop through users in room and get winner names and reset teams
+    roomUsers[roomId].users.forEach((el, i) => {
+      if (el.team == roomUsers[roomId].matchWinner) {
+        winnerNames.push(el.nickname);
       }
-    }
-    else if (roomUsers[roomId].game[1] > roomUsers[roomId].game[0]) {
-      if (el.team == 2) {
-        gameWinners.push(el.nickname);
+      if (roomUsers[roomId].game[0] > roomUsers[roomId].game[1]) {
+        if (el.team == 1) {
+          gameWinners.push(el.nickname);
+        }
       }
-    }
-    el.team = undefined;
-  });
+      else if (roomUsers[roomId].game[1] > roomUsers[roomId].game[0]) {
+        if (el.team == 2) {
+          gameWinners.push(el.nickname);
+        }
+      }
+      el.team = undefined;
+    });
+  }
 
-  resetGameState(roomId);
+  if (winByKick) {
+    // If won by kicking, get dealer's team and get the names of players on that team
+    const dealerTeam = roomUsers[roomId].users.find((el) => el.player == roomUsers[roomId].dealer).team;
+
+    roomUsers[roomId].users.forEach((el, i) => {
+      if (el.team == dealerTeam) {
+        winnerNames.push(el.nickname);
+      }
+    });
+  }
 
   io.to(roomId).emit('gameStarted', false);
 

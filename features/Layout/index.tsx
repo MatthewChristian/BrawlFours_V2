@@ -40,7 +40,10 @@ export default function Layout({ Component, pageProps }: Props) {
       }
       else {
         console.log('Error Msg: ', data.errorMsg);
-        router.push('/');
+        router.push({
+          pathname: '/',
+          query: undefined
+        });
         toast(data.errorMsg, {
           type: 'error',
           hideProgressBar: true

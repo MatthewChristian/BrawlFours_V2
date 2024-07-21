@@ -41,7 +41,7 @@ export default function MatchWinnersModal({ isVisible, setIsVisible, matchWinner
         <div className='text-2xl border-b border-gray-300 mb-5'><span className='font-bold'>{matchWinners?.matchWinners[0]}</span> and <span className='font-bold'>{matchWinners?.matchWinners[1]}</span> won the match!</div>
         {
           winByKick && kicked ?
-            <div className='flex flex-row items-center justify-center gap-5 w-full border-b border-slate-300 py-3'>
+            <div className='flex flex-row items-center justify-center gap-5 w-full'>
               <div><PlayingCard cardData={kicked[kicked.length - 1]} /></div>
               <div>was kicked!</div>
             </div>
