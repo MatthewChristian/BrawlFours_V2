@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "ts-node server.ts",
-    "build": "next build",
-    "start": "ts-node server.ts"
+    "build": "npx tsc",
+    "start": "node build/server.js"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.2.6",

@@ -1,23 +1,25 @@
 {
   "compilerOptions": {
+    "jsx": "preserve",
+    "target": "es6",
+    "module": "commonjs",
+    "rootDir": "./",
+    "outDir": "./build",
+    "esModuleInterop": true,
+    "strict": false,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
     "lib": [
       "dom",
       "dom.iterable",
       "esnext"
     ],
     "allowJs": true,
-    "skipLibCheck": true,
-    "strict": false,
-    "noEmit": true,
-    "incremental": true,
-    "module": "commonjs",
-    "esModuleInterop": true,
+    "incremental": false,
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve",
-    "outDir": "./build",
-    "target": "es6",
+    "noEmit": false
   },
   "include": [
     "next-env.d.ts",
