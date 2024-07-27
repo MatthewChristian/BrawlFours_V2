@@ -1,5 +1,4 @@
-import React, { useState, useRef, RefObject, useEffect } from 'react';
-import { Socket } from 'socket.io-client';
+import React, { useState, useRef, useEffect } from 'react';
 import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
 import Room from './Room';
@@ -9,12 +8,9 @@ import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { getErrorMsg, getJoinModalOpen, getMatchWinner, getPlayerList, getRoomId, getRoundWinners, setJoinModalOpen, setRoomId } from '../../slices/game.slice';
 import MatchWinnersModal from './Modals/MatchWinnersModal';
 import RoundWinnersModal from './Modals/RoundWinnersModal';
+import { socket } from '../SocketClient';
 
-interface Props {
-  socket: RefObject<Socket>;
-}
-
-export default function Lobby({ socket }: Props) {
+export default function Lobby() {
 
   const dispatch = useAppDispatch();
 
@@ -68,18 +64,18 @@ export default function Lobby({ socket }: Props) {
       nickname: String(nickname)
     };
 
-    socket.current?.emit('createRoom', data);
+    socket.emit('createRoom', data);
   }
 
   // Join a room
   function joinRoom() {
-    const roomIdVal = joinRoomRef.current?.value;
+    const roomIdVal = joinRoomRef?.current?.value;
     const data = {
       roomId: String(roomIdVal),
       nickname: String(nickname)
     };
 
-    socket.current?.emit('joinRoom', data);
+    socket.emit('joinRoom', data);
     // setInRoom(true);
     // setCreatedRoomId(String(roomIdVal));
     // setJoinOpen(false);
@@ -116,7 +112,7 @@ export default function Lobby({ socket }: Props) {
       <div className='bg-white rounded-lg border border-gray-400 p-10'>
         <div className='text-3xl mb-5 text-center'>Brawl Fours</div>
         {roomId ? (
-          <Room roomId={roomId} socket={socket} onLeaveRoom={handleLeaveRoom}></Room>
+          <Room roomId={roomId} onLeaveRoom={handleLeaveRoom}></Room>
         ) : (
           <div className="">
             <div className="">

@@ -1,21 +1,19 @@
-import React, { useState, useEffect, RefObject } from 'react';
-import { Socket } from 'socket.io-client';
+import React, { useState, useEffect } from 'react';
 import Button from '../../core/components/Button';
 import { FaCrown } from 'react-icons/fa';
 import { IoDice } from 'react-icons/io5';
-
 import Popup from 'reactjs-popup';
-import { useRouter } from 'next/router';
 import { useAppSelector } from '../../store/hooks';
 import { getGameStarted, getMatchWinner, getPlayerList } from '../../slices/game.slice';
+import { useRouter } from 'next/navigation';
+import { socket } from '../SocketClient';
 
 interface Props {
   roomId?: string;
-  socket: RefObject<Socket>;
   onLeaveRoom: () => void;
 }
 
-export default function Room({ roomId, socket, onLeaveRoom}: Props) {
+export default function Room({ roomId, onLeaveRoom}: Props) {
 
   const router = useRouter();
 
@@ -32,7 +30,7 @@ export default function Room({ roomId, socket, onLeaveRoom}: Props) {
       roomId: String(roomId),
     };
 
-    socket.current?.emit('leaveRoom', data);
+    socket.emit('leaveRoom', data);
     onLeaveRoom();
   }
 
@@ -43,7 +41,7 @@ export default function Room({ roomId, socket, onLeaveRoom}: Props) {
       partnerId: String(id)
     };
 
-    socket.current?.emit('setTeams', data);
+    socket.emit('setTeams', data);
   }
 
   function randomPartner() {
@@ -51,22 +49,17 @@ export default function Room({ roomId, socket, onLeaveRoom}: Props) {
 
     const data = {
       roomId: String(roomId),
-      partnerId: players[partnerIndex].id.toString()
+      partnerId: players[partnerIndex].id?.toString()
     };
 
-    socket.current?.emit('setTeams', data);
+    socket.emit('setTeams', data);
 
   }
 
   useEffect(() => {
 
     if (players && players[0] && players[0].team && gameStarted && !matchWinner) {
-      router.push({
-        pathname: '/game',
-        query: {
-          roomId: String(roomId)
-        }
-      });
+      router.push(`/game?roomId=${String(roomId)}`);
     }
 
   }, [players, gameStarted, matchWinner]);
@@ -100,7 +93,7 @@ export default function Room({ roomId, socket, onLeaveRoom}: Props) {
       </div>
 
       <div className='flex flex-row gap-5 mt-5'>
-        { players?.length > 0 && socket.current.id == players[0].id ?
+        { players?.length > 0 && socket?.id == players[0].id ?
           <Button className='green-button' disabled={players.length < 4} onClick={() => setChooseModalOpen(true)}>
             Start Game
           </Button> : undefined
@@ -118,7 +111,7 @@ export default function Room({ roomId, socket, onLeaveRoom}: Props) {
           <div className='w-full'>
             {
               players?.map((el, i) => i != 0 ? <div key={'partner_' + i}>
-                <Button className='white-button mt-5 w-full text-center' onClick={() => choosePartner(el.id)}>
+                <Button className='white-button mt-5 w-full text-center' onClick={() => el.id ? choosePartner(el.id) : undefined}>
                   {el.nickname}
                 </Button>
               </div> : undefined

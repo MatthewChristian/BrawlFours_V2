@@ -2,6 +2,7 @@
 import { useRef } from 'react';
 import { Provider } from 'react-redux';
 import { AppStore, makeStore } from './store';
+import React from 'react';
 
 
 export default function StoreProvider({

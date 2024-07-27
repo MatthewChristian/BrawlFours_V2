@@ -1,38 +1,37 @@
-import React, {  useEffect, useRef } from 'react';
-import { Socket, io } from 'socket.io-client';
+import React, {  Suspense, useEffect } from 'react';
 import { setBeg, setDealer, setDeck, setErrorMsg, setGame, setGameStarted, setJoinModalOpen, setKickedCards, setLift, setMatchWinner, setMessage, setPlayerCards, setPlayerList, setRoomId, setRoundWinners, setTeamScore, setTurn } from '../../slices/game.slice';
 import { useAppDispatch } from '../../store/hooks';
 import { toast } from 'react-toastify';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
+import { socket } from '../SocketClient';
+
 
 interface Props {
-  Component: any;
-  pageProps: any;
+  children: any
 }
 
-export default function Layout({ Component, pageProps }: Props) {
-  // Manage socket.io websocket
-  const socket = useRef<Socket>(io());
 
+export default function Layout({ children }: Props) {
+  // Manage socket.io websocket
   const router = useRouter();
 
   const dispatch = useAppDispatch();
 
   useEffect(() => {
 
-    if (!socket.current) {
+    if (!socket) {
       return;
     }
 
-    socket.current.on('playersInRoom', (players) => {
+    socket.on('playersInRoom', (players) => {
       dispatch(setPlayerList(players));
     });
 
-    socket.current?.on('newRoomCreated', data => {
+    socket?.on('newRoomCreated', data => {
       dispatch(setRoomId(String(data.room_id)));
     });
 
-    socket.current?.on('playerJoinedRoom', data => {
+    socket?.on('playerJoinedRoom', data => {
       if (data.success) {
         dispatch(setRoomId(String(data.room_id)));
         dispatch(setJoinModalOpen(false));
@@ -40,10 +39,7 @@ export default function Layout({ Component, pageProps }: Props) {
       }
       else {
         console.log('Error Msg: ', data.errorMsg);
-        router.push({
-          pathname: '/',
-          query: undefined
-        });
+        router.push('/');
         toast(data.errorMsg, {
           type: 'error',
           hideProgressBar: true
@@ -51,63 +47,68 @@ export default function Layout({ Component, pageProps }: Props) {
       }
     });
 
-    socket.current.on('deck', (deck) => {
+    socket.on('deck', (deck) => {
       dispatch(setDeck(deck));
     });
 
-    socket.current.on('kickedCards', (cards) => {
+    socket.on('kickedCards', (cards) => {
       dispatch(setKickedCards(cards));
     });
 
-    socket.current.on('playerCards', (cards) => {
+    socket.on('playerCards', (cards) => {
       dispatch(setPlayerCards(cards));
     });
 
-    socket.current.on('dealer', (state) => {
+    socket.on('dealer', (state) => {
       dispatch(setDealer(state));
     });
 
-    socket.current.on('turn', (state) => {
+    socket.on('turn', (state) => {
       dispatch(setTurn(state));
     });
 
-    socket.current.on('beg', (state) => {
+    socket.on('beg', (state) => {
       dispatch(setBeg(state));
     });
 
-    socket.current.on('teamScore', (state) => {
+    socket.on('teamScore', (state) => {
       dispatch(setTeamScore(state));
     });
 
-    socket.current.on('message', (state) => {
+    socket.on('message', (state) => {
       dispatch(setMessage(state));
     });
 
-    socket.current.on('lift', (state) => {
+    socket.on('lift', (state) => {
       dispatch(setLift(state));
     });
 
-    socket.current.on('game', (state) => {
+    socket.on('game', (state) => {
       dispatch(setGame(state));
     });
 
-    socket.current.on('roundWinners', (state) => {
+    socket.on('roundWinners', (state) => {
       console.log('RW: ', state);
       dispatch(setRoundWinners(state));
     });
 
-    socket.current.on('matchWinner', (state) => {
+    socket.on('matchWinner', (state) => {
       console.log('MW: ', state);
       dispatch(setMatchWinner(state));
     });
 
-    socket.current.on('gameStarted', (state) => {
+    socket.on('gameStarted', (state) => {
       dispatch(setGameStarted(state));
     });
 
   }, [socket]);
 
   return (
-    <Component {...pageProps} socket={socket} />
+    <>
+      <Suspense >
+        {children}
+      </Suspense>
+      {/* <Component {...pageProps} socket={socket} /> */}
+    </>
   );
 }
