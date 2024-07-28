@@ -29,6 +29,7 @@
     "url-loader": "^4.1.1"
   },
   "devDependencies": {
+    "@next/eslint-plugin-next": "^14.2.5",
     "@typescript-eslint/eslint-plugin": "^5.23.0",
     "@typescript-eslint/parser": "^5.23.0",
     "eslint": "8.12.0",
