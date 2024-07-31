@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "ts-node server.ts",
-    "build": "npx tsc",
+    "build": "npx tsc && next build",
     "start": "node build/server.js"
   },
   "dependencies": {
@@ -15,7 +15,7 @@
     "express": "^4.17.1",
     "jquery": "^3.6.0",
     "net": "^1.0.2",
-    "next": "^14.2.4",
+    "next": "^14.2.5",
     "next-images": "^1.8.5",
     "postcss": "^8.4.39",
     "react": "^18.3.1",
@@ -26,9 +26,11 @@
     "reactjs-popup": "^2.0.5",
     "socket.io": "^4.7.5",
     "socket.io-client": "^4.7.5",
+    "ts-node": "^10.9.2",
     "url-loader": "^4.1.1"
   },
   "devDependencies": {
+    "@next/eslint-plugin-next": "^14.2.5",
     "@typescript-eslint/eslint-plugin": "^5.23.0",
     "@typescript-eslint/parser": "^5.23.0",
     "eslint": "8.12.0",
@@ -37,6 +39,6 @@
     "file-loader": "^6.2.0",
     "globals": "^15.8.0",
     "tailwindcss": "^3.4.4",
-    "typescript": "^5.5.2"
+    "typescript": "^4.5.2"
   }
 }

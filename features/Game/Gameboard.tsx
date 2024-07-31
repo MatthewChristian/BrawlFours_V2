@@ -1,10 +1,8 @@
 import React, { useState, useEffect, useRef, RefObject, useMemo } from 'react';
-import { Socket } from 'socket.io-client';
 import { DeckCard } from '../../models/DeckCard';
 import PlayingCard from './PlayingCard';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { getBeg, getDealer, getKickedCards, getLift, getMatchWinner, getMessage, getPlayerCards, getPlayerList, getRoundWinners, getTeamScore, getTurn, setMessage } from '../../slices/game.slice';
-import { useRouter } from 'next/router';
+import { getBeg, getDealer, getLift, getMatchWinner, getMessage, getPlayerCards, getPlayerList, getRoundWinners, getTurn, setMessage } from '../../slices/game.slice';
 import { PlayerSocket } from '../../models/PlayerSocket';
 import DealerIcon from './StatusIcons/DealerIcon';
 import TurnIcon from './StatusIcons/TurnIcon';
@@ -12,17 +10,17 @@ import Modal from '../../core/components/Modal';
 import Button from '../../core/components/Button';
 import { toast } from 'react-toastify';
 import GameInfo from './GameInfo';
-import { getCardShortcode } from '../../core/services/parseCard';
 import RoundWinnersModal from './Modals/RoundWinnersModal';
 import { RoundWinners } from '../../models/RoundWinners';
+import { useRouter } from 'next/navigation';
+import { socket } from '../SocketClient';
 
 interface Props {
-  socket: RefObject<Socket>;
   roomId?: string;
 }
 
 
-export default function Gameboard({ socket, roomId }: Props) {
+export default function Gameboard({ roomId }: Props) {
 
   const router = useRouter();
 
@@ -91,7 +89,7 @@ export default function Gameboard({ socket, roomId }: Props) {
 
   // Get player number from server
   const playerNumber = useMemo(() => {
-    return players.find(el => el.id == socket.current.id)?.player;
+    return players.find(el => el.id == socket?.id)?.player;
   }, [players]);
 
   // Determine whether or not it is the turn of the client player
@@ -144,7 +142,7 @@ export default function Gameboard({ socket, roomId }: Props) {
   }, [lift, playerNumber]);
 
   const player3CardPlayed = useMemo(() => {
-    if (!lift) {
+    if (!lift || !playerNumber) {
       return undefined;
     }
 
@@ -153,10 +151,10 @@ export default function Gameboard({ socket, roomId }: Props) {
     return lift.find(el => el.player == player3Number);
 
 
-  }, [lift]);
+  }, [lift, playerNumber]);
 
   const player4CardPlayed = useMemo(() => {
-    if (!lift) {
+    if (!lift || !playerNumber) {
       return undefined;
     }
 
@@ -164,7 +162,7 @@ export default function Gameboard({ socket, roomId }: Props) {
 
     return lift.find(el => el.player == player4Number);
 
-  }, [lift]);
+  }, [lift, playerNumber]);
 
 
   function getTeam2CardMargins(length: number) {
@@ -205,7 +203,7 @@ export default function Gameboard({ socket, roomId }: Props) {
       return;
     }
 
-    socket.current?.emit('playCard', { ...socketData, card: card, player: playerNumber });
+    socket.emit('playCard', { ...socketData, card: card, player: playerNumber });
   }
 
   useEffect(() => {
@@ -216,7 +214,7 @@ export default function Gameboard({ socket, roomId }: Props) {
     Initialise game
   */
   useEffect(() => {
-    socket.current?.emit('initialiseGame', socketData);
+    socket.emit('initialiseGame', socketData);
   }, [socketData]);
 
 
@@ -225,14 +223,16 @@ export default function Gameboard({ socket, roomId }: Props) {
   */
   useEffect(() => {
 
-    if (!players || players.length == 0) {
+    if (!players || players.length == 0 || !playerNumber) {
       return;
     }
 
     const playerDataServer: PlayerSocket[] = [];
 
     players.forEach((el) => {
-      playerDataServer[el.player] = el;
+      if (el.player) {
+        playerDataServer[el.player] = el;
+      }
     });
 
     setPlayer1Data(playerDataServer[playerNumber]);
@@ -314,7 +314,7 @@ export default function Gameboard({ socket, roomId }: Props) {
       return;
     }
 
-    socket.current.emit('joinRoom', socketData);
+    socket?.emit('joinRoom', socketData);
   }, [roomId]);
 
   useEffect(() => {
@@ -343,12 +343,7 @@ export default function Gameboard({ socket, roomId }: Props) {
 
   useEffect(() => {
     if (matchWinner) {
-      router.push({
-        pathname: '/',
-        query: {
-          roomId: roomId
-        }
-      });
+      router.push(`/?roomId=${String(roomId)}`);
     }
   }, [matchWinner]);
 
@@ -381,7 +376,7 @@ export default function Gameboard({ socket, roomId }: Props) {
 
             <div className="w-full flex flex-row justify-center" ref={player3Hand}>
               {
-                Array.from({ length: player3Data.numCards }, (_, k) => (
+                Array.from({ length: player3Data?.numCards ?? 0 }, (_, k) => (
                   <PlayingCard
                     key={'3' + k}
                     player={3}
@@ -414,13 +409,13 @@ export default function Gameboard({ socket, roomId }: Props) {
 
             <div className="w-1/6 h-[50vh] flex flex-col items-center justify-center gap-0" ref={player2Hand}>
               {
-                Array.from({ length: player4Data.numCards }, (_, k) => (
+                Array.from({ length: player4Data?.numCards ?? 0 }, (_, k) => (
                   <PlayingCard
                     key={'4' + k}
                     player={4}
                     isDeckCard
                     className='rotate-90 p-0'
-                    style={getTeam2CardMargins(player4Data.numCards)}
+                    style={getTeam2CardMargins(player4Data?.numCards ?? 0)}
                   />
                 ))
               }
@@ -453,13 +448,13 @@ export default function Gameboard({ socket, roomId }: Props) {
             {/* ------------------------ Player 2 Info  ------------------------*/}
             <div className="w-1/6 h-[50vh] flex flex-col items-center justify-center gap-0" ref={player4Hand}>
               {
-                Array.from({ length: player2Data.numCards }, (_, k) => (
+                Array.from({ length: player2Data?.numCards ?? 0 }, (_, k) => (
                   <PlayingCard
                     key={'2' + k}
                     player={2}
                     isDeckCard
                     className='rotate-90 p-0'
-                    style={getTeam2CardMargins(player2Data.numCards)}
+                    style={getTeam2CardMargins(player2Data?.numCards ?? 0)}
                   />
                 ))
               }
@@ -490,7 +485,7 @@ export default function Gameboard({ socket, roomId }: Props) {
           <div className='h-[25vh]'>
             <div className="w-full flex flex-row justify-center" ref={player1Hand}>
               {
-                Array.from({ length: player1Cards.length == 0 ? player1Data.numCards : player1Cards.length}, (_, k) => (
+                Array.from({ length: player1Cards.length == 0 ? player1Data?.numCards ?? 0 : player1Cards.length}, (_, k) => (
                   <PlayingCard
                     key={'1' + k}
                     player={1}
@@ -529,11 +524,11 @@ export default function Gameboard({ socket, roomId }: Props) {
         <div className="flex flex-col justify-center items-center mx-5">
           <div className="">Do you want to beg or stand?</div>
           <div className='w-full flex flex-row justify-center gap-5'>
-            <Button className='blue-button mt-5' onClick={() => socket.current.emit('begResponse', { ...socketData, response: 'begged' })}>
+            <Button className='blue-button mt-5' onClick={() => socket?.emit('begResponse', { ...socketData, response: 'begged' })}>
               Beg
             </Button>
 
-            <Button className='green-button mt-5' onClick={() => socket.current.emit('begResponse', { ...socketData, response: 'stand' })}>
+            <Button className='green-button mt-5' onClick={() => socket?.emit('begResponse', { ...socketData, response: 'stand' })}>
               Stand
             </Button>
           </div>
@@ -545,11 +540,11 @@ export default function Gameboard({ socket, roomId }: Props) {
         <div className="flex flex-col justify-center items-center mx-5">
           <div className="">{turnPlayerData?.nickname} has begged!</div>
           <div className='w-full flex flex-row justify-center gap-5'>
-            <Button className='blue-button mt-5' onClick={() => socket.current.emit('begResponse', { ...socketData, response: 'give' })}>
+            <Button className='blue-button mt-5' onClick={() => socket?.emit('begResponse', { ...socketData, response: 'give' })}>
               Give one
             </Button>
 
-            <Button className='green-button mt-5' onClick={() => socket.current.emit('begResponse', { ...socketData, response: 'run' })}>
+            <Button className='green-button mt-5' onClick={() => socket?.emit('begResponse', { ...socketData, response: 'run' })}>
               Run pack
             </Button>
           </div>
@@ -566,7 +561,7 @@ export default function Gameboard({ socket, roomId }: Props) {
         <div className="flex flex-col justify-center items-center mx-5">
           <div className="">The deck has run out of cards and must be redealt!</div>
           <div className='w-full flex flex-row justify-center gap-5'>
-            <Button className='blue-button mt-5' onClick={() => socket.current.emit('redeal', socketData)}>
+            <Button className='blue-button mt-5' onClick={() => socket?.emit('redeal', socketData)}>
               Redeal
             </Button>
           </div>
