@@ -83,7 +83,7 @@ export default function Gameboard({ roomId }: Props) {
   // Data to send to socket
   const socketData = useMemo(() => {
     return ({
-      roomId: String(roomId),
+      roomId: roomId ? String(roomId) : undefined,
     });
   }, [roomId]);
 
@@ -310,12 +310,17 @@ export default function Gameboard({ roomId }: Props) {
   }, [begState, isPlayer1Dealer, isPlayer1Turn, turnPlayerData, dealerData]);
 
   useEffect(() => {
-    if (!roomId) {
+    if (!socketData?.roomId) {
+      router.push('/');
+      toast('Sorry, this room does not exist!', {
+        type: 'error',
+        hideProgressBar: true
+      });
       return;
     }
 
     socket?.emit('joinRoom', socketData);
-  }, [roomId]);
+  }, [socketData]);
 
   useEffect(() => {
     if (message) {
@@ -345,7 +350,7 @@ export default function Gameboard({ roomId }: Props) {
     if (matchWinner) {
       router.push(`/?roomId=${String(roomId)}`);
     }
-  }, [matchWinner]);
+  }, [matchWinner, roomId]);
 
 
 
