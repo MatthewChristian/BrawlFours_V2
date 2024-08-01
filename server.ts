@@ -251,11 +251,11 @@ function generateDeck(data: BasicRoomInput) {
   const values = ['2', '3', '4', '5', '6', '7', '8', '9', 'X', 'J', 'Q', 'K', 'A'];
   const power = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
   const points = [0, 0, 0, 0, 0, 0, 0 , 0, 10, 1, 2, 3, 4];
-  const deck = [];
-  let card;
+  const deck: DeckCard[] = [];
+  let card: DeckCard;
   for (let i = 0; i < suits.length; i++) {
     for (let j = 0; j < values.length; j++) {
-      card = { suit: suits[i], value: values[j], power: power[j], points: points[j] };
+      card = { suit: suits[i], value: values[j], power: power[j], points: points[j], playable: false };
       deck.push(card);
     }
   }
@@ -472,6 +472,11 @@ function initialiseGameCards(data: BasicRoomInput) {
   // Loop through users in room
   roomUsers[data.roomId].users.forEach((el, i) => {
 
+    // Determine which cards are playable for the player whose turn it is
+    if (el.player == roomUsers[data.roomId].turn) {
+      determineIfCardsPlayable(el, data.roomId);
+    }
+
     // Send player card data to player who is begging and dealer
     if (el.player == roomUsers[data.roomId].turn || el.player == roomUsers[data.roomId].dealer) {
       io.to(el.id).emit('playerCards', roomUsers[data.roomId].users[i].cards);
@@ -592,8 +597,6 @@ function beg(data: BasicRoomInput) {
           message: 'The deck has run out of cards and must be redealt!',
           shortcode: 'REDEAL'
         });
-        // roomUsers[data.roomId].turn = undefined;
-        // io.to(data.roomId).emit('turn', roomUsers[data.roomId].turn);
       }
 
     }
@@ -694,6 +697,56 @@ function didUndertrump(data: PlayCardInput) {
   return undertrumped;
 }
 
+function determineIfCardsPlayable(player: PlayerSocket, roomId: string) {
+  let bare = true;
+  const trump = roomUsers[roomId].trump;
+
+  // Determine if a player does not have a card in the suit of the card that was called
+  if (roomUsers[roomId].called) {
+    player.cards.forEach((el) => {
+      if (el.suit == roomUsers[roomId].called.suit) {
+        bare = false;
+      }
+    });
+  }
+
+  player.cards.forEach((card) => {
+    const undertrumped = didUndertrump({ card: card, player: player.player, roomId: roomId });
+
+    // If the player:
+    // * Played a suit that wasn't called,
+    // * Wasn't the first player to play for the round,
+    // * Has cards in their hand that correspond to the called suit, and
+    // * the card played is not trump,
+    // then end function and do not add card to lift
+    if (roomUsers[roomId].called && card.suit != roomUsers[roomId].called.suit && !bare && card.suit != trump) {
+      console.log('Invalid card played');
+      card.playable = false;
+    }
+    // If the player attempted to undertrump, end function and do not add card to lift
+    else if (roomUsers[roomId].called && (card.suit == roomUsers[roomId].trump && undertrumped == true) && roomUsers[roomId].called.suit != trump && !bare) {
+      console.log('Undertrump');
+      card.playable = false;
+    }
+    else {
+      card.playable = true;
+    }
+
+  });
+}
+
+function resetCardsPlayability(player: PlayerSocket) {
+  player.cards.forEach((card) => {
+    card.playable = false;
+  });
+}
+
+function setCardsPlayability(roomId: string) {
+  // Set playable status of cards of player whose turn is next
+  const turnPlayer = roomUsers[roomId].users.find(el => el.player == roomUsers[roomId].turn);
+  determineIfCardsPlayable(turnPlayer, roomId);
+  io.to(turnPlayer.id).emit('playerCards', turnPlayer.cards);
+}
 
 function playCard(data: PlayCardInput, gameSocket: Socket) {
   if (!io.of('/').adapter.rooms.get(data.roomId)) {
@@ -704,39 +757,12 @@ function playCard(data: PlayCardInput, gameSocket: Socket) {
     console.log('It is not this players turn to play ');
   }
 
-  const undertrumped = didUndertrump(data);
-
   const player = roomUsers[data.roomId].users.find(el => el.id == gameSocket.id);
 
   const playerCards = player.cards;
 
-  const trump = roomUsers[data.roomId].trump;
-
-  let bare = true;
-
-  // Determine if a player does not have a card in the suit of the card that was called
-  if (roomUsers[data.roomId].called) {
-    playerCards.forEach((el) => {
-      if (el.suit == roomUsers[data.roomId].called.suit) {
-        bare = false;
-      }
-    });
-  }
-
-  // If the player:
-  // * Played a suit that wasn't called,
-  // * Wasn't the first player to play for the round,
-  // * Has cards in their hand that correspond to the called suit, and
-  // * the card played is not trump,
-  // then end function and do not add card to lift
-  if (roomUsers[data.roomId].called && data.card.suit != roomUsers[data.roomId].called.suit && !bare && data.card.suit != trump) {
-    console.log('Invalid card played');
-    return;
-  }
-
-  // If the player attempted to undertrump, end function and do not add card to lift
-  if (roomUsers[data.roomId].called && (data.card.suit == roomUsers[data.roomId].trump && undertrumped == true) && roomUsers[data.roomId].called.suit != trump && !bare) {
-    console.log('Undertrump');
+  if (!data.card.playable) {
+    console.log('Card not playable');
     return;
   }
 
@@ -759,10 +785,16 @@ function playCard(data: PlayCardInput, gameSocket: Socket) {
   // Remove card clicked from array
   playerCards.splice(cardIndex, 1);
 
+  // Reset card playability of player who just played
+  resetCardsPlayability(player);
+
   // Emit data
   gameSocket.emit('playerCards', playerCards);
   io.to(data.roomId).emit('lift', roomUsers[data.roomId].lift);
   io.to(data.roomId).emit('turn', roomUsers[data.roomId].turn);
+
+
+
   playersInRoom(data);
 
   // Show player their cards if round has officially started (ie player stood and played a card)
@@ -783,6 +815,9 @@ function playCard(data: PlayCardInput, gameSocket: Socket) {
     else {
       roomUsers[data.roomId].turn = roomUsers[data.roomId].turn + 1;
     }
+
+    // Set playable status of cards of player whose turn is next
+    setCardsPlayability(data.roomId);
 
     io.to(data.roomId).emit('turn', roomUsers[data.roomId].turn);
   }
@@ -887,6 +922,9 @@ function liftScoring(data: BasicRoomInput) {
   roomUsers[data.roomId].lift = undefined;
   roomUsers[data.roomId].called = undefined;
   roomUsers[data.roomId].turn = liftWinnerPlayer.player;
+
+  // Set playable status of cards of player whose turn is next
+  setCardsPlayability(data.roomId);
 
   io.to(data.roomId).emit('turn', roomUsers[data.roomId].turn);
   io.to(data.roomId).emit('lift', undefined);

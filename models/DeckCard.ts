@@ -3,4 +3,5 @@ export interface DeckCard {
   value: string;
   power: number;
   points: number;
+  playable: boolean;
 }
