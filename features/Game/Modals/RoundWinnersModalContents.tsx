@@ -20,12 +20,12 @@ export default function RoundWinnersModalContents({ roundWinners, players, gameW
     const playersInTeam1: string[] = [];
     const playersInTeam2: string[] = [];
 
-    players.forEach((el) => {
+    players?.forEach((el) => {
       if (el.team == 1) {
-        playersInTeam1.push(el.nickname);
+        playersInTeam1.push(el.nickname ?? '');
       }
       else {
-        playersInTeam2.push(el.nickname);
+        playersInTeam2.push(el.nickname ?? '');
       }
     });
 

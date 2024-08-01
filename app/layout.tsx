@@ -1,3 +1,4 @@
+'use client';
 
 // import '../assets/css/Game.css';
 import '../assets/css/Lobby.css';
@@ -10,17 +11,20 @@ import { ToastContainer } from 'react-toastify';
 
 
 interface Props {
-  Component: any;
-  pageProps: any;
+ children
 }
 
-function MyApp({ Component, pageProps }: Props) {
+function MyApp({ children }: Props) {
 
   return (
-    <StoreProvider>
-      <Layout Component={Component} pageProps={pageProps} />
-      <ToastContainer />
-    </StoreProvider>
+    <html>
+      <body>
+        <StoreProvider>
+          <Layout>{children}</Layout>
+          <ToastContainer />
+        </StoreProvider>
+      </body>
+    </html>
   );
 }
 export default MyApp;

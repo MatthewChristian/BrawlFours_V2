@@ -92,7 +92,7 @@ function joinRoom(data: JoinRoomInput, gameSocket: Socket) {
   //this is an ES6 Set of all client ids in the room
 
   // If the room exists...
-  if (io.of('/').adapter.rooms.get(data.roomId)) {
+  if (data.roomId && io.of('/').adapter.rooms.get(data.roomId)) {
 
     // If player is already in room
     if (roomUsers[data.roomId] && roomUsers[data.roomId].users && roomUsers[data.roomId].users.find(el => el.id == gameSocket.id)) {
