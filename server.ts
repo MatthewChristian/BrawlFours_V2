@@ -761,26 +761,34 @@ function playCard(data: PlayCardInput, gameSocket: Socket) {
 
   const playerCards = player.cards;
 
-  if (!data.card.playable) {
+  // Find card data using data from roomUsers object to prevent user from sending false information
+  const cardIndex = playerCards.findIndex(el => (el.suit == data.card.suit) && (el.value == data.card.value));
+
+  if (cardIndex == -1) {
+    console.log("Invalid card");
+    return;
+  }
+
+  const cardData = playerCards[cardIndex];
+
+  if (!cardData.playable) {
     console.log('Card not playable');
     return;
   }
 
   // Add card to lift
   if (!roomUsers[data.roomId].lift) {
-    roomUsers[data.roomId].lift = [{ ...data.card, player: player.player }];
+    roomUsers[data.roomId].lift = [{ ...cardData, player: player.player }];
   }
   else {
-    roomUsers[data.roomId].lift.push({ ...data.card, player: player.player });
+    roomUsers[data.roomId].lift.push({ ...cardData, player: player.player });
   }
 
   // If trump has not been called yet
   if (!roomUsers[data.roomId].called) {
-    roomUsers[data.roomId].called = data.card;
+    roomUsers[data.roomId].called = cardData;
   }
 
-  // Find card in playerCards array that correspond to the card clicked
-  const cardIndex = playerCards.findIndex(el => (el.suit == data.card.suit) && (el.value == data.card.value));
 
   // Remove card clicked from array
   playerCards.splice(cardIndex, 1);
