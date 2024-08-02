@@ -50,19 +50,19 @@ export default function RoundWinnersModalContents({ roundWinners, players, gameW
 
       <div className='flex flex-row items-center justify-between w-full border-b border-slate-300 py-3'>
         <div><span className='font-bold'>{roundWinners?.highWinner?.nickname}</span> won <span className='font-bold text-green-500'>high</span></div>
-        <div><PlayingCard cardData={roundWinners?.high} /></div>
+        <div><PlayingCard cardData={roundWinners?.high} isNotPlayable /></div>
       </div>
 
 
       <div className='flex flex-row items-center justify-between w-full border-b border-slate-300 py-3'>
         <div><span className='font-bold'>{roundWinners?.lowWinner?.nickname}</span> won <span className='font-bold text-red-500'>low</span></div>
-        <div><PlayingCard cardData={roundWinners?.low} /></div>
+        <div><PlayingCard cardData={roundWinners?.low} isNotPlayable /></div>
       </div>
 
       { roundWinners?.jackWinner ?
         <div className='flex flex-row items-center justify-between w-full border-b border-slate-300 py-3'>
           <div><span className='font-bold'>{roundWinners?.jackWinner?.nickname}</span> won <span className='font-bold text-amber-500'>jack</span></div>
-          <div><PlayingCard cardData={roundWinners?.jack} /></div>
+          <div><PlayingCard cardData={roundWinners?.jack} isNotPlayable /></div>
         </div> : null
       }
 

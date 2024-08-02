@@ -14,6 +14,8 @@ interface Props {
   className?: string;
   style?: React.CSSProperties
   isOutline?: boolean;
+  isNotPlayable?: boolean;
+  liftCard?: number;
 }
 
 export default function PlayingCard({
@@ -23,12 +25,15 @@ export default function PlayingCard({
   player,
   cardData,
   isDeckCard,
-  isOutline
+  isOutline,
+  isNotPlayable,
+  liftCard
 }: Props) {
 
   const cardRef = useRef<HTMLDivElement>(null);
 
   const [y, setY] = useState(0);
+  const [x, setX] = useState(0);
 
   const [focused, setFocused] = useState<boolean>(false);
 
@@ -60,12 +65,13 @@ export default function PlayingCard({
       { !isDeckCard ? (
         card ?
           <motion.div
-            animate={{ y }}
+            animate={{ x, y }}
             transition={{ type: "spring" }}
+            initial={liftCard == 1 ? { y: 20 } : liftCard == 2 ? { x: 20 } : liftCard == 3 ? { y: -20 } : liftCard == 4 ? { x: -20 } : undefined}
           >
             <div
               style={{position: 'relative', height: 120, width: 80 }}
-              onMouseOver={() => cardData?.playable && !isOutline ? setFocused(true) : undefined}
+              onMouseOver={() => cardData?.playable && !isNotPlayable ? setFocused(true) : undefined}
               onMouseLeave={() => setFocused(false)}
             >
               <Image
@@ -74,7 +80,7 @@ export default function PlayingCard({
                 sizes="10vw"
                 style={{ objectFit: 'fill' }}
                 alt='card'
-                className={`${cardData?.playable && !isOutline ? 'blue-glow' : ''}`}
+                className={`${cardData?.playable && !isNotPlayable ? 'blue-glow' : ''}`}
               />
             </div>
           </motion.div>

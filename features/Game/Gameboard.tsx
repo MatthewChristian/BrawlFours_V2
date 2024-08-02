@@ -63,11 +63,6 @@ export default function Gameboard({ roomId }: Props) {
   const player3Hand = useRef<HTMLDivElement>(null);
   const player4Hand = useRef<HTMLDivElement>(null);
 
-  // React refs for opposing team icons div
-  const player2StatusIconsRef = useRef<HTMLDivElement>(null);
-  const player4StatusIconsRef = useRef<HTMLDivElement>(null);
-
-
   // React states to manage what cards players have
   const [player1Cards, setPlayer1Cards] = useState<DeckCard[]>([]);
 
@@ -165,22 +160,6 @@ export default function Gameboard({ roomId }: Props) {
       marginTop: (-6 + (length / 3) - 2) * length,
       marginBottom: (-6 + (length / 3) - 2) * length
     });
-  }
-
-  function getTeam2GridCols(statusRef: RefObject<HTMLDivElement>) {
-    if (!statusRef?.current) {
-      return '';
-    }
-
-    if (statusRef.current.childNodes.length == 1) {
-      return 'grid-cols-1';
-    }
-    else if (statusRef.current.childNodes.length == 2) {
-      return 'grid-cols-2';
-    }
-    else {
-      return 'grid-cols-3';
-    }
   }
 
   /*
@@ -399,13 +378,13 @@ export default function Gameboard({ roomId }: Props) {
                 }
               </div>
 
-              <div className={`grid gap-2 ${getTeam2GridCols(player4StatusIconsRef)}`} ref={player4StatusIconsRef}>
+              <div className='flex flex-row flex-wrap gap-2'>
                 <DealerIcon active={dealerData && player4Data.id == dealerData.id} />
                 <TurnIcon active={turnPlayerData && player4Data.id == turnPlayerData.id} />
               </div>
             </div>
 
-            <div className="w-1/6 h-[50vh] flex flex-col items-center justify-center gap-0" ref={player2Hand}>
+            <div className="w-1/6 h-[50vh] flex flex-col items-center justify-center gap-0" ref={player4Hand}>
               {
                 Array.from({ length: player4Data?.numCards ?? 0 }, (_, k) => (
                   <PlayingCard
@@ -427,15 +406,15 @@ export default function Gameboard({ roomId }: Props) {
             {/* ------------------------ Lift Info  ------------------------*/}
             <div className='w-4/6 flex flex-col gap-2 items-center justify-center'>
 
-              <PlayingCard cardData={player3CardPlayed} isOutline></PlayingCard>
+              <PlayingCard cardData={player3CardPlayed} isOutline isNotPlayable liftCard={3}></PlayingCard>
 
               <div className='flex flex-row gap-32'>
-                <PlayingCard cardData={player4CardPlayed} isOutline></PlayingCard>
-                <PlayingCard cardData={player2CardPlayed} isOutline></PlayingCard>
+                <PlayingCard cardData={player4CardPlayed} isOutline isNotPlayable liftCard={4}></PlayingCard>
+                <PlayingCard cardData={player2CardPlayed} isOutline isNotPlayable liftCard={2}></PlayingCard>
               </div>
 
               <div>
-                <PlayingCard cardData={player1CardPlayed} isOutline></PlayingCard>
+                <PlayingCard cardData={player1CardPlayed} isOutline isNotPlayable liftCard={1}></PlayingCard>
               </div>
 
             </div>
@@ -446,7 +425,7 @@ export default function Gameboard({ roomId }: Props) {
 
 
             {/* ------------------------ Player 2 Info  ------------------------*/}
-            <div className="w-1/6 h-[50vh] flex flex-col items-center justify-center gap-0" ref={player4Hand}>
+            <div className="w-1/6 h-[50vh] flex flex-col items-center justify-center gap-0" ref={player2Hand}>
               {
                 Array.from({ length: player2Data?.numCards ?? 0 }, (_, k) => (
                   <PlayingCard
@@ -468,7 +447,7 @@ export default function Gameboard({ roomId }: Props) {
                 }
               </div>
 
-              <div className={`grid gap-2 ${getTeam2GridCols(player2StatusIconsRef)}`} ref={player2StatusIconsRef}>
+              <div className='flex flex-row flex-wrap gap-2'>
                 <DealerIcon active={dealerData && player2Data.id == dealerData.id} />
                 <TurnIcon active={turnPlayerData && player2Data.id == turnPlayerData.id} />
               </div>
