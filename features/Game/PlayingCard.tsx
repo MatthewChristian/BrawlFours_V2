@@ -1,8 +1,10 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { RefObject, useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import { DeckCard } from '../../models/DeckCard';
 import { getCardShortcode } from '../../core/services/parseCard';
 import { motion, AnimatePresence } from "framer-motion";
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+
 
 interface Props {
   player?: number;
@@ -12,17 +14,50 @@ interface Props {
   className?: string;
   style?: React.CSSProperties
   isOutline?: boolean;
+  liftPlayer?: number;
+  coords?: DOMRect[];
 }
 
-export default function PlayingCard({ className, style, onClickHandler, player, cardData, isDeckCard, isOutline }: Props) {
+export default function PlayingCard({
+  className,
+  style,
+  onClickHandler,
+  player,
+  cardData,
+  isDeckCard,
+  isOutline,
+  liftPlayer,
+  coords
+}: Props) {
+
+  const dispatch = useAppDispatch();
+
+  const cardRef = useRef<HTMLDivElement>(null);
 
   const [y, setY] = useState(0);
+  const [x, setX] = useState(0);
 
   const [focused, setFocused] = useState<boolean>(false);
 
   const card = useMemo(() => {
     return getCardShortcode(cardData);
   }, [cardData]);
+
+  function getCoords() {
+    const cardCoords = cardRef?.current?.getBoundingClientRect();
+
+    if (!cardCoords) {
+      return;
+    }
+
+    return { x: coords[liftPlayer - 1].x - cardCoords.x, y: coords[liftPlayer - 1].y - cardCoords.y}
+  }
+
+  function handleClick() {
+    if (onClickHandler) {
+      onClickHandler(cardData, player)
+    }
+  }
 
   useEffect(() => {
     if (!focused) {
@@ -33,20 +68,27 @@ export default function PlayingCard({ className, style, onClickHandler, player, 
     }
   }, [focused]);
 
+  useEffect(() => {
+    console.log("Coords: ", coords);
+  }, [coords]);
+
+
   return (
-    <div className={`${className}`}
-      onClick={() => onClickHandler ? onClickHandler(cardData, player) : undefined}
+    <div
+      ref={cardRef}
+      className={`${className}`}
+      onClick={handleClick}
       style={style}>
       { !isDeckCard ? (
         card ?
           <motion.div
-            animate={{ y }}
-            transition={{ type: "spring" }}
-            exit={{ y: -30, opacity: 0 }}
+            animate={{ x, y }}
+            transition={{ type: liftPlayer ? "keyframes" : "spring" }}
+            initial={coords ? getCoords() : undefined}
           >
             <div
               style={{position: 'relative', height: 120, width: 80 }}
-              onMouseOver={() => cardData.playable && !isOutline ? setFocused(true) : undefined}
+              onMouseOver={() => cardData?.playable && !isOutline ? setFocused(true) : undefined}
               onMouseLeave={() => setFocused(false)}
             >
               <Image
@@ -55,7 +97,7 @@ export default function PlayingCard({ className, style, onClickHandler, player, 
                 sizes="10vw"
                 style={{ objectFit: 'fill' }}
                 alt='card'
-                className={`${cardData.playable && !isOutline ? 'blue-glow' : ''}`}
+                className={`${cardData?.playable && !isOutline ? 'blue-glow' : ''}`}
               />
             </div>
           </motion.div>
