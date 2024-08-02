@@ -41,8 +41,6 @@ export default function Gameboard({ roomId }: Props) {
 
   const roundWinners = useAppSelector(getRoundWinners);
 
-
-
   const matchWinner = useAppSelector(getMatchWinner);
 
   // Cards in the hand of the client player
@@ -77,10 +75,6 @@ export default function Gameboard({ roomId }: Props) {
   const [player2Data, setPlayer2Data] = useState<PlayerSocket>({});
   const [player3Data, setPlayer3Data] = useState<PlayerSocket>({});
   const [player4Data, setPlayer4Data] = useState<PlayerSocket>({});
-
-
-  // Coords for player hands
-  const [handCoords, setHandCoords] = useState<DOMRect[]>();
 
   // Data to send to socket
   const socketData = useMemo(() => {
@@ -353,13 +347,6 @@ export default function Gameboard({ roomId }: Props) {
     }
   }, [matchWinner, roomId]);
 
-  useEffect(() => {
-    console.log("Setting");
-    setHandCoords([player1Hand.current.getBoundingClientRect(), player2Hand.current.getBoundingClientRect(), player3Hand.current.getBoundingClientRect(), player4Hand.current.getBoundingClientRect()]);
-  }, [player1Hand, player2Hand, player3Hand, player4Hand]);
-
-
-
   return (
     <div className="h-screen w-screen bg-slate-300">
 
@@ -440,15 +427,15 @@ export default function Gameboard({ roomId }: Props) {
             {/* ------------------------ Lift Info  ------------------------*/}
             <div className='w-4/6 flex flex-col gap-2 items-center justify-center'>
 
-              <PlayingCard cardData={player3CardPlayed} isOutline liftPlayer={3} coords={handCoords}></PlayingCard>
+              <PlayingCard cardData={player3CardPlayed} isOutline></PlayingCard>
 
               <div className='flex flex-row gap-32'>
-                <PlayingCard cardData={player4CardPlayed} isOutline liftPlayer={4} coords={handCoords}></PlayingCard>
-                <PlayingCard cardData={player2CardPlayed} isOutline liftPlayer={2} coords={handCoords}></PlayingCard>
+                <PlayingCard cardData={player4CardPlayed} isOutline></PlayingCard>
+                <PlayingCard cardData={player2CardPlayed} isOutline></PlayingCard>
               </div>
 
               <div>
-                <PlayingCard cardData={player1CardPlayed} isOutline liftPlayer={1} coords={handCoords}></PlayingCard>
+                <PlayingCard cardData={player1CardPlayed} isOutline></PlayingCard>
               </div>
 
             </div>

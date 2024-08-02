@@ -14,8 +14,6 @@ interface Props {
   className?: string;
   style?: React.CSSProperties
   isOutline?: boolean;
-  liftPlayer?: number;
-  coords?: DOMRect[];
 }
 
 export default function PlayingCard({
@@ -25,33 +23,18 @@ export default function PlayingCard({
   player,
   cardData,
   isDeckCard,
-  isOutline,
-  liftPlayer,
-  coords
+  isOutline
 }: Props) {
-
-  const dispatch = useAppDispatch();
 
   const cardRef = useRef<HTMLDivElement>(null);
 
   const [y, setY] = useState(0);
-  const [x, setX] = useState(0);
 
   const [focused, setFocused] = useState<boolean>(false);
 
   const card = useMemo(() => {
     return getCardShortcode(cardData);
   }, [cardData]);
-
-  function getCoords() {
-    const cardCoords = cardRef?.current?.getBoundingClientRect();
-
-    if (!cardCoords) {
-      return;
-    }
-
-    return { x: coords[liftPlayer - 1].x - cardCoords.x, y: coords[liftPlayer - 1].y - cardCoords.y}
-  }
 
   function handleClick() {
     if (onClickHandler) {
@@ -68,11 +51,6 @@ export default function PlayingCard({
     }
   }, [focused]);
 
-  useEffect(() => {
-    console.log("Coords: ", coords);
-  }, [coords]);
-
-
   return (
     <div
       ref={cardRef}
@@ -82,9 +60,8 @@ export default function PlayingCard({
       { !isDeckCard ? (
         card ?
           <motion.div
-            animate={{ x, y }}
-            transition={{ type: liftPlayer ? "keyframes" : "spring" }}
-            initial={coords ? getCoords() : undefined}
+            animate={{ y }}
+            transition={{ type: "spring" }}
           >
             <div
               style={{position: 'relative', height: 120, width: 80 }}
