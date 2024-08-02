@@ -133,7 +133,7 @@ function joinRoom(data: JoinRoomInput, gameSocket: Socket) {
   } else {
     // Otherwise, send an error message back to the player.
     gameSocket.emit('playerJoinedRoom', { success: false, errorMsg: 'Sorry, this room does not exist!' });
-    console.log('Room doesnt exist');
+    console.log(data.roomId + ': ' + 'Room doesnt exist');
   }
 }
 
@@ -155,7 +155,7 @@ function playersInRoom(data: BasicRoomInput) {
     io.to(data.roomId).emit('playersInRoom', playersData);
   }
   else {
-    console.log('Room doesnt exist');
+    console.log(data.roomId + ': ' + 'Room doesnt exist');
   }
 }
 
@@ -213,7 +213,7 @@ function setTeams(data: ChoosePartnerInput, gameSocket: Socket) {
     io.to(data.roomId).emit('gameStarted', true);
   }
   else {
-    console.log('setTeams: Error');
+    console.log(data.roomId + ': ' + 'setTeams: Error');
   }
 }
 
@@ -238,12 +238,12 @@ function shuffle(deck: DeckCard[]) {
 
 function generateDeck(data: BasicRoomInput) {
   if (!roomUsers[data.roomId] || !io.of('/').adapter.rooms.get(data.roomId)) {
-    console.log('generateDeck: Error');
+    console.log(data.roomId + ': ' + 'generateDeck: Error');
     return;
   }
 
   if (roomUsers[data.roomId].deck) {
-    console.log('Deck already generated');
+    console.log(data.roomId + ': ' + 'Deck already generated');
     return;
   }
 
@@ -313,7 +313,7 @@ function checkKicked(kicked: DeckCard, roomId: string, dealerTeam: number) {
 
 function kickCard(data: BasicRoomInput) {
   if (!roomUsers[data.roomId] || !io.of('/').adapter.rooms.get(data.roomId) || !roomUsers[data.roomId].deck) {
-    console.log('kickCard: Error');
+    console.log(data.roomId + ': ' + 'kickCard: Error');
     return;
   }
 
@@ -374,7 +374,7 @@ function deal(player: PlayerSocket, deck: DeckCard[]) {
 */
 function dealAll(data: BasicRoomInput) {
   if (!roomUsers[data.roomId] || !io.of('/').adapter.rooms.get(data.roomId) || !roomUsers[data.roomId].deck) {
-    console.log('dealAll: Error');
+    console.log(data.roomId + ': ' + 'dealAll: Error');
     return;
   }
 
@@ -444,7 +444,6 @@ function orderCards(roomId: string) {
 }
 
 function initialiseGameCards(data: BasicRoomInput) {
-  console.log('Resetting game state from IGC');
   resetGameState(data.roomId);
 
   generateDeck(data);
@@ -489,12 +488,12 @@ function initialiseGameCards(data: BasicRoomInput) {
 
 function initialiseGame(data: BasicRoomInput) {
   if (!roomUsers[data.roomId] || !io.of('/').adapter.rooms.get(data.roomId)) {
-    console.log('generateDeck: Error');
+    console.log(data.roomId + ': ' + 'initialiseGame: Error');
     return;
   }
 
   if (roomUsers[data.roomId].deck) {
-    console.log('Deck already generated');
+    console.log(data.roomId + ': ' + 'Deck already generated');
     return;
   }
 
@@ -537,7 +536,7 @@ function playerCards(data, gameSocket: Socket) {
     });
   }
   else {
-    console.log('Room doesnt exist');
+    console.log(data.roomId + ': ' + 'Room doesnt exist');
   }
 }
 
@@ -551,7 +550,7 @@ function emitPlayerCardData(data: BasicRoomInput) {
 
 function beg(data: BasicRoomInput) {
   if (!roomUsers[data.roomId] || !roomUsers[data.roomId].kicked) {
-    console.log('Missing data');
+    console.log(data.roomId + ': ' + 'Missing data');
   }
 
   io.to(data.roomId).emit('message', {
@@ -673,7 +672,7 @@ function begResponse(data: BegResponseInput, gameSocket: Socket) {
     io.to(data.roomId).emit('roundWinners', undefined);
   }
   else {
-    console.log('Room doesnt exist');
+    console.log(data.roomId + ': ' + 'Room doesnt exist');
   }
 }
 
@@ -720,12 +719,10 @@ function determineIfCardsPlayable(player: PlayerSocket, roomId: string) {
     // * the card played is not trump,
     // then end function and do not add card to lift
     if (roomUsers[roomId].called && card.suit != roomUsers[roomId].called.suit && !bare && card.suit != trump) {
-      console.log('Invalid card played');
       card.playable = false;
     }
     // If the player attempted to undertrump, end function and do not add card to lift
     else if (roomUsers[roomId].called && (card.suit == roomUsers[roomId].trump && undertrumped == true) && roomUsers[roomId].called.suit != trump && !bare) {
-      console.log('Undertrump');
       card.playable = false;
     }
     else {
@@ -750,11 +747,7 @@ function setCardsPlayability(roomId: string) {
 
 function playCard(data: PlayCardInput, gameSocket: Socket) {
   if (!io.of('/').adapter.rooms.get(data.roomId)) {
-    console.log('Room doesnt exist');
-  }
-
-  if (data.player != roomUsers[data.roomId].turn) {
-    console.log('It is not this players turn to play ');
+    console.log(data.roomId + ': ' + 'Room doesnt exist');
   }
 
   const player = roomUsers[data.roomId].users.find(el => el.id == gameSocket.id);
@@ -765,14 +758,12 @@ function playCard(data: PlayCardInput, gameSocket: Socket) {
   const cardIndex = playerCards.findIndex(el => (el.suit == data.card.suit) && (el.value == data.card.value));
 
   if (cardIndex == -1) {
-    console.log("Invalid card");
     return;
   }
 
   const cardData = playerCards[cardIndex];
 
   if (!cardData.playable) {
-    console.log('Card not playable');
     return;
   }
 
@@ -865,21 +856,18 @@ function liftScoring(data: BasicRoomInput) {
 
       // Store potential high
       if (!roomUsers[data.roomId].high || el.power > roomUsers[data.roomId].high.power) {
-        console.log('High Stored: ', el);
         roomUsers[data.roomId].highWinner = player;
         roomUsers[data.roomId].high = el;
       }
 
       // Store potential low
       if (!roomUsers[data.roomId].low || el.power < roomUsers[data.roomId].low.power) {
-        console.log('Low Stored: ', el);
         roomUsers[data.roomId].lowWinner = player;
         roomUsers[data.roomId].low = el;
       }
 
       // Determine if Jack is in lift
       if (el.value == 'J') {
-        console.log('Jack Stored: ', el);
         jackOwnerPlayer = player;
         roomUsers[data.roomId].jack = el;
       }
@@ -963,8 +951,6 @@ function roundScoring(data: BasicRoomInput) {
     hangJack: roomUsers[data.roomId].hangJack,
     game: roomUsers[data.roomId].game
   };
-
-  console.log('RW: ', {...roundWinners});
 
   io.to(data.roomId).emit('roundWinners', { ...roundWinners });
 
