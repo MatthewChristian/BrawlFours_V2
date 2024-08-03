@@ -11,6 +11,7 @@ import { DeckCard } from './models/DeckCard';
 import { PlayerSocket } from './models/PlayerSocket';
 import { BegResponseInput } from './models/BegResponseInput';
 import { PlayCardInput } from './models/PlayCardInput';
+import { delay } from './core/services/delay';
 
 const app = express();
 const server = createServer(app);
@@ -44,7 +45,7 @@ io.on('connection', (socket) => {
   socket.on('playerCards', (data) => playerCards(data, socket));
   socket.on('begResponse', (data) => begResponse(data, socket));
   socket.on('redeal', (data) => initialiseGameCards(data));
-  socket.on('playCard', (data) => playCard(data, socket));
+  socket.on('playCard', async (data) => await playCard(data, socket));
 });
 
 function generateRoomId() {
@@ -745,7 +746,7 @@ function setCardsPlayability(roomId: string) {
   io.to(turnPlayer.id).emit('playerCards', turnPlayer.cards);
 }
 
-function playCard(data: PlayCardInput, gameSocket: Socket) {
+async function playCard(data: PlayCardInput, gameSocket: Socket) {
   if (!io.of('/').adapter.rooms.get(data.roomId)) {
     console.log(data.roomId + ': ' + 'Room doesnt exist');
   }
@@ -766,6 +767,9 @@ function playCard(data: PlayCardInput, gameSocket: Socket) {
   if (!cardData.playable) {
     return;
   }
+
+  // Reset lift winner
+  io.to(data.roomId).emit('liftWinner', undefined);
 
   // Add card to lift
   if (!roomUsers[data.roomId].lift) {
@@ -804,7 +808,7 @@ function playCard(data: PlayCardInput, gameSocket: Socket) {
   }
 
   if (roomUsers[data.roomId].lift.length >= 4) {
-    liftScoring(data);
+    await liftScoring(data);
   }
   else {
     // Increment player turn
@@ -835,7 +839,7 @@ function playCard(data: PlayCardInput, gameSocket: Socket) {
   }
 }
 
-function liftScoring(data: BasicRoomInput) {
+async function liftScoring(data: BasicRoomInput) {
 
   let highestHangerPower = 0;
   let highestHangerPlayer: PlayerSocket;
@@ -922,9 +926,14 @@ function liftScoring(data: BasicRoomInput) {
   // Set playable status of cards of player whose turn is next
   setCardsPlayability(data.roomId);
 
+  io.to(data.roomId).emit('liftWinner', liftWinnerPlayer.player);
+
+  // Wait 1.5 seconds before emitting to allow players to see last card played
+  await delay(1500);
   io.to(data.roomId).emit('turn', roomUsers[data.roomId].turn);
   io.to(data.roomId).emit('lift', undefined);
   io.to(data.roomId).emit('game', roomUsers[data.roomId].game);
+
 }
 
 function resetRoundState(roomId: string) {
@@ -936,6 +945,8 @@ function resetRoundState(roomId: string) {
   roomUsers[roomId].high = undefined;
   roomUsers[roomId].low = undefined;
   roomUsers[roomId].jack = undefined;
+
+  io.to(roomId).emit('game', [0, 0]);
 }
 
 function roundScoring(data: BasicRoomInput) {

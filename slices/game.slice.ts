@@ -30,6 +30,7 @@ interface GameSlice {
   game: number[];
   roundWinners?: RoundWinners;
   matchWinner?: MatchWinner;
+  liftWinner?: number;
   gameStarted: boolean;
 }
 const initialState: GameSlice = {
@@ -116,6 +117,10 @@ export const gameSlice = createSlice({
       state.matchWinner = action.payload;
     },
 
+    setLiftWinner: (state, action: PayloadAction<number | undefined>) => {
+      state.liftWinner = action.payload;
+    },
+
     setGameStarted: (state, action: PayloadAction<boolean>) => {
       state.gameStarted = action.payload;
     },
@@ -146,7 +151,8 @@ export const {
   setGame,
   setRoundWinners,
   setMatchWinner,
-  setGameStarted
+  setGameStarted,
+  setLiftWinner
 } =  gameSlice.actions;
 
 // Selectors
@@ -165,13 +171,13 @@ export const getKickedCards = (state: RootState): DeckCard[] => state.gameSlice.
 
 export const getPlayerCards = (state: RootState): DeckCard[] => state.gameSlice.playerCards;
 
-export const getDealer = (state: RootState): number => state.gameSlice.dealer;
+export const getDealer = (state: RootState): number | undefined => state.gameSlice.dealer;
 
-export const getTurn = (state: RootState): number => state.gameSlice.turn;
+export const getTurn = (state: RootState): number | undefined => state.gameSlice.turn;
 
-export const getBeg = (state: RootState): BegResponseInput['response'] => state.gameSlice.beg;
+export const getBeg = (state: RootState): BegResponseInput['response'] | undefined => state.gameSlice.beg;
 
-export const getTeamScore = (state: RootState): number[] => state.gameSlice.teamScore;
+export const getTeamScore = (state: RootState): number[] | undefined => state.gameSlice.teamScore;
 
 export const getMessage = (state: RootState): ServerMessage | undefined => state.gameSlice.message;
 
@@ -181,6 +187,8 @@ export const getGame = (state: RootState): number[] => state.gameSlice.game;
 
 export const getRoundWinners = (state: RootState): RoundWinners | undefined => state.gameSlice.roundWinners;
 
-export const getMatchWinner = (state: RootState): MatchWinner => state.gameSlice.matchWinner;
+export const getMatchWinner = (state: RootState): MatchWinner | undefined => state.gameSlice.matchWinner;
+
+export const getLiftWinner = (state: RootState): number | undefined => state.gameSlice.liftWinner;
 
 export const getGameStarted = (state: RootState): boolean => state.gameSlice.gameStarted;

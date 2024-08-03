@@ -1,5 +1,5 @@
 import React, {  Suspense, useEffect } from 'react';
-import { setBeg, setDealer, setDeck, setErrorMsg, setGame, setGameStarted, setJoinModalOpen, setKickedCards, setLift, setMatchWinner, setMessage, setPlayerCards, setPlayerList, setRoomId, setRoundWinners, setTeamScore, setTurn } from '../../slices/game.slice';
+import { setBeg, setDealer, setDeck, setErrorMsg, setGame, setGameStarted, setJoinModalOpen, setKickedCards, setLift, setLiftWinner, setMatchWinner, setMessage, setPlayerCards, setPlayerList, setRoomId, setRoundWinners, setTeamScore, setTurn } from '../../slices/game.slice';
 import { useAppDispatch } from '../../store/hooks';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
@@ -88,13 +88,15 @@ export default function Layout({ children }: Props) {
     });
 
     socket.on('roundWinners', (state) => {
-      console.log('RW: ', state);
       dispatch(setRoundWinners(state));
     });
 
     socket.on('matchWinner', (state) => {
-      console.log('MW: ', state);
       dispatch(setMatchWinner(state));
+    });
+
+    socket.on('liftWinner', (state) => {
+      dispatch(setLiftWinner(state));
     });
 
     socket.on('gameStarted', (state) => {

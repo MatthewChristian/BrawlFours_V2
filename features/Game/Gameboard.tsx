@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, RefObject, useMemo } from 'react';
 import { DeckCard } from '../../models/DeckCard';
 import PlayingCard from './PlayingCard';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { getBeg, getDealer, getLift, getMatchWinner, getMessage, getPlayerCards, getPlayerList, getRoundWinners, getTurn, setMessage } from '../../slices/game.slice';
+import { getBeg, getDealer, getLift, getLiftWinner, getMatchWinner, getMessage, getPlayerCards, getPlayerList, getRoundWinners, getTurn, setMessage } from '../../slices/game.slice';
 import { PlayerSocket } from '../../models/PlayerSocket';
 import DealerIcon from './StatusIcons/DealerIcon';
 import TurnIcon from './StatusIcons/TurnIcon';
@@ -42,6 +42,8 @@ export default function Gameboard({ roomId }: Props) {
   const roundWinners = useAppSelector(getRoundWinners);
 
   const matchWinner = useAppSelector(getMatchWinner);
+
+  const liftWinner = useAppSelector(getLiftWinner);
 
   // Cards in the hand of the client player
   const playerCards = useAppSelector(getPlayerCards);
@@ -111,6 +113,29 @@ export default function Gameboard({ roomId }: Props) {
   const dealerData = useMemo(() => {
     return players.find(el => el.player == dealer);
   }, [dealer, players]);
+
+  // Get mapped number of lift winner
+  const liftWinnerMapped = useMemo(() => {
+    if (!liftWinner || !playerNumber || !players) {
+      return undefined;
+    }
+
+    const winnerPlayer = players.find(el => el.player == liftWinner)?.player;
+
+    if (player1Data.player == winnerPlayer) {
+      return 1;
+    }
+    else if (player2Data.player == winnerPlayer) {
+      return 2;
+    }
+    else if (player3Data.player == winnerPlayer) {
+      return 3;
+    }
+     else if (player4Data.player == winnerPlayer) {
+      return 4;
+    }
+
+  }, [liftWinner, players, playerNumber, player1Data, player2Data, player3Data, player4Data]);
 
   // Lift cards
   const player1CardPlayed = useMemo(() => {
@@ -331,7 +356,7 @@ export default function Gameboard({ roomId }: Props) {
 
       <div className='flex flex-row'>
 
-        <GameInfo playerTurn={playerTurn} playerTeam={player1Data.team} />
+        <GameInfo playerTeam={player1Data.team} />
 
         <div className="h-screen w-4/5">
 
@@ -406,15 +431,15 @@ export default function Gameboard({ roomId }: Props) {
             {/* ------------------------ Lift Info  ------------------------*/}
             <div className='w-4/6 flex flex-col gap-2 items-center justify-center'>
 
-              <PlayingCard cardData={player3CardPlayed} isOutline isNotPlayable liftCard={3}></PlayingCard>
+              <PlayingCard cardData={player3CardPlayed} isOutline isNotPlayable liftCard={3} liftWinner={liftWinnerMapped}></PlayingCard>
 
               <div className='flex flex-row gap-32'>
-                <PlayingCard cardData={player4CardPlayed} isOutline isNotPlayable liftCard={4}></PlayingCard>
-                <PlayingCard cardData={player2CardPlayed} isOutline isNotPlayable liftCard={2}></PlayingCard>
+                <PlayingCard cardData={player4CardPlayed} isOutline isNotPlayable liftCard={4} liftWinner={liftWinnerMapped}></PlayingCard>
+                <PlayingCard cardData={player2CardPlayed} isOutline isNotPlayable liftCard={2} liftWinner={liftWinnerMapped}></PlayingCard>
               </div>
 
               <div>
-                <PlayingCard cardData={player1CardPlayed} isOutline isNotPlayable liftCard={1}></PlayingCard>
+                <PlayingCard cardData={player1CardPlayed} isOutline isNotPlayable liftCard={1} liftWinner={liftWinnerMapped}></PlayingCard>
               </div>
 
             </div>

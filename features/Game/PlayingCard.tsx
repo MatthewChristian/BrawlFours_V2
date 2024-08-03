@@ -4,6 +4,7 @@ import { DeckCard } from '../../models/DeckCard';
 import { getCardShortcode } from '../../core/services/parseCard';
 import { motion, AnimatePresence } from "framer-motion";
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { delay } from '../../core/services/delay';
 
 
 interface Props {
@@ -16,6 +17,7 @@ interface Props {
   isOutline?: boolean;
   isNotPlayable?: boolean;
   liftCard?: number;
+  liftWinner?: number;
 }
 
 export default function PlayingCard({
@@ -27,7 +29,8 @@ export default function PlayingCard({
   isDeckCard,
   isOutline,
   isNotPlayable,
-  liftCard
+  liftCard,
+  liftWinner
 }: Props) {
 
   const cardRef = useRef<HTMLDivElement>(null);
@@ -47,6 +50,84 @@ export default function PlayingCard({
     }
   }
 
+  async function handleLiftWinner() {
+    const num1 = 60;
+    const num2 = 140;
+    const num3 = 170;
+    const num4 = 220;
+
+    await delay(850);
+
+    if (liftWinner == 1) {
+
+      if (liftCard == 1) {
+        setY(num1);
+      }
+      else if (liftCard == 2) {
+        setY(num2);
+        setX(-num1);
+      }
+      else if (liftCard == 3) {
+        setY(num4);
+      }
+      else if (liftCard == 4) {
+        setY(num2);
+        setX(num1);
+      }
+    }
+
+    else if (liftWinner == 2) {
+      if (liftCard == 1) {
+        setY(-num2);
+        setX(num3)
+      }
+      else if (liftCard == 2) {
+        setX(num1);
+      }
+      else if (liftCard == 3) {
+        setX(num3);
+        setY(num2);
+      }
+      else if (liftCard == 4) {
+        setX(num4);
+      }
+    }
+
+    else if (liftWinner == 3) {
+      if (liftCard == 1) {
+        setY(-num4);
+      }
+      else if (liftCard == 2) {
+        setY(-num2);
+        setX(-num1);
+      }
+      else if (liftCard == 3) {
+        setY(-num1);
+      }
+      else if (liftCard == 4) {
+        setY(-num2);
+        setX(num1);
+      }
+    }
+
+    else if (liftWinner == 4) {
+      if (liftCard == 1) {
+        setY(-num2);
+        setX(-num3)
+      }
+      else if (liftCard == 2) {
+        setX(-num4)
+      }
+      else if (liftCard == 3) {
+        setX(-num3);
+        setY(num2);
+      }
+      else if (liftCard == 4) {
+        setX(-num1);
+      }
+    }
+  }
+
   useEffect(() => {
     if (!focused) {
       setY(0);
@@ -55,6 +136,16 @@ export default function PlayingCard({
       setY(-20);
     }
   }, [focused]);
+
+  useEffect(() => {
+    if (!liftWinner || !liftCard) {
+      setX(0);
+      setY(0);
+      return;
+    }
+
+    handleLiftWinner();
+  }, [liftWinner, liftCard]);
 
   return (
     <div
@@ -66,7 +157,7 @@ export default function PlayingCard({
         card ?
           <motion.div
             animate={{ x, y }}
-            transition={{ type: "spring" }}
+            transition={{ type: liftWinner ? "tween" : "spring" }}
             initial={liftCard == 1 ? { y: 20 } : liftCard == 2 ? { x: 20 } : liftCard == 3 ? { y: -20 } : liftCard == 4 ? { x: -20 } : undefined}
           >
             <div
