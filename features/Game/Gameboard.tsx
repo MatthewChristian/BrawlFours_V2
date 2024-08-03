@@ -75,8 +75,17 @@ export default function Gameboard({ roomId }: Props) {
 
   // Data to send to socket
   const socketData = useMemo(() => {
+    // Get ID stored in local storage, otherwise set it
+    let localId = localStorage.getItem("socketId");
+
+    if (!localId && socket?.id) {
+      localStorage.setItem("socketId", socket.id);
+      localId = socket.id
+    }
+
     return ({
       roomId: roomId ? String(roomId) : undefined,
+      localId: localId
     });
   }, [roomId]);
 

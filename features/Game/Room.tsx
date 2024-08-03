@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Button from '../../core/components/Button';
 import { FaCrown } from 'react-icons/fa';
 import { IoDice } from 'react-icons/io5';
@@ -7,6 +7,8 @@ import { useAppSelector } from '../../store/hooks';
 import { getGameStarted, getMatchWinner, getPlayerList } from '../../slices/game.slice';
 import { useRouter } from 'next/navigation';
 import { socket } from '../SocketClient';
+import { ChoosePartnerInput } from '../../models/ChoosePartnerInput';
+import { BasicRoomInput } from '../../models/BasicRoomInput';
 
 interface Props {
   roomId?: string;
@@ -24,10 +26,26 @@ export default function Room({ roomId, onLeaveRoom}: Props) {
   const gameStarted = useAppSelector(getGameStarted);
   const matchWinner = useAppSelector(getMatchWinner);
 
+  // Data to send to socket
+  const socketData = useMemo(() => {
+    // Get ID stored in local storage, otherwise set it
+    let localId = localStorage.getItem("socketId") ?? undefined;
+
+    if (!localId && socket?.id) {
+      localStorage.setItem("socketId", socket.id);
+      localId = socket.id
+    }
+
+    return ({
+      roomId: roomId ? String(roomId) : undefined,
+      localId: localId
+    });
+  }, [roomId]);
+
   function leaveRoom() {
 
-    const data = {
-      roomId: String(roomId),
+    const data: BasicRoomInput = {
+      ...socketData
     };
 
     socket.emit('leaveRoom', data);
@@ -36,9 +54,9 @@ export default function Room({ roomId, onLeaveRoom}: Props) {
 
   function choosePartner(id: string) {
 
-    const data = {
-      roomId: String(roomId),
-      partnerId: String(id)
+    const data: ChoosePartnerInput = {
+      partnerId: String(id),
+      ...socketData
     };
 
     socket.emit('setTeams', data);
@@ -47,9 +65,13 @@ export default function Room({ roomId, onLeaveRoom}: Props) {
   function randomPartner() {
     const partnerIndex = Math.floor(Math.random() * 3) + 1;
 
-    const data = {
-      roomId: String(roomId),
-      partnerId: players[partnerIndex].id?.toString()
+    if (!players[partnerIndex]?.id) {
+      return;
+    }
+
+    const data: ChoosePartnerInput = {
+      partnerId: players[partnerIndex].id.toString(),
+      ...socketData
     };
 
     socket.emit('setTeams', data);

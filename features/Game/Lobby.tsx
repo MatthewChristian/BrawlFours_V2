@@ -9,6 +9,8 @@ import { getErrorMsg, getJoinModalOpen, getMatchWinner, getPlayerList, getRoomId
 import MatchWinnersModal from './Modals/MatchWinnersModal';
 import RoundWinnersModal from './Modals/RoundWinnersModal';
 import { socket } from '../SocketClient';
+import { CreateRoomInput } from '../../models/CreateRoomInput';
+import { JoinRoomInput } from '../../models/JoinRoomInput';
 
 export default function Lobby() {
 
@@ -60,8 +62,17 @@ export default function Lobby() {
   // Create a room
   function createRoom() {
 
-    const data = {
-      nickname: String(nickname)
+    // Get ID stored in local storage, otherwise set it
+    let localId = localStorage.getItem("socketId") ?? undefined;
+
+    if (!localId && socket?.id) {
+      localStorage.setItem("socketId", socket.id);
+      localId = socket.id
+    }
+
+    const data: CreateRoomInput = {
+      nickname: String(nickname),
+      localId: localId
     };
 
     socket.emit('createRoom', data);
@@ -69,10 +80,19 @@ export default function Lobby() {
 
   // Join a room
   function joinRoom() {
+    // Get ID stored in local storage, otherwise set it
+    let localId = localStorage.getItem("socketId") ?? undefined;
+
+    if (!localId && socket?.id) {
+      localStorage.setItem("socketId", socket.id);
+      localId = socket.id
+    }
+
     const roomIdVal = joinRoomRef?.current?.value;
-    const data = {
+    const data: JoinRoomInput = {
       roomId: String(roomIdVal),
-      nickname: String(nickname)
+      nickname: String(nickname),
+      localId: localId
     };
 
     socket.emit('joinRoom', data);
