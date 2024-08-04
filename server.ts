@@ -12,6 +12,7 @@ import { PlayerSocket } from './models/PlayerSocket';
 import { BegResponseInput } from './models/BegResponseInput';
 import { PlayCardInput } from './models/PlayCardInput';
 import { delay } from './core/services/delay';
+import { CardAbilities, mapAbility } from './core/services/abilities';
 
 const app = express();
 const server = createServer(app);
@@ -295,7 +296,7 @@ function generateDeck(data: BasicRoomInput) {
   let card: DeckCard;
   for (let i = 0; i < suits.length; i++) {
     for (let j = 0; j < values.length; j++) {
-      card = { suit: suits[i], value: values[j], power: power[j], points: points[j], playable: false };
+      card = { suit: suits[i], value: values[j], power: power[j], points: points[j], playable: false, ability: mapAbility(values[j], suits[i]) };
       deck.push(card);
     }
   }
@@ -592,7 +593,7 @@ function emitPlayerCardData(data: BasicRoomInput) {
   });
 }
 
-function beg(data: BasicRoomInput) {
+function runPack(data: BasicRoomInput) {
   if (!roomUsers[data.roomId] || !roomUsers[data.roomId].kicked) {
     console.log(data.roomId + ': ' + 'Missing data');
   }
@@ -648,6 +649,23 @@ function beg(data: BasicRoomInput) {
 
   // Order player cards by suit and value
   orderCards(data.roomId);
+
+  // Loop through users in room
+  roomUsers[data.roomId].users.forEach((el, i) => {
+
+    // Determine which cards are playable for the player whose turn it is
+    if (el.player == roomUsers[data.roomId].turn) {
+      determineIfCardsPlayable(el, data.roomId);
+    }
+
+    // Send player card data to player who is begging and dealer
+    if (el.player == roomUsers[data.roomId].turn || el.player == roomUsers[data.roomId].dealer) {
+      io.to(el.socketId).emit('playerCards', roomUsers[data.roomId].users[i].cards);
+    }
+    else {
+      io.to(el.socketId).emit('playerCards', undefined);
+    }
+  });
 
   emitPlayerCardData(data);
 
@@ -708,7 +726,7 @@ function begResponse(data: BegResponseInput, gameSocket: Socket) {
     }
     else if (data.response == 'run') {
       roomUsers[data.roomId].beg = 'run';
-      beg(data);
+      runPack(data);
       playerCards(data, gameSocket);
     }
 
@@ -756,13 +774,17 @@ function determineIfCardsPlayable(player: PlayerSocket, roomId: string) {
   player.cards.forEach((card) => {
     const undertrumped = didUndertrump({ card: card, player: player.player, roomId: roomId, localId: '' });
 
+    // If the card has an ability that allows them to be played
+    if (card.ability == CardAbilities.alwaysPlayable) {
+      card.playable = true
+    }
     // If the player:
     // * Played a suit that wasn't called,
     // * Wasn't the first player to play for the round,
     // * Has cards in their hand that correspond to the called suit, and
     // * the card played is not trump,
     // then end function and do not add card to lift
-    if (roomUsers[roomId].called && card.suit != roomUsers[roomId].called.suit && !bare && card.suit != trump) {
+    else if (roomUsers[roomId].called && card.suit != roomUsers[roomId].called.suit && !bare && card.suit != trump) {
       card.playable = false;
     }
     // If the player attempted to undertrump, end function and do not add card to lift

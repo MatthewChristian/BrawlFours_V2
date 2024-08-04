@@ -85,9 +85,6 @@ export default function Gameboard({ roomId }: Props) {
       localId = socket.id
     }
 
-    console.log("LID: ", localId);
-    console.log("SID: ", socket.id);
-
     return ({
       roomId: roomId ? String(roomId) : undefined,
       localId: localId

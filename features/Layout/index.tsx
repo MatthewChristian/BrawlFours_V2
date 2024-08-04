@@ -115,10 +115,7 @@ export default function Layout({ children }: Props) {
 
   return (
     <>
-      <Suspense >
-        {children}
-      </Suspense>
-      {/* <Component {...pageProps} socket={socket} /> */}
+      {children}
     </>
   );
 }
