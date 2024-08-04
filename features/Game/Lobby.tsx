@@ -63,7 +63,7 @@ export default function Lobby() {
   function createRoom() {
 
     // Get ID stored in local storage, otherwise set it
-    let localId = localStorage.getItem("socketId") ?? undefined;
+    let localId = typeof window !== 'undefined' ? localStorage.getItem("socketId") ?? undefined : undefined;
 
     if (!localId && socket?.id) {
       localStorage.setItem("socketId", socket.id);
@@ -81,7 +81,7 @@ export default function Lobby() {
   // Join a room
   function joinRoom() {
     // Get ID stored in local storage, otherwise set it
-    let localId = localStorage.getItem("socketId") ?? undefined;
+    let localId = typeof window !== 'undefined' ? localStorage.getItem("socketId") ?? undefined : undefined;
 
     if (!localId && socket?.id) {
       localStorage.setItem("socketId", socket.id);
@@ -112,11 +112,6 @@ export default function Lobby() {
     }
   }
 
-  function handleLeaveRoom() {
-    dispatch(setRoomId(undefined));
-  }
-
-
   useEffect(() => {
     if (!matchWinner) {
       return;
@@ -132,7 +127,7 @@ export default function Lobby() {
       <div className='bg-white rounded-lg border border-gray-400 p-10'>
         <div className='text-3xl mb-5 text-center'>Brawl Fours</div>
         {roomId ? (
-          <Room roomId={roomId} onLeaveRoom={handleLeaveRoom}></Room>
+          <Room roomId={roomId}></Room>
         ) : (
           <div className="">
             <div className="">

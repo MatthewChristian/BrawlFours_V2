@@ -12,10 +12,9 @@ import { BasicRoomInput } from '../../models/BasicRoomInput';
 
 interface Props {
   roomId?: string;
-  onLeaveRoom: () => void;
 }
 
-export default function Room({ roomId, onLeaveRoom}: Props) {
+export default function Room({ roomId }: Props) {
 
   const router = useRouter();
 
@@ -29,7 +28,7 @@ export default function Room({ roomId, onLeaveRoom}: Props) {
   // Data to send to socket
   const socketData = useMemo(() => {
     // Get ID stored in local storage, otherwise set it
-    let localId = localStorage.getItem("socketId") ?? undefined;
+    let localId = typeof window !== 'undefined' ? localStorage.getItem("socketId") ?? undefined : undefined;
 
     if (!localId && socket?.id) {
       localStorage.setItem("socketId", socket.id);
@@ -49,7 +48,6 @@ export default function Room({ roomId, onLeaveRoom}: Props) {
     };
 
     socket.emit('leaveRoom', data);
-    onLeaveRoom();
   }
 
   function choosePartner(id: string) {
@@ -115,7 +113,7 @@ export default function Room({ roomId, onLeaveRoom}: Props) {
       </div>
 
       <div className='flex flex-row gap-5 mt-5'>
-        { players?.length > 0 && socket?.id == players[0].id ?
+        { players?.length > 0 && socketData.localId == players[0].id ?
           <Button className='green-button' disabled={players.length < 4} onClick={() => setChooseModalOpen(true)}>
             Start Game
           </Button> : undefined

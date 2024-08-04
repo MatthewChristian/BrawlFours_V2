@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef, RefObject, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { DeckCard } from '../../models/DeckCard';
 import PlayingCard from './PlayingCard';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { getBeg, getDealer, getLift, getLiftWinner, getMatchWinner, getMessage, getPlayerCards, getPlayerList, getRoundWinners, getTurn, setMessage } from '../../slices/game.slice';
+import { getBeg, getDealer, getLift, getLiftWinner, getMatchWinner, getMessage, getPlayerCards, getPlayerJoinedRoom, getPlayerList, getRoundWinners, getTurn, setMessage } from '../../slices/game.slice';
 import { PlayerSocket } from '../../models/PlayerSocket';
 import DealerIcon from './StatusIcons/DealerIcon';
 import TurnIcon from './StatusIcons/TurnIcon';
@@ -45,6 +45,8 @@ export default function Gameboard({ roomId }: Props) {
 
   const liftWinner = useAppSelector(getLiftWinner);
 
+  const playerJoinedRoom = useAppSelector(getPlayerJoinedRoom);
+
   // Cards in the hand of the client player
   const playerCards = useAppSelector(getPlayerCards);
 
@@ -76,12 +78,15 @@ export default function Gameboard({ roomId }: Props) {
   // Data to send to socket
   const socketData = useMemo(() => {
     // Get ID stored in local storage, otherwise set it
-    let localId = localStorage.getItem("socketId");
+    let localId = typeof window !== 'undefined' ? localStorage.getItem("socketId") ?? undefined : undefined;
 
     if (!localId && socket?.id) {
       localStorage.setItem("socketId", socket.id);
       localId = socket.id
     }
+
+    console.log("LID: ", localId);
+    console.log("SID: ", socket.id);
 
     return ({
       roomId: roomId ? String(roomId) : undefined,
@@ -91,8 +96,8 @@ export default function Gameboard({ roomId }: Props) {
 
   // Get player number from server
   const playerNumber = useMemo(() => {
-    return players.find(el => el.id == socket?.id)?.player;
-  }, [players]);
+    return players.find(el => el.id == socketData.localId)?.player;
+  }, [players, socketData]);
 
   // Determine whether or not it is the turn of the client player
   const isPlayer1Turn = useMemo(() => {
@@ -218,17 +223,32 @@ export default function Gameboard({ roomId }: Props) {
     displayPlayerCards(playerCards ?? []);
   }, [playerCards]);
 
-  /*
-    Initialise game
-  */
+
+  // Join room
   useEffect(() => {
-    socket.emit('initialiseGame', socketData);
+    if (!socketData?.roomId) {
+      router.push('/');
+      toast('Sorry, this room does not exist!', {
+        type: 'error',
+        hideProgressBar: true
+      });
+      return;
+    }
+
+    socket?.emit('joinRoom', socketData);
   }, [socketData]);
 
 
-  /*
-    Set player data
-  */
+  // Initialise game
+  useEffect(() => {
+    if (playerJoinedRoom) {
+      socket.emit('initialiseGame', socketData);
+    }
+  }, [socketData, playerJoinedRoom]);
+
+
+
+  // Set player data
   useEffect(() => {
 
     if (!players || players.length == 0 || !playerNumber) {
@@ -276,6 +296,7 @@ export default function Gameboard({ roomId }: Props) {
 
   }, [players, playerNumber]);
 
+  // Manage round winner modal
   useEffect(() => {
     if (roundWinners) {
       setRoundWinnersModalVisible(true);
@@ -283,6 +304,7 @@ export default function Gameboard({ roomId }: Props) {
     }
   }, [roundWinners]);
 
+  // Manage beg modals
   useEffect(() => {
     if (!begState) {
       return;
@@ -317,18 +339,7 @@ export default function Gameboard({ roomId }: Props) {
     }
   }, [begState, isPlayer1Dealer, isPlayer1Turn, turnPlayerData, dealerData]);
 
-  useEffect(() => {
-    if (!socketData?.roomId) {
-      router.push('/');
-      toast('Sorry, this room does not exist!', {
-        type: 'error',
-        hideProgressBar: true
-      });
-      return;
-    }
 
-    socket?.emit('joinRoom', socketData);
-  }, [socketData]);
 
   useEffect(() => {
     if (message) {
