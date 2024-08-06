@@ -1,4 +1,6 @@
 import { AbilityData } from "../../models/AbilityData";
+import { AbilityInput } from "../../models/AbilityInput";
+import { DeckCard } from "../../models/DeckCard";
 import { RoomSocket } from "../../models/RoomSocket";
 
 export enum CardAbilities {
@@ -16,7 +18,7 @@ export enum CardAbilities {
   hangSaver,        // 9
   twentyPoints,     // 10
   pointsForSaved,   // J
-  disableAbilities,     // Q
+  disableAbilities, // Q
   swapOppCard,      // K
   allyReplay,       // A
 
@@ -31,7 +33,7 @@ export enum CardAbilities {
 
   // Clubs
   twoWinGame,       // 2
-  randomAbility,      // 9
+  randomAbility,    // 9
   revealedBare,     // 10
   randomTrump,      // J
   swapAllyCard,     // Q
@@ -147,19 +149,32 @@ export function mapAbility(value: string, suit: string) {
   }
 }
 
-// TODO: Give back type AbilityData
-const abilityData = {
+const abilityData: Partial<AbilityData> = {
   [CardAbilities.alwaysPlayable]: {
     description: 'Can be played no matter what suit has been called',
-    ability: (roomData: RoomSocket) => alwaysPlayableAbility(roomData)
+    ability: (args: AbilityInput) => alwaysPlayableAbility(args)
+  },
+  [CardAbilities.ninePowerful]: {
+    description: 'If either team has 9 points for game, this card is the the most powerful card',
+    ability: (args: AbilityInput) => ninePowerfulAbility(args),
   },
 }
 
-export function handleAbility(roomData: RoomSocket, powerName: CardAbilities) {
-  return abilityData[powerName].ability(roomData);
+export function getAbilityData(ability: CardAbilities) {
+  return abilityData[ability];
+}
+
+export function handleAbility(args: AbilityInput) {
+  return abilityData[args.card.ability].ability(args);
 }
 
 
-function alwaysPlayableAbility(roomData: RoomSocket) {
+function alwaysPlayableAbility(args: AbilityInput) {
   console.log("alwaysPlayableAbility: Played");
+}
+
+function ninePowerfulAbility(args: AbilityInput) {
+  if (args.roomData.game.includes(9)) {
+    args.roomData.activeAbilities.push(CardAbilities.ninePowerful);
+  }
 }

@@ -1,9 +1,10 @@
 import { CardAbilities } from "../core/services/abilities";
-import { RoomSocket } from "./RoomSocket";
+import { AbilityInput } from "./AbilityInput";
 
 export type AbilityData = {
   [key in CardAbilities]: {
     description: string;
-    ability: (roomData: RoomSocket) => void;
+    ability: (args: AbilityInput) => void;
+    duration?: 'lift' | 'round';
   };
 };

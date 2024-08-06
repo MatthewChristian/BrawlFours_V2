@@ -11,6 +11,7 @@ import RoundWinnersModal from './Modals/RoundWinnersModal';
 import { socket } from '../SocketClient';
 import { CreateRoomInput } from '../../models/CreateRoomInput';
 import { JoinRoomInput } from '../../models/JoinRoomInput';
+import NinePowerfulIcon from './StatusIcons/NinePowerfulIcon';
 
 export default function Lobby() {
 
@@ -126,6 +127,7 @@ export default function Lobby() {
     <div className='bg-slate-200 h-screen flex flex-col justify-center items-center'>
       <div className='bg-white rounded-lg border border-gray-400 p-10'>
         <div className='text-3xl mb-5 text-center'>Brawl Fours</div>
+        <NinePowerfulIcon active />
         {roomId ? (
           <Room roomId={roomId}></Room>
         ) : (

@@ -7,6 +7,7 @@ import { LiftCard } from '../models/LiftCard';
 import { RoundWinners } from '../models/RoundWinners';
 import { BegResponseInput } from '../models/BegResponseInput';
 import { MatchWinner } from '../models/MatchWinner';
+import { CardAbilities } from '../core/services/abilities';
 
 
 
@@ -33,6 +34,7 @@ interface GameSlice {
   liftWinner?: number;
   gameStarted: boolean;
   playerJoinedRoom: boolean;
+  activeAbilities: CardAbilities[];
 }
 const initialState: GameSlice = {
   playerList: [],
@@ -44,7 +46,8 @@ const initialState: GameSlice = {
   lift: [],
   game: [0, 0],
   gameStarted: false,
-  playerJoinedRoom: false
+  playerJoinedRoom: false,
+  activeAbilities: []
 };
 
 /**
@@ -131,6 +134,10 @@ export const gameSlice = createSlice({
       state.playerJoinedRoom = action.payload;
     },
 
+    setActiveAbilities: (state, action: PayloadAction<CardAbilities[]>) => {
+      state.activeAbilities = action.payload;
+    },
+
   }
 });
 
@@ -160,6 +167,7 @@ export const {
   setGameStarted,
   setLiftWinner,
   setPlayerJoinedRoom,
+  setActiveAbilities,
 } =  gameSlice.actions;
 
 // Selectors
@@ -201,3 +209,5 @@ export const getLiftWinner = (state: RootState): number | undefined => state.gam
 export const getGameStarted = (state: RootState): boolean => state.gameSlice.gameStarted;
 
 export const getPlayerJoinedRoom = (state: RootState): boolean => state.gameSlice.playerJoinedRoom;
+
+export const getActiveAbilities = (state: RootState): CardAbilities[] => state.gameSlice.activeAbilities;

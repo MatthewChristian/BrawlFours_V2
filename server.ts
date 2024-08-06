@@ -12,7 +12,7 @@ import { PlayerSocket } from './models/PlayerSocket';
 import { BegResponseInput } from './models/BegResponseInput';
 import { PlayCardInput } from './models/PlayCardInput';
 import { delay } from './core/services/delay';
-import { CardAbilities, mapAbility } from './core/services/abilities';
+import { CardAbilities, handleAbility, mapAbility } from './core/services/abilities';
 
 const app = express();
 const server = createServer(app);
@@ -849,6 +849,8 @@ async function playCard(data: PlayCardInput, gameSocket: Socket) {
     roomUsers[data.roomId].called = cardData;
   }
 
+  // Trigger card ability if it has one
+  handleAbility({ roomData: roomUsers[data.roomId], card: cardData })
 
   // Remove card clicked from array
   playerCards.splice(cardIndex, 1);
@@ -860,6 +862,7 @@ async function playCard(data: PlayCardInput, gameSocket: Socket) {
   gameSocket.emit('playerCards', playerCards);
   io.to(data.roomId).emit('lift', roomUsers[data.roomId].lift);
   io.to(data.roomId).emit('turn', roomUsers[data.roomId].turn);
+  io.to(data.roomId).emit('activeAbilities', roomUsers[data.roomId].activeAbilities);
 
 
 
