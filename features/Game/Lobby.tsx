@@ -12,6 +12,16 @@ import { socket } from '../SocketClient';
 import { CreateRoomInput } from '../../models/CreateRoomInput';
 import { JoinRoomInput } from '../../models/JoinRoomInput';
 import NinePowerfulIcon from './StatusIcons/NinePowerfulIcon';
+import TrumpDisabledIcon from './StatusIcons/TrumpDisabledIcon';
+import NoWinLiftIcon from './StatusIcons/NoWinLiftIcon';
+import RoyalsDisabledIcon from './StatusIcons/RoyalsDisabledIcon';
+import AbilitiesDisabledIcon from './StatusIcons/AbilitiesDisabledIcon';
+import OppositePowerIcon from './StatusIcons/OppositePowerIcon';
+import AllyPlaysLastIcon from './StatusIcons/AllyPlaysLastIcon';
+import ChooseStarterIcon from './StatusIcons/ChooseStarterIcon';
+import DoublePointsIcon from './StatusIcons/DoublePointsIcon';
+import TwoWinGameIcon from './StatusIcons/TwoWinGameIcon';
+import DoubleLiftIcon from './StatusIcons/DoubleLiftIcon';
 
 export default function Lobby() {
 
@@ -127,7 +137,19 @@ export default function Lobby() {
     <div className='bg-slate-200 h-screen flex flex-col justify-center items-center'>
       <div className='bg-white rounded-lg border border-gray-400 p-10'>
         <div className='text-3xl mb-5 text-center'>Brawl Fours</div>
-        <NinePowerfulIcon active />
+        <div className='flex flex-wrap gap-2 my-5'>
+          <NinePowerfulIcon active />
+          <RoyalsDisabledIcon active />
+          <NoWinLiftIcon active />
+          <TrumpDisabledIcon active />
+          <AbilitiesDisabledIcon active />
+          <OppositePowerIcon active />
+          <AllyPlaysLastIcon active />
+          <ChooseStarterIcon active />
+          <DoublePointsIcon active />
+          <TwoWinGameIcon active />
+          <DoubleLiftIcon active />
+        </div>
         {roomId ? (
           <Room roomId={roomId}></Room>
         ) : (
