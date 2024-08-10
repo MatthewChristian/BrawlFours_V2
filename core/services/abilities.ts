@@ -39,6 +39,7 @@ export enum CardAbilities {
   swapAllyCard,     // Q
   doubleLift,       // K
   swapHands,        // A
+
 }
 
 export function mapAbility(value: string, suit: string) {
@@ -126,7 +127,7 @@ export function mapAbility(value: string, suit: string) {
       return CardAbilities.twoWinGame;
     }
     else if (value == '9') {
-      return CardAbilities.randomAbility;
+      return getRandomAbility();
     }
     else if (value == 'X') {
       return CardAbilities.revealedBare;
@@ -147,6 +148,25 @@ export function mapAbility(value: string, suit: string) {
       return undefined;
     }
   }
+}
+
+function getRandomAbility() {
+  let randomAbility: CardAbilities;
+  do {
+    const enumValues = (Object.values(CardAbilities) as unknown) as CardAbilities[];
+    const randomIndex = Math.floor(Math.random() * enumValues.length);
+    randomAbility = enumValues[randomIndex];
+  } while (randomAbility == CardAbilities.randomAbility); // Redo if function got random ability again
+
+  return randomAbility
+}
+
+export function getIsRandom(value: string, suit: string) {
+  if (value == '9' && suit == 'c') {
+    return true;
+  }
+
+  return false;
 }
 
 const abilityData: Partial<AbilityData> = {

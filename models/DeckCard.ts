@@ -7,4 +7,5 @@ export interface DeckCard {
   points: number;
   playable: boolean;
   ability: CardAbilities;
+  isRandom: boolean;
 }

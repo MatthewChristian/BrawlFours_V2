@@ -12,7 +12,7 @@ import { PlayerSocket } from './models/PlayerSocket';
 import { BegResponseInput } from './models/BegResponseInput';
 import { PlayCardInput } from './models/PlayCardInput';
 import { delay } from './core/services/delay';
-import { CardAbilities, handleAbility, mapAbility } from './core/services/abilities';
+import { CardAbilities, getIsRandom, handleAbility, mapAbility } from './core/services/abilities';
 
 const app = express();
 const server = createServer(app);
@@ -53,7 +53,7 @@ function generateRoomId() {
   let randomNumber: string;
   do {
     randomNumber = (Math.floor(Math.random() * 90000) + 10000).toString();
-  } while (io.of('/').adapter.rooms.get(randomNumber)); // Regenerate if ID is not uniqute
+  } while (io.of('/').adapter.rooms.get(randomNumber)); // Regenerate if ID is not unique
 
   return randomNumber.toString();
 }
@@ -296,7 +296,15 @@ function generateDeck(data: BasicRoomInput) {
   let card: DeckCard;
   for (let i = 0; i < suits.length; i++) {
     for (let j = 0; j < values.length; j++) {
-      card = { suit: suits[i], value: values[j], power: power[j], points: points[j], playable: false, ability: mapAbility(values[j], suits[i]) };
+      card = {
+        suit: suits[i],
+        value: values[j],
+        power: power[j],
+        points: points[j],
+        playable: false,
+        ability: mapAbility(values[j], suits[i]),
+        isRandom: getIsRandom(values[j], suits[i])
+      };
       deck.push(card);
     }
   }
@@ -923,6 +931,8 @@ async function liftScoring(data: BasicRoomInput) {
     // Add 100 points to power if card was trump, minus 100 points from power if card was not suit that was called
     const power = el.power + (el.suit == roomUsers[data.roomId].trump ? 100 : el.suit != roomUsers[data.roomId].called.suit ? -100 : 0);
     const player = roomUsers[data.roomId].users.find(usr => usr.player == el.player);
+
+    // If card ability
 
     if (el.suit == roomUsers[data.roomId].trump) {
 
