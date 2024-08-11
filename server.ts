@@ -873,7 +873,7 @@ async function playCard(data: PlayCardInput, gameSocket: Socket) {
   }
 
   // Trigger card ability if it has one
-  handleAbility({ roomData: roomUsers[data.roomId], card: cardData })
+  handleAbility({ roomData: roomUsers[data.roomId], card: cardData, socket: gameSocket, io: io });
 
   // Remove card clicked from array
   playerCards.splice(cardIndex, 1);

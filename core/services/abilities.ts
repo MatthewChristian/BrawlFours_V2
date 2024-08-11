@@ -182,6 +182,10 @@ const abilityData: Partial<AbilityData> = {
     ability: (args: AbilityInput) => trumpDisabledAbility(args),
     duration: 'lift'
   },
+  [CardAbilities.targetPowerless]: {
+    description: 'Choose a card in the lift to be powerless and be worth 0 points.',
+    ability: (args: AbilityInput) => targetPowerlessAbility(args),
+  },
 }
 
 export function getAbilityData(ability: CardAbilities) {
@@ -191,6 +195,11 @@ export function getAbilityData(ability: CardAbilities) {
 export function handleAbility(args: AbilityInput) {
   if (!args.roomData.activeAbilities) {
     args.roomData.activeAbilities = [];
+  }
+
+  // Check if abilities are disabled
+  if (args.roomData.activeAbilities.includes(CardAbilities.abilitiesDisabled)) {
+    return;
   }
 
   return abilityData[args.card.ability]?.ability(args);
@@ -209,4 +218,8 @@ function ninePowerfulAbility(args: AbilityInput) {
 
 function trumpDisabledAbility(args: AbilityInput) {
   args.roomData.activeAbilities.push(CardAbilities.trumpDisabled);
+}
+
+function targetPowerlessAbility(args: AbilityInput) {
+
 }
