@@ -374,7 +374,7 @@ export default function Gameboard({ roomId }: Props) {
 
       <div className='flex flex-row'>
 
-        <GameInfo playerTeam={player1Data.team} />
+        <GameInfo playerTeam={player1Data.team} socketData={socketData} />
 
         <div className="h-screen w-4/5">
 

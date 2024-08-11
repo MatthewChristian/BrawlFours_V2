@@ -8,6 +8,7 @@ import { RoundWinners } from '../models/RoundWinners';
 import { BegResponseInput } from '../models/BegResponseInput';
 import { MatchWinner } from '../models/MatchWinner';
 import { CardAbilities } from '../core/services/abilities';
+import { ChatMessage } from '../models/ChatMessage';
 
 
 
@@ -35,6 +36,7 @@ interface GameSlice {
   gameStarted: boolean;
   playerJoinedRoom: boolean;
   activeAbilities: CardAbilities[];
+  chatMessages: ChatMessage[];
 }
 const initialState: GameSlice = {
   playerList: [],
@@ -47,7 +49,8 @@ const initialState: GameSlice = {
   game: [0, 0],
   gameStarted: false,
   playerJoinedRoom: false,
-  activeAbilities: []
+  activeAbilities: [],
+  chatMessages: []
 };
 
 /**
@@ -138,6 +141,14 @@ export const gameSlice = createSlice({
       state.activeAbilities = action.payload;
     },
 
+    setChatMessages: (state, action: PayloadAction<ChatMessage[]>) => {
+      state.chatMessages = action.payload;
+    },
+
+    addChatMessage: (state, action: PayloadAction<ChatMessage>) => {
+      state.chatMessages.push(action.payload);
+    },
+
   }
 });
 
@@ -168,6 +179,8 @@ export const {
   setLiftWinner,
   setPlayerJoinedRoom,
   setActiveAbilities,
+  setChatMessages,
+  addChatMessage,
 } =  gameSlice.actions;
 
 // Selectors
@@ -211,3 +224,5 @@ export const getGameStarted = (state: RootState): boolean => state.gameSlice.gam
 export const getPlayerJoinedRoom = (state: RootState): boolean => state.gameSlice.playerJoinedRoom;
 
 export const getActiveAbilities = (state: RootState): CardAbilities[] => state.gameSlice.activeAbilities;
+
+export const getChatMessages = (state: RootState): ChatMessage[] => state.gameSlice.chatMessages;

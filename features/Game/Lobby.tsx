@@ -11,17 +11,6 @@ import RoundWinnersModal from './Modals/RoundWinnersModal';
 import { socket } from '../SocketClient';
 import { CreateRoomInput } from '../../models/CreateRoomInput';
 import { JoinRoomInput } from '../../models/JoinRoomInput';
-import NinePowerfulIcon from './StatusIcons/NinePowerfulIcon';
-import TrumpDisabledIcon from './StatusIcons/TrumpDisabledIcon';
-import NoWinLiftIcon from './StatusIcons/NoWinLiftIcon';
-import RoyalsDisabledIcon from './StatusIcons/RoyalsDisabledIcon';
-import AbilitiesDisabledIcon from './StatusIcons/AbilitiesDisabledIcon';
-import OppositePowerIcon from './StatusIcons/OppositePowerIcon';
-import AllyPlaysLastIcon from './StatusIcons/AllyPlaysLastIcon';
-import ChooseStarterIcon from './StatusIcons/ChooseStarterIcon';
-import DoublePointsIcon from './StatusIcons/DoublePointsIcon';
-import TwoWinGameIcon from './StatusIcons/TwoWinGameIcon';
-import DoubleLiftIcon from './StatusIcons/DoubleLiftIcon';
 
 export default function Lobby() {
 

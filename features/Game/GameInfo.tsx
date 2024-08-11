@@ -12,12 +12,15 @@ import OppositePowerIcon from './StatusIcons/OppositePowerIcon';
 import RoyalsDisabledIcon from './StatusIcons/RoyalsDisabledIcon';
 import TwoWinGameIcon from './StatusIcons/TwoWinGameIcon';
 import { CardAbilities } from '../../core/services/abilities';
+import Chatbox from './Chatbox';
+import { BasicRoomInput } from '../../models/BasicRoomInput';
 
 interface Props {
   playerTeam?: number;
+  socketData?: BasicRoomInput;
 }
 
-export default function GameInfo({ playerTeam } : Props) {
+export default function GameInfo({ playerTeam, socketData } : Props) {
 
 
   const kickedCards = useAppSelector(getKickedCards);
@@ -52,37 +55,41 @@ export default function GameInfo({ playerTeam } : Props) {
 
 
   return (
-    <div className="bg-red-100 p-2 h-screen w-1/5">
+    <div className="bg-red-100 p-2 h-screen w-1/5 z-[9999]">
 
-      <div className='flex flex-row'>
-        <PlayingCard isDeckCard className="deck"></PlayingCard>
+      <div className='h-[30vh]'>
         <div className='flex flex-row'>
-          <PlayingCard cardData={kickedCards ? kickedCards[0] : undefined} className="kicked-1" style={{ marginRight: -60 }}></PlayingCard>
-          <PlayingCard cardData={kickedCards ? kickedCards[1] : undefined} className="kicked-2" style={{ marginRight: -60 }}></PlayingCard>
-          <PlayingCard cardData={kickedCards ? kickedCards[2] : undefined} className="kicked-3" style={{ marginRight: -60 }}></PlayingCard>
-          <PlayingCard cardData={kickedCards ? kickedCards[3] : undefined} className="kicked-4" style={{ marginRight: -60 }}></PlayingCard>
+          <PlayingCard isDeckCard className="deck"></PlayingCard>
+          <div className='flex flex-row'>
+            <PlayingCard cardData={kickedCards ? kickedCards[0] : undefined} className="kicked-1" style={{ marginRight: -60 }}></PlayingCard>
+            <PlayingCard cardData={kickedCards ? kickedCards[1] : undefined} className="kicked-2" style={{ marginRight: -60 }}></PlayingCard>
+            <PlayingCard cardData={kickedCards ? kickedCards[2] : undefined} className="kicked-3" style={{ marginRight: -60 }}></PlayingCard>
+            <PlayingCard cardData={kickedCards ? kickedCards[3] : undefined} className="kicked-4" style={{ marginRight: -60 }}></PlayingCard>
+          </div>
+        </div>
+
+        <div className='flex flex-row flex-wrap gap-2 my-5'>
+          <AbilitiesDisabledIcon active={activeAbilities?.includes(CardAbilities.abilitiesDisabled)} />
+          <DoubleLiftIcon active={activeAbilities?.includes(CardAbilities.doubleLift)} />
+          <DoublePointsIcon active={activeAbilities?.includes(CardAbilities.doublePoints)} />
+          <NinePowerfulIcon active={activeAbilities?.includes(CardAbilities.ninePowerful)} />
+          <NoWinLiftIcon active={activeAbilities?.includes(CardAbilities.noWinLift)} />
+          <OppositePowerIcon active={activeAbilities?.includes(CardAbilities.oppositePower)} />
+          <RoyalsDisabledIcon active={activeAbilities?.includes(CardAbilities.royalsDisabled)} />
+          <TrumpDisabledIcon active={activeAbilities?.includes(CardAbilities.trumpDisabled)} />
+          <TwoWinGameIcon active={activeAbilities?.includes(CardAbilities.twoWinGame)} />
+        </div>
+
+        <div>
+          <p>Score: {teamScoreOrdered[0]} - {teamScoreOrdered[1]}</p>
+        </div>
+
+        <div>
+          <p>Game: {gameOrdered[0]} - {gameOrdered[1]}</p>
         </div>
       </div>
 
-      <div className='flex flex-row flex-wrap gap-2 my-5'>
-        <AbilitiesDisabledIcon active={activeAbilities?.includes(CardAbilities.abilitiesDisabled)} />
-        <DoubleLiftIcon active={activeAbilities?.includes(CardAbilities.doubleLift)} />
-        <DoublePointsIcon active={activeAbilities?.includes(CardAbilities.doublePoints)} />
-        <NinePowerfulIcon active={activeAbilities?.includes(CardAbilities.ninePowerful)} />
-        <NoWinLiftIcon active={activeAbilities?.includes(CardAbilities.noWinLift)} />
-        <OppositePowerIcon active={activeAbilities?.includes(CardAbilities.oppositePower)} />
-        <RoyalsDisabledIcon active={activeAbilities?.includes(CardAbilities.royalsDisabled)} />
-        <TrumpDisabledIcon active={activeAbilities?.includes(CardAbilities.trumpDisabled)} />
-        <TwoWinGameIcon active={activeAbilities?.includes(CardAbilities.twoWinGame)} />
-      </div>
-
-      <div>
-        <p>Score: {teamScoreOrdered[0]} - {teamScoreOrdered[1]}</p>
-      </div>
-
-      <div>
-        <p>Game: {gameOrdered[0]} - {gameOrdered[1]}</p>
-      </div>
+      <Chatbox socketData={socketData} />
 
     </div>
   );

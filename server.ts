@@ -13,6 +13,8 @@ import { BegResponseInput } from './models/BegResponseInput';
 import { PlayCardInput } from './models/PlayCardInput';
 import { delay } from './core/services/delay';
 import { CardAbilities, getAbilityData, getIsRandom, handleAbility, mapAbility } from './core/services/abilities';
+import { ChatInput } from './models/ChatInput';
+import { ChatMessage } from './models/ChatMessage';
 
 const app = express();
 const server = createServer(app);
@@ -47,6 +49,7 @@ io.on('connection', (socket) => {
   socket.on('begResponse', (data) => begResponse(data, socket));
   socket.on('redeal', (data) => initialiseGameCards(data));
   socket.on('playCard', async (data) => await playCard(data, socket));
+  socket.on('chat', (data) => handleChatMessage(data));
 });
 
 function generateRoomId() {
@@ -258,7 +261,24 @@ function setTeams(data: ChoosePartnerInput) {
   }
 }
 
+function handleChatMessage(data: ChatInput) {
+  if (io.of('/').adapter.rooms.get(data.roomId)) {
 
+    const sender: PlayerSocket = roomUsers[data.roomId].users.find(el => el.id == data.localId);
+
+    const message: ChatMessage = {
+      message: data.message,
+      sender: sender?.nickname,
+      messageColour: 'black',
+      senderColour: sender?.team == 1 ? '#3b82f6' : '#ef4444'
+    }
+
+    io.to(data.roomId).emit('chat', message);
+  }
+  else {
+    console.log(data.roomId + ': ' + 'Room doesnt exist');
+  }
+}
 
 
 // Game Logic
