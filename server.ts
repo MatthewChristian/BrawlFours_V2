@@ -266,14 +266,38 @@ function handleChatMessage(data: ChatInput) {
 
     const sender: PlayerSocket = roomUsers[data.roomId].users.find(el => el.id == data.localId);
 
-    const message: ChatMessage = {
-      message: data.message,
-      sender: sender?.nickname,
-      messageColour: 'black',
-      senderColour: sender?.team == 1 ? '#3b82f6' : '#ef4444'
-    }
+    // Loop through users in room
+    roomUsers[data.roomId].users.forEach((el) => {
 
-    io.to(data.roomId).emit('chat', message);
+      const message: ChatMessage = {
+        message: data.message,
+        sender: sender?.nickname,
+        messageColour: 'black',
+        senderColour: '#3b82f6',
+        mode: data.mode
+      };
+
+      // Set sender colour to blue if player is on same team as sender, otherwise set it to red
+      if (el.team == sender.team) {
+        message.senderColour = '#3b82f6';
+      }
+      else {
+        message.senderColour = '#ef4444';
+      }
+
+      // Send message to all users if chat mode was all
+      if (data.mode == 'all') {
+        message.modeColour = '#dc2626';
+        io.to(el.socketId).emit('chat', message);
+      }
+      // Send message to teammates if chat mode was team
+      else if (data.mode == 'team' && el.team == sender.team) {
+        message.modeColour = '#2563eb'
+        io.to(el.socketId).emit('chat', message);
+      }
+
+    });
+
   }
   else {
     console.log(data.roomId + ': ' + 'Room doesnt exist');

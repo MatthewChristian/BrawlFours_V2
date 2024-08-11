@@ -1,9 +1,10 @@
 import React, {  Suspense, useEffect } from 'react';
-import { addChatMessage, setActiveAbilities, setBeg, setChatMessages, setDealer, setDeck, setErrorMsg, setGame, setGameStarted, setJoinModalOpen, setKickedCards, setLift, setLiftWinner, setMatchWinner, setMessage, setPlayerCards, setPlayerJoinedRoom, setPlayerList, setRoomId, setRoundWinners, setTeamScore, setTurn } from '../../slices/game.slice';
+import { setActiveAbilities, setBeg, setDealer, setDeck, setErrorMsg, setGame, setGameStarted, setJoinModalOpen, setKickedCards, setLift, setLiftWinner, setMatchWinner, setMessage, setPlayerCards, setPlayerJoinedRoom, setPlayerList, setRoomId, setRoundWinners, setTeamScore, setTurn } from '../../slices/game.slice';
 import { useAppDispatch } from '../../store/hooks';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
 import { socket } from '../SocketClient';
+import { addChatMessage } from '../../slices/chat.slice';
 
 
 interface Props {
