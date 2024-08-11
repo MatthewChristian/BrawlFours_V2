@@ -8,4 +8,5 @@ export interface DeckCard {
   playable: boolean;
   ability: CardAbilities;
   isRandom: boolean;
+  trump: boolean;
 }

@@ -1,13 +1,11 @@
 import { AbilityData } from "../../models/AbilityData";
 import { AbilityInput } from "../../models/AbilityInput";
-import { DeckCard } from "../../models/DeckCard";
-import { RoomSocket } from "../../models/RoomSocket";
 
 export enum CardAbilities {
   // Spades
-  alwaysPlayable,   // 2
+  alwaysPlayable,   // 2 TESTED
   ninePowerful,     // 9
-  trumpDisabled,    // 10
+  trumpDisabled,    // 10 TESTED
   targetPowerless,  // J
   noWinLift,        // Q
   shuffleHand,      // K
@@ -18,7 +16,7 @@ export enum CardAbilities {
   hangSaver,        // 9
   twentyPoints,     // 10
   pointsForSaved,   // J
-  disableAbilities, // Q
+  abilitiesDisabled,// Q
   swapOppCard,      // K
   allyReplay,       // A
 
@@ -35,7 +33,7 @@ export enum CardAbilities {
   twoWinGame,       // 2
   randomAbility,    // 9
   revealedBare,     // 10
-  randomTrump,      // J
+  nextCardTrump,    // J
   swapAllyCard,     // Q
   doubleLift,       // K
   swapHands,        // A
@@ -84,7 +82,7 @@ export function mapAbility(value: string, suit: string) {
       return CardAbilities.pointsForSaved;
     }
     else if (value == 'Q') {
-      return CardAbilities.disableAbilities;
+      return CardAbilities.abilitiesDisabled;
     }
     else if (value == 'K') {
       return CardAbilities.swapOppCard;
@@ -133,7 +131,7 @@ export function mapAbility(value: string, suit: string) {
       return CardAbilities.revealedBare;
     }
     else if (value == 'J') {
-      return CardAbilities.randomTrump;
+      return CardAbilities.nextCardTrump;
     }
     else if (value == 'Q') {
       return CardAbilities.swapAllyCard;
@@ -172,11 +170,17 @@ export function getIsRandom(value: string, suit: string) {
 const abilityData: Partial<AbilityData> = {
   [CardAbilities.alwaysPlayable]: {
     description: 'Can be played no matter what suit has been called',
-    ability: (args: AbilityInput) => alwaysPlayableAbility(args)
+    ability: (args: AbilityInput) => alwaysPlayableAbility(args),
   },
   [CardAbilities.ninePowerful]: {
     description: 'If either team has 9 points for game, this card is the the most powerful card',
     ability: (args: AbilityInput) => ninePowerfulAbility(args),
+    duration: 'lift'
+  },
+  [CardAbilities.trumpDisabled]: {
+    description: 'Nobody can play trump this turn unless they are flush.',
+    ability: (args: AbilityInput) => trumpDisabledAbility(args),
+    duration: 'lift'
   },
 }
 
@@ -185,7 +189,11 @@ export function getAbilityData(ability: CardAbilities) {
 }
 
 export function handleAbility(args: AbilityInput) {
-  return abilityData[args.card.ability].ability(args);
+  if (!args.roomData.activeAbilities) {
+    args.roomData.activeAbilities = [];
+  }
+
+  return abilityData[args.card.ability]?.ability(args);
 }
 
 
@@ -197,4 +205,8 @@ function ninePowerfulAbility(args: AbilityInput) {
   if (args.roomData.game.includes(9)) {
     args.roomData.activeAbilities.push(CardAbilities.ninePowerful);
   }
+}
+
+function trumpDisabledAbility(args: AbilityInput) {
+  args.roomData.activeAbilities.push(CardAbilities.trumpDisabled);
 }

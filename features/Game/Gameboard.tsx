@@ -14,6 +14,7 @@ import RoundWinnersModal from './Modals/RoundWinnersModal';
 import { RoundWinners } from '../../models/RoundWinners';
 import { useRouter } from 'next/navigation';
 import { socket } from '../SocketClient';
+import AbilitiesDisabledIcon from './StatusIcons/AbilitiesDisabledIcon';
 
 interface Props {
   roomId?: string;

@@ -128,6 +128,22 @@ export default function PlayingCard({
     }
   }
 
+  function getGlowClassName() {
+    if (isNotPlayable) {
+      return '';
+    }
+
+    if (cardData.playable) {
+      if (cardData.trump) {
+        return 'gold-glow';
+      }
+
+      return 'blue-glow';
+    }
+
+    return '';
+  }
+
   useEffect(() => {
     if (!focused) {
       setY(0);
@@ -171,7 +187,7 @@ export default function PlayingCard({
                 sizes="10vw"
                 style={{ objectFit: 'fill' }}
                 alt='card'
-                className={`${cardData?.playable && !isNotPlayable ? 'blue-glow' : ''}`}
+                className={getGlowClassName()}
               />
             </div>
           </motion.div>

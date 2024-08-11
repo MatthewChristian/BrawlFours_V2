@@ -12,7 +12,7 @@ import { PlayerSocket } from './models/PlayerSocket';
 import { BegResponseInput } from './models/BegResponseInput';
 import { PlayCardInput } from './models/PlayCardInput';
 import { delay } from './core/services/delay';
-import { CardAbilities, getIsRandom, handleAbility, mapAbility } from './core/services/abilities';
+import { CardAbilities, getAbilityData, getIsRandom, handleAbility, mapAbility } from './core/services/abilities';
 
 const app = express();
 const server = createServer(app);
@@ -303,7 +303,8 @@ function generateDeck(data: BasicRoomInput) {
         points: points[j],
         playable: false,
         ability: mapAbility(values[j], suits[i]),
-        isRandom: getIsRandom(values[j], suits[i])
+        isRandom: getIsRandom(values[j], suits[i]),
+        trump: false
       };
       deck.push(card);
     }
@@ -768,23 +769,37 @@ function didUndertrump(data: PlayCardInput) {
 
 function determineIfCardsPlayable(player: PlayerSocket, roomId: string) {
   let bare = true;
+  let flush = true;
   const trump = roomUsers[roomId].trump;
 
-  // Determine if a player does not have a card in the suit of the card that was called
-  if (roomUsers[roomId].called) {
-    player.cards.forEach((el) => {
-      if (el.suit == roomUsers[roomId].called.suit) {
-        bare = false;
-      }
-    });
-  }
+
+  player.cards.forEach((el) => {
+    // Determine which cards are trump
+    if (el.suit == roomUsers[roomId].trump) {
+      el.trump = true;
+    }
+
+    // Determine if a player does not have a card in the suit of the card that was called
+    if (roomUsers[roomId].called && el.suit == roomUsers[roomId].called.suit) {
+      bare = false;
+    }
+
+    // Determine if player is flush (only has trump in hand)
+    if (!el.trump) {
+      flush = false;
+    }
+  });
 
   player.cards.forEach((card) => {
     const undertrumped = didUndertrump({ card: card, player: player.player, roomId: roomId, localId: '' });
 
     // If the card has an ability that allows them to be played
     if (card.ability == CardAbilities.alwaysPlayable) {
-      card.playable = true
+      card.playable = true;
+    }
+    // If card is trump but trump is disabled for that round and the player is not flush
+    else if (roomUsers[roomId].activeAbilities?.includes(CardAbilities.trumpDisabled) && card.trump && !flush) {
+      card.playable = false;
     }
     // If the player:
     // * Played a suit that wasn't called,
@@ -1001,6 +1016,10 @@ async function liftScoring(data: BasicRoomInput) {
   roomUsers[data.roomId].called = undefined;
   roomUsers[data.roomId].turn = liftWinnerPlayer.player;
 
+  // Remove abilities that only last for a lift
+  const removedLiftAbilities = roomUsers[data.roomId].activeAbilities?.filter(el => getAbilityData(el).duration != 'lift');
+  roomUsers[data.roomId].activeAbilities = removedLiftAbilities;
+
   // Set playable status of cards of player whose turn is next
   setCardsPlayability(data.roomId);
 
@@ -1011,6 +1030,7 @@ async function liftScoring(data: BasicRoomInput) {
   io.to(data.roomId).emit('turn', roomUsers[data.roomId].turn);
   io.to(data.roomId).emit('lift', undefined);
   io.to(data.roomId).emit('game', roomUsers[data.roomId].game);
+  io.to(data.roomId).emit('activeAbilities', roomUsers[data.roomId].activeAbilities);
 
 }
 

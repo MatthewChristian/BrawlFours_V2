@@ -69,7 +69,13 @@
 }
 
 .blue-glow {
--webkit-box-shadow: 0px 0px 8px 0px rgba(0, 200, 255, 0.9);
+  -webkit-box-shadow: 0px 0px 8px 0px rgba(0, 200, 255, 0.9);
   -moz-box-shadow: 0px 0px 8px 0px rgba(0, 200, 255, 0.9);
   box-shadow: 0px 0px 8px 0px rgba(0, 200, 255, 0.9);
+}
+
+.gold-glow {
+-webkit-box-shadow: 0px 0px 8px 0px rgba(242, 190, 0, 0.9);
+  -moz-box-shadow: 0px 0px 8px 0px rgba(242, 190, 0, 0.9);
+  box-shadow: 0px 0px 8px 0px rgba(242, 190, 0, 0.9);
 }
