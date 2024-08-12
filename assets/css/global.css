@@ -115,3 +115,16 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #64748b;
 }
+
+/***** MODAL *****/
+.popup-content {
+  border-radius: 30px;
+  width: 25em !important;
+  padding-top: 30px !important;
+  padding-bottom: 30px !important;
+  background-color: white !important;
+}
+
+.popup-overlay {
+  background: rgba(0, 0, 0, 0.5);
+}

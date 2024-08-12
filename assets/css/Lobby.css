@@ -22,13 +22,6 @@ body {
     text-align: center;
 }
 
-.popup-content {
-    border-radius: 30px;
-    width: 25em !important;
-    padding-top: 30px !important;
-    padding-bottom: 30px !important;
-  }
-
 .game-button {
     border-radius: 25px;
     border-style: solid;
