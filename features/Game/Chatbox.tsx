@@ -1,5 +1,4 @@
-import React, { useRef } from 'react'
-import Input from '../../core/components/Input'
+import React, { useEffect, useRef } from 'react'
 import { socket } from '../SocketClient';
 import { BasicRoomInput } from '../../models/BasicRoomInput';
 import { useAppSelector } from '../../store/hooks';
@@ -13,6 +12,7 @@ interface Props {
 export default function Chatbox({ socketData }: Props) {
 
   const chatInputRef = useRef<HTMLInputElement>(null);
+  const chatBoxRef = useRef<HTMLInputElement>(null);
 
   const chatMessages = useAppSelector(getChatMessages);
 
@@ -31,11 +31,15 @@ export default function Chatbox({ socketData }: Props) {
     socket.emit('chat', { ...socketData, message: message, mode: chatMode });
   }
 
+  useEffect(() => {
+    const lastMessage = chatBoxRef?.current?.lastElementChild;
 
+    lastMessage?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  }, [chatMessages]);
 
   return (
     <div className='h-[68vh] flex flex-col justify-between w-full'>
-      <div className='flex flex-col gap-2 h-[58vh] w-full overflow-y-scroll pr-1'>
+      <div ref={chatBoxRef} className='flex flex-col gap-2 h-[58vh] w-full overflow-y-scroll pr-1'>
         {chatMessages?.map(msg => <div className='flex-none text-balance whitespace-normal break-words'>
           { msg.mode ?
             <span className='mr-1' style={{ color: msg.modeColour }}>
