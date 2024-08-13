@@ -1,6 +1,8 @@
 import { AbilityData } from "../../models/AbilityData";
 import { AbilityInput } from "../../models/AbilityInput";
 
+const hangSaverPointsEarned = 3;
+
 export enum CardAbilities {
   // Spades
   alwaysPlayable,   // 2 TESTED
@@ -178,12 +180,96 @@ const abilityData: Partial<AbilityData> = {
     duration: 'lift'
   },
   [CardAbilities.trumpDisabled]: {
-    description: 'Nobody can play trump this turn unless they are flush.',
+    description: 'Nobody can play trump this turn unless they are flush',
     ability: (args: AbilityInput) => trumpDisabledAbility(args),
     duration: 'lift'
   },
   [CardAbilities.targetPowerless]: {
-    description: 'Choose a card in the lift to be powerless and be worth 0 points.',
+    description: 'Choose a card in the lift to be powerless and be worth 0 points',
+    ability: (args: AbilityInput) => targetPowerlessAbility(args),
+  },
+  [CardAbilities.noWinLift]: {
+    description: 'Nobody wins the current lift',
+    ability: (args: AbilityInput) => targetPowerlessAbility(args),
+    duration: 'lift'
+  },
+  [CardAbilities.shuffleHand]: {
+    description: 'Shuffle your hand into the deck and get redealt the amount of cards you had',
+    ability: (args: AbilityInput) => targetPowerlessAbility(args),
+  },
+  [CardAbilities.royalsDisabled]: {
+    description: 'No royals can be played this turn unless they are flush',
+    ability: (args: AbilityInput) => targetPowerlessAbility(args),
+    duration: 'lift'
+  },
+  [CardAbilities.hangSaver]: {
+    description: "Can save your teammate's Jack from being hung and earn 3 points for Jack if successful",
+    ability: (args: AbilityInput) => targetPowerlessAbility(args),
+  },
+  [CardAbilities.twentyPoints]: {
+    description: 'Worth 20 points for game',
+    ability: (args: AbilityInput) => targetPowerlessAbility(args),
+  },
+  [CardAbilities.pointsForSaved]: {
+    description: 'If saved from hanging, get 10 points for game',
+    ability: (args: AbilityInput) => targetPowerlessAbility(args),
+  },
+  [CardAbilities.abilitiesDisabled]: {
+    description: 'All other abilities are disabled for this turn',
+    ability: (args: AbilityInput) => targetPowerlessAbility(args),
+    duration: 'lift'
+  },
+  [CardAbilities.swapOppCard]: {
+    description: "Swap one of your cards with a random card from an opponent of your choosing",
+    ability: (args: AbilityInput) => targetPowerlessAbility(args),
+  },
+  [CardAbilities.allyReplay]: {
+    description: "Allow your ally to take back their card and play again",
+    ability: (args: AbilityInput) => targetPowerlessAbility(args),
+  },
+  [CardAbilities.forceStand]: {
+    description: "If in your hand when dealing, can force opponent to stand without giving a point",
+    ability: (args: AbilityInput) => targetPowerlessAbility(args),
+  },
+  [CardAbilities.ninePoints]: {
+    description: "This card is worth 9 points for game",
+    ability: (args: AbilityInput) => targetPowerlessAbility(args),
+  },
+  [CardAbilities.oppositePower]: {
+    description: "Card power is opposite this turn",
+    ability: (args: AbilityInput) => targetPowerlessAbility(args),
+    duration: 'lift'
+  },
+  [CardAbilities.chooseStarter]: {
+    description: "Choose a player to play first next turn",
+    ability: (args: AbilityInput) => targetPowerlessAbility(args),
+    duration: 'lift'
+  },
+  [CardAbilities.twoWinGame]: {
+    description: "If every 2 has already been played this round, win game for that round",
+    ability: (args: AbilityInput) => targetPowerlessAbility(args),
+    duration: 'round'
+  },
+  [CardAbilities.revealedBare]: {
+    description: "If you are revealed to have no trump then this card becomes trump",
+    ability: (args: AbilityInput) => targetPowerlessAbility(args),
+  },
+  [CardAbilities.nextCardTrump]: {
+    description: "The next card you play becomes trump",
+    ability: (args: AbilityInput) => targetPowerlessAbility(args),
+    duration: 'round'
+  },
+  [CardAbilities.swapAllyCard]: {
+    description: "Swap a card with your ally",
+    ability: (args: AbilityInput) => targetPowerlessAbility(args),
+  },
+  [CardAbilities.doubleLift]: {
+    description: "Leave the current lift on table and the winner of next lift takes both lifts",
+    ability: (args: AbilityInput) => targetPowerlessAbility(args),
+    duration: 'lift'
+  },
+  [CardAbilities.swapHands]: {
+    description: "Swap hands with any player",
     ability: (args: AbilityInput) => targetPowerlessAbility(args),
   },
 }
