@@ -15,6 +15,7 @@ import { delay } from './core/services/delay';
 import { CardAbilities, getAbilityData, getIsRandom, handleAbility, mapAbility } from './core/services/abilities';
 import { ChatInput } from './models/ChatInput';
 import { ChatMessage } from './models/ChatMessage';
+import { getCardName } from './core/services/parseCard';
 
 const app = express();
 const server = createServer(app);
@@ -51,6 +52,16 @@ io.on('connection', (socket) => {
   socket.on('playCard', async (data) => await playCard(data, socket));
   socket.on('chat', (data) => handleChatMessage(data));
 });
+
+function sendSystemMessage(message: string, roomId: string, colour?: string) {
+  const messageObj: ChatMessage = {
+    message: message,
+    messageColour: colour ?? '#f59e0b',
+    mode: 'log'
+  };
+
+  io.to(roomId).emit('chat', messageObj);
+}
 
 function generateRoomId() {
   let randomNumber: string;
@@ -361,12 +372,18 @@ function generateDeck(data: BasicRoomInput) {
 /*
    Check to see what card that the dealer has kicked
  */
-function checkKicked(kicked: DeckCard, roomId: string, dealerTeam: number) {
+function checkKicked(kicked: DeckCard, roomId: string, dealer: PlayerSocket) {
   if (!roomUsers[roomId].teamScore) {
     roomUsers[roomId].teamScore = [0, 0];
   }
 
+  const dealerTeam = dealer.team;
+  const dealerName = dealer.nickname;
+
+  let kickedPointsText: string;
+
   if (kicked.value == '6') {
+    kickedPointsText = 'a six!!';
     if (dealerTeam == 1) {
       roomUsers[roomId].teamScore[0] += 2;
     }
@@ -375,6 +392,7 @@ function checkKicked(kicked: DeckCard, roomId: string, dealerTeam: number) {
     }
   }
   if (kicked.value == 'J') {
+    kickedPointsText = 'a Jack!!!';
     if (dealerTeam == 1) {
       roomUsers[roomId].teamScore[0] += 3;
     }
@@ -383,12 +401,23 @@ function checkKicked(kicked: DeckCard, roomId: string, dealerTeam: number) {
     }
   }
   if (kicked.value == 'A') {
+    kickedPointsText = 'an Ace!';
     if (dealerTeam == 1) {
       roomUsers[roomId].teamScore[0]++;
     }
     else {
       roomUsers[roomId].teamScore[1]++;
     }
+  }
+
+  if (kickedPointsText) {
+    const message = dealerName + ' kicked ' + kickedPointsText;
+    sendSystemMessage(message, roomId, '#22c55e');
+
+    io.to(roomId).emit('message', {
+      message: message,
+      shortcode: 'KICKED'
+    });
   }
 
   const matchWinner = determineMatchEnd(roomId);
@@ -423,9 +452,9 @@ function kickCard(data: BasicRoomInput) {
 
   roomUsers[data.roomId].trump = kickVal.suit;
 
-  const dealerTeam = roomUsers[data.roomId].users.find(el => el.player == roomUsers[data.roomId].dealer).team;
+  const dealer = roomUsers[data.roomId].users.find(el => el.player == roomUsers[data.roomId].dealer);
 
-  const matchWon = checkKicked(kickVal, data.roomId, dealerTeam);
+  const matchWon = checkKicked(kickVal, data.roomId, dealer);
 
   roomUsers[data.roomId].trump = kickVal.suit;
 
@@ -915,6 +944,8 @@ async function playCard(data: PlayCardInput, gameSocket: Socket) {
   if (!roomUsers[data.roomId].called) {
     roomUsers[data.roomId].called = cardData;
   }
+
+  sendSystemMessage(player.nickname + ' played ' + getCardName(cardData), data.roomId);
 
   // Trigger card ability if it has one
   handleAbility({ roomData: roomUsers[data.roomId], card: cardData, socket: gameSocket, io: io });
