@@ -21,11 +21,7 @@ export default function ChatInput({ inputRef, className, placeholder, onChange, 
 
   const toggleClassName = 'hover:cursor-pointer transition ease-in-out duration-300 text-white text-sm flex items-center justify-center w-16 h-10 px-2 mr-1';
 
-  const [inputVal, setInputVal] = useState<string>('');
-
   function handleOnChange(value: string) {
-    setInputVal(value);
-
     if (onChange) {
       onChange(value);
     }
@@ -33,7 +29,7 @@ export default function ChatInput({ inputRef, className, placeholder, onChange, 
 
   return (
     <div>
-      <div className='rounded-lg bg-white border border-black flex flex-row justify-between items-center'>
+      <div className='rounded-lg bg-white border border-black flex flex-row justify-between items-center shadow-md'>
 
       { chatMode == 'all' ?
         <div
@@ -74,7 +70,7 @@ export default function ChatInput({ inputRef, className, placeholder, onChange, 
       </div>
 
       {charLimit ?
-        <div className={`${inputVal.length > charLimit ? 'text-red-400' : 'text-gray-400'} text-sm flex justify-end mx-2`}>{inputVal.length}/{charLimit}</div>
+        <div className={`${inputRef?.current?.value?.length > charLimit ? 'text-red-400' : 'text-gray-400'} text-sm flex justify-end mx-2`}>{inputRef?.current?.value?.length}/{charLimit}</div>
         : undefined
       }
     </div>
