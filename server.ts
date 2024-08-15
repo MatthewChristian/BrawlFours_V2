@@ -1100,6 +1100,8 @@ async function liftScoring(data: BasicRoomInput) {
 
   io.to(data.roomId).emit('liftWinner', liftWinnerPlayer.player);
 
+  sendSystemMessage(liftWinnerPlayer.nickname + ' won the lift!', data.roomId, '#f97316');
+
   // Wait 1.5 seconds before emitting to allow players to see last card played
   await delay(1500);
   io.to(data.roomId).emit('turn', roomUsers[data.roomId].turn);
@@ -1138,7 +1140,19 @@ function roundScoring(data: BasicRoomInput) {
 
   io.to(data.roomId).emit('roundWinners', { ...roundWinners });
 
+
   let matchWinner: number;
+
+  // Send chat log for high, low and jack winner
+  sendSystemMessage(roundWinners.highWinner.nickname + ' won high!', data.roomId, '#22c55e');
+  sendSystemMessage(roundWinners.lowWinner.nickname + ' won low!', data.roomId, '#22c55e');
+
+  if (roundWinners.jackWinner) {
+    const jackWinnerMsg = roundWinners.hangJack ? ' hung Jack!!!' : ' won Jack!';
+    sendSystemMessage(roundWinners.jackWinner.nickname + jackWinnerMsg, data.roomId, '#22c55e');
+  }
+
+
 
   // Assign scores
   if (!roomUsers[data.roomId].teamScore) {
@@ -1196,15 +1210,30 @@ function roundScoring(data: BasicRoomInput) {
     return;
   }
 
+  let gameWinnerTeam;
+
   // Assign points for game
   if (roomUsers[data.roomId].game) {
     if (roomUsers[data.roomId].game[0] > roomUsers[data.roomId].game[1]) {
       roomUsers[data.roomId].teamScore[0] = roomUsers[data.roomId].teamScore[0] + (roomUsers[data.roomId].gameIsTwo ? 2 : 1);
+      gameWinnerTeam = 1;
     }
     else {
       roomUsers[data.roomId].teamScore[1] = roomUsers[data.roomId].teamScore[1] + (roomUsers[data.roomId].gameIsTwo ? 2 : 1);
+      gameWinnerTeam = 2;
     }
   }
+
+  // Send chat log for game winner
+  roomUsers[data.roomId].users.forEach((el, i) => {
+    if (el.team == gameWinnerTeam) {
+      sendSystemMessage('Your team won game!', data.roomId, '#22c55e' )
+    }
+    else {
+      sendSystemMessage('The opposing team won game!', data.roomId, '#22c55e')
+    }
+  });
+
   matchWinner = determineMatchEnd(data.roomId);
   if (matchWinner) {
     announceWinner(data.roomId);

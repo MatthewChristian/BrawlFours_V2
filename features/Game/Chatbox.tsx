@@ -38,10 +38,10 @@ export default function Chatbox({ socketData }: Props) {
   }, [chatMessages]);
 
   return (
-    <div className='h-[68vh] flex flex-col justify-between w-full'>
+    <div className='h-[68vh] flex flex-col justify-between w-full bg-white rounded-lg px-2 pt-2 shadow'>
       <div ref={chatBoxRef} className='flex flex-col gap-2 h-[58vh] w-full overflow-y-scroll pr-1'>
         {chatMessages?.map(msg => <div className='flex-none text-balance whitespace-normal break-words'>
-          { msg.mode ?
+          { msg.mode && msg.mode != 'log' ?
             <span className='mr-1' style={{ color: msg.modeColour }}>
               {
                 "[" + msg.mode?.toUpperCase() + "]"
@@ -61,7 +61,7 @@ export default function Chatbox({ socketData }: Props) {
         </div>)}
       </div>
 
-      <div className=''>
+      <div>
         <ChatInput
           inputRef={chatInputRef}
           placeholder=""
