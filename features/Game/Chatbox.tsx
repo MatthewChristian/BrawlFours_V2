@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { socket } from '../SocketClient';
 import { BasicRoomInput } from '../../models/BasicRoomInput';
 import { useAppSelector } from '../../store/hooks';
@@ -16,17 +16,12 @@ export default function Chatbox({ socketData }: Props) {
 
   const chatMessages = useAppSelector(getChatMessages);
 
+  const [prevScrollHeight, setPrevScrollHeight] = useState<number>(0);
+
   const chatMode = useAppSelector(getChatMode);
 
   function handleChatSend() {
     const message = chatInputRef?.current?.value;
-
-    // If message is too long, do not send it to the server
-    if (message.length > 50) {
-      return;
-    }
-
-    chatInputRef.current.value = '';
 
     socket.emit('chat', { ...socketData, message: message, mode: chatMode });
   }
@@ -34,12 +29,20 @@ export default function Chatbox({ socketData }: Props) {
   useEffect(() => {
     const lastMessage = chatBoxRef?.current?.lastElementChild;
 
-    lastMessage?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    const isScrolledToBottom = Math.ceil(chatBoxRef?.current?.scrollTop + chatBoxRef?.current?.clientHeight) >= prevScrollHeight;
+
+    setPrevScrollHeight(chatBoxRef?.current?.scrollHeight);
+
+    if (isScrolledToBottom) {
+      lastMessage?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+
   }, [chatMessages]);
 
   return (
     <div className='h-[68vh] flex flex-col justify-between w-full bg-white rounded-lg px-2 pt-2 shadow'>
-      <div ref={chatBoxRef} className='flex flex-col gap-2 h-[58vh] w-full overflow-y-scroll pr-1'>
+      <div onClick={() => console.log("ScrollTop: ", chatBoxRef?.current?.scrollTop)}>Hello</div>
+      <div ref={chatBoxRef} className='flex flex-col gap-2 h-[58vh] w-full overflow-y-scroll pr-1 bg-blue-200'>
         {chatMessages?.map(msg => <div className='flex-none text-balance whitespace-normal break-words'>
           { msg.mode && msg.mode != 'log' ?
             <span className='mr-1' style={{ color: msg.modeColour }}>
