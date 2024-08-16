@@ -1,4 +1,4 @@
-import React, { RefObject, useState } from 'react';
+import React, { RefObject, useEffect, useState } from 'react';
 import { IoSend } from "react-icons/io5";
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { getChatMode, setChatMode } from '../../../slices/chat.slice';
@@ -19,12 +19,30 @@ export default function ChatInput({ inputRef, className, placeholder, onChange, 
 
   const chatMode = useAppSelector(getChatMode);
 
+  const [inputVal, setInputVal] = useState<string>('');
+
   const toggleClassName = 'hover:cursor-pointer transition ease-in-out duration-300 text-white text-sm flex items-center justify-center w-16 h-10 px-2 mr-1';
 
   function handleOnChange(value: string) {
+    setInputVal(value ?? '');
+
     if (onChange) {
       onChange(value);
     }
+  }
+
+  function handleSend() {
+    // If message is too long, do not send it to the server
+    if (charLimit && inputVal.length > charLimit) {
+      return;
+    }
+
+    if (onSend) {
+      onSend();
+    }
+
+    setInputVal('');
+    inputRef.current.value = '';
   }
 
   return (
@@ -57,12 +75,12 @@ export default function ChatInput({ inputRef, className, placeholder, onChange, 
           placeholder={placeholder ?? 'Enter input...'}
           onChange={(val) => handleOnChange(val.target.value)}
           defaultValue={defaultValue}
-          onKeyDown={onSend ? (target) => { target.key == 'Enter' ? onSend() : undefined; } : undefined}
+          onKeyDown={(target) => { target.key == 'Enter' ? handleSend() : undefined; }}
         />
 
         <div
           className='ml-1 p-2 transition ease-in-out duration-300 text-sky-500 hover:text-sky-400 hover:cursor-pointer'
-          onClick={onSend ? () => onSend() : undefined}
+          onClick={handleSend}
         >
           <IoSend size={24} />
         </div>
@@ -70,7 +88,7 @@ export default function ChatInput({ inputRef, className, placeholder, onChange, 
       </div>
 
       {charLimit ?
-        <div className={`${inputRef?.current?.value?.length > charLimit ? 'text-red-400' : 'text-gray-400'} text-sm flex justify-end mx-2`}>{inputRef?.current?.value?.length}/{charLimit}</div>
+        <div className={`${inputVal?.length > charLimit ? 'text-red-400' : 'text-gray-400'} text-sm flex justify-end mx-2`}>{inputVal?.length}/{charLimit}</div>
         : undefined
       }
     </div>
