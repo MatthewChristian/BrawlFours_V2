@@ -759,24 +759,25 @@ function begResponse(data: BegResponseInput, gameSocket: Socket) {
     // Reset round states
     resetRoundState(data.roomId);
 
+    const begger = roomUsers[data.roomId].users.find(el => el.player == roomUsers[data.roomId].turn);
+    const dealer = roomUsers[data.roomId].users.find(el => el.player == roomUsers[data.roomId].dealer);
+
     if (data.response == 'begged') {
       roomUsers[data.roomId].beg = 'begged';
       io.to(data.roomId).emit('message', {
-        message: roomUsers[data.roomId].users.find(el => el.player == roomUsers[data.roomId].turn).nickname + ' has begged!',
+        message: begger.nickname + ' has begged!',
         shortcode: 'BEGGED'
       });
+      sendSystemMessage(begger.nickname + ' has begged!', data.roomId, "#2dd4bf");
     }
     else if (data.response == 'stand') {
       roomUsers[data.roomId].beg = 'stand';
-      // io.to(data.roomId).emit('message', {
-      //   message: roomUsers[data.roomId].users.find(el => el.player == roomUsers[data.roomId].turn).nickname + ' has stood!',
-      //   shortcode: 'STAND'
-      // });
+      sendSystemMessage(begger.nickname + ' has stood!', data.roomId, "#2dd4bf");
     }
     else if (data.response == 'give') {
       roomUsers[data.roomId].beg = 'give';
 
-      const beggerTeam = roomUsers[data.roomId].users.find(el => el.player == roomUsers[data.roomId].turn).team;
+      const beggerTeam = begger.team;
 
       if (beggerTeam == 1) {
         if (roomUsers[data.roomId].teamScore[0] >= 13) {
@@ -802,14 +803,17 @@ function begResponse(data: BegResponseInput, gameSocket: Socket) {
       io.to(data.roomId).emit('teamScore', roomUsers[data.roomId].teamScore);
 
       io.to(data.roomId).emit('message', {
-        message: roomUsers[data.roomId].users.find(el => el.player == roomUsers[data.roomId].dealer).nickname + ' gave a point!',
+        message: dealer.nickname + ' gave a point!',
         shortcode: 'GIVE'
       });
+
+      sendSystemMessage(dealer.nickname + ' gave a point!', data.roomId, "#2dd4bf");
     }
     else if (data.response == 'run') {
       roomUsers[data.roomId].beg = 'run';
       runPack(data);
       playerCards(data, gameSocket);
+      sendSystemMessage(dealer.nickname + ' ran the pack!', data.roomId, "#2dd4bf");
     }
 
     io.to(data.roomId).emit('beg', roomUsers[data.roomId].beg);
@@ -1227,10 +1231,10 @@ function roundScoring(data: BasicRoomInput) {
   // Send chat log for game winner
   roomUsers[data.roomId].users.forEach((el, i) => {
     if (el.team == gameWinnerTeam) {
-      sendSystemMessage('Your team won game!', data.roomId, '#22c55e' )
+      sendSystemMessage('Your team won game!', el.socketId, '#22c55e' )
     }
     else {
-      sendSystemMessage('The opposing team won game!', data.roomId, '#22c55e')
+      sendSystemMessage('The opposing team won game!', el.socketId, '#22c55e')
     }
   });
 
