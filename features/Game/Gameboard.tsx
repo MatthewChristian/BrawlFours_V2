@@ -15,6 +15,7 @@ import { RoundWinners } from '../../models/RoundWinners';
 import { useRouter } from 'next/navigation';
 import { socket } from '../SocketClient';
 import AbilitiesDisabledIcon from './StatusIcons/AbilitiesDisabledIcon';
+import { CardAbilities } from '../../core/services/abilities';
 
 interface Props {
   roomId?: string;
@@ -57,6 +58,12 @@ export default function Gameboard({ roomId }: Props) {
   const [waitingBegResponseModalVisible, setWaitingBegResponseModalVisible] = useState<boolean>(false);
   const [redealModalVisible, setRedealModalVisible] = useState<boolean>(false);
   const [roundWinnersModalVisible, setRoundWinnersModalVisible] = useState<boolean>(false);
+
+  // If a card ability allows the player to target a card in the lift
+  const [isTargettingLift, setIsTargettingLift] = useState<boolean>(false);
+
+  // Card that a player played which triggered a target ability
+  const [playedCard, setPlayedCard] = useState<DeckCard>();
 
   // Store round winners in a state to keep round winners stored in case it is wiped from server
   const [roundWinnersStored, setRoundWinnersStored] = useState<RoundWinners>();
@@ -117,6 +124,11 @@ export default function Gameboard({ roomId }: Props) {
 
   // Get data of player whose turn it is
   const turnPlayerData = useMemo(() => {
+
+    // Reset state
+    setPlayedCard(undefined);
+    setIsTargettingLift(false);
+
     return players.find(el => el.player == playerTurn);
   }, [playerTurn, players]);
 
@@ -214,7 +226,18 @@ export default function Gameboard({ roomId }: Props) {
       return;
     }
 
+    if (card.ability == CardAbilities.targetPowerless) {
+      setIsTargettingLift(true);
+      setPlayedCard(card);
+      return;
+    }
+
     socket.emit('playCard', { ...socketData, card: card, player: playerNumber });
+  }
+
+  function handleLiftCardClick(card: DeckCard) {
+    socket.emit('targetPowerless', { ...socketData, card: card, player: playerNumber });
+    socket.emit('playCard', { ...socketData, card: playedCard, player: playerNumber });
   }
 
   useEffect(() => {
@@ -449,16 +472,44 @@ export default function Gameboard({ roomId }: Props) {
             {/* ------------------------ Lift Info  ------------------------*/}
             <div className='w-4/6 flex flex-col gap-2 items-center justify-center'>
 
-              <PlayingCard cardData={player3CardPlayed} isOutline isNotPlayable liftCard={3} liftWinner={liftWinnerMapped}></PlayingCard>
+              <PlayingCard
+                cardData={player3CardPlayed}
+                isOutline
+                isNotPlayable={!isTargettingLift}
+                liftCard={3}
+                liftWinner={liftWinnerMapped}
+                onClickHandler={handleLiftCardClick}
+              />
 
               <div className='flex flex-row gap-32'>
-                <PlayingCard cardData={player4CardPlayed} isOutline isNotPlayable liftCard={4} liftWinner={liftWinnerMapped}></PlayingCard>
-                <PlayingCard cardData={player2CardPlayed} isOutline isNotPlayable liftCard={2} liftWinner={liftWinnerMapped}></PlayingCard>
+                <PlayingCard
+                  cardData={player4CardPlayed}
+                  isOutline
+                  isNotPlayable={!isTargettingLift}
+                  liftCard={4}
+                  liftWinner={liftWinnerMapped}
+                  onClickHandler={handleLiftCardClick}
+                />
+
+                <PlayingCard
+                  cardData={player2CardPlayed}
+                  isOutline
+                  isNotPlayable={!isTargettingLift}
+                  liftCard={2}
+                  liftWinner={liftWinnerMapped}
+                  onClickHandler={handleLiftCardClick}
+                />
               </div>
 
-              <div>
-                <PlayingCard cardData={player1CardPlayed} isOutline isNotPlayable liftCard={1} liftWinner={liftWinnerMapped}></PlayingCard>
-              </div>
+
+              <PlayingCard
+                cardData={player1CardPlayed}
+                isOutline
+                isNotPlayable={!isTargettingLift}
+                liftCard={1}
+                liftWinner={liftWinnerMapped}
+              />
+
 
             </div>
             {/* -------------------------------------------------------------*/}

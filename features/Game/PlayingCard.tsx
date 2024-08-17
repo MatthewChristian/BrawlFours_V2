@@ -45,8 +45,8 @@ export default function PlayingCard({
   }, [cardData]);
 
   function handleClick() {
-    if (onClickHandler) {
-      onClickHandler(cardData, player)
+    if (!isNotPlayable && onClickHandler) {
+      onClickHandler(cardData, player);
     }
   }
 
@@ -129,8 +129,18 @@ export default function PlayingCard({
   }
 
   function getGlowClassName() {
+
+    if (cardData.power == 0) {
+      return 'red-glow';
+    }
+
     if (isNotPlayable) {
       return '';
+    }
+
+    // Lift card would normally have isNotPlayable set to true, if it is false then that means the lift card is being targetted by an ability
+    if (liftCard) {
+      return 'blue-glow';
     }
 
     if (cardData.playable) {

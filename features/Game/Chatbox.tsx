@@ -41,8 +41,7 @@ export default function Chatbox({ socketData }: Props) {
 
   return (
     <div className='h-[68vh] flex flex-col justify-between w-full bg-white rounded-lg px-2 pt-2 shadow'>
-      <div onClick={() => console.log("ScrollTop: ", chatBoxRef?.current?.scrollTop)}>Hello</div>
-      <div ref={chatBoxRef} className='flex flex-col gap-2 h-[58vh] w-full overflow-y-scroll pr-1 bg-blue-200'>
+      <div ref={chatBoxRef} className='flex flex-col gap-2 h-[58vh] w-full overflow-y-scroll pr-1'>
         {chatMessages?.map(msg => <div className='flex-none text-balance whitespace-normal break-words'>
           { msg.mode && msg.mode != 'log' ?
             <span className='mr-1' style={{ color: msg.modeColour }}>

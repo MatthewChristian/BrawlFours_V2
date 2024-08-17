@@ -7,7 +7,7 @@ export enum CardAbilities {
   // Spades
   alwaysPlayable,   // 2 TESTED
   ninePowerful,     // 9
-  trumpDisabled,    // 10 TESTED
+  trumpDisabled,    // 10 Need to test when trump played after trump was called
   targetPowerless,  // J
   noWinLift,        // Q
   shuffleHand,      // K
@@ -180,7 +180,7 @@ const abilityData: Partial<AbilityData> = {
     duration: 'lift'
   },
   [CardAbilities.trumpDisabled]: {
-    description: 'Nobody can play trump this turn unless they are flush',
+    description: 'Nobody can play trump this turn unless trump was called or they are flush',
     ability: (args: AbilityInput) => trumpDisabledAbility(args),
     duration: 'lift'
   },
@@ -307,5 +307,5 @@ function trumpDisabledAbility(args: AbilityInput) {
 }
 
 function targetPowerlessAbility(args: AbilityInput) {
-
+  console.log("targetPowerlessAbility: Played");
 }

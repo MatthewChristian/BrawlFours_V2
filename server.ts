@@ -51,6 +51,7 @@ io.on('connection', (socket) => {
   socket.on('redeal', (data) => initialiseGameCards(data));
   socket.on('playCard', async (data) => await playCard(data, socket));
   socket.on('chat', (data) => handleChatMessage(data));
+  socket.on('targetPowerless', (data) => handleTargetPowerless(data));
 });
 
 function sendSystemMessage(message: string, roomId: string, colour?: string) {
@@ -855,6 +856,9 @@ function determineIfCardsPlayable(player: PlayerSocket, roomId: string) {
     if (el.suit == roomUsers[roomId].trump) {
       el.trump = true;
     }
+    else { // Need to put else statement in case pack was run
+      el.trump = false;
+    }
 
     // Determine if a player does not have a card in the suit of the card that was called
     if (roomUsers[roomId].called && el.suit == roomUsers[roomId].called.suit) {
@@ -874,8 +878,8 @@ function determineIfCardsPlayable(player: PlayerSocket, roomId: string) {
     if (card.ability == CardAbilities.alwaysPlayable) {
       card.playable = true;
     }
-    // If card is trump but trump is disabled for that round and the player is not flush
-    else if (roomUsers[roomId].activeAbilities?.includes(CardAbilities.trumpDisabled) && card.trump && !flush) {
+    // If card is trump but trump is disabled for that round and the player is not flush and trump was not called
+    else if (roomUsers[roomId].activeAbilities?.includes(CardAbilities.trumpDisabled) && card.trump && !flush && roomUsers[roomId].called && card.suit != roomUsers[roomId].called.suit) {
       card.playable = false;
     }
     // If the player:
@@ -1315,6 +1319,24 @@ function announceWinner(roomId: string, winByKick?: boolean) {
     winByKick: winByKick,
     gameWinners: gameWinners
   });
+}
+
+function handleTargetPowerless(data: PlayCardInput) {
+  if (io.of('/').adapter.rooms.get(data.roomId)) {
+
+    // Not player's turn yet
+    if (roomUsers[data.roomId].turn != data.player) {
+      return;
+    }
+
+    const liftCardData = roomUsers[data.roomId].lift.find(el => (el?.suit == data?.card?.suit) && (el?.value == data?.card?.value));
+
+    liftCardData.power = 0;
+    liftCardData.points = 0;
+  }
+  else {
+    console.log(data.roomId + ': ' + 'Room doesnt exist');
+  }
 }
 
 
