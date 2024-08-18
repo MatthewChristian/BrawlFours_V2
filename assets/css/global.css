@@ -115,12 +115,17 @@
 /***** MODAL *****/
 .popup-content {
   border-radius: 30px;
-  width: 25em !important;
+  width: 25em;
   padding-top: 30px !important;
   padding-bottom: 30px !important;
   background-color: white !important;
+  left: 10% !important;
 }
 
 .popup-overlay {
   background: rgba(0, 0, 0, 0.5);
+}
+
+.top-modal-content {
+  bottom: 40% !important;
 }

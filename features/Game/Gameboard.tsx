@@ -401,7 +401,6 @@ export default function Gameboard({ roomId }: Props) {
 
         <div className="h-screen w-4/5">
 
-
           {/* ------------------------ Player 3 Info  ------------------------*/}
           <div className='h-[25vh] flex flex-col justify-between'>
             <div className='flex flex-col items-center justify-center p-3'>
@@ -479,6 +478,7 @@ export default function Gameboard({ roomId }: Props) {
                 liftCard={3}
                 liftWinner={liftWinnerMapped}
                 onClickHandler={handleLiftCardClick}
+                spotlighted={isTargettingLift}
               />
 
               <div className='flex flex-row gap-32'>
@@ -489,6 +489,7 @@ export default function Gameboard({ roomId }: Props) {
                   liftCard={4}
                   liftWinner={liftWinnerMapped}
                   onClickHandler={handleLiftCardClick}
+                  spotlighted={isTargettingLift}
                 />
 
                 <PlayingCard
@@ -498,6 +499,7 @@ export default function Gameboard({ roomId }: Props) {
                   liftCard={2}
                   liftWinner={liftWinnerMapped}
                   onClickHandler={handleLiftCardClick}
+                  spotlighted={isTargettingLift}
                 />
               </div>
 
@@ -508,6 +510,7 @@ export default function Gameboard({ roomId }: Props) {
                 isNotPlayable={!isTargettingLift}
                 liftCard={1}
                 liftWinner={liftWinnerMapped}
+                spotlighted={isTargettingLift}
               />
 
 
@@ -640,6 +643,10 @@ export default function Gameboard({ roomId }: Props) {
             </Button>
           </div>
         </div>
+      </Modal>
+
+      <Modal className='top-modal' contentStyle={{ width: 'fit-content' }} open={isTargettingLift} closeOnDocumentClick={false} onClose={() => setBegModalVisible(false)}>
+        <div className="px-12">Choose a card in the lift to be powerless and worth 0 points</div>
       </Modal>
 
 

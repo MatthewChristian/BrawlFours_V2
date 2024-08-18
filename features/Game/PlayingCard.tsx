@@ -18,6 +18,7 @@ interface Props {
   isNotPlayable?: boolean;
   liftCard?: number;
   liftWinner?: number;
+  spotlighted?: boolean;
 }
 
 export default function PlayingCard({
@@ -30,7 +31,8 @@ export default function PlayingCard({
   isOutline,
   isNotPlayable,
   liftCard,
-  liftWinner
+  liftWinner,
+  spotlighted
 }: Props) {
 
   const cardRef = useRef<HTMLDivElement>(null);
@@ -178,7 +180,7 @@ export default function PlayingCard({
       ref={cardRef}
       className={`${className}`}
       onClick={handleClick}
-      style={style}>
+      style={{ zIndex: spotlighted ? 9999 : undefined, ...style}}>
       { !isDeckCard ? (
         card ?
           <motion.div
