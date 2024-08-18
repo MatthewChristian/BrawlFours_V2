@@ -1076,11 +1076,13 @@ async function liftScoring(data: BasicRoomInput) {
   }
 
   // Assign points for game
-  if (liftWinnerPlayer.team == 1) {
-    roomUsers[data.roomId].game[0] = roomUsers[data.roomId].game[0] + liftPoints;
-  }
-  else if (liftWinnerPlayer.team == 2) {
-    roomUsers[data.roomId].game[1] = roomUsers[data.roomId].game[1] + liftPoints;
+  if (!roomUsers[data.roomId].activeAbilities.includes(CardAbilities.noWinLift)) { // Check to see if teams are allowed to earn points for this lift
+    if (liftWinnerPlayer.team == 1) {
+      roomUsers[data.roomId].game[0] = roomUsers[data.roomId].game[0] + liftPoints;
+    }
+    else if (liftWinnerPlayer.team == 2) {
+      roomUsers[data.roomId].game[1] = roomUsers[data.roomId].game[1] + liftPoints;
+    }
   }
 
   // Determine who won/hung Jack

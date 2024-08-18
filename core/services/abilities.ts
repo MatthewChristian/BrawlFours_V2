@@ -9,7 +9,7 @@ export enum CardAbilities {
   ninePowerful,       // 9
   trumpDisabled,      // 10 Need to test when trump played after trump was called
   targetPowerless,    // J TESTED
-  noWinLift,          // Q
+  noWinLift,          // Q TESTED
   shuffleHand,        // K
   takeBackCard,       // A
 
@@ -189,12 +189,12 @@ const abilityData: Partial<AbilityData> = {
     ability: (args: AbilityInput) => targetPowerlessAbility(args),
   },
   [CardAbilities.noWinLift]: {
-    description: 'Nobody wins the current lift',
+    description: 'No team will earn points for game in this lift',
     ability: (args: AbilityInput) => noWinLiftAbility(args),
     duration: 'lift'
   },
   [CardAbilities.shuffleHand]: {
-    description: 'Shuffle your hand into the deck and get redealt the amount of cards you had',
+    description: 'Shuffle your hand into the deck and get redealt the amount of cards you have',
     ability: (args: AbilityInput) => targetPowerlessAbility(args),
   },
   [CardAbilities.royalsDisabled]: {

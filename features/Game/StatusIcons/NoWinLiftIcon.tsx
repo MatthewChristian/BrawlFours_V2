@@ -17,7 +17,7 @@ export default function NoWinLiftIcon({ active }: Props) {
           alt="" />}
         twBgColour='bg-red-200'
         twBorderColour='border-red-600'
-        tooltip='Nobody can win this lift!'
+        tooltip='No team will earn points for game in this lift!'
         shortcode='noWinLift'
       />
       : <></>
