@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { DeckCard } from '../../models/DeckCard';
 import PlayingCard from './PlayingCard';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { getBeg, getDealer, getLift, getLiftWinner, getMatchWinner, getMessage, getPlayerCards, getPlayerJoinedRoom, getPlayerList, getRoundWinners, getTurn, setMessage } from '../../slices/game.slice';
+import { getActiveAbilities, getBeg, getDealer, getLift, getLiftWinner, getMatchWinner, getMessage, getPlayerCards, getPlayerJoinedRoom, getPlayerList, getRoundWinners, getTurn, setMessage } from '../../slices/game.slice';
 import { PlayerSocket } from '../../models/PlayerSocket';
 import DealerIcon from './StatusIcons/DealerIcon';
 import TurnIcon from './StatusIcons/TurnIcon';
@@ -48,6 +48,8 @@ export default function Gameboard({ roomId }: Props) {
   const liftWinner = useAppSelector(getLiftWinner);
 
   const playerJoinedRoom = useAppSelector(getPlayerJoinedRoom);
+
+  const activeAbilities = useAppSelector(getActiveAbilities);
 
   // Cards in the hand of the client player
   const playerCards = useAppSelector(getPlayerCards);
@@ -226,13 +228,16 @@ export default function Gameboard({ roomId }: Props) {
       return;
     }
 
-    if (card.ability == CardAbilities.targetPowerless) {
+    // Check if abilities are disabled before applying/sending ability data to server
+    const areAbilitiesDisabled = activeAbilities.includes(CardAbilities.abilitiesDisabled);
+
+    if (card.ability == CardAbilities.targetPowerless && !areAbilitiesDisabled) {
       setIsTargettingLift(true);
       setPlayedCard(card);
       return;
     }
 
-    socket.emit('playCard', { ...socketData, card: card, player: playerNumber });
+    socket.emit('playCard', { ...socketData, card: { ...card, ability: areAbilitiesDisabled ? undefined : card.ability }, player: playerNumber });
   }
 
   function handleLiftCardClick(card: DeckCard) {

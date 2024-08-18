@@ -125,7 +125,7 @@ export default function Room({ roomId }: Props) {
       </div>
 
 
-      <Popup open={chooseModalOpen} closeOnDocumentClick onClose={() => setChooseModalOpen(false)}>
+      <Popup contentStyle={{ left: '0%', width: '25em' }} open={chooseModalOpen} closeOnDocumentClick onClose={() => setChooseModalOpen(false)}>
         <div className="flex flex-col justify-center items-center mx-5">
           <div className="">Choose your partner</div>
           <div className='w-full'>

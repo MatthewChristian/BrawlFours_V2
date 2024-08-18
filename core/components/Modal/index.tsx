@@ -8,7 +8,7 @@ interface Props extends PopupProps {
 
 export default function Modal({ children, ...props }: Props) {
   return (
-    <Popup modal {...props} className={props.className} >
+    <Popup modal {...props} className={props.className} contentStyle={props.contentStyle ?? { width: '25em'}}>
       {children}
     </Popup>
   );

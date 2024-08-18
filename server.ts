@@ -874,8 +874,8 @@ function determineIfCardsPlayable(player: PlayerSocket, roomId: string) {
   player.cards.forEach((card) => {
     const undertrumped = didUndertrump({ card: card, player: player.player, roomId: roomId, localId: '' });
 
-    // If the card has an ability that allows them to be played
-    if (card.ability == CardAbilities.alwaysPlayable) {
+    // If the card has an ability that allows them to be played (and abilities are not disabled)
+    if (card.ability == CardAbilities.alwaysPlayable && !roomUsers[roomId].activeAbilities?.includes(CardAbilities.abilitiesDisabled)) {
       card.playable = true;
     }
     // If card is trump but trump is disabled for that round and the player is not flush and trump was not called

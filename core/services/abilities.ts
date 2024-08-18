@@ -5,40 +5,40 @@ const hangSaverPointsEarned = 3;
 
 export enum CardAbilities {
   // Spades
-  alwaysPlayable,   // 2 TESTED
-  ninePowerful,     // 9
-  trumpDisabled,    // 10 Need to test when trump played after trump was called
-  targetPowerless,  // J
-  noWinLift,        // Q
-  shuffleHand,      // K
-  takeBackCard,     // A
+  alwaysPlayable,     // 2 TESTED
+  ninePowerful,       // 9
+  trumpDisabled,      // 10 Need to test when trump played after trump was called
+  targetPowerless,    // J TESTED
+  noWinLift,          // Q
+  shuffleHand,        // K
+  takeBackCard,       // A
 
   // Hearts
-  royalsDisabled,   // 2
-  hangSaver,        // 9
-  twentyPoints,     // 10
-  pointsForSaved,   // J
-  abilitiesDisabled,// Q
-  swapOppCard,      // K
-  allyReplay,       // A
+  royalsDisabled,     // 2
+  hangSaver,          // 9
+  twentyPoints,       // 10
+  pointsForSaved,     // J
+  abilitiesDisabled,  // Q
+  swapOppCard,        // K
+  allyReplay,         // A
 
   // Dimes
-  forceStand,       // 2
-  ninePoints,       // 9
-  oppositePower,    // 10
-  allyPlaysLast,    // J
-  freePlay,         // Q
-  doublePoints,     // K
-  chooseStarter,    // A
+  forceStand,         // 2
+  ninePoints,         // 9
+  oppositePower,      // 10
+  allyPlaysLast,      // J
+  freePlay,           // Q
+  doublePoints,       // K
+  chooseStarter,      // A
 
   // Clubs
-  twoWinGame,       // 2
-  randomAbility,    // 9
-  revealedBare,     // 10
-  nextCardTrump,    // J
-  swapAllyCard,     // Q
-  doubleLift,       // K
-  swapHands,        // A
+  twoWinGame,         // 2
+  randomAbility,      // 9
+  revealedBare,       // 10
+  nextCardTrump,      // J
+  swapAllyCard,       // Q
+  doubleLift,         // K
+  swapHands,          // A
 
 }
 
@@ -190,7 +190,7 @@ const abilityData: Partial<AbilityData> = {
   },
   [CardAbilities.noWinLift]: {
     description: 'Nobody wins the current lift',
-    ability: (args: AbilityInput) => targetPowerlessAbility(args),
+    ability: (args: AbilityInput) => noWinLiftAbility(args),
     duration: 'lift'
   },
   [CardAbilities.shuffleHand]: {
@@ -216,7 +216,7 @@ const abilityData: Partial<AbilityData> = {
   },
   [CardAbilities.abilitiesDisabled]: {
     description: 'All other abilities are disabled for this turn',
-    ability: (args: AbilityInput) => targetPowerlessAbility(args),
+    ability: (args: AbilityInput) => abilitiesDisabledAbility(args),
     duration: 'lift'
   },
   [CardAbilities.swapOppCard]: {
@@ -308,4 +308,12 @@ function trumpDisabledAbility(args: AbilityInput) {
 
 function targetPowerlessAbility(args: AbilityInput) {
   console.log("targetPowerlessAbility: Played");
+}
+
+function noWinLiftAbility(args: AbilityInput) {
+  args.roomData.activeAbilities.push(CardAbilities.noWinLift);
+}
+
+function abilitiesDisabledAbility(args: AbilityInput) {
+  args.roomData.activeAbilities = [CardAbilities.abilitiesDisabled];
 }

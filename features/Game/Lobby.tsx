@@ -153,7 +153,7 @@ export default function Lobby() {
                 </Button>
               </div>
 
-              <Popup open={joinModalOpen} closeOnDocumentClick onClose={closeJoinModal}>
+              <Popup contentStyle={{ left: '0%', width: '25em'}} open={joinModalOpen} closeOnDocumentClick onClose={closeJoinModal}>
                 <div className="flex flex-col justify-center items-center">
                   <div className="">Enter room code:</div>
                   <Input
