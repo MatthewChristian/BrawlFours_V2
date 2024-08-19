@@ -1,5 +1,7 @@
 import { AbilityData } from "../../models/AbilityData";
 import { AbilityInput } from "../../models/AbilityInput";
+import { DeckCard } from "../../models/DeckCard";
+import { determineIfCardsPlayable, emitPlayerCardData, orderCards, shuffleDeck } from "./sharedGameFunctions";
 
 const hangSaverPointsEarned = 3;
 
@@ -195,7 +197,7 @@ const abilityData: Partial<AbilityData> = {
   },
   [CardAbilities.shuffleHand]: {
     description: 'Shuffle your hand into the deck and get redealt the amount of cards you have',
-    ability: (args: AbilityInput) => targetPowerlessAbility(args),
+    ability: (args: AbilityInput) => shuffleHandAbility(args),
   },
   [CardAbilities.royalsDisabled]: {
     description: 'No royals can be played this turn unless they are flush',
@@ -203,7 +205,7 @@ const abilityData: Partial<AbilityData> = {
     duration: 'lift'
   },
   [CardAbilities.hangSaver]: {
-    description: "Can save your teammate's Jack from being hung and earn 3 points for Jack if successful",
+    description: `Can save your teammate's Jack from being hung and earn ${hangSaverPointsEarned} points for Jack if successful`,
     ability: (args: AbilityInput) => targetPowerlessAbility(args),
   },
   [CardAbilities.twentyPoints]: {
@@ -279,6 +281,7 @@ export function getAbilityData(ability: CardAbilities) {
 }
 
 export function handleAbility(args: AbilityInput) {
+
   if (!args.roomData.activeAbilities) {
     args.roomData.activeAbilities = [];
   }
@@ -316,4 +319,35 @@ function noWinLiftAbility(args: AbilityInput) {
 
 function abilitiesDisabledAbility(args: AbilityInput) {
   args.roomData.activeAbilities = [CardAbilities.abilitiesDisabled];
+}
+
+function shuffleHandAbility(args: AbilityInput) {
+
+  const player = args.roomData.users.find(el => el.id == args.id);
+
+  const playerHandLength = player.cards.length;
+
+  player.cards.forEach((card) => {
+    args.roomData.deck.push(card);
+  });
+
+  player.cards = [];
+
+  shuffleDeck(args.roomData.deck);
+
+  let card: DeckCard;
+
+  for (let i = 0; i < playerHandLength; i++) {
+    card = args.roomData.deck.pop();
+
+    if (card) {
+      player.cards.push(card);
+    }
+  }
+
+  orderCards(args.roomData.users);
+
+  determineIfCardsPlayable(args.roomData, player);
+
+  emitPlayerCardData(args.roomData.users, args.io);
 }

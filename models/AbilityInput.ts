@@ -7,4 +7,5 @@ export interface AbilityInput {
    card: DeckCard
    socket: Socket;
    io: Server;
+   id: string;
 }

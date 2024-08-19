@@ -16,6 +16,7 @@ import { CardAbilities, getAbilityData, getIsRandom, handleAbility, mapAbility }
 import { ChatInput } from './models/ChatInput';
 import { ChatMessage } from './models/ChatMessage';
 import { getCardName } from './core/services/parseCard';
+import { determineIfCardsPlayable, emitPlayerCardData, orderCards, shuffleDeck } from './core/services/sharedGameFunctions';
 
 const app = express();
 const server = createServer(app);
@@ -320,17 +321,7 @@ function handleChatMessage(data: ChatInput) {
 // Game Logic
 
 function shuffle(deck: DeckCard[]) {
-  let loc1: number;
-  let loc2: number;
-  let temp: DeckCard;
-
-  for (let i = 0; i < 1000; i++) {
-    loc1 = Math.floor((Math.random() * deck.length));
-    loc2 = Math.floor((Math.random() * deck.length));
-    temp = deck[loc1];
-    deck[loc1] = deck[loc2];
-    deck[loc2] = temp;
-  }
+  shuffleDeck(deck);
 }
 
 function generateDeck(data: BasicRoomInput) {
@@ -546,27 +537,6 @@ function resetMatchState(roomId: string) {
   io.to(roomId).emit('game', roomUsers[roomId].game);
 }
 
-function orderCards(roomId: string) {
-  const order: string[] = ['s', 'h', 'c', 'd'];
-
-  roomUsers[roomId].users.forEach(el => {
-    const orderedPlayerCards = [...el.cards];
-
-    orderedPlayerCards.sort(function (a, b) {
-      const aSuitIndex = order.findIndex(el => el == a.suit);
-      const bSuitIndex = order.findIndex(el => el == b.suit);
-
-      if (aSuitIndex < bSuitIndex) { return -1; }
-      if (aSuitIndex > bSuitIndex) { return 1; }
-      if (a.power < b.power) { return -1; }
-      if (a.power > b.power) { return 1; }
-      return 0;
-    });
-
-    el.cards = orderedPlayerCards;
-  });
-}
-
 function initialiseGameCards(data: BasicRoomInput) {
 
   resetGameState(data.roomId);
@@ -589,7 +559,7 @@ function initialiseGameCards(data: BasicRoomInput) {
 
 
   // Order player cards by suit and value
-  orderCards(data.roomId);
+  orderCards(roomUsers[data.roomId].users);
 
 
   io.to(data.roomId).emit('dealer', roomUsers[data.roomId].dealer);
@@ -601,7 +571,7 @@ function initialiseGameCards(data: BasicRoomInput) {
 
     // Determine which cards are playable for the player whose turn it is
     if (el.player == roomUsers[data.roomId].turn) {
-      determineIfCardsPlayable(el, data.roomId);
+      determineIfCardsPlayable(roomUsers[data.roomId], el);
     }
 
     // Send player card data to player who is begging and dealer
@@ -668,13 +638,6 @@ function playerCards(data: BasicRoomInput, gameSocket: Socket) {
   }
 }
 
-function emitPlayerCardData(data: BasicRoomInput) {
-  // Loop through users in room
-  roomUsers[data.roomId].users.forEach((el) => {
-    // Send player card data to each player
-    io.to(el.socketId).emit('playerCards', el.cards);
-  });
-}
 
 function runPack(data: BasicRoomInput) {
   if (!roomUsers[data.roomId] || !roomUsers[data.roomId].kicked) {
@@ -731,14 +694,14 @@ function runPack(data: BasicRoomInput) {
   }
 
   // Order player cards by suit and value
-  orderCards(data.roomId);
+  orderCards(roomUsers[data.roomId].users);
 
   // Loop through users in room
   roomUsers[data.roomId].users.forEach((el, i) => {
 
     // Determine which cards are playable for the player whose turn it is
     if (el.player == roomUsers[data.roomId].turn) {
-      determineIfCardsPlayable(el, data.roomId);
+      determineIfCardsPlayable(roomUsers[data.roomId], el);
     }
 
     // Send player card data to player who is begging and dealer
@@ -750,7 +713,7 @@ function runPack(data: BasicRoomInput) {
     }
   });
 
-  emitPlayerCardData(data);
+  emitPlayerCardData(roomUsers[data.roomId].users, io);
 
 }
 
@@ -769,11 +732,11 @@ function begResponse(data: BegResponseInput, gameSocket: Socket) {
         message: begger.nickname + ' has begged!',
         shortcode: 'BEGGED'
       });
-      sendSystemMessage(begger.nickname + ' has begged!', data.roomId, "#2dd4bf");
+      sendSystemMessage(begger.nickname + ' has begged!', data.roomId, "#06b6d4");
     }
     else if (data.response == 'stand') {
       roomUsers[data.roomId].beg = 'stand';
-      sendSystemMessage(begger.nickname + ' has stood!', data.roomId, "#2dd4bf");
+      sendSystemMessage(begger.nickname + ' has stood!', data.roomId, "#06b6d4");
     }
     else if (data.response == 'give') {
       roomUsers[data.roomId].beg = 'give';
@@ -808,13 +771,13 @@ function begResponse(data: BegResponseInput, gameSocket: Socket) {
         shortcode: 'GIVE'
       });
 
-      sendSystemMessage(dealer.nickname + ' gave a point!', data.roomId, "#2dd4bf");
+      sendSystemMessage(dealer.nickname + ' gave a point!', data.roomId, "#06b6d4");
     }
     else if (data.response == 'run') {
       roomUsers[data.roomId].beg = 'run';
       runPack(data);
       playerCards(data, gameSocket);
-      sendSystemMessage(dealer.nickname + ' ran the pack!', data.roomId, "#2dd4bf");
+      sendSystemMessage(dealer.nickname + ' ran the pack!', data.roomId, "#06b6d4");
     }
 
     io.to(data.roomId).emit('beg', roomUsers[data.roomId].beg);
@@ -823,83 +786,6 @@ function begResponse(data: BegResponseInput, gameSocket: Socket) {
   else {
     console.log(data.roomId + ': ' + 'Room doesnt exist');
   }
-}
-
-
-/*
-    Determine whether or not a player tried to undertrump
-  */
-function didUndertrump(data: PlayCardInput) {
-  if (!roomUsers[data.roomId].lift || !roomUsers[data.roomId].trump || data.card?.suit != roomUsers[data.roomId].trump) {
-    return false;
-  }
-
-  let undertrumped = false;
-
-  roomUsers[data.roomId].lift.forEach(el => {
-    if ((el.suit == roomUsers[data.roomId].trump) && (el.power > data.card.power)) {
-      undertrumped = true;
-    }
-  });
-
-  return undertrumped;
-}
-
-function determineIfCardsPlayable(player: PlayerSocket, roomId: string) {
-  let bare = true;
-  let flush = true;
-  const trump = roomUsers[roomId].trump;
-
-
-  player.cards.forEach((el) => {
-    // Determine which cards are trump
-    if (el.suit == roomUsers[roomId].trump) {
-      el.trump = true;
-    }
-    else { // Need to put else statement in case pack was run
-      el.trump = false;
-    }
-
-    // Determine if a player does not have a card in the suit of the card that was called
-    if (roomUsers[roomId].called && el.suit == roomUsers[roomId].called.suit) {
-      bare = false;
-    }
-
-    // Determine if player is flush (only has trump in hand)
-    if (!el.trump) {
-      flush = false;
-    }
-  });
-
-  player.cards.forEach((card) => {
-    const undertrumped = didUndertrump({ card: card, player: player.player, roomId: roomId, localId: '' });
-
-    // If the card has an ability that allows them to be played (and abilities are not disabled)
-    if (card.ability == CardAbilities.alwaysPlayable && !roomUsers[roomId].activeAbilities?.includes(CardAbilities.abilitiesDisabled)) {
-      card.playable = true;
-    }
-    // If card is trump but trump is disabled for that round and the player is not flush and trump was not called
-    else if (roomUsers[roomId].activeAbilities?.includes(CardAbilities.trumpDisabled) && card.trump && !flush && roomUsers[roomId].called && card.suit != roomUsers[roomId].called.suit) {
-      card.playable = false;
-    }
-    // If the player:
-    // * Played a suit that wasn't called,
-    // * Wasn't the first player to play for the round,
-    // * Has cards in their hand that correspond to the called suit, and
-    // * the card played is not trump,
-    // then end function and do not add card to lift
-    else if (roomUsers[roomId].called && card.suit != roomUsers[roomId].called.suit && !bare && card.suit != trump) {
-      card.playable = false;
-    }
-    // If the player attempted to undertrump, end function and do not add card to lift
-    else if (roomUsers[roomId].called && (card.suit == roomUsers[roomId].trump && undertrumped == true) && roomUsers[roomId].called.suit != trump && !bare) {
-      card.playable = false;
-    }
-    else {
-      card.playable = true;
-    }
-
-  });
 }
 
 function resetCardsPlayability(player: PlayerSocket) {
@@ -911,7 +797,7 @@ function resetCardsPlayability(player: PlayerSocket) {
 function setCardsPlayability(roomId: string) {
   // Set playable status of cards of player whose turn is next
   const turnPlayer = roomUsers[roomId].users.find(el => el.player == roomUsers[roomId].turn);
-  determineIfCardsPlayable(turnPlayer, roomId);
+  determineIfCardsPlayable(roomUsers[roomId], turnPlayer);
   io.to(turnPlayer.socketId).emit('playerCards', turnPlayer.cards);
 }
 
@@ -955,17 +841,17 @@ async function playCard(data: PlayCardInput, gameSocket: Socket) {
 
   sendSystemMessage(player.nickname + ' played ' + getCardName(cardData), data.roomId);
 
-  // Trigger card ability if it has one
-  handleAbility({ roomData: roomUsers[data.roomId], card: cardData, socket: gameSocket, io: io });
-
   // Remove card clicked from array
   playerCards.splice(cardIndex, 1);
 
+  // Trigger card ability if it has one
+  handleAbility({ roomData: roomUsers[data.roomId], card: cardData, socket: gameSocket, io: io, id: data.localId });
+
   // Reset card playability of player who just played
-  resetCardsPlayability(player);
+  resetCardsPlayability(roomUsers[data.roomId].users.find(el => el.id == data.localId)); // Need to get data directly from roomUsers object because data might have changed in handleAbility
 
   // Emit data
-  gameSocket.emit('playerCards', playerCards);
+  gameSocket.emit('playerCards', roomUsers[data.roomId].users.find(el => el.id == data.localId).cards);
   io.to(data.roomId).emit('lift', roomUsers[data.roomId].lift);
   io.to(data.roomId).emit('turn', roomUsers[data.roomId].turn);
   io.to(data.roomId).emit('activeAbilities', roomUsers[data.roomId].activeAbilities);
@@ -978,7 +864,7 @@ async function playCard(data: PlayCardInput, gameSocket: Socket) {
   if (!roomUsers[data.roomId].roundStarted) {
     resetRoundState(data.roomId);
     roomUsers[data.roomId].roundStarted = true;
-    emitPlayerCardData(data);
+    emitPlayerCardData(roomUsers[data.roomId].users, io);
   }
 
   if (roomUsers[data.roomId].lift.length >= 4) {
