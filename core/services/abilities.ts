@@ -12,7 +12,7 @@ export enum CardAbilities {
   trumpDisabled,      // 10 Need to test when trump played after trump was called
   targetPowerless,    // J TESTED
   noWinLift,          // Q TESTED
-  shuffleHand,        // K
+  shuffleHand,        // K TESTED - Need to implement animations
   takeBackCard,       // A
 
   // Hearts
