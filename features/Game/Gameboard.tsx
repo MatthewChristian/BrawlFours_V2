@@ -17,6 +17,15 @@ import { socket } from '../SocketClient';
 import { CardAbilities } from '../../core/services/abilities';
 import Marker from './PositionMarkers/Marker';
 import { setPlayer1HandPos, setPlayer2HandPos, setPlayer3HandPos, setPlayer4HandPos } from '../../slices/position.slice';
+import AbilitiesDisabledIcon from './StatusIcons/AbilitiesDisabledIcon';
+import DoubleLiftIcon from './StatusIcons/DoubleLiftIcon';
+import DoublePointsIcon from './StatusIcons/DoublePointsIcon';
+import NinePowerfulIcon from './StatusIcons/NinePowerfulIcon';
+import NoWinLiftIcon from './StatusIcons/NoWinLiftIcon';
+import OppositePowerIcon from './StatusIcons/OppositePowerIcon';
+import RoyalsDisabledIcon from './StatusIcons/RoyalsDisabledIcon';
+import TrumpDisabledIcon from './StatusIcons/TrumpDisabledIcon';
+import TwoWinGameIcon from './StatusIcons/TwoWinGameIcon';
 
 interface Props {
   roomId?: string;
@@ -491,7 +500,7 @@ export default function Gameboard({ roomId }: Props) {
                 spotlighted={isTargettingLift}
               />
 
-              <div className='flex flex-row gap-32'>
+              <div className='flex flex-row'>
                 <PlayingCard
                   cardData={player4CardPlayed}
                   isOutline
@@ -501,6 +510,20 @@ export default function Gameboard({ roomId }: Props) {
                   onClickHandler={handleLiftCardClick}
                   spotlighted={isTargettingLift}
                 />
+
+                <div className='w-32 px-2 flex flex-wrap justify-center items-center gap-2'>
+
+                  <AbilitiesDisabledIcon active={activeAbilities?.includes(CardAbilities.abilitiesDisabled)} />
+                  <DoubleLiftIcon active={activeAbilities?.includes(CardAbilities.doubleLift)} />
+                  <DoublePointsIcon active={activeAbilities?.includes(CardAbilities.doublePoints)} />
+                  <NinePowerfulIcon active={activeAbilities?.includes(CardAbilities.ninePowerful)} />
+                  <NoWinLiftIcon active={activeAbilities?.includes(CardAbilities.noWinLift)} />
+                  <OppositePowerIcon active={activeAbilities?.includes(CardAbilities.oppositePower)} />
+                  <RoyalsDisabledIcon active={activeAbilities?.includes(CardAbilities.royalsDisabled)} />
+                  <TrumpDisabledIcon active={activeAbilities?.includes(CardAbilities.trumpDisabled)} />
+                  <TwoWinGameIcon active={activeAbilities?.includes(CardAbilities.twoWinGame)} />
+
+                </div>
 
                 <PlayingCard
                   cardData={player2CardPlayed}
