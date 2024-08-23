@@ -14,8 +14,9 @@ import RoundWinnersModal from './Modals/RoundWinnersModal';
 import { RoundWinners } from '../../models/RoundWinners';
 import { useRouter } from 'next/navigation';
 import { socket } from '../SocketClient';
-import AbilitiesDisabledIcon from './StatusIcons/AbilitiesDisabledIcon';
 import { CardAbilities } from '../../core/services/abilities';
+import Marker from './PositionMarkers/Marker';
+import { setPlayer1HandPos, setPlayer2HandPos, setPlayer3HandPos, setPlayer4HandPos } from '../../slices/position.slice';
 
 interface Props {
   roomId?: string;
@@ -421,7 +422,7 @@ export default function Gameboard({ roomId }: Props) {
               </div>
             </div>
 
-            <div className="w-full flex flex-row justify-center" ref={player3Hand}>
+            <div className="w-full flex flex-row justify-center items-center" ref={player3Hand}>
               {
                 Array.from({ length: player3Data?.numCards ?? 0 }, (_, k) => (
                   <PlayingCard
@@ -432,6 +433,8 @@ export default function Gameboard({ roomId }: Props) {
                   />
                 ))
               }
+
+              <Marker dispatchFunction={setPlayer3HandPos} />
             </div>
           </div>
           {/* -----------------------------------------------------------------*/}
@@ -466,6 +469,8 @@ export default function Gameboard({ roomId }: Props) {
                   />
                 ))
               }
+
+              <Marker dispatchFunction={setPlayer4HandPos} />
             </div>
             {/* -----------------------------------------------------------------*/}
 
@@ -540,6 +545,7 @@ export default function Gameboard({ roomId }: Props) {
                 ))
               }
 
+              <Marker dispatchFunction={setPlayer2HandPos} />
             </div>
 
             <div className='flex flex-col justify-center items-center w-2/12'>
@@ -564,7 +570,8 @@ export default function Gameboard({ roomId }: Props) {
 
           {/* ------------------------ Player 1 Info  ------------------------*/}
           <div className='h-[25vh]'>
-            <div className="w-full flex flex-row justify-center" ref={player1Hand}>
+
+              <div className="w-full flex flex-row justify-center items-center" ref={player1Hand}>
               {
                 Array.from({ length: player1Cards.length == 0 ? player1Data?.numCards ?? 0 : player1Cards.length}, (_, k) => (
                   <PlayingCard
@@ -577,6 +584,8 @@ export default function Gameboard({ roomId }: Props) {
                   />
                 ))
               }
+
+              <Marker dispatchFunction={setPlayer1HandPos} />
             </div>
 
             <div className='flex flex-col items-center justify-center p-3'>

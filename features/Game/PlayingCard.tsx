@@ -5,6 +5,7 @@ import { getCardShortcode } from '../../core/services/parseCard';
 import { motion, AnimatePresence } from "framer-motion";
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { delay } from '../../core/services/delay';
+import { getPlayer1HandPos, getPlayer2HandPos, getPlayer3HandPos, getPlayer4HandPos } from '../../slices/position.slice';
 
 
 interface Props {
@@ -42,6 +43,11 @@ export default function PlayingCard({
 
   const [focused, setFocused] = useState<boolean>(false);
 
+  const player1HandPos = useAppSelector(getPlayer1HandPos);
+  const player2HandPos = useAppSelector(getPlayer2HandPos);
+  const player3HandPos = useAppSelector(getPlayer3HandPos);
+  const player4HandPos = useAppSelector(getPlayer4HandPos);
+
   const card = useMemo(() => {
     return getCardShortcode(cardData);
   }, [cardData]);
@@ -60,73 +66,28 @@ export default function PlayingCard({
 
     await delay(850);
 
-    if (liftWinner == 1) {
+    const cardPos = cardRef.current.getBoundingClientRect();
+    const cardX = cardPos.left + cardPos.width / 2;
+    const cardY = cardPos.y + cardPos.height / 2
 
-      if (liftCard == 1) {
-        setY(num1);
-      }
-      else if (liftCard == 2) {
-        setY(num2);
-        setX(-num1);
-      }
-      else if (liftCard == 3) {
-        setY(num4);
-      }
-      else if (liftCard == 4) {
-        setY(num2);
-        setX(num1);
-      }
+    if (liftWinner == 1) {
+      setY(player1HandPos.y - cardY);
+      setX(player1HandPos.x - cardX);
     }
 
     else if (liftWinner == 2) {
-      if (liftCard == 1) {
-        setY(-num2);
-        setX(num3)
-      }
-      else if (liftCard == 2) {
-        setX(num1);
-      }
-      else if (liftCard == 3) {
-        setX(num3);
-        setY(num2);
-      }
-      else if (liftCard == 4) {
-        setX(num4);
-      }
+      setY(player2HandPos.y - cardY);
+      setX(player2HandPos.x - cardX);
     }
 
     else if (liftWinner == 3) {
-      if (liftCard == 1) {
-        setY(-num4);
-      }
-      else if (liftCard == 2) {
-        setY(-num2);
-        setX(-num1);
-      }
-      else if (liftCard == 3) {
-        setY(-num1);
-      }
-      else if (liftCard == 4) {
-        setY(-num2);
-        setX(num1);
-      }
+      setY(player3HandPos.y - cardY);
+      setX(player3HandPos.x - cardX);
     }
 
     else if (liftWinner == 4) {
-      if (liftCard == 1) {
-        setY(-num2);
-        setX(-num3)
-      }
-      else if (liftCard == 2) {
-        setX(-num4)
-      }
-      else if (liftCard == 3) {
-        setX(-num3);
-        setY(num2);
-      }
-      else if (liftCard == 4) {
-        setX(-num1);
-      }
+      setY(player4HandPos.y - cardY);
+      setX(player4HandPos.x - cardX);
     }
   }
 
@@ -180,7 +141,7 @@ export default function PlayingCard({
       ref={cardRef}
       className={`${className}`}
       onClick={handleClick}
-      style={{ zIndex: spotlighted ? 9999 : undefined, ...style}}>
+      style={{ zIndex: spotlighted ? 9999 : liftCard ? 10 : undefined, ...style}}>
       { !isDeckCard ? (
         card ?
           <motion.div
