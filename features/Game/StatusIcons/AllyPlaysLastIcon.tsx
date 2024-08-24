@@ -10,16 +10,15 @@ interface Props {
 
 export default function AllyPlaysLastIcon({ active }: Props) {
   return (
-    active ?
-      <StatusIcon
-        icon={<Image priority
-          src={allyPlaysLastSvg}
-          alt="" />}
-        twBgColour='bg-green-200'
-        twBorderColour='border-green-600'
-        tooltip='This player is playing last this turn'
-        shortcode='allyPlaysLast'
-      />
-      : <></>
+    <StatusIcon
+      icon={<Image priority
+        src={allyPlaysLastSvg}
+        alt="" />}
+      twBgColour='bg-green-200'
+      twBorderColour='border-green-600'
+      tooltip='This player is playing last this turn'
+      shortcode='allyPlaysLast'
+      active={active}
+    />
   );
 }

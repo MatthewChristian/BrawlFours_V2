@@ -10,16 +10,15 @@ interface Props {
 
 export default function TwoWinGameIcon({ active }: Props) {
   return (
-    active ?
-      <StatusIcon
-        icon={<Image priority
-          src={twoWinGameSvg}
-          alt="" />}
-        twBgColour='bg-amber-200'
-        twBorderColour='border-amber-600'
-        tooltip="The team who played the two of clubs will win game!"
-        shortcode='twoWinGame'
-      />
-      : <></>
+    <StatusIcon
+      icon={<Image priority
+        src={twoWinGameSvg}
+        alt="" />}
+      twBgColour='bg-amber-200'
+      twBorderColour='border-amber-600'
+      tooltip="The team who played the two of clubs will win game!"
+      shortcode='twoWinGame'
+      active={active}
+    />
   );
 }

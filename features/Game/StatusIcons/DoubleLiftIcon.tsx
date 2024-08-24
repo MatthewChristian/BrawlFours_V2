@@ -10,16 +10,15 @@ interface Props {
 
 export default function DoubleLiftIcon({ active }: Props) {
   return (
-    active ?
-      <StatusIcon
-        icon={<Image priority
-          src={doubleLiftSvg}
-          alt="" />}
-        twBgColour='bg-green-200'
-        twBorderColour='border-green-600'
-        tooltip='The winner of the lift next turn wins both lifts!'
-        shortcode='doubleLift'
-      />
-      : <></>
+    <StatusIcon
+      icon={<Image priority
+        src={doubleLiftSvg}
+        alt="" />}
+      twBgColour='bg-green-200'
+      twBorderColour='border-green-600'
+      tooltip='The winner of the lift next turn wins both lifts!'
+      shortcode='doubleLift'
+      active={active}
+    />
   );
 }

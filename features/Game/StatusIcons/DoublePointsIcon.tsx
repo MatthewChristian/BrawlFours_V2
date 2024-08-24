@@ -10,16 +10,15 @@ interface Props {
 
 export default function DoublePointsIcon({ active }: Props) {
   return (
-    active ?
-      <StatusIcon
-        icon={<Image priority
-          src={doublePointsSvg}
-          alt="" />}
-        twBgColour='bg-amber-200'
-        twBorderColour='border-amber-600'
-        tooltip='This lift is worth double the points for game!'
-        shortcode='doublePoints'
-      />
-      : <></>
+    <StatusIcon
+      icon={<Image priority
+        src={doublePointsSvg}
+        alt="" />}
+      twBgColour='bg-amber-200'
+      twBorderColour='border-amber-600'
+      tooltip='This lift is worth double the points for game!'
+      shortcode='doublePoints'
+      active={active}
+    />
   );
 }

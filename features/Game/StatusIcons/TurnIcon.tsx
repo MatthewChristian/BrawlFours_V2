@@ -7,13 +7,12 @@ interface Props {
 
 export default function TurnIcon({ active }: Props) {
   return (
-    active ?
-      <StatusIcon
-        icon={<div className='font-bold'>T</div>}
-        twBgColour='bg-green-200'
-        twTextColour='text-green-600'
-        twBorderColour='border-green-600'
-      />
-      : <></>
+    <StatusIcon
+      icon={<div className='font-bold'>T</div>}
+      twBgColour='bg-green-200'
+      twTextColour='text-green-600'
+      twBorderColour='border-green-600'
+      active={active}
+    />
   );
 }

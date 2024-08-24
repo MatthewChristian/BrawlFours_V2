@@ -10,16 +10,15 @@ interface Props {
 
 export default function AbilitiesDisabledIcon({ active }: Props) {
   return (
-    active ?
-      <StatusIcon
-        icon={<Image priority
-          src={abilitiesDisabledSvg}
-          alt="" />}
-        twBgColour='bg-red-200'
-        twBorderColour='border-red-600'
-        tooltip='All other abilities are disabled this turn'
-        shortcode='abilitiesDisabled'
-      />
-      : <></>
+    <StatusIcon
+      icon={<Image priority
+        src={abilitiesDisabledSvg}
+        alt="" />}
+      twBgColour='bg-red-200'
+      twBorderColour='border-red-600'
+      tooltip='All other abilities are disabled this turn'
+      shortcode='abilitiesDisabled'
+      active={active}
+    />
   );
 }

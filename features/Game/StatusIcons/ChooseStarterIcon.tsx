@@ -10,16 +10,15 @@ interface Props {
 
 export default function ChooseStarterIcon({ active }: Props) {
   return (
-    active ?
-      <StatusIcon
-        icon={<Image priority
-          src={chooseStarterSvg}
-          alt="" />}
-        twBgColour='bg-blue-200'
-        twBorderColour='border-blue-600'
-        tooltip='This player is going to play first next turn'
-        shortcode='chooseStarter'
-      />
-      : <></>
+    <StatusIcon
+      icon={<Image priority
+        src={chooseStarterSvg}
+        alt="" />}
+      twBgColour='bg-blue-200'
+      twBorderColour='border-blue-600'
+      tooltip='This player is going to play first next turn'
+      shortcode='chooseStarter'
+      active={active}
+    />
   );
 }

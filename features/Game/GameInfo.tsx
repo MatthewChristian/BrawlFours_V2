@@ -19,8 +19,6 @@ export default function GameInfo({ playerTeam, socketData } : Props) {
 
   const game = useAppSelector(getGame);
 
-  const activeAbilities = useAppSelector(getActiveAbilities);
-
   const teamScoreOrdered = useMemo(() => {
     return orderScore(teamScore);
   }, [teamScore, playerTeam]);

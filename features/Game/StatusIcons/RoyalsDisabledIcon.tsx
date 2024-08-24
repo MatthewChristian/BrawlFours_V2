@@ -10,16 +10,15 @@ interface Props {
 
 export default function RoyalsDisabledIcon({ active }: Props) {
   return (
-    active ?
-      <StatusIcon
-        icon={<Image priority
-          src={royalsDisabledSvg}
-          alt="" />}
-        twBgColour='bg-red-200'
-        twBorderColour='border-red-600'
-        tooltip='Royals are disabled from being played for this turn'
-        shortcode='royalsDisabled'
-      />
-      : <></>
+    <StatusIcon
+      icon={<Image priority
+        src={royalsDisabledSvg}
+        alt="" />}
+      twBgColour='bg-red-200'
+      twBorderColour='border-red-600'
+      tooltip='Royals are disabled from being played for this turn'
+      shortcode='royalsDisabled'
+      active={active}
+    />
   );
 }

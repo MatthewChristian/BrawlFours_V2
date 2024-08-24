@@ -10,16 +10,15 @@ interface Props {
 
 export default function TrumpDisabledIcon({ active }: Props) {
   return (
-    active ?
-      <StatusIcon
-        icon={<Image priority
-          src={trumpDisabledSvg}
-          alt="" />}
-        twBgColour='bg-red-200'
-        twBorderColour='border-red-600'
-        tooltip='Trump is disabled from being played for this turn'
-        shortcode='trumpDisabled'
-      />
-      : <></>
+    <StatusIcon
+      icon={<Image priority
+        src={trumpDisabledSvg}
+        alt="" />}
+      twBgColour='bg-red-200'
+      twBorderColour='border-red-600'
+      tooltip='Trump is disabled from being played for this turn'
+      shortcode='trumpDisabled'
+      active={active}
+    />
   );
 }

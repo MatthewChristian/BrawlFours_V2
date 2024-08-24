@@ -7,13 +7,12 @@ interface Props {
 
 export default function DealerIcon({ active }: Props) {
   return (
-    active ?
-      <StatusIcon
-        icon={<div className='font-bold'>D</div>}
-        twBgColour='bg-blue-200'
-        twTextColour='text-blue-500'
-        twBorderColour='border-blue-500'
-      />
-      : <></>
+    <StatusIcon
+      icon={<div className='font-bold'>D</div>}
+      twBgColour='bg-blue-200'
+      twTextColour='text-blue-500'
+      twBorderColour='border-blue-500'
+      active={active}
+    />
   );
 }
