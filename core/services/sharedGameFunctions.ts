@@ -66,9 +66,23 @@ function didUndertrump(roomData: RoomSocket, card: DeckCard) {
   return undertrumped;
 }
 
+function isCardRoyal(card: DeckCard) {
+  if (card.value?.toUpperCase() == 'J'
+    || card.value?.toUpperCase() == 'Q'
+    || card.value?.toUpperCase() == 'K'
+    || card.value?.toUpperCase() == 'A'
+  ) {
+    return true;
+  }
+
+return false;
+}
+
 export function determineIfCardsPlayable(roomData: RoomSocket, player: PlayerSocket) {
   let bare = true;
   let flush = true;
+  let flushRoyalsCalled = true;
+  let flushRoyals = true;
   const trump = roomData.trump;
 
 
@@ -82,13 +96,22 @@ export function determineIfCardsPlayable(roomData: RoomSocket, player: PlayerSoc
     }
 
     // Determine if a player does not have a card in the suit of the card that was called
-    if (roomData.called && el.suit == roomData.called.suit) {
+    if (roomData.called && (el.suit == roomData.called.suit)) {
       bare = false;
     }
 
     // Determine if player is flush (only has trump in hand)
     if (!el.trump) {
       flush = false;
+    }
+
+    // Determine if a player only has royals in the suit that called
+    if (!isCardRoyal(el)) {
+      flushRoyals = false;
+
+      if (roomData.called && (el.suit == roomData.called.suit)) {
+        flushRoyalsCalled = false;
+      }
     }
   });
 
@@ -101,6 +124,10 @@ export function determineIfCardsPlayable(roomData: RoomSocket, player: PlayerSoc
     }
     // If card is trump but trump is disabled for that round and the player is not flush and trump was not called
     else if (roomData.activeAbilities?.includes(CardAbilities.trumpDisabled) && card.trump && !flush && roomData.called && card.suit != roomData.called.suit) {
+      card.playable = false;
+    }
+    // If card is a royal but royals are disabled for that round and the player is not flush in the suit that was called
+    else if (roomData.activeAbilities?.includes(CardAbilities.royalsDisabled) && isCardRoyal(card) && (!flushRoyalsCalled || (!flushRoyals && bare))) {
       card.playable = false;
     }
     // If the player:

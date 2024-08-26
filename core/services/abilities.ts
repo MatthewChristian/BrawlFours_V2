@@ -201,7 +201,7 @@ const abilityData: Partial<AbilityData> = {
   },
   [CardAbilities.royalsDisabled]: {
     description: 'No royals can be played this turn unless they are flush',
-    ability: (args: AbilityInput) => targetPowerlessAbility(args),
+    ability: (args: AbilityInput) => royalsDisabledAbility(args),
     duration: 'lift'
   },
   [CardAbilities.hangSaver]: {
@@ -350,4 +350,8 @@ function shuffleHandAbility(args: AbilityInput) {
   determineIfCardsPlayable(args.roomData, player);
 
   emitPlayerCardData(args.roomData.users, args.io);
+}
+
+function royalsDisabledAbility(args: AbilityInput) {
+  args.roomData.activeAbilities.push(CardAbilities.royalsDisabled);
 }
