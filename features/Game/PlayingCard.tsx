@@ -1,9 +1,9 @@
-import React, { RefObject, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import { DeckCard } from '../../models/DeckCard';
 import { getCardShortcode } from '../../core/services/parseCard';
-import { motion, AnimatePresence } from "framer-motion";
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { motion } from "framer-motion";
+import { useAppSelector } from '../../store/hooks';
 import { delay } from '../../core/services/delay';
 import { getPlayer1HandPos, getPlayer2HandPos, getPlayer3HandPos, getPlayer4HandPos } from '../../slices/position.slice';
 
@@ -59,10 +59,6 @@ export default function PlayingCard({
   }
 
   async function handleLiftWinner() {
-    const num1 = 60;
-    const num2 = 140;
-    const num3 = 170;
-    const num4 = 220;
 
     await delay(850);
 
@@ -150,7 +146,7 @@ export default function PlayingCard({
             initial={liftCard == 1 ? { y: 20 } : liftCard == 2 ? { x: 20 } : liftCard == 3 ? { y: -20 } : liftCard == 4 ? { x: -20 } : undefined}
           >
             <div
-              style={{position: 'relative', height: 120, width: 80 }}
+              style={{position: 'relative',  height: '15vh', aspectRatio: '3/5'}}
               onMouseOver={() => cardData?.playable && !isNotPlayable ? setFocused(true) : undefined}
               onMouseLeave={() => setFocused(false)}
             >
@@ -165,7 +161,7 @@ export default function PlayingCard({
             </div>
           </motion.div>
           : isOutline ?
-            <div style={{ position: 'relative', height: 120, width: 80 }}>
+            <div style={{ position: 'relative', height: '15vh', aspectRatio: '3/5' }}>
               <Image
                 src={'/images/card-outline.png'}
                 fill
@@ -178,7 +174,7 @@ export default function PlayingCard({
       )
         :
         (
-          <div style={{ position: 'relative', height: 120, width: 80}}>
+          <div style={{ position: 'relative', height: '15vh', aspectRatio: '3/5' }}>
             <Image
               src={'/images/red_back.png'}
               fill
