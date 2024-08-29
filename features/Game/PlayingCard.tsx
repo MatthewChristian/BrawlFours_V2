@@ -1,11 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import { DeckCard } from '../../models/DeckCard';
-import { getCardShortcode } from '../../core/services/parseCard';
+import { getCardAnchorSelect, getCardShortcode } from '../../core/services/parseCard';
 import { motion } from "framer-motion";
 import { useAppSelector } from '../../store/hooks';
 import { delay } from '../../core/services/delay';
 import { getPlayer1HandPos, getPlayer2HandPos, getPlayer3HandPos, getPlayer4HandPos } from '../../slices/position.slice';
+import CardInfoTooltip from './CardInfoTooltip';
+
 
 
 interface Props {
@@ -42,6 +44,8 @@ export default function PlayingCard({
   const [x, setX] = useState(0);
 
   const [focused, setFocused] = useState<boolean>(false);
+  const [hovering, setHovering] = useState<boolean>(false);
+  const [tooltipActive, setTooltipActive] = useState<boolean>(false);
 
   const player1HandPos = useAppSelector(getPlayer1HandPos);
   const player2HandPos = useAppSelector(getPlayer2HandPos);
@@ -52,10 +56,40 @@ export default function PlayingCard({
     return getCardShortcode(cardData);
   }, [cardData]);
 
+  const anchorSelect = useMemo(() => {
+    return getCardAnchorSelect(cardData);
+  }, [cardData]);
+
+  const tooltipEnabled = useMemo(() => {
+    return (!isDeckCard && card) ? true : false
+  }, [card]);
+
   function handleClick() {
     if (!isNotPlayable && onClickHandler) {
       onClickHandler(cardData, player);
     }
+  }
+
+  async function handleOnMouseOver() {
+    if (!tooltipEnabled) {
+      return;
+    }
+
+    setHovering(true);
+    // await delay(150);
+
+    console.log("Setting active");
+    setTooltipActive(true);
+
+  }
+
+  function handleOnMouseLeave() {
+    if (!tooltipEnabled) {
+      return;
+    }
+
+    setTooltipActive(false);
+    setHovering(false);
   }
 
   async function handleLiftWinner() {
@@ -132,58 +166,68 @@ export default function PlayingCard({
     handleLiftWinner();
   }, [liftWinner, liftCard]);
 
+  useEffect(() => {
+    console.log("TA: ", tooltipActive);
+  }, [tooltipActive]);
+
   return (
-    <div
-      ref={cardRef}
-      className={`${className}`}
-      onClick={handleClick}
-      style={{ zIndex: spotlighted ? 9999 : liftCard ? 10 : undefined, ...style}}>
-      { !isDeckCard ? (
-        card ?
-          <motion.div
-            animate={{ x, y }}
-            transition={{ type: liftWinner ? "tween" : "spring" }}
-            initial={liftCard == 1 ? { y: 20 } : liftCard == 2 ? { x: 20 } : liftCard == 3 ? { y: -20 } : liftCard == 4 ? { x: -20 } : undefined}
-          >
-            <div
-              style={{position: 'relative',  height: '15vh', aspectRatio: '3/5'}}
-              onMouseOver={() => cardData?.playable && !isNotPlayable ? setFocused(true) : undefined}
-              onMouseLeave={() => setFocused(false)}
+    <>
+      <CardInfoTooltip card={cardData} active={tooltipEnabled} offsetY={-y}/>
+
+      <div
+        ref={cardRef}
+        className={`${className} ${anchorSelect}`}
+        onClick={handleClick}
+        onMouseOver={async () => await handleOnMouseOver()}
+        onMouseLeave={handleOnMouseLeave}
+        style={{ zIndex: spotlighted ? 9999 : liftCard ? 10 : undefined, ...style}}>
+        { !isDeckCard ? (
+          card ?
+            <motion.div
+              animate={{ x, y }}
+              transition={{ type: liftWinner ? "tween" : "spring" }}
+              initial={liftCard == 1 ? { y: 20 } : liftCard == 2 ? { x: 20 } : liftCard == 3 ? { y: -20 } : liftCard == 4 ? { x: -20 } : undefined}
             >
-              <Image
-                src={`/images/${card}.png`}
-                fill
-                sizes="10vw"
-                style={{ objectFit: 'fill' }}
-                alt='card'
-                className={getGlowClassName()}
-              />
-            </div>
-          </motion.div>
-          : isOutline ?
+              <div
+                style={{position: 'relative',  height: '15vh', aspectRatio: '3/5'}}
+                onMouseOver={() => cardData?.playable && !isNotPlayable ? setFocused(true) : undefined}
+                onMouseLeave={() => setFocused(false)}
+              >
+                <Image
+                  src={`/images/${card}.png`}
+                  fill
+                  sizes="10vw"
+                  style={{ objectFit: 'fill' }}
+                  alt='card'
+                  className={getGlowClassName()}
+                />
+              </div>
+            </motion.div>
+            : isOutline ?
+              <div style={{ position: 'relative', height: '15vh', aspectRatio: '3/5' }}>
+                <Image
+                  src={'/images/card-outline.png'}
+                  fill
+                  style={{ objectFit: 'fill' }}
+                  sizes="10vw"
+                  alt='card'
+                />
+              </div>
+              : null
+        )
+          :
+          (
             <div style={{ position: 'relative', height: '15vh', aspectRatio: '3/5' }}>
               <Image
-                src={'/images/card-outline.png'}
+                src={'/images/red_back.png'}
                 fill
                 style={{ objectFit: 'fill' }}
                 sizes="10vw"
                 alt='card'
               />
             </div>
-            : null
-      )
-        :
-        (
-          <div style={{ position: 'relative', height: '15vh', aspectRatio: '3/5' }}>
-            <Image
-              src={'/images/red_back.png'}
-              fill
-              style={{ objectFit: 'fill' }}
-              sizes="10vw"
-              alt='card'
-            />
-          </div>
-        ) }
-    </div>
+          ) }
+      </div>
+    </>
   );
 }

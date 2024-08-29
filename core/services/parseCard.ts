@@ -11,6 +11,10 @@ export function getCardShortcode(cardData?: DeckCard) {
   return suit + value;
 }
 
+export function getCardAnchorSelect(cardData?: DeckCard) {
+  return 'card_' + getCardShortcode(cardData);
+}
+
 export function getCardName(cardData?: DeckCard) {
   if (!cardData) {
     return undefined;

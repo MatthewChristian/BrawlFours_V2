@@ -18,7 +18,7 @@ export default function Layout({ children }: Props) {
 
   const dispatch = useAppDispatch();
 
-  const supportsTouch = 'ontouchstart' in window || navigator.maxTouchPoints;
+  const supportsTouch = typeof window !== 'undefined' ? 'ontouchstart' in window || navigator.maxTouchPoints : false;
 
   useEffect(() => {
 
