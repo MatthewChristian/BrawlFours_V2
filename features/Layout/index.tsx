@@ -13,10 +13,12 @@ interface Props {
 
 
 export default function Layout({ children }: Props) {
-  // Manage socket.io websocket
+
   const router = useRouter();
 
   const dispatch = useAppDispatch();
+
+  const supportsTouch = 'ontouchstart' in window || navigator.maxTouchPoints;
 
   useEffect(() => {
 
@@ -25,7 +27,6 @@ export default function Layout({ children }: Props) {
     }
 
     socket.on('playersInRoom', (players) => {
-      console.log("PL: ", players);
       dispatch(setPlayerList(players));
     });
 
@@ -64,7 +65,6 @@ export default function Layout({ children }: Props) {
     });
 
     socket.on('playerCards', (cards) => {
-      console.log("PCs: ", cards);
       dispatch(setPlayerCards(cards));
     });
 
