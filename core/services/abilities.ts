@@ -302,6 +302,7 @@ function alwaysPlayableAbility(args: AbilityInput) {
 function ninePowerfulAbility(args: AbilityInput) {
   if (args.roomData.game.includes(9)) {
     args.roomData.activeAbilities.push(CardAbilities.ninePowerful);
+    args.card.power = 9001;
   }
 }
 
