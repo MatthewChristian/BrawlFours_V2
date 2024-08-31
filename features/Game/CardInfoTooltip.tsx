@@ -19,7 +19,7 @@ export default function CardInfoTooltip({ card, active, offsetY }: Props) {
   const activeAbilities = useAppSelector(getActiveAbilities);
 
   const isDisabled = useMemo(() => {
-    if (!activeAbilities.includes(CardAbilities.abilitiesDisabled)) {
+    if (activeAbilities.includes(CardAbilities.abilitiesDisabled)) {
       return true;
     }
 
