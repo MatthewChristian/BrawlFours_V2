@@ -2,9 +2,11 @@ import React, { useMemo } from 'react'
 import Image from 'next/image';
 import { Tooltip } from 'react-tooltip'
 import { DeckCard } from '../../models/DeckCard'
-import { getCardAnchorSelect, getCardShortcode } from '../../core/services/parseCard';
-import { getAbilityData } from '../../core/services/abilities';
+import { getCardAnchorSelect } from '../../core/services/parseCard';
+import { CardAbilities, getAbilityData } from '../../core/services/abilities';
 import powerSvg from "../../public/images/power.svg";
+import { useAppSelector } from '../../store/hooks';
+import { getActiveAbilities } from '../../slices/game.slice';
 
 interface Props {
   card: DeckCard;
@@ -14,8 +16,22 @@ interface Props {
 
 export default function CardInfoTooltip({ card, active, offsetY }: Props) {
 
+  const activeAbilities = useAppSelector(getActiveAbilities);
+
+  const isDisabled = useMemo(() => {
+    if (!activeAbilities.includes(CardAbilities.abilitiesDisabled)) {
+      return true;
+    }
+
+    return false;
+  }, [activeAbilities]);
+
   const anchorSelect = useMemo(() => {
     return getCardAnchorSelect(card);
+  }, [card]);
+
+  const abilityDescription = useMemo(() => {
+    return getAbilityData(card?.ability)?.description;
   }, [card]);
 
   return (
@@ -30,17 +46,32 @@ export default function CardInfoTooltip({ card, active, offsetY }: Props) {
       >
         <div className='flex flex-col gap-2'>
           <div className='flex flex-row gap-1 items-baseline'>
-            <div className='relative top-1'>
+            <div className='relative top-1 w-5'>
               <Image priority
                 src={powerSvg}
                 alt="" />
             </div>
             <div className='text-green-500'>{card.power} Power</div>
           </div>
+
           <div className='border-t-2 border-white'></div>
-          <div className='text-amber-500'>{card.points} Points</div>
-          <div className='border-t-2 border-white'></div>
-          <div>{getAbilityData(card?.ability)?.description}</div>
+
+          <div className='flex flex-row gap-1 items-center'>
+            <div className='w-5 flex justify-center'>
+              <div className='rounded-full h-3 w-3 border-2 border-amber-600 bg-amber-500'></div>
+            </div>
+            <div className='text-amber-500 relative top-[2px]'>{card.points} {card.points == 1 ? 'Point' : 'Points'}</div>
+          </div>
+
+          {abilityDescription ?
+            <div className='border-t-2 border-white'></div>
+            : <></>
+          }
+
+          <div className={isDisabled ? 'text-red-500 flex flex-col gap-1' : ''}>
+            {isDisabled && abilityDescription ? <div>ABILITY DISABLED</div> : undefined}
+            {abilityDescription}
+          </div>
         </div>
       </Tooltip>
     : undefined
