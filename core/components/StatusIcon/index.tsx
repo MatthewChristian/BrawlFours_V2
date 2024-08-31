@@ -16,7 +16,7 @@ export default function StatusIcon({ icon, shortcode, tooltip, twBgColour, twTex
     active ?
       <>
         { tooltip ?
-          <Tooltip anchorSelect={`.${shortcode}`} place="top">
+          <Tooltip anchorSelect={`.${shortcode}`} place="top" style={{ zIndex: 10000 }}>
             {tooltip}
           </Tooltip>
         : undefined
