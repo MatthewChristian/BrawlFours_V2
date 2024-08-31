@@ -43,7 +43,7 @@ export default function GameInfo({ playerTeam, socketData } : Props) {
 
 
   return (
-    <div className="bg-red-100 p-2 h-screen w-1/5 z-[9999]">
+    <div className="bg-red-100 p-2 h-screen w-1/5 z-[9999] min-w-min">
 
       <div className='h-[30vh]'>
         <div className='flex flex-row'>

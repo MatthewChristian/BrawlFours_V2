@@ -44,8 +44,6 @@ export default function PlayingCard({
   const [x, setX] = useState(0);
 
   const [focused, setFocused] = useState<boolean>(false);
-  const [hovering, setHovering] = useState<boolean>(false);
-  const [tooltipActive, setTooltipActive] = useState<boolean>(false);
 
   const player1HandPos = useAppSelector(getPlayer1HandPos);
   const player2HandPos = useAppSelector(getPlayer2HandPos);
@@ -68,28 +66,6 @@ export default function PlayingCard({
     if (!isNotPlayable && onClickHandler) {
       onClickHandler(cardData, player);
     }
-  }
-
-  async function handleOnMouseOver() {
-    if (!tooltipEnabled) {
-      return;
-    }
-
-    setHovering(true);
-    // await delay(150);
-
-    console.log("Setting active");
-    setTooltipActive(true);
-
-  }
-
-  function handleOnMouseLeave() {
-    if (!tooltipEnabled) {
-      return;
-    }
-
-    setTooltipActive(false);
-    setHovering(false);
   }
 
   async function handleLiftWinner() {
@@ -166,10 +142,6 @@ export default function PlayingCard({
     handleLiftWinner();
   }, [liftWinner, liftCard]);
 
-  useEffect(() => {
-    console.log("TA: ", tooltipActive);
-  }, [tooltipActive]);
-
   return (
     <>
       <CardInfoTooltip card={cardData} active={tooltipEnabled} offsetY={-y}/>
@@ -178,8 +150,6 @@ export default function PlayingCard({
         ref={cardRef}
         className={`${className} ${anchorSelect}`}
         onClick={handleClick}
-        onMouseOver={async () => await handleOnMouseOver()}
-        onMouseLeave={handleOnMouseLeave}
         style={{ zIndex: spotlighted ? 9999 : liftCard ? 10 : undefined, ...style}}>
         { !isDeckCard ? (
           card ?
