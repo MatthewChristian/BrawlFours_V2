@@ -5,6 +5,7 @@ import { DeckCard } from '../../models/DeckCard'
 import { getCardAnchorSelect } from '../../core/services/parseCard';
 import { CardAbilities, getAbilityData } from '../../core/services/abilities';
 import powerSvg from "../../public/images/power.svg";
+import powerZeroSvg from "../../public/images/powerZero.svg";
 import { useAppSelector } from '../../store/hooks';
 import { getActiveAbilities } from '../../slices/game.slice';
 
@@ -48,19 +49,19 @@ export default function CardInfoTooltip({ card, active, offsetY }: Props) {
           <div className='flex flex-row gap-1 items-baseline'>
             <div className='relative top-1 w-5'>
               <Image priority
-                src={powerSvg}
+                src={card.power == 0 ? powerZeroSvg : powerSvg}
                 alt="" />
             </div>
-            <div className='text-green-500'>{card.power} Power</div>
+            <div className={card.power == 0 ? 'text-red-500' : 'text-green-500'}>{card.power} Power</div>
           </div>
 
           <div className='border-t-2 border-white'></div>
 
           <div className='flex flex-row gap-1 items-center'>
             <div className='w-5 flex justify-center'>
-              <div className='rounded-full h-3 w-3 border-2 border-amber-600 bg-amber-500'></div>
+              <div className={`rounded-full h-3 w-3 border-2 ${card.points == 0 ? 'border-red-700 bg-red-500' : 'border-amber-600 bg-amber-500'} `}></div>
             </div>
-            <div className='text-amber-500 relative top-[2px]'>{card.points} {card.points == 1 ? 'Point' : 'Points'}</div>
+            <div className={`${card.points == 0 ? 'text-red-500' : 'text-amber-500'} relative top-[2px]`}>{card.points} {card.points == 1 ? 'Point' : 'Points'}</div>
           </div>
 
           {abilityDescription ?
