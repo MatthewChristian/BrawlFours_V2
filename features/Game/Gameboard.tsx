@@ -514,13 +514,13 @@ export default function Gameboard({ roomId }: Props) {
                 <div className='w-32 px-2 flex flex-wrap justify-center items-center gap-2'>
 
                   <AbilitiesDisabledIcon active={activeAbilities?.includes(CardAbilities.abilitiesDisabled)} />
+                  <RoyalsDisabledIcon active={activeAbilities?.includes(CardAbilities.royalsDisabled)} />
+                  <TrumpDisabledIcon active={activeAbilities?.includes(CardAbilities.trumpDisabled)} />
+                  <NoWinLiftIcon active={activeAbilities?.includes(CardAbilities.noWinLift)} />
+                  <OppositePowerIcon active={activeAbilities?.includes(CardAbilities.oppositePower)} />
                   <DoubleLiftIcon active={activeAbilities?.includes(CardAbilities.doubleLift)} />
                   <DoublePointsIcon active={activeAbilities?.includes(CardAbilities.doublePoints)} />
                   <NinePowerfulIcon active={activeAbilities?.includes(CardAbilities.ninePowerful)} />
-                  <NoWinLiftIcon active={activeAbilities?.includes(CardAbilities.noWinLift)} />
-                  <OppositePowerIcon active={activeAbilities?.includes(CardAbilities.oppositePower)} />
-                  <RoyalsDisabledIcon active={activeAbilities?.includes(CardAbilities.royalsDisabled)} />
-                  <TrumpDisabledIcon active={activeAbilities?.includes(CardAbilities.trumpDisabled)} />
                   <TwoWinGameIcon active={activeAbilities?.includes(CardAbilities.twoWinGame)} />
 
                 </div>

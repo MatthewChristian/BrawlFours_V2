@@ -11,9 +11,9 @@ interface Props {
 export default function OppositePowerIcon({ active }: Props) {
   return (
     <StatusIcon
-      icon={<Image priority
+      icon={<div className='mx-[3px] mt-[1px]'><Image priority
         src={oppositePowerSvg}
-        alt="" />}
+        alt="" /></div>}
       twBgColour='bg-blue-200'
       twBorderColour='border-blue-600'
       tooltip='Card power is reversed this turn!'
