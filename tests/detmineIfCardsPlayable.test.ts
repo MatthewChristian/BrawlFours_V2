@@ -304,4 +304,127 @@ describe('Are Cards Playable', () => {
   });
 
 
+
+
+  test('trumpDisabled ability is active', () => {
+    const cards = [
+      { ...testCard, value: '2', suit: 'd' },
+      { ...testCard, value: '3', suit: 'd' },
+      { ...testCard, value: '4', suit: 'c' },
+      { ...testCard, value: '5', suit: 's' },
+      { ...testCard, value: '6', suit: 'h' },
+      { ...testCard, value: '7', suit: 'h' },
+    ]
+
+    player.cards = cards;
+
+    const tempRoomData: RoomSocket = { ...roomData, activeAbilities: [CardAbilities.trumpDisabled] };
+    const tempPlayer: PlayerSocket = { cards: cards };
+
+    determineIfCardsPlayable(tempRoomData, tempPlayer);
+
+    const expectedCards = [
+      { ...cards[0], playable: true },
+      { ...cards[1], playable: true },
+      { ...cards[2], playable: false },
+      { ...cards[3], playable: false },
+      { ...cards[4], playable: false },
+      { ...cards[5], playable: false },
+    ]
+
+    expect(cards).toMatchObject(expectedCards);
+  });
+
+
+
+  test('trumpDisabled ability is active and is bare', () => {
+    const cards = [
+      { ...testCard, value: '2', suit: 's' },
+      { ...testCard, value: '3', suit: 'c' },
+      { ...testCard, value: '4', suit: 'c' },
+      { ...testCard, value: '5', suit: 's' },
+      { ...testCard, value: '6', suit: 'h' },
+      { ...testCard, value: '7', suit: 'h' },
+    ]
+
+    player.cards = cards;
+
+    const tempRoomData: RoomSocket = { ...roomData, activeAbilities: [CardAbilities.trumpDisabled] };
+    const tempPlayer: PlayerSocket = { cards: cards };
+
+    determineIfCardsPlayable(tempRoomData, tempPlayer);
+
+    const expectedCards = [
+      { ...cards[0], playable: true },
+      { ...cards[1], playable: true },
+      { ...cards[2], playable: true },
+      { ...cards[3], playable: true },
+      { ...cards[4], playable: false },
+      { ...cards[5], playable: false },
+    ]
+
+    expect(cards).toMatchObject(expectedCards);
+  });
+
+
+  test('trumpDisabled ability is active and is flush', () => {
+    const cards = [
+      { ...testCard, value: '2', suit: 'h' },
+      { ...testCard, value: '3', suit: 'h' },
+      { ...testCard, value: '4', suit: 'h' },
+      { ...testCard, value: '5', suit: 'h' },
+      { ...testCard, value: '6', suit: 'h' },
+      { ...testCard, value: '7', suit: 'h' },
+    ]
+
+    player.cards = cards;
+
+    const tempRoomData: RoomSocket = { ...roomData, activeAbilities: [CardAbilities.trumpDisabled] };
+    const tempPlayer: PlayerSocket = { cards: cards };
+
+    determineIfCardsPlayable(tempRoomData, tempPlayer);
+
+    const expectedCards = [
+      { ...cards[0], playable: true },
+      { ...cards[1], playable: true },
+      { ...cards[2], playable: true },
+      { ...cards[3], playable: true },
+      { ...cards[4], playable: true },
+      { ...cards[5], playable: true },
+    ]
+
+    expect(cards).toMatchObject(expectedCards);
+  });
+
+
+
+  test('royalsDisabled ability is active', () => {
+    const cards = [
+      { ...testCard, value: 'J', suit: 'd' },
+      { ...testCard, value: '3', suit: 'd' },
+      { ...testCard, value: '4', suit: 's' },
+      { ...testCard, value: '5', suit: 'c' },
+      { ...testCard, value: '6', suit: 'h' },
+      { ...testCard, value: 'K', suit: 'h' },
+    ]
+
+    player.cards = cards;
+
+    const tempRoomData: RoomSocket = { ...roomData, activeAbilities: [CardAbilities.royalsDisabled] };
+    const tempPlayer: PlayerSocket = { cards: cards };
+
+    determineIfCardsPlayable(tempRoomData, tempPlayer);
+
+    const expectedCards = [
+      { ...cards[0], playable: false },
+      { ...cards[1], playable: true },
+      { ...cards[2], playable: false },
+      { ...cards[3], playable: false },
+      { ...cards[4], playable: true },
+      { ...cards[5], playable: false },
+    ]
+
+    expect(cards).toMatchObject(expectedCards);
+  });
+
 });
