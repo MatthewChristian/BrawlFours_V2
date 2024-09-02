@@ -66,7 +66,7 @@ function didUndertrump(roomData: RoomSocket, card: DeckCard) {
   return undertrumped;
 }
 
-function isCardRoyal(card: DeckCard) {
+export function isCardRoyal(card: DeckCard) {
   if (card.value?.toUpperCase() == 'J'
     || card.value?.toUpperCase() == 'Q'
     || card.value?.toUpperCase() == 'K'
@@ -149,4 +149,3 @@ export function determineIfCardsPlayable(roomData: RoomSocket, player: PlayerSoc
 
   });
 }
-
