@@ -127,7 +127,7 @@ export function determineIfCardsPlayable(roomData: RoomSocket, player: PlayerSoc
       card.playable = false;
     }
     // If card is a royal but royals are disabled for that round and the player is not flush in the suit that was called
-    else if (roomData.activeAbilities?.includes(CardAbilities.royalsDisabled) && isCardRoyal(card) && (!flushRoyalsCalled || (!flushRoyals && bare))) {
+    else if (roomData.activeAbilities?.includes(CardAbilities.royalsDisabled) && isCardRoyal(card) && (!flushRoyalsCalled || (flushRoyalsCalled && !flushRoyals && card.suit == trump) || (!flushRoyals && bare))) {
       card.playable = false;
     }
     // If the player:
