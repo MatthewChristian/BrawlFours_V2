@@ -16,7 +16,7 @@ import { CardAbilities, getAbilityData, getIsRandom, handleAbility, mapAbility }
 import { ChatInput } from './models/ChatInput';
 import { ChatMessage } from './models/ChatMessage';
 import { getCardName } from './core/services/parseCard';
-import { determineIfCardsPlayable, emitPlayerCardData, orderCards, shuffleDeck } from './core/services/sharedGameFunctions';
+import { determineIfCardsPlayable, emitPlayerCardData, orderCards, scoreLift, shuffleDeck } from './core/services/sharedGameFunctions';
 
 const app = express();
 const server = createServer(app);
@@ -901,87 +901,11 @@ async function playCard(data: PlayCardInput, gameSocket: Socket) {
 
 async function liftScoring(data: BasicRoomInput) {
 
-  let highestHangerPower = 0;
-  let highestHangerPlayer: PlayerSocket;
-  let jackOwnerPlayer: PlayerSocket;
-  let liftWinnerPlayer: PlayerSocket;
+  const resp = scoreLift(roomUsers[data.roomId]);
 
-  let highestPowerInLift = 0;
-  let liftPoints = 0;
-
-
-  // Loop through lift
-  roomUsers[data.roomId].lift.forEach(el => {
-    // Add 100 points to power if card was trump, minus 100 points from power if card was not suit that was called
-    const power = el.power + (el.suit == roomUsers[data.roomId].trump ? 100 : el.suit != roomUsers[data.roomId].called.suit ? -100 : 0);
-    const player = roomUsers[data.roomId].users.find(usr => usr.player == el.player);
-
-    // If card ability
-
-    if (el.suit == roomUsers[data.roomId].trump) {
-
-      // Store potential high
-      if (!roomUsers[data.roomId].high || el.power > roomUsers[data.roomId].high.power) {
-        roomUsers[data.roomId].highWinner = player;
-        roomUsers[data.roomId].high = el;
-      }
-
-      // Store potential low
-      if (!roomUsers[data.roomId].low || el.power < roomUsers[data.roomId].low.power) {
-        roomUsers[data.roomId].lowWinner = player;
-        roomUsers[data.roomId].low = el;
-      }
-
-      // Determine if Jack is in lift
-      if (el.value == 'J') {
-        jackOwnerPlayer = player;
-        roomUsers[data.roomId].jack = el;
-      }
-
-      // Determine if hanger in lift
-      if (el.power > 11 && el.power > highestHangerPower) {
-        highestHangerPower = el.power;
-        highestHangerPlayer = player;
-      }
-
-    }
-
-    // Determine if card is winning the lift
-    if (power > highestPowerInLift) {
-      liftWinnerPlayer = player;
-      highestPowerInLift = power;
-    }
-
-    // Tally lift points
-    liftPoints = liftPoints + el.points;
-
-  });
-
-  if (!roomUsers[data.roomId].game) {
-    roomUsers[data.roomId].game = [0, 0];
-  }
-
-  // Assign points for game
-  if (!roomUsers[data.roomId].activeAbilities.includes(CardAbilities.noWinLift)) { // Check to see if teams are allowed to earn points for this lift
-    if (liftWinnerPlayer.team == 1) {
-      roomUsers[data.roomId].game[0] = roomUsers[data.roomId].game[0] + liftPoints;
-    }
-    else if (liftWinnerPlayer.team == 2) {
-      roomUsers[data.roomId].game[1] = roomUsers[data.roomId].game[1] + liftPoints;
-    }
-  }
-
-  // Determine who won/hung Jack
-  if (jackOwnerPlayer) {
-    if (highestHangerPlayer && highestHangerPlayer.team != jackOwnerPlayer.team) { // Hang Jack
-      io.to(data.roomId).emit('message', { message: highestHangerPlayer.nickname + ' hung jack!!!', shortcode: 'HANG' });
-      roomUsers[data.roomId].jackWinner = highestHangerPlayer;
-      roomUsers[data.roomId].hangJack = true;
-    }
-    else {
-      roomUsers[data.roomId].jackWinner = jackOwnerPlayer;
-    }
-  }
+  const liftWinnerPlayer = resp.liftWinnerPlayer;
+  const highestHangerPlayer = resp.highestHangerPlayer;
+  const jackOwnerPlayer = resp.jackOwnerPlayer;
 
   roomUsers[data.roomId].lift = undefined;
   roomUsers[data.roomId].called = undefined;
@@ -993,6 +917,11 @@ async function liftScoring(data: BasicRoomInput) {
 
   // Set playable status of cards of player whose turn is next
   setCardsPlayability(data.roomId);
+
+
+  if (highestHangerPlayer && highestHangerPlayer.team != jackOwnerPlayer.team) { // Hang Jack
+    io.to(data.roomId).emit('message', { message: highestHangerPlayer.nickname + ' hung jack!!!', shortcode: 'HANG' });
+  }
 
   io.to(data.roomId).emit('liftWinner', liftWinnerPlayer.player);
 

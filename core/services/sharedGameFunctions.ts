@@ -3,6 +3,7 @@ import { PlayerSocket } from "../../models/PlayerSocket";
 import { DeckCard } from "../../models/DeckCard";
 import { RoomSocket } from "../../models/RoomSocket";
 import { CardAbilities } from "./abilities";
+import { ScoreLiftOutput } from "../../models/ScoreLiftOutput";
 
 export function emitPlayerCardData(users: PlayerSocket[], io: Server) {
   // Loop through users in room
@@ -148,4 +149,96 @@ export function determineIfCardsPlayable(roomData: RoomSocket, player: PlayerSoc
     }
 
   });
+}
+
+
+
+export function scoreLift(roomData: RoomSocket): ScoreLiftOutput {
+
+  let highestHangerPower = 0;
+  let highestHangerPlayer: PlayerSocket;
+  let jackOwnerPlayer: PlayerSocket;
+  let liftWinnerPlayer: PlayerSocket;
+
+  let highestPowerInLift = 0;
+  let liftPoints = 0;
+
+
+  // Loop through lift
+  roomData.lift.forEach(el => {
+    // Add 100 points to power if card was trump, minus 100 points from power if card was not suit that was called
+    const power = el.power + (el.suit == roomData.trump ? 100 : el.suit != roomData.called.suit ? -100 : 0);
+    const player = roomData.users.find(usr => usr.player == el.player);
+
+    // If card ability
+
+    if (el.suit == roomData.trump) {
+
+      // Store potential high
+      if (!roomData.high || el.power > roomData.high.power) {
+        roomData.highWinner = player;
+        roomData.high = el;
+      }
+
+      // Store potential low
+      if (!roomData.low || el.power < roomData.low.power) {
+        roomData.lowWinner = player;
+        roomData.low = el;
+      }
+
+      // Determine if Jack is in lift
+      if (el.value == 'J') {
+        jackOwnerPlayer = player;
+        roomData.jack = el;
+      }
+
+      // Determine if hanger in lift
+      if (el.power > 11 && el.power > highestHangerPower) {
+        highestHangerPower = el.power;
+        highestHangerPlayer = player;
+      }
+
+    }
+
+    // Determine if card is winning the lift
+    if (power > highestPowerInLift) {
+      liftWinnerPlayer = player;
+      highestPowerInLift = power;
+    }
+
+    // Tally lift points
+    liftPoints = liftPoints + el.points;
+
+  });
+
+  if (!roomData.game) {
+    roomData.game = [0, 0];
+  }
+
+  // Assign points for game
+  if (!roomData.activeAbilities.includes(CardAbilities.noWinLift)) { // Check to see if teams are allowed to earn points for this lift
+    if (liftWinnerPlayer.team == 1) {
+      roomData.game[0] = roomData.game[0] + liftPoints;
+    }
+    else if (liftWinnerPlayer.team == 2) {
+      roomData.game[1] = roomData.game[1] + liftPoints;
+    }
+  }
+
+  // Determine who won/hung Jack
+  if (jackOwnerPlayer) {
+    if (highestHangerPlayer && highestHangerPlayer.team != jackOwnerPlayer.team) { // Hang Jack
+      roomData.jackWinner = highestHangerPlayer;
+      roomData.hangJack = true;
+    }
+    else {
+      roomData.jackWinner = jackOwnerPlayer;
+    }
+  }
+
+  return ({
+    liftWinnerPlayer: liftWinnerPlayer,
+    highestHangerPlayer: highestHangerPlayer,
+    jackOwnerPlayer: jackOwnerPlayer
+  })
 }
