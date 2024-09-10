@@ -16,7 +16,7 @@ import { CardAbilities, getAbilityData, getIsRandom, handleAbility, mapAbility }
 import { ChatInput } from './models/ChatInput';
 import { ChatMessage } from './models/ChatMessage';
 import { getCardName } from './core/services/parseCard';
-import { determineIfCardsPlayable, emitPlayerCardData, orderCards, scoreLift, shuffleDeck } from './core/services/sharedGameFunctions';
+import { determineIfCardsPlayable, emitPlayerCardData, initialiseDeck, orderCards, scoreLift, shuffleDeck } from './core/services/sharedGameFunctions';
 
 const app = express();
 const server = createServer(app);
@@ -320,10 +320,6 @@ function handleChatMessage(data: ChatInput) {
 
 // Game Logic
 
-function shuffle(deck: DeckCard[]) {
-  shuffleDeck(deck);
-}
-
 function generateDeck(data: BasicRoomInput) {
   if (!roomUsers[data.roomId] || !io.of('/').adapter.rooms.get(data.roomId)) {
     console.log(data.roomId + ': ' + 'generateDeck: Error');
@@ -335,28 +331,9 @@ function generateDeck(data: BasicRoomInput) {
     return;
   }
 
-  const suits = ['s', 'd', 'c', 'h']; // s=Spades, d=Dimes, c=Clubs, h=Hearts
-  const values = ['2', '3', '4', '5', '6', '7', '8', '9', 'X', 'J', 'Q', 'K', 'A'];
-  const power = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
-  const points = [0, 0, 0, 0, 0, 0, 0 , 0, 10, 1, 2, 3, 4];
-  const deck: DeckCard[] = [];
-  let card: DeckCard;
-  for (let i = 0; i < suits.length; i++) {
-    for (let j = 0; j < values.length; j++) {
-      card = {
-        suit: suits[i],
-        value: values[j],
-        power: power[j],
-        points: points[j],
-        playable: false,
-        ability: mapAbility(values[j], suits[i]),
-        isRandom: getIsRandom(values[j], suits[i]),
-        trump: false
-      };
-      deck.push(card);
-    }
-  }
-  shuffle(deck);
+  const deck = initialiseDeck();
+
+  shuffleDeck(deck);
 
   roomUsers[data.roomId].deck = deck;
 }

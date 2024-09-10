@@ -2,7 +2,7 @@ import { Server } from "socket.io";
 import { PlayerSocket } from "../../models/PlayerSocket";
 import { DeckCard } from "../../models/DeckCard";
 import { RoomSocket } from "../../models/RoomSocket";
-import { CardAbilities } from "./abilities";
+import { CardAbilities, getIsRandom, mapAbility } from "./abilities";
 import { ScoreLiftOutput } from "../../models/ScoreLiftOutput";
 
 export function emitPlayerCardData(users: PlayerSocket[], io: Server) {
@@ -46,6 +46,33 @@ export function shuffleDeck(deck: DeckCard[]) {
     deck[loc1] = deck[loc2];
     deck[loc2] = temp;
   }
+}
+
+
+export function initialiseDeck() {
+  const suits = ['s', 'd', 'c', 'h']; // s=Spades, d=Dimes, c=Clubs, h=Hearts
+  const values = ['2', '3', '4', '5', '6', '7', '8', '9', 'X', 'J', 'Q', 'K', 'A'];
+  const power = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
+  const points = [0, 0, 0, 0, 0, 0, 0, 0, 10, 1, 2, 3, 4];
+  const deck: DeckCard[] = [];
+  let card: DeckCard;
+  for (let i = 0; i < suits.length; i++) {
+    for (let j = 0; j < values.length; j++) {
+      card = {
+        suit: suits[i],
+        value: values[j],
+        power: power[j],
+        points: points[j],
+        playable: false,
+        ability: mapAbility(values[j], suits[i]),
+        isRandom: getIsRandom(values[j], suits[i]),
+        trump: false
+      };
+      deck.push(card);
+    }
+  }
+
+  return deck;
 }
 
 /*

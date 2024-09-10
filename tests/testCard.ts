@@ -1,3 +1,4 @@
+import { initialiseDeck } from "../core/services/sharedGameFunctions";
 import { DeckCard } from "../models/DeckCard";
 
 export const testCard: DeckCard = {
@@ -9,3 +10,5 @@ export const testCard: DeckCard = {
   isRandom: false,
   trump: false,
 }
+
+export const testDeck: DeckCard[] = initialiseDeck();
