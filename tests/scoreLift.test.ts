@@ -5,6 +5,7 @@ import { RoomSocket } from "../models/RoomSocket";
 import { testCard, testDeck } from "./testCard";
 import { ScoreLiftOutput } from "../models/ScoreLiftOutput";
 import { LiftCard } from "../models/LiftCard";
+import { CardAbilities } from "../core/services/abilities";
 
 function getCard(value: string, suit: string) {
   const deck = [...testDeck];
@@ -206,6 +207,50 @@ describe('Score Lift', () => {
     expect(resp).toMatchObject(expectedResp as any);
     expect(tempRoomData.hangJack).toBeFalsy();
     expect(tempRoomData.game).toEqual([7, 0]);
+  });
+
+
+
+  // test('Card with ninePowerful abilitity is played', () => {
+  //   const lift: LiftCard[] = [
+  //     { ...getCard('9', 's'), player: 1 },
+  //     { ...getCard('Q', 'h'), player: 2 },
+  //     { ...getCard('A', 'h'), player: 3 },
+  //     { ...getCard('5', 'd'), player: 4 },
+  //   ]
+
+  //   const tempRoomData: RoomSocket = { ...roomData, lift: lift };
+
+  //   const resp = scoreLift(tempRoomData);
+
+  //   const expectedResp: ScoreLiftOutput = {
+  //     liftWinnerPlayer: player1,
+  //   }
+
+  //   expect(resp).toMatchObject(expectedResp as any);
+  //   expect(tempRoomData.hangJack).toBeFalsy();
+  //   expect(tempRoomData.game).toEqual([6, 0]);
+  // });
+
+  test('noWinLift ability is active', () => {
+    const lift: LiftCard[] = [
+      { ...getCard('J', 'd'), player: 1 },
+      { ...getCard('Q', 'h'), player: 2 },
+      { ...getCard('A', 'h'), player: 3 },
+      { ...getCard('5', 'd'), player: 4 },
+    ]
+
+    const tempRoomData: RoomSocket = { ...roomData, lift: lift, activeAbilities: [CardAbilities.noWinLift] };
+
+    const resp = scoreLift(tempRoomData);
+
+    const expectedResp: ScoreLiftOutput = {
+      liftWinnerPlayer: player3,
+    }
+
+    expect(resp).toMatchObject(expectedResp as any);
+    expect(tempRoomData.hangJack).toBeFalsy();
+    expect(tempRoomData.game).toEqual([0, 0]);
   });
 
 
