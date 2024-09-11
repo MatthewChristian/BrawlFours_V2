@@ -613,4 +613,36 @@ describe('Are Cards Playable', () => {
     expect(cards).toMatchObject(expectedCards);
   });
 
+
+
+
+  test('trumpDisabled ability is active and trump was called', () => {
+    const cards = [
+      { ...testCard, value: '2', suit: 's' },
+      { ...testCard, value: 'J', suit: 'c' },
+      { ...testCard, value: 'Q', suit: 's' },
+      { ...testCard, value: '5', suit: 'c' },
+      { ...testCard, value: '6', suit: 'h' },
+      { ...testCard, value: 'K', suit: 'h' },
+    ]
+
+    player.cards = cards;
+
+    const tempRoomData: RoomSocket = { ...roomData, called: { ...testCard, suit: 'h' }, activeAbilities: [CardAbilities.trumpDisabled] };
+    const tempPlayer: PlayerSocket = { cards: cards };
+
+    determineIfCardsPlayable(tempRoomData, tempPlayer);
+
+    const expectedCards = [
+      { ...cards[0], playable: false },
+      { ...cards[1], playable: false },
+      { ...cards[2], playable: false },
+      { ...cards[3], playable: false },
+      { ...cards[4], playable: true },
+      { ...cards[5], playable: true },
+    ]
+
+    expect(cards).toMatchObject(expectedCards);
+  });
+
 });
