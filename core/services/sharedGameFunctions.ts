@@ -219,12 +219,12 @@ export function scoreLift(roomData: RoomSocket): ScoreLiftOutput {
         roomData.jack = el;
       }
 
-      // Determine if hanger in lift
-      if (el.power > 11 && el.power > highestHangerPower) {
-        highestHangerPower = el.power;
-        highestHangerPlayer = player;
-      }
+    }
 
+    // Determine if hanger in lift
+    if (power > 111 && power > highestHangerPower) {
+      highestHangerPower = power;
+      highestHangerPlayer = player;
     }
 
     // Determine if card is winning the lift

@@ -8,7 +8,7 @@ const hangSaverPointsEarned = 3;
 export enum CardAbilities {
   // Spades
   alwaysPlayable,     // 2 TESTED
-  ninePowerful,       // 9
+  ninePowerful,       // 9 TESTED
   trumpDisabled,      // 10 Need to test when trump played after trump was called
   targetPowerless,    // J TESTED
   noWinLift,          // Q TESTED

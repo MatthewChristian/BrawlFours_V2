@@ -210,27 +210,74 @@ describe('Score Lift', () => {
   });
 
 
+  test('Card with ninePowerful abilitity is played', () => {
+    const lift: LiftCard[] = [
+      { ...getCard('9', 's'), player: 1, power: 9001 },
+      { ...getCard('Q', 'h'), player: 2 },
+      { ...getCard('A', 'h'), player: 3 },
+      { ...getCard('5', 'd'), player: 4 },
+    ]
 
-  // test('Card with ninePowerful abilitity is played', () => {
-  //   const lift: LiftCard[] = [
-  //     { ...getCard('9', 's'), player: 1 },
-  //     { ...getCard('Q', 'h'), player: 2 },
-  //     { ...getCard('A', 'h'), player: 3 },
-  //     { ...getCard('5', 'd'), player: 4 },
-  //   ]
+    const tempRoomData: RoomSocket = { ...roomData, lift: lift };
 
-  //   const tempRoomData: RoomSocket = { ...roomData, lift: lift };
+    const resp = scoreLift(tempRoomData);
 
-  //   const resp = scoreLift(tempRoomData);
+    const expectedResp: ScoreLiftOutput = {
+      liftWinnerPlayer: player1,
+    }
 
-  //   const expectedResp: ScoreLiftOutput = {
-  //     liftWinnerPlayer: player1,
-  //   }
+    expect(resp).toMatchObject(expectedResp as any);
+    expect(tempRoomData.hangJack).toBeFalsy();
+    expect(tempRoomData.game).toEqual([6, 0]);
+  });
 
-  //   expect(resp).toMatchObject(expectedResp as any);
-  //   expect(tempRoomData.hangJack).toBeFalsy();
-  //   expect(tempRoomData.game).toEqual([6, 0]);
-  // });
+  test('Card with ninePowerful abilitity is played and jack is hung', () => {
+    const lift: LiftCard[] = [
+      { ...getCard('9', 's'), player: 1, power: 9001 },
+      { ...getCard('J', 'h'), player: 2 },
+      { ...getCard('A', 'h'), player: 3 },
+      { ...getCard('5', 'd'), player: 4 },
+    ]
+
+    const tempRoomData: RoomSocket = { ...roomData, lift: lift };
+
+    const resp = scoreLift(tempRoomData);
+
+    const expectedResp: ScoreLiftOutput = {
+      liftWinnerPlayer: player1,
+      jackOwnerPlayer: player2,
+      highestHangerPlayer: player1
+    }
+
+    expect(resp).toMatchObject(expectedResp as any);
+    expect(tempRoomData.hangJack).toBeTruthy();
+    expect(tempRoomData.game).toEqual([5, 0]);
+  });
+
+
+  test('Card with ninePowerful abilitity is played and saves jack from being hung', () => {
+    const lift: LiftCard[] = [
+      { ...getCard('9', 's'), player: 1, power: 9001 },
+      { ...getCard('A', 'h'), player: 2 },
+      { ...getCard('J', 'h'), player: 3 },
+      { ...getCard('5', 'd'), player: 4 },
+    ]
+
+    const tempRoomData: RoomSocket = { ...roomData, lift: lift };
+
+    const resp = scoreLift(tempRoomData);
+
+    const expectedResp: ScoreLiftOutput = {
+      liftWinnerPlayer: player1,
+      jackOwnerPlayer: player3,
+      highestHangerPlayer: player1
+    }
+
+    expect(resp).toMatchObject(expectedResp as any);
+    expect(tempRoomData.hangJack).toBeFalsy();
+    expect(tempRoomData.game).toEqual([5, 0]);
+  });
+
 
   test('noWinLift ability is active', () => {
     const lift: LiftCard[] = [
