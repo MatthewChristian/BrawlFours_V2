@@ -74,6 +74,9 @@ export default function Gameboard({ roomId }: Props) {
   // If a card ability allows the player to target a card in the lift
   const [isTargettingLift, setIsTargettingLift] = useState<boolean>(false);
 
+  // If a card ability allows the player to target an opponent's card in the lift
+  const [isTargettingOppLift, setIsTargettingOppLift] = useState<boolean>(false);
+
   // Card that a player played which triggered a target ability
   const [playedCard, setPlayedCard] = useState<DeckCard>();
 
@@ -140,6 +143,7 @@ export default function Gameboard({ roomId }: Props) {
     // Reset state
     setPlayedCard(undefined);
     setIsTargettingLift(false);
+    setIsTargettingOppLift(false);
 
     return players.find(el => el.player == playerTurn);
   }, [playerTurn, players]);
@@ -232,7 +236,6 @@ export default function Gameboard({ roomId }: Props) {
 
 
   function playCard(card: DeckCard) {
-    console.log('Card clicked: ', card);
 
     if (!isPlayer1Turn) {
       return;
@@ -247,11 +250,25 @@ export default function Gameboard({ roomId }: Props) {
       return;
     }
 
+    if (card.ability == CardAbilities.oppReplay && !areAbilitiesDisabled) {
+      setIsTargettingOppLift(true);
+      setPlayedCard(card);
+      return;
+    }
+
+
     socket.emit('playCard', { ...socketData, card: { ...card, ability: areAbilitiesDisabled ? undefined : card.ability }, player: playerNumber });
   }
 
   function handleLiftCardClick(card: DeckCard) {
-    socket.emit('targetPowerless', { ...socketData, card: card, player: playerNumber });
+
+    if (isTargettingLift) {
+      socket.emit('targetPowerless', { ...socketData, card: card, player: playerNumber });
+    }
+    else if (isTargettingOppLift) {
+      socket.emit('oppReplay', { ...socketData, card: card, player: playerNumber });
+    }
+
     socket.emit('playCard', { ...socketData, card: playedCard, player: playerNumber });
   }
 
@@ -504,11 +521,11 @@ export default function Gameboard({ roomId }: Props) {
                 <PlayingCard
                   cardData={player4CardPlayed}
                   isOutline
-                  isNotPlayable={!isTargettingLift}
+                  isNotPlayable={!(isTargettingLift || isTargettingOppLift)}
                   liftCard={4}
                   liftWinner={liftWinnerMapped}
                   onClickHandler={handleLiftCardClick}
-                  spotlighted={isTargettingLift}
+                  spotlighted={isTargettingLift || isTargettingOppLift}
                 />
 
                 <div className='w-32 px-2 flex flex-wrap justify-center items-center gap-2'>
@@ -528,11 +545,11 @@ export default function Gameboard({ roomId }: Props) {
                 <PlayingCard
                   cardData={player2CardPlayed}
                   isOutline
-                  isNotPlayable={!isTargettingLift}
+                  isNotPlayable={!(isTargettingLift || isTargettingOppLift)}
                   liftCard={2}
                   liftWinner={liftWinnerMapped}
                   onClickHandler={handleLiftCardClick}
-                  spotlighted={isTargettingLift}
+                  spotlighted={isTargettingLift || isTargettingOppLift}
                 />
               </div>
 
@@ -682,9 +699,24 @@ export default function Gameboard({ roomId }: Props) {
         </div>
       </Modal>
 
-      <Modal className='top-modal' contentStyle={{ width: 'fit-content' }} open={isTargettingLift} closeOnDocumentClick={false} onClose={() => setBegModalVisible(false)}>
+      <Modal className='top-modal' contentStyle={{ width: 'fit-content' }} open={isTargettingLift} closeOnDocumentClick={false}>
         <div className="px-12">Choose a card in the lift to be powerless and worth 0 points</div>
+        <div className='flex flex-row justify-center'>
+          <Button className='red-button mt-5' onClick={() => { setIsTargettingLift(false); setPlayedCard(undefined); } }>
+            Cancel
+          </Button>
+        </div>
       </Modal>
+
+      <Modal className='top-modal' contentStyle={{ width: 'fit-content' }} open={isTargettingOppLift} closeOnDocumentClick={false}>
+        <div className="px-12">Choose a card in the lift for the opponent to take back</div>
+        <div className='flex flex-row justify-center'>
+          <Button className='red-button mt-5' onClick={() => { setIsTargettingOppLift(false); setPlayedCard(undefined); }}>
+            Cancel
+          </Button>
+        </div>
+      </Modal>
+
 
 
       {/* -----------------------------------------------------------*/}

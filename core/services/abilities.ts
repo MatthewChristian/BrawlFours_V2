@@ -13,7 +13,7 @@ export enum CardAbilities {
   targetPowerless,    // J TESTED
   noWinLift,          // Q TESTED
   shuffleHand,        // K TESTED - Need to implement animations
-  takeBackCard,       // A
+  oppReplay,          // A
 
   // Hearts
   royalsDisabled,     // 2
@@ -66,7 +66,7 @@ export function mapAbility(value: string, suit: string) {
       return CardAbilities.shuffleHand;
     }
     else if (value == 'A') {
-      return CardAbilities.takeBackCard;
+      return CardAbilities.oppReplay;
     }
     else {
       return undefined;
@@ -198,6 +198,10 @@ const abilityData: Partial<AbilityData> = {
   [CardAbilities.shuffleHand]: {
     description: 'Shuffle your hand into the deck and get redealt the amount of cards you have',
     ability: (args: AbilityInput) => shuffleHandAbility(args),
+  },
+  [CardAbilities.oppReplay]: {
+    description: 'Force an opponent to take back their card and play a different one',
+    ability: (args: AbilityInput) => oppReplayAbility(args),
   },
   [CardAbilities.royalsDisabled]: {
     description: 'No royals can be played this turn unless they are flush',
@@ -355,4 +359,8 @@ function shuffleHandAbility(args: AbilityInput) {
 
 function royalsDisabledAbility(args: AbilityInput) {
   args.roomData.activeAbilities.push(CardAbilities.royalsDisabled);
+}
+
+function oppReplayAbility(args: AbilityInput) {
+  console.log("oppReplayAbility: Played");
 }

@@ -53,6 +53,7 @@ io.on('connection', (socket) => {
   socket.on('playCard', async (data) => await playCard(data, socket));
   socket.on('chat', (data) => handleChatMessage(data));
   socket.on('targetPowerless', (data) => handleTargetPowerless(data));
+  socket.on('oppReplay', (data) => handleOppReplay(data));
 });
 
 function sendSystemMessage(message: string, roomId: string, colour?: string) {
@@ -849,7 +850,12 @@ async function playCard(data: PlayCardInput, gameSocket: Socket) {
   }
   else {
     // Increment player turn
-    if (roomUsers[data.roomId].turn >= 4) {
+    if (roomUsers[data.roomId].pendingTurn) {
+      // Check if there is a player's turn pending (caused by card ability which allows a player to take back and replay a card)
+      roomUsers[data.roomId].turn = roomUsers[data.roomId].pendingTurn;
+      roomUsers[data.roomId].pendingTurn = undefined;
+    }
+    else if (roomUsers[data.roomId].turn >= 4) {
       roomUsers[data.roomId].turn = 1;
     }
     else {
@@ -1127,6 +1133,42 @@ function handleTargetPowerless(data: PlayCardInput) {
 
     liftCardData.power = 0;
     liftCardData.points = 0;
+  }
+  else {
+    console.log(data.roomId + ': ' + 'Room doesnt exist');
+  }
+}
+
+function handleOppReplay(data: PlayCardInput) {
+  if (io.of('/').adapter.rooms.get(data.roomId)) {
+
+    // Not player's turn yet
+    if (roomUsers[data.roomId].turn != data.player) {
+      return;
+    }
+
+    const liftCardIndex = roomUsers[data.roomId].lift.findIndex(el => (el?.suit == data?.card?.suit) && (el?.value == data?.card?.value));
+
+    const liftCardPlayer = roomUsers[data.roomId].lift[liftCardIndex].player;
+
+    // Store the next players turn in pendingTurn variable
+    if (roomUsers[data.roomId].turn >= 4) {
+      roomUsers[data.roomId].pendingTurn = 1;
+    }
+    else {
+      roomUsers[data.roomId].pendingTurn = roomUsers[data.roomId].turn + 1;
+    }
+
+    // Make it the turn of the player whose card was chosen
+    roomUsers[data.roomId].turn = liftCardPlayer;
+
+    // Remove card from lift
+    if (liftCardIndex > -1) {
+      roomUsers[data.roomId].lift.splice(liftCardIndex, 1);
+    }
+
+
+
   }
   else {
     console.log(data.roomId + ': ' + 'Room doesnt exist');
