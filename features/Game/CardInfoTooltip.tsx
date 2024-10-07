@@ -73,7 +73,18 @@ export default function CardInfoTooltip({ card, active, offsetY }: Props) {
             {isDisabled && abilityDescription ? <div>ABILITY DISABLED</div> : undefined}
             {abilityDescription}
           </div>
-        </div>
+
+
+            {
+              card.isRandom ?
+              <div className='text-xs text-gray-400 italic'>
+                This card's ability is random every game
+              </div>
+              :
+              null
+            }
+          </div>
+
       </Tooltip>
     : undefined
   )
