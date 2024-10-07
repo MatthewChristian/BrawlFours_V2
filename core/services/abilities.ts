@@ -13,14 +13,14 @@ export enum CardAbilities {
   targetPowerless,    // J TESTED
   noWinLift,          // Q TESTED
   shuffleHand,        // K TESTED - Need to implement animations
-  oppReplay,          // A
+  oppReplay,          // A TESTING IN PROGRESS
 
   // Hearts
-  royalsDisabled,     // 2
+  royalsDisabled,     // 2  TESTED
   hangSaver,          // 9
-  twentyPoints,       // 10
+  twentyPoints,       // 10 TESTED
   pointsForSaved,     // J
-  abilitiesDisabled,  // Q
+  abilitiesDisabled,  // Q  TESTED
   swapOppCard,        // K
   allyReplay,         // A
 

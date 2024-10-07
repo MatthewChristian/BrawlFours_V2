@@ -58,13 +58,16 @@ export function initialiseDeck() {
   let card: DeckCard;
   for (let i = 0; i < suits.length; i++) {
     for (let j = 0; j < values.length; j++) {
+
+      const ability = mapAbility(values[j], suits[i]);
+
       card = {
         suit: suits[i],
         value: values[j],
         power: power[j],
-        points: points[j],
+        points: ability == CardAbilities.twentyPoints ? 20 : points[j],
         playable: false,
-        ability: mapAbility(values[j], suits[i]),
+        ability: ability,
         isRandom: getIsRandom(values[j], suits[i]),
         trump: false
       };
