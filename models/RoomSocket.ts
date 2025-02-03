@@ -2,6 +2,7 @@ import { CardAbilities } from '../core/services/abilities';
 import { DeckCard } from './DeckCard';
 import { LiftCard } from './LiftCard';
 import { PlayerSocket } from './PlayerSocket';
+import { PlayerStatus } from './PlayerStatus';
 
 export interface RoomSocket {
   gameStarted?: boolean;
@@ -37,4 +38,5 @@ export interface RoomSocket {
   gameIsTwo?: boolean;
 
   activeAbilities?: CardAbilities[];
+  playerStatus?: PlayerStatus[];
 }

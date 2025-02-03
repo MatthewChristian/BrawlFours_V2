@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { DeckCard } from '../../models/DeckCard';
 import PlayingCard from './PlayingCard';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { getActiveAbilities, getBeg, getDealer, getLift, getLiftWinner, getMatchWinner, getMessage, getPlayerCards, getPlayerJoinedRoom, getPlayerList, getRoundWinners, getTurn, setMessage } from '../../slices/game.slice';
+import { getActiveAbilities, getBeg, getDealer, getLift, getLiftWinner, getMatchWinner, getMessage, getPlayerCards, getPlayerJoinedRoom, getPlayerList, getPlayerStatus, getRoundWinners, getTurn, setMessage } from '../../slices/game.slice';
 import { PlayerSocket } from '../../models/PlayerSocket';
 import DealerIcon from './StatusIcons/DealerIcon';
 import TurnIcon from './StatusIcons/TurnIcon';
@@ -26,6 +26,7 @@ import OppositePowerIcon from './StatusIcons/OppositePowerIcon';
 import RoyalsDisabledIcon from './StatusIcons/RoyalsDisabledIcon';
 import TrumpDisabledIcon from './StatusIcons/TrumpDisabledIcon';
 import TwoWinGameIcon from './StatusIcons/TwoWinGameIcon';
+import HangSaverIcon from './StatusIcons/HangSaverIcon';
 
 interface Props {
   roomId?: string;
@@ -60,6 +61,8 @@ export default function Gameboard({ roomId }: Props) {
   const playerJoinedRoom = useAppSelector(getPlayerJoinedRoom);
 
   const activeAbilities = useAppSelector(getActiveAbilities);
+
+  const playerStatus = useAppSelector(getPlayerStatus);
 
   // Cards in the hand of the client player
   const playerCards = useAppSelector(getPlayerCards);
@@ -219,6 +222,37 @@ export default function Gameboard({ roomId }: Props) {
     return lift.find(el => el.player == player4Number);
 
   }, [lift, playerNumber]);
+
+
+  const player1Status: CardAbilities[] = useMemo(() => {
+    return getPlayerStatuses(player1Data);
+  }, [playerStatus, player1Data]);
+
+  const player2Status: CardAbilities[] = useMemo(() => {
+    return getPlayerStatuses(player2Data);
+  }, [playerStatus, player2Data]);
+
+  const player3Status: CardAbilities[] = useMemo(() => {
+    return getPlayerStatuses(player3Data);
+  }, [playerStatus, player3Data]);
+
+  const player4Status: CardAbilities[] = useMemo(() => {
+    return getPlayerStatuses(player4Data);
+  }, [playerStatus, player4Data]);
+
+
+  function getPlayerStatuses(playerData: PlayerSocket) {
+    if (!playerStatus) {
+      return [];
+    }
+
+    const index = playerStatus.findIndex(el => el?.player?.player == playerData?.player);
+    if (index == -1) {
+      return [];
+    }
+
+    return playerStatus[index]?.status ?? [];
+  }
 
   function getTeam2CardMargins(length: number) {
     return ({
@@ -445,6 +479,7 @@ export default function Gameboard({ roomId }: Props) {
               <div className='flex flex-row gap-2'>
                 <DealerIcon active={dealerData && player3Data.id == dealerData.id} />
                 <TurnIcon active={turnPlayerData && player3Data.id == turnPlayerData.id} />
+                <HangSaverIcon active={player3Status.includes(CardAbilities.hangSaver)} />
               </div>
             </div>
 
@@ -480,6 +515,7 @@ export default function Gameboard({ roomId }: Props) {
               <div className='flex flex-row flex-wrap gap-2'>
                 <DealerIcon active={dealerData && player4Data.id == dealerData.id} />
                 <TurnIcon active={turnPlayerData && player4Data.id == turnPlayerData.id} />
+                <HangSaverIcon active={player4Status.includes(CardAbilities.hangSaver)} />
               </div>
             </div>
 
@@ -598,6 +634,7 @@ export default function Gameboard({ roomId }: Props) {
               <div className='flex flex-row flex-wrap gap-2'>
                 <DealerIcon active={dealerData && player2Data.id == dealerData.id} />
                 <TurnIcon active={turnPlayerData && player2Data.id == turnPlayerData.id} />
+                <HangSaverIcon active={player2Status.includes(CardAbilities.hangSaver)} />
               </div>
             </div>
             {/* -----------------------------------------------------------------*/}
@@ -638,6 +675,7 @@ export default function Gameboard({ roomId }: Props) {
               <div className='flex flex-row gap-2'>
                 <DealerIcon active={dealerData && player1Data.id == dealerData.id}/>
                 <TurnIcon active={turnPlayerData && player1Data.id == turnPlayerData.id} />
+                <HangSaverIcon active={player1Status.includes(CardAbilities.hangSaver)} />
               </div>
 
             </div>

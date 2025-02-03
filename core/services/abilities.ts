@@ -210,7 +210,8 @@ const abilityData: Partial<AbilityData> = {
   },
   [CardAbilities.hangSaver]: {
     description: `Can save your teammate's Jack from being hung and earn ${hangSaverPointsEarned} points for Jack if successful`,
-    ability: (args: AbilityInput) => targetPowerlessAbility(args),
+    ability: (args: AbilityInput) => hangSaverAbility(args),
+    duration: 'lift'
   },
   [CardAbilities.twentyPoints]: {
     description: 'Worth 20 points for game',
@@ -363,4 +364,18 @@ function royalsDisabledAbility(args: AbilityInput) {
 
 function oppReplayAbility(args: AbilityInput) {
   console.log("oppReplayAbility: Played");
+}
+
+function hangSaverAbility(args: AbilityInput) {
+  const player = args.roomData.users.find(el => el.id == args.id);
+
+  if (!args.roomData.playerStatus) {
+    args.roomData.playerStatus = [];
+  }
+
+  if (!args.roomData.playerStatus[player.player]) {
+    args.roomData.playerStatus[player.player] = { player: { ...player, cards: null }, status: [] };
+  }
+
+  args.roomData.playerStatus[player.player].status.push(CardAbilities.hangSaver);
 }

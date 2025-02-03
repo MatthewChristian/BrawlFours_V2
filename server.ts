@@ -833,6 +833,7 @@ async function playCard(data: PlayCardInput, gameSocket: Socket) {
   io.to(data.roomId).emit('lift', roomUsers[data.roomId].lift);
   io.to(data.roomId).emit('turn', roomUsers[data.roomId].turn);
   io.to(data.roomId).emit('activeAbilities', roomUsers[data.roomId].activeAbilities);
+  io.to(data.roomId).emit('playerStatus', roomUsers[data.roomId].playerStatus);
 
 
 
@@ -898,6 +899,13 @@ async function liftScoring(data: BasicRoomInput) {
   const removedLiftAbilities = roomUsers[data.roomId].activeAbilities?.filter(el => getAbilityData(el).duration != 'lift');
   roomUsers[data.roomId].activeAbilities = removedLiftAbilities;
 
+  // Remove player status that only last for a lift
+  roomUsers[data.roomId].playerStatus?.forEach((stat) => {
+    const removedPlayerStatuses = stat.status?.filter(el => getAbilityData(el).duration != 'lift');
+    stat.status = removedPlayerStatuses;
+  })
+
+
   // Set playable status of cards of player whose turn is next
   setCardsPlayability(data.roomId);
 
@@ -916,7 +924,7 @@ async function liftScoring(data: BasicRoomInput) {
   io.to(data.roomId).emit('lift', undefined);
   io.to(data.roomId).emit('game', roomUsers[data.roomId].game);
   io.to(data.roomId).emit('activeAbilities', roomUsers[data.roomId].activeAbilities);
-
+  io.to(data.roomId).emit('playerStatus', roomUsers[data.roomId].playerStatus);
 }
 
 function resetRoundState(roomId: string) {
