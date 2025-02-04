@@ -262,9 +262,10 @@ export function scoreLift(roomData: RoomSocket): ScoreLiftOutput {
       const jackOwnerTeammate = roomData.users.find(el => el.team == jackOwnerPlayer.team && el.player != jackOwnerPlayer.player);
 
       // If jack was saved from hanging with ability
-      if (roomData.playerStatus[jackOwnerTeammate.player].status.includes(CardAbilities.hangSaver)) {
+      if (roomData.playerStatus && roomData.playerStatus[jackOwnerTeammate.player]?.status?.includes(CardAbilities.hangSaver)) {
         roomData.jackSaved = true;
         roomData.jackWinner = jackOwnerTeammate;
+        highestHangerPlayer = jackOwnerTeammate;
       }
       else {
         roomData.jackWinner = highestHangerPlayer;

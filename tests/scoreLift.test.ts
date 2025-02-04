@@ -300,5 +300,78 @@ describe('Score Lift', () => {
     expect(tempRoomData.game).toEqual([0, 0]);
   });
 
+  test('Card with hangSaver abilitity is played and saves jack from being hung', () => {
+    const lift: LiftCard[] = [
+      { ...getCard('9', 'h'), player: 1 },
+      { ...getCard('A', 'h'), player: 2 },
+      { ...getCard('J', 'h'), player: 3 },
+      { ...getCard('5', 'd'), player: 4 },
+    ]
+
+    const tempRoomData: RoomSocket = { ...roomData, lift: lift, playerStatus: [undefined, { player: player1, status: [CardAbilities.hangSaver] }, undefined, undefined, undefined] };
+
+    const resp = scoreLift(tempRoomData);
+
+    const expectedResp: ScoreLiftOutput = {
+      liftWinnerPlayer: player2,
+      jackOwnerPlayer: player3,
+      highestHangerPlayer: player1
+    }
+
+    expect(resp).toMatchObject(expectedResp as any);
+    expect(tempRoomData.hangJack).toBeFalsy();
+    expect(tempRoomData.jackSaved).toBeTruthy();
+    expect(tempRoomData.game).toEqual([0, 5]);
+  });
+
+
+  test('Card with hangSaver abilitity is played when there is no jack to be hung', () => {
+    const lift: LiftCard[] = [
+      { ...getCard('9', 'h'), player: 1 },
+      { ...getCard('A', 'h'), player: 2 },
+      { ...getCard('K', 'h'), player: 3 },
+      { ...getCard('5', 'd'), player: 4 },
+    ]
+
+    const tempRoomData: RoomSocket = { ...roomData, lift: lift, playerStatus: [undefined, { player: player1, status: [CardAbilities.hangSaver] }, undefined, undefined, undefined] };
+
+    const resp = scoreLift(tempRoomData);
+
+    const expectedResp: ScoreLiftOutput = {
+      liftWinnerPlayer: player2,
+      jackOwnerPlayer: undefined,
+      highestHangerPlayer: player2
+    }
+
+    expect(resp).toMatchObject(expectedResp as any);
+    expect(tempRoomData.hangJack).toBeFalsy();
+    expect(tempRoomData.jackSaved).toBeFalsy();
+    expect(tempRoomData.game).toEqual([0, 7]);
+  });
+
+
+  test('Card with hangSaver abilitity is played but their teammate hangs Jack', () => {
+    const lift: LiftCard[] = [
+      { ...getCard('9', 'h'), player: 1 },
+      { ...getCard('J', 'h'), player: 2 },
+      { ...getCard('A', 'h'), player: 3 },
+      { ...getCard('5', 'd'), player: 4 },
+    ]
+
+    const tempRoomData: RoomSocket = { ...roomData, lift: lift, playerStatus: [undefined, { player: player1, status: [CardAbilities.hangSaver] }, undefined, undefined, undefined] };
+
+    const resp = scoreLift(tempRoomData);
+
+    const expectedResp: ScoreLiftOutput = {
+      liftWinnerPlayer: player3,
+      jackOwnerPlayer: player2,
+      highestHangerPlayer: player3
+    }
+
+    expect(resp).toMatchObject(expectedResp as any);
+    expect(tempRoomData.hangJack).toBeTruthy();
+    expect(tempRoomData.jackSaved).toBeFalsy();
+    expect(tempRoomData.game).toEqual([5, 0]);
+  });
 
 });
