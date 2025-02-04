@@ -32,6 +32,7 @@ export interface RoomSocket {
   lift?: LiftCard[];
   roundStarted?: boolean;
   hangJack?: boolean;
+  jackSaved?: boolean;
 
   matchWinner?: number
 

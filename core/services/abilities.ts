@@ -3,7 +3,7 @@ import { AbilityInput } from "../../models/AbilityInput";
 import { DeckCard } from "../../models/DeckCard";
 import { determineIfCardsPlayable, emitPlayerCardData, orderCards, shuffleDeck } from "./sharedGameFunctions";
 
-const hangSaverPointsEarned = 3;
+export const hangSaverPointsEarned = 3;
 
 export enum CardAbilities {
   // Spades

@@ -12,7 +12,7 @@ import { PlayerSocket } from './models/PlayerSocket';
 import { BegResponseInput } from './models/BegResponseInput';
 import { PlayCardInput } from './models/PlayCardInput';
 import { delay } from './core/services/delay';
-import { CardAbilities, getAbilityData, getIsRandom, handleAbility, mapAbility } from './core/services/abilities';
+import { CardAbilities, getAbilityData, getIsRandom, handleAbility, hangSaverPointsEarned, mapAbility } from './core/services/abilities';
 import { ChatInput } from './models/ChatInput';
 import { ChatMessage } from './models/ChatMessage';
 import { getCardName } from './core/services/parseCard';
@@ -936,6 +936,7 @@ function resetRoundState(roomId: string) {
   roomUsers[roomId].high = undefined;
   roomUsers[roomId].low = undefined;
   roomUsers[roomId].jack = undefined;
+  roomUsers[roomId].jackSaved = undefined;
 
   io.to(roomId).emit('game', [0, 0]);
 }
@@ -951,6 +952,7 @@ function roundScoring(data: BasicRoomInput) {
     jackWinner: roomUsers[data.roomId].jackWinner,
     jack: roomUsers[data.roomId].jack,
     hangJack: roomUsers[data.roomId].hangJack,
+    jackSaved: roomUsers[data.roomId].jackSaved,
     game: roomUsers[data.roomId].game
   };
 
@@ -964,10 +966,9 @@ function roundScoring(data: BasicRoomInput) {
   sendSystemMessage(roundWinners.lowWinner.nickname + ' won low!', data.roomId, '#22c55e');
 
   if (roundWinners.jackWinner) {
-    const jackWinnerMsg = roundWinners.hangJack ? ' hung Jack!!!' : ' won Jack!';
+    const jackWinnerMsg = roundWinners.hangJack ? ' hung Jack!!!' : roundWinners.jackSaved ? ' saved Jack!!!' : ' won Jack!';
     sendSystemMessage(roundWinners.jackWinner.nickname + jackWinnerMsg, data.roomId, '#22c55e');
   }
-
 
 
   // Assign scores
@@ -1011,6 +1012,10 @@ function roundScoring(data: BasicRoomInput) {
 
     if (roomUsers[data.roomId].hangJack) {
       jackPoints = 3;
+    }
+
+    if (roomUsers[data.roomId].jackSaved) {
+      jackPoints = hangSaverPointsEarned;
     }
 
     if (roomUsers[data.roomId].jackWinner.team == 1) {
