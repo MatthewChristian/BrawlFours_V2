@@ -17,7 +17,7 @@ export enum CardAbilities {
 
   // Hearts
   royalsDisabled,     // 2  TESTED
-  hangSaver,          // 9
+  hangSaver,          // 9  TESTED
   twentyPoints,       // 10 TESTED
   pointsForSaved,     // J
   abilitiesDisabled,  // Q  TESTED
@@ -158,7 +158,7 @@ function getRandomAbility() {
     const enumValues = (Object.values(CardAbilities) as unknown) as CardAbilities[];
     const randomIndex = Math.floor(Math.random() * enumValues.length);
     randomAbility = enumValues[randomIndex];
-  } while (randomAbility == CardAbilities.randomAbility); // Redo if function got random ability again
+  } while (randomAbility == CardAbilities.randomAbility || randomAbility == CardAbilities.pointsForSaved); // Redo if function got random ability again or if got points for saved ability
 
   return randomAbility
 }
@@ -215,11 +215,11 @@ const abilityData: Partial<AbilityData> = {
   },
   [CardAbilities.twentyPoints]: {
     description: 'Worth 20 points for game',
-    ability: (args: AbilityInput) => targetPowerlessAbility(args),
+    ability: (args: AbilityInput) => twentyPointsAbility(args),
   },
   [CardAbilities.pointsForSaved]: {
     description: 'If saved from hanging, get 10 points for game',
-    ability: (args: AbilityInput) => targetPowerlessAbility(args),
+    ability: (args: AbilityInput) => pointsForSavedAbility(args),
   },
   [CardAbilities.abilitiesDisabled]: {
     description: 'All other abilities are disabled for this turn',
@@ -378,4 +378,12 @@ function hangSaverAbility(args: AbilityInput) {
   }
 
   args.roomData.playerStatus[player.player].status.push(CardAbilities.hangSaver);
+}
+
+function twentyPointsAbility(args: AbilityInput) {
+  console.log("twentyPointsAbility: Played");
+}
+
+function pointsForSavedAbility(args: AbilityInput) {
+  console.log("pointsForSavedAbility: Played");
 }

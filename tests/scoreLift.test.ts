@@ -188,7 +188,7 @@ describe('Score Lift', () => {
 
   test('Jack about to be hung but saved', () => {
     const lift: LiftCard[] = [
-      { ...getCard('J', 'h'), player: 1},
+      { ...getCard('J', 'h'), player: 1, ability: undefined},
       { ...getCard('Q', 'h'), player: 2},
       { ...getCard('A', 'h'), player: 3},
       { ...getCard('5', 'd'), player: 4},
@@ -210,7 +210,7 @@ describe('Score Lift', () => {
   });
 
 
-  test('Card with ninePowerful abilitity is played', () => {
+  test('Card with ninePowerful ability is played', () => {
     const lift: LiftCard[] = [
       { ...getCard('9', 's'), player: 1, power: 9001 },
       { ...getCard('Q', 'h'), player: 2 },
@@ -231,7 +231,7 @@ describe('Score Lift', () => {
     expect(tempRoomData.game).toEqual([6, 0]);
   });
 
-  test('Card with ninePowerful abilitity is played and jack is hung', () => {
+  test('Card with ninePowerful ability is played and jack is hung', () => {
     const lift: LiftCard[] = [
       { ...getCard('9', 's'), player: 1, power: 9001 },
       { ...getCard('J', 'h'), player: 2 },
@@ -255,11 +255,11 @@ describe('Score Lift', () => {
   });
 
 
-  test('Card with ninePowerful abilitity is played and saves jack from being hung', () => {
+  test('Card with ninePowerful ability is played and saves jack from being hung', () => {
     const lift: LiftCard[] = [
       { ...getCard('9', 's'), player: 1, power: 9001 },
       { ...getCard('A', 'h'), player: 2 },
-      { ...getCard('J', 'h'), player: 3 },
+      { ...getCard('J', 'h'), player: 3, ability: undefined },
       { ...getCard('5', 'd'), player: 4 },
     ]
 
@@ -300,7 +300,7 @@ describe('Score Lift', () => {
     expect(tempRoomData.game).toEqual([0, 0]);
   });
 
-  test('Card with hangSaver abilitity is played and saves jack from being hung', () => {
+  test('Card with hangSaver ability is played and saves jack from being hung', () => {
     const lift: LiftCard[] = [
       { ...getCard('9', 'h'), player: 1 },
       { ...getCard('A', 'h'), player: 2 },
@@ -325,7 +325,7 @@ describe('Score Lift', () => {
   });
 
 
-  test('Card with hangSaver abilitity is played when there is no jack to be hung', () => {
+  test('Card with hangSaver ability is played when there is no jack to be hung', () => {
     const lift: LiftCard[] = [
       { ...getCard('9', 'h'), player: 1 },
       { ...getCard('A', 'h'), player: 2 },
@@ -350,7 +350,7 @@ describe('Score Lift', () => {
   });
 
 
-  test('Card with hangSaver abilitity is played but their teammate hangs Jack', () => {
+  test('Card with hangSaver ability is played but their teammate hangs Jack', () => {
     const lift: LiftCard[] = [
       { ...getCard('9', 'h'), player: 1 },
       { ...getCard('J', 'h'), player: 2 },
@@ -372,6 +372,55 @@ describe('Score Lift', () => {
     expect(tempRoomData.hangJack).toBeTruthy();
     expect(tempRoomData.jackSaved).toBeFalsy();
     expect(tempRoomData.game).toEqual([5, 0]);
+  });
+
+
+
+  test('Card with pointsForSaved ability is saved from being hung', () => {
+    const lift: LiftCard[] = [
+      { ...getCard('J', 'h'), player: 1 },
+      { ...getCard('K', 'h'), player: 2 },
+      { ...getCard('A', 'h'), player: 3 },
+      { ...getCard('5', 'd'), player: 4 },
+    ]
+
+    const tempRoomData: RoomSocket = { ...roomData, lift: lift };
+
+    const resp = scoreLift(tempRoomData);
+
+    const expectedResp: ScoreLiftOutput = {
+      liftWinnerPlayer: player3,
+      jackOwnerPlayer: player1,
+      highestHangerPlayer: player3
+    }
+
+    expect(resp).toMatchObject(expectedResp as any);
+    expect(tempRoomData.hangJack).toBeFalsy();
+    expect(tempRoomData.game).toEqual([18, 0]);
+  });
+
+
+  test('Card with pointsForSaved ability is hung', () => {
+    const lift: LiftCard[] = [
+      { ...getCard('J', 'h'), player: 1 },
+      { ...getCard('K', 'h'), player: 2 },
+      { ...getCard('Q', 'h'), player: 3 },
+      { ...getCard('5', 'd'), player: 4 },
+    ]
+
+    const tempRoomData: RoomSocket = { ...roomData, lift: lift };
+
+    const resp = scoreLift(tempRoomData);
+
+    const expectedResp: ScoreLiftOutput = {
+      liftWinnerPlayer: player2,
+      jackOwnerPlayer: player1,
+      highestHangerPlayer: player2
+    }
+
+    expect(resp).toMatchObject(expectedResp as any);
+    expect(tempRoomData.hangJack).toBeTruthy();
+    expect(tempRoomData.game).toEqual([0, 6]);
   });
 
 });

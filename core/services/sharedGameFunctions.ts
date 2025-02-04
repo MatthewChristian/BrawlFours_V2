@@ -190,6 +190,7 @@ export function scoreLift(roomData: RoomSocket): ScoreLiftOutput {
   let jackOwnerPlayer: PlayerSocket;
   let liftWinnerPlayer: PlayerSocket;
 
+  let teamsWithGreaterPowerThanJack = [false, false];
   let highestPowerInLift = 0;
   let liftPoints = 0;
 
@@ -225,9 +226,15 @@ export function scoreLift(roomData: RoomSocket): ScoreLiftOutput {
     }
 
     // Determine if hanger in lift
-    if (power > 111 && power > highestHangerPower) {
-      highestHangerPower = power;
-      highestHangerPlayer = player;
+    if (power > 111) {
+
+      teamsWithGreaterPowerThanJack[player.team] = true;
+
+      if (power > highestHangerPower) {
+        highestHangerPower = power;
+        highestHangerPlayer = player;
+      }
+
     }
 
     // Determine if card is winning the lift
@@ -274,6 +281,19 @@ export function scoreLift(roomData: RoomSocket): ScoreLiftOutput {
 
     }
     else {
+
+      // If jack was saved from hanging, grant 10 points for game if the card had the ability
+      // If in this part of this if statement, it means that Jack was not hung
+      // and if both values in the teamsWithGreaterPowerThanJack array are true, then it means that the opposing team played a card that could hang Jack
+      if ((roomData.jack.ability == CardAbilities.pointsForSaved) && teamsWithGreaterPowerThanJack[1] && teamsWithGreaterPowerThanJack[2]) {
+        if (jackOwnerPlayer.team == 1) {
+          roomData.game[0] = roomData.game[0] + 10;
+        }
+        else if (jackOwnerPlayer.team == 2) {
+          roomData.game[1] = roomData.game[1] + 10;
+        }
+      }
+
       roomData.jackWinner = jackOwnerPlayer;
     }
   }
