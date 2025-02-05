@@ -19,7 +19,7 @@ export enum CardAbilities {
   royalsDisabled,     // 2  TESTED
   hangSaver,          // 9  TESTED
   twentyPoints,       // 10 TESTED
-  pointsForSaved,     // J
+  pointsForSaved,     // J  TESTED
   abilitiesDisabled,  // Q  TESTED
   swapOppCard,        // K
   allyReplay,         // A
@@ -228,7 +228,7 @@ const abilityData: Partial<AbilityData> = {
   },
   [CardAbilities.swapOppCard]: {
     description: "Swap one of your cards with a random card from an opponent of your choosing",
-    ability: (args: AbilityInput) => targetPowerlessAbility(args),
+    ability: (args: AbilityInput) => swapOppCardAbility(args),
   },
   [CardAbilities.allyReplay]: {
     description: "Allow your ally to take back their card and play again",
@@ -386,4 +386,8 @@ function twentyPointsAbility(args: AbilityInput) {
 
 function pointsForSavedAbility(args: AbilityInput) {
   console.log("pointsForSavedAbility: Played");
+}
+
+function swapOppCardAbility(args: AbilityInput) {
+  console.log("swapOppCardAbility: Played");
 }

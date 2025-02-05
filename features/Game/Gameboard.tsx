@@ -73,6 +73,13 @@ export default function Gameboard({ roomId }: Props) {
   const [waitingBegResponseModalVisible, setWaitingBegResponseModalVisible] = useState<boolean>(false);
   const [redealModalVisible, setRedealModalVisible] = useState<boolean>(false);
   const [roundWinnersModalVisible, setRoundWinnersModalVisible] = useState<boolean>(false);
+  const [oppSelectionModalVisible, setOppSelectionModalVisible] = useState<boolean>(false);
+
+  // Selected opponent when choosing opponent from ability
+  const [selectedOpp, setSelectedOpp] = useState<PlayerSocket>();
+
+  // Selected card when choosing card from hand from ability
+  const [selectedCard, setSelectedCard] = useState<DeckCard>();
 
   // If a card ability allows the player to target a card in the lift
   const [isTargettingLift, setIsTargettingLift] = useState<boolean>(false);
@@ -278,16 +285,24 @@ export default function Gameboard({ roomId }: Props) {
     // Check if abilities are disabled before applying/sending ability data to server
     const areAbilitiesDisabled = activeAbilities.includes(CardAbilities.abilitiesDisabled);
 
-    if (card.ability == CardAbilities.targetPowerless && !areAbilitiesDisabled) {
-      setIsTargettingLift(true);
-      setPlayedCard(card);
-      return;
-    }
+    if (!areAbilitiesDisabled) {
+      if (card.ability == CardAbilities.targetPowerless) {
+        setIsTargettingLift(true);
+        setPlayedCard(card);
+        return;
+      }
 
-    if (card.ability == CardAbilities.oppReplay && !areAbilitiesDisabled) {
-      setIsTargettingOppLift(true);
-      setPlayedCard(card);
-      return;
+      if (card.ability == CardAbilities.oppReplay) {
+        setIsTargettingOppLift(true);
+        setPlayedCard(card);
+        return;
+      }
+
+      if (card.ability == CardAbilities.swapOppCard) {
+        setOppSelectionModalVisible(true);
+        setPlayedCard(card);
+        return;
+      }
     }
 
 
@@ -304,6 +319,26 @@ export default function Gameboard({ roomId }: Props) {
     }
 
     socket.emit('playCard', { ...socketData, card: playedCard, player: playerNumber });
+  }
+
+  function handleSelectCard(card: DeckCard) {
+    if (card.suit == playedCard.suit && card.value == playedCard.value) {
+      return;
+    }
+
+    setSelectedCard(card);
+  }
+
+  function handleOppSelectionConfirm() {
+    socket.emit('swapOppCard', { ...socketData, card: selectedCard, player: playerNumber, target: selectedOpp });
+    handleOppSelectionClose();
+  }
+
+  function handleOppSelectionClose() {
+    setOppSelectionModalVisible(false);
+    setPlayedCard(undefined);
+    setSelectedOpp(undefined);
+    setSelectedCard(undefined);
   }
 
   useEffect(() => {
@@ -656,8 +691,9 @@ export default function Gameboard({ roomId }: Props) {
                     player={1}
                     cardData={player1Cards[k]}
                     isDeckCard={player1Cards.length == 0 ? true : false}
-                    onClickHandler={() => player1Cards.length == 0 ? undefined : playCard(player1Cards[k])}
+                    onClickHandler={() => player1Cards.length == 0 ? undefined : oppSelectionModalVisible ? handleSelectCard(player1Cards[k]) : playCard(player1Cards[k])}
                     className='-mx-2'
+                    spotlighted={(oppSelectionModalVisible && (!(player1Cards[k].suit == playedCard?.suit && player1Cards[k].value == playedCard?.value)))}
                   />
                 ))
               }
@@ -750,6 +786,48 @@ export default function Gameboard({ roomId }: Props) {
         <div className="px-12">Choose a card in the lift for the opponent to take back</div>
         <div className='flex flex-row justify-center'>
           <Button className='red-button mt-5' onClick={() => { setIsTargettingOppLift(false); setPlayedCard(undefined); }}>
+            Cancel
+          </Button>
+        </div>
+      </Modal>
+
+
+      <Modal contentStyle={{ width: 'fit-content' }} open={oppSelectionModalVisible} closeOnDocumentClick={false}>
+        <div className="px-12">Choose a card an an opponent to swap the card with</div>
+
+        <div className='flex flex-row gap-5 justify-center mt-3'>
+          <Button className={selectedOpp?.id == player2Data?.id ? 'blue-button' : 'white-button'} onClick={() => setSelectedOpp(player2Data)}>
+            {player2Data.nickname}
+          </Button>
+
+          <Button className={selectedOpp?.id == player4Data?.id ? 'blue-button' : 'white-button'} onClick={() => setSelectedOpp(player4Data)}>
+            {player4Data.nickname}
+          </Button>
+        </div>
+
+          { selectedCard &&
+            <div>
+              <div className='flex flex-row justify-center mt-3'>
+                <PlayingCard
+                  key={'swap-card'}
+                  cardData={selectedCard}
+                  isDeckCard={false}
+                  isNotPlayable
+                />
+              </div>
+
+              { selectedOpp &&
+                <div className='mt-3 text-bold text-center text-lg text-blue-500'>Swapping this card with a random card from {selectedOpp.nickname}'s hand</div>
+              }
+            </div>
+          }
+
+        <div className='flex flex-row gap-5 justify-center'>
+          <Button disabled={!(selectedCard && selectedOpp)} className='green-button mt-5' onClick={() => { handleOppSelectionConfirm(); }}>
+            Confirm
+          </Button>
+
+          <Button className='red-button mt-5' onClick={() => { handleOppSelectionClose(); }}>
             Cancel
           </Button>
         </div>

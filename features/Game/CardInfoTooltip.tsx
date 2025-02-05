@@ -40,7 +40,7 @@ export default function CardInfoTooltip({ card, active, offsetY }: Props) {
       <Tooltip
         anchorSelect={`.${anchorSelect}`}
         place="top"
-        delayShow={350}
+        delayShow={550}
         delayHide={150}
         offset={(offsetY ?? 0) + 10}
         style={{ zIndex: 10000, width: 200 }}

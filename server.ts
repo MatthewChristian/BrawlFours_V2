@@ -17,6 +17,7 @@ import { ChatInput } from './models/ChatInput';
 import { ChatMessage } from './models/ChatMessage';
 import { getCardName } from './core/services/parseCard';
 import { determineIfCardsPlayable, emitPlayerCardData, initialiseDeck, orderCards, scoreLift, shuffleDeck } from './core/services/sharedGameFunctions';
+import { SwapOppCardInput } from './models/SwapOppCardInput';
 
 const app = express();
 const server = createServer(app);
@@ -54,6 +55,7 @@ io.on('connection', (socket) => {
   socket.on('chat', (data) => handleChatMessage(data));
   socket.on('targetPowerless', (data) => handleTargetPowerless(data));
   socket.on('oppReplay', (data) => handleOppReplay(data));
+  socket.on('swapOppCard', (data) => handleSwapOppCard(data));
 });
 
 function sendSystemMessage(message: string, roomId: string, colour?: string) {
@@ -1181,6 +1183,42 @@ function handleOppReplay(data: PlayCardInput) {
     }
 
 
+
+  }
+  else {
+    console.log(data.roomId + ': ' + 'Room doesnt exist');
+  }
+}
+
+
+function handleSwapOppCard(data: SwapOppCardInput) {
+  if (io.of('/').adapter.rooms.get(data.roomId)) {
+
+
+    // Get random card from target
+    const selectedPlayer = roomUsers[data.roomId].users.find((el) => el.player == data.target);
+
+    const randomCardIndex = Math.floor(Math.random() * selectedPlayer.cards.length);
+
+    const randomCard = selectedPlayer.cards[randomCardIndex];
+
+    // Add card to player's hand
+
+    const player = roomUsers[data.roomId].users.find((el) => el.player == data.player);
+
+    player.cards.push({ ...randomCard });
+
+    // Remove card from target's hand
+
+    selectedPlayer.cards.splice(randomCardIndex, 1);
+
+
+    // Finalize
+    orderCards(roomUsers[data.roomId].users);
+
+    determineIfCardsPlayable(roomUsers[data.roomId], player);
+
+    emitPlayerCardData(roomUsers[data.roomId].users, io);
 
   }
   else {
