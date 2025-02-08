@@ -121,7 +121,6 @@ export default function Layout({ children }: Props) {
     });
 
     socket.on('playerStatus', (state) => {
-      console.log("PS: ", state);
       dispatch(setPlayerStatus(state ?? []));
     });
 

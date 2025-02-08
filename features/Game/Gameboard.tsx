@@ -330,7 +330,7 @@ export default function Gameboard({ roomId }: Props) {
   }
 
   function handleOppSelectionConfirm() {
-    socket.emit('swapOppCard', { ...socketData, card: selectedCard, player: playerNumber, target: selectedOpp });
+    socket.emit('swapOppCard', { ...socketData, card: selectedCard, player: playerNumber, target: selectedOpp, playedCard: playedCard,  });
     handleOppSelectionClose();
   }
 

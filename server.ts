@@ -55,7 +55,7 @@ io.on('connection', (socket) => {
   socket.on('chat', (data) => handleChatMessage(data));
   socket.on('targetPowerless', (data) => handleTargetPowerless(data));
   socket.on('oppReplay', (data) => handleOppReplay(data));
-  socket.on('swapOppCard', (data) => handleSwapOppCard(data));
+  socket.on('swapOppCard', async (data) => await handleSwapOppCard(data, socket));
 });
 
 function sendSystemMessage(message: string, roomId: string, colour?: string) {
@@ -1191,26 +1191,32 @@ function handleOppReplay(data: PlayCardInput) {
 }
 
 
-function handleSwapOppCard(data: SwapOppCardInput) {
+async function handleSwapOppCard(data: SwapOppCardInput, socket: Socket) {
   if (io.of('/').adapter.rooms.get(data.roomId)) {
 
-
     // Get random card from target
-    const selectedPlayer = roomUsers[data.roomId].users.find((el) => el.player == data.target);
+    const selectedPlayer = roomUsers[data.roomId].users.find((el) => el.player == data.target.player);
 
     const randomCardIndex = Math.floor(Math.random() * selectedPlayer.cards.length);
 
     const randomCard = selectedPlayer.cards[randomCardIndex];
 
-    // Add card to player's hand
-
     const player = roomUsers[data.roomId].users.find((el) => el.player == data.player);
 
+    // Remove card from player's hand
+    const selectedCardIndex = player.cards.findIndex(el => el.suit == data.card.suit && el.value == data.card.value);
+
+    player.cards.splice(selectedCardIndex, 1);
+
+    // Add card to player's hand
     player.cards.push({ ...randomCard });
 
-    // Remove card from target's hand
 
+    // Remove card from target's hand
     selectedPlayer.cards.splice(randomCardIndex, 1);
+
+    // Add card to target's hand
+    selectedPlayer.cards.push(data.card)
 
 
     // Finalize
@@ -1219,6 +1225,8 @@ function handleSwapOppCard(data: SwapOppCardInput) {
     determineIfCardsPlayable(roomUsers[data.roomId], player);
 
     emitPlayerCardData(roomUsers[data.roomId].users, io);
+
+    await playCard({ ...data, card: data.playedCard }, socket);
 
   }
   else {
