@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
 import { socket } from '../SocketClient';
 import { addChatMessage } from '../../slices/chat.slice';
+import { ChatMessage } from '../../models/ChatMessage';
 
 
 interface Props {
@@ -116,7 +117,15 @@ export default function Layout({ children }: Props) {
       dispatch(setActiveAbilities(state));
     });
 
-    socket.on('chat', (state) => {
+    socket.on('chat', (state: ChatMessage) => {
+      if (state.showToast) {
+        toast(state.message, {
+          type: 'default',
+          hideProgressBar: true,
+          position: 'top-center'
+        });
+      }
+
       dispatch(addChatMessage(state));
     });
 

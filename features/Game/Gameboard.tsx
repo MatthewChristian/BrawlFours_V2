@@ -282,27 +282,32 @@ export default function Gameboard({ roomId }: Props) {
       return;
     }
 
-    // Check if abilities are disabled before applying/sending ability data to server
+    // Check if abilities/royals are disabled before applying/sending ability data to server
     const areAbilitiesDisabled = activeAbilities.includes(CardAbilities.abilitiesDisabled);
+    const areRoyalsDisabled = activeAbilities.includes(CardAbilities.royalsDisabled);
 
     if (!areAbilitiesDisabled) {
-      if (card.ability == CardAbilities.targetPowerless) {
-        setIsTargettingLift(true);
-        setPlayedCard(card);
-        return;
+
+      if (!areRoyalsDisabled) {
+        if (card.ability == CardAbilities.swapOppCard) {
+          setOppSelectionModalVisible(true);
+          setPlayedCard(card);
+          return;
+        }
+
+        if (card.ability == CardAbilities.targetPowerless) {
+          setIsTargettingLift(true);
+          setPlayedCard(card);
+          return;
+        }
+
+        if (card.ability == CardAbilities.oppReplay) {
+          setIsTargettingOppLift(true);
+          setPlayedCard(card);
+          return;
+        }
       }
 
-      if (card.ability == CardAbilities.oppReplay) {
-        setIsTargettingOppLift(true);
-        setPlayedCard(card);
-        return;
-      }
-
-      if (card.ability == CardAbilities.swapOppCard) {
-        setOppSelectionModalVisible(true);
-        setPlayedCard(card);
-        return;
-      }
     }
 
 
@@ -685,17 +690,23 @@ export default function Gameboard({ roomId }: Props) {
 
               <div className="w-full flex flex-row justify-center items-center" ref={player1Hand}>
               {
-                Array.from({ length: player1Cards.length == 0 ? player1Data?.numCards ?? 0 : player1Cards.length}, (_, k) => (
-                  <PlayingCard
-                    key={'1' + k}
-                    player={1}
-                    cardData={player1Cards[k]}
-                    isDeckCard={player1Cards.length == 0 ? true : false}
-                    onClickHandler={() => player1Cards.length == 0 ? undefined : oppSelectionModalVisible ? handleSelectCard(player1Cards[k]) : playCard(player1Cards[k])}
-                    className='-mx-2'
-                    spotlighted={(oppSelectionModalVisible && (!(player1Cards[k].suit == playedCard?.suit && player1Cards[k].value == playedCard?.value)))}
-                  />
-                ))
+                Array.from({ length: player1Cards.length == 0 ? player1Data?.numCards ?? 0 : player1Cards.length}, (_, k) => {
+
+                  const oppSelectionActive = (oppSelectionModalVisible && (!(player1Cards[k].suit == playedCard?.suit && player1Cards[k].value == playedCard?.value)));
+
+                  return (
+                    <PlayingCard
+                      key={'1' + k}
+                      player={1}
+                      cardData={player1Cards[k]}
+                      isDeckCard={player1Cards.length == 0 ? true : false}
+                      onClickHandler={() => player1Cards.length == 0 ? undefined : oppSelectionModalVisible ? handleSelectCard(player1Cards[k]) : playCard(player1Cards[k])}
+                      className='-mx-2'
+                      spotlighted={oppSelectionActive}
+                      glow={oppSelectionActive ? 'blue' : undefined}
+                    />
+                  );}
+                )
               }
 
               <Marker dispatchFunction={setPlayer1HandPos} />

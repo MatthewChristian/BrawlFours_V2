@@ -22,6 +22,7 @@ interface Props {
   liftCard?: number;
   liftWinner?: number;
   spotlighted?: boolean;
+  glow?: string;
 }
 
 export default function PlayingCard({
@@ -35,7 +36,8 @@ export default function PlayingCard({
   isNotPlayable,
   liftCard,
   liftWinner,
-  spotlighted
+  spotlighted,
+  glow
 }: Props) {
 
   const cardRef = useRef<HTMLDivElement>(null);
@@ -99,6 +101,10 @@ export default function PlayingCard({
 
   function getGlowClassName() {
 
+    if (glow) {
+      return `${glow}-glow`
+    }
+
     if (cardData.power == 0) {
       return 'red-glow';
     }
@@ -160,7 +166,7 @@ export default function PlayingCard({
             >
               <div
                 style={{position: 'relative',  height: '15vh', aspectRatio: '3/5'}}
-                onMouseOver={() => cardData?.playable && !isNotPlayable ? setFocused(true) : undefined}
+                onMouseOver={() => (cardData?.playable && !isNotPlayable) || glow == 'blue' ? setFocused(true) : undefined}
                 onMouseLeave={() => setFocused(false)}
               >
                 <Image

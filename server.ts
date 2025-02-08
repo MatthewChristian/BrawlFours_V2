@@ -68,6 +68,17 @@ function sendSystemMessage(message: string, roomId: string, colour?: string) {
   io.to(roomId).emit('chat', messageObj);
 }
 
+function sendIndividualMessage(message: string, socketId: string, showToast?: boolean, colour?: string) {
+  const messageObj: ChatMessage = {
+    message: message,
+    messageColour: colour ?? '#f59e0b',
+    mode: 'log',
+    showToast: showToast
+  };
+
+  io.to(socketId).emit('chat', messageObj);
+}
+
 function generateRoomId() {
   let randomNumber: string;
   do {
@@ -1217,6 +1228,11 @@ async function handleSwapOppCard(data: SwapOppCardInput, socket: Socket) {
 
     // Add card to target's hand
     selectedPlayer.cards.push(data.card)
+
+    // Send system messages
+    sendIndividualMessage(`You swapped your ${getCardName(data.card)} for ${selectedPlayer.nickname}'s ${getCardName(randomCard)}`, player.socketId, true, '#db2777');
+
+    sendIndividualMessage(`${player.nickname} swapped your ${getCardName(randomCard)} for their ${getCardName(data.card)}`, data.target.socketId, true, '#db2777');
 
 
     // Finalize

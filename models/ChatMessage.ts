@@ -7,4 +7,5 @@ export interface ChatMessage {
   messageColour?: string;
   senderColour?: string;
   modeColour?: string;
+  showToast?: boolean;
 }
