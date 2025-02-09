@@ -249,6 +249,19 @@ export default function Gameboard({ roomId }: Props) {
   }, [playerStatus, player4Data]);
 
 
+  const isForceStandCardInHand: boolean = useMemo(() => {
+    let forceStand = false;
+
+    player1Cards.forEach(el => {
+      if (el.ability == CardAbilities.forceStand) {
+        forceStand = true;
+        return;
+      }
+    });
+
+    return forceStand;
+  }, [player1Cards]);
+
   function getPlayerStatuses(playerData: PlayerSocket) {
     if (!playerStatus) {
       return [];
@@ -755,18 +768,25 @@ export default function Gameboard({ roomId }: Props) {
       </Modal>
 
 
-      <Modal open={begResponseModalVisible} closeOnDocumentClick={false} onClose={() => setBegResponseModalVisible(false)}>
+      <Modal open={begResponseModalVisible} closeOnDocumentClick={false} onClose={() => setBegResponseModalVisible(false)} contentStyle={isForceStandCardInHand ? { width: '30em' } : undefined}>
         <div className="flex flex-col justify-center items-center mx-5">
           <div className="">{turnPlayerData?.nickname} has begged!</div>
           <div className='w-full flex flex-row justify-center gap-5'>
             <Button className='blue-button mt-5' onClick={() => socket?.emit('begResponse', { ...socketData, response: 'give' })}>
-              Give one
+              {
+                isForceStandCardInHand ? 'Force stand' : 'Give one'
+              }
+
             </Button>
 
             <Button className='green-button mt-5' onClick={() => socket?.emit('begResponse', { ...socketData, response: 'run' })}>
               Run pack
             </Button>
           </div>
+          {
+            isForceStandCardInHand ? <div className='text-gray-500 mt-3 text-sm italic text-center'>You have a card in your hand that allows you to force your opponent to stand without giving them a point</div> : undefined
+          }
+
         </div>
       </Modal>
 

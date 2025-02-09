@@ -734,35 +734,47 @@ function begResponse(data: BegResponseInput, gameSocket: Socket) {
 
       const beggerTeam = begger.team;
 
-      if (beggerTeam == 1) {
-        if (roomUsers[data.roomId].teamScore[0] >= 13) {
-          io.to(gameSocket.id).emit('message', {
-            message: 'You cannot give a point as it will end the game!',
-            shortcode: 'WARNING'
-          });
-          return;
-        }
-        roomUsers[data.roomId].teamScore[0]++;
+      const dealerForceStandCard = dealer.cards.find(el => el.ability == CardAbilities.forceStand);
+
+      if (dealerForceStandCard) {
+        io.to(data.roomId).emit('message', {
+          message: dealer.nickname + ' forced ' + begger.nickname + ' to stand without giving a point!',
+          shortcode: 'GIVE'
+        });
+
+        sendSystemMessage(dealer.nickname + ' forced ' + begger.nickname + ' to stand without giving a point!', data.roomId, "#06b6d4");
       }
       else {
-        if (roomUsers[data.roomId].teamScore[1] >= 13) {
-          io.to(gameSocket.id).emit('message', {
-            message: 'You cannot give a point as it will end the game!',
-            shortcode: 'WARNING'
-          });
-          return;
+        if (beggerTeam == 1) {
+          if (roomUsers[data.roomId].teamScore[0] >= 13) {
+            io.to(gameSocket.id).emit('message', {
+              message: 'You cannot give a point as it will end the game!',
+              shortcode: 'WARNING'
+            });
+            return;
+          }
+          roomUsers[data.roomId].teamScore[0]++;
         }
-        roomUsers[data.roomId].teamScore[1]++;
+        else {
+          if (roomUsers[data.roomId].teamScore[1] >= 13) {
+            io.to(gameSocket.id).emit('message', {
+              message: 'You cannot give a point as it will end the game!',
+              shortcode: 'WARNING'
+            });
+            return;
+          }
+          roomUsers[data.roomId].teamScore[1]++;
+        }
+
+        io.to(data.roomId).emit('teamScore', roomUsers[data.roomId].teamScore);
+
+        io.to(data.roomId).emit('message', {
+          message: dealer.nickname + ' gave a point!',
+          shortcode: 'GIVE'
+        });
+
+        sendSystemMessage(dealer.nickname + ' gave a point!', data.roomId, "#06b6d4");
       }
-
-      io.to(data.roomId).emit('teamScore', roomUsers[data.roomId].teamScore);
-
-      io.to(data.roomId).emit('message', {
-        message: dealer.nickname + ' gave a point!',
-        shortcode: 'GIVE'
-      });
-
-      sendSystemMessage(dealer.nickname + ' gave a point!', data.roomId, "#06b6d4");
     }
     else if (data.response == 'run') {
       roomUsers[data.roomId].beg = 'run';

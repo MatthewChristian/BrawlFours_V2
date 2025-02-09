@@ -45,6 +45,7 @@ export enum CardAbilities {
 }
 
 export function mapAbility(value: string, suit: string) {
+
   // Spades
   if (suit == 's') {
     if (value == '2') {
@@ -236,7 +237,7 @@ const abilityData: Partial<AbilityData> = {
   },
   [CardAbilities.forceStand]: {
     description: "If in your hand when dealing, can force opponent to stand without giving a point",
-    ability: (args: AbilityInput) => targetPowerlessAbility(args),
+    ability: (args: AbilityInput) => forceStandAbility(args),
   },
   [CardAbilities.ninePoints]: {
     description: "This card is worth 9 points for game",
@@ -422,4 +423,8 @@ function allyReplayAbility(args: AbilityInput) {
   teammatePlayer.cards.push({ ...liftCard });
 
   orderCards(args.roomData.users);
+}
+
+function forceStandAbility(args: AbilityInput) {
+  console.log("forceStandAbility: Played");
 }
