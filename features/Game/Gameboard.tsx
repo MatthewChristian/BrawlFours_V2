@@ -27,6 +27,7 @@ import RoyalsDisabledIcon from './StatusIcons/RoyalsDisabledIcon';
 import TrumpDisabledIcon from './StatusIcons/TrumpDisabledIcon';
 import TwoWinGameIcon from './StatusIcons/TwoWinGameIcon';
 import HangSaverIcon from './StatusIcons/HangSaverIcon';
+import { isCardRoyal } from '../../core/services/sharedGameFunctions';
 
 interface Props {
   roomId?: string;
@@ -286,26 +287,28 @@ export default function Gameboard({ roomId }: Props) {
     const areAbilitiesDisabled = activeAbilities.includes(CardAbilities.abilitiesDisabled);
     const areRoyalsDisabled = activeAbilities.includes(CardAbilities.royalsDisabled);
 
+    if (isCardRoyal(card) && areRoyalsDisabled) {
+      return;
+    }
+
     if (!areAbilitiesDisabled) {
 
-      if (!areRoyalsDisabled) {
-        if (card.ability == CardAbilities.swapOppCard) {
-          setOppSelectionModalVisible(true);
-          setPlayedCard(card);
-          return;
-        }
+      if (card.ability == CardAbilities.swapOppCard) {
+        setOppSelectionModalVisible(true);
+        setPlayedCard(card);
+        return;
+      }
 
-        if (card.ability == CardAbilities.targetPowerless) {
-          setIsTargettingLift(true);
-          setPlayedCard(card);
-          return;
-        }
+      if (card.ability == CardAbilities.targetPowerless) {
+        setIsTargettingLift(true);
+        setPlayedCard(card);
+        return;
+      }
 
-        if (card.ability == CardAbilities.oppReplay) {
-          setIsTargettingOppLift(true);
-          setPlayedCard(card);
-          return;
-        }
+      if (card.ability == CardAbilities.oppReplay) {
+        setIsTargettingOppLift(true);
+        setPlayedCard(card);
+        return;
       }
 
     }

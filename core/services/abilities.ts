@@ -21,8 +21,8 @@ export enum CardAbilities {
   twentyPoints,       // 10 TESTED
   pointsForSaved,     // J  TESTED
   abilitiesDisabled,  // Q  TESTED
-  swapOppCard,        // K
-  allyReplay,         // A
+  swapOppCard,        // K  TESTED
+  allyReplay,         // A  TESTED - Need to test what happens when use allyReplay into oppReplay and vice versa
 
   // Dimes
   forceStand,         // 2
@@ -232,7 +232,7 @@ const abilityData: Partial<AbilityData> = {
   },
   [CardAbilities.allyReplay]: {
     description: "Allow your ally to take back their card and play again",
-    ability: (args: AbilityInput) => targetPowerlessAbility(args),
+    ability: (args: AbilityInput) => allyReplayAbility(args),
   },
   [CardAbilities.forceStand]: {
     description: "If in your hand when dealing, can force opponent to stand without giving a point",
@@ -305,7 +305,7 @@ function alwaysPlayableAbility(args: AbilityInput) {
 }
 
 function ninePowerfulAbility(args: AbilityInput) {
-  if (args.roomData.game.includes(9)) {
+  if (args.roomData.game && args.roomData.game.includes(9)) {
     args.roomData.activeAbilities.push(CardAbilities.ninePowerful);
     args.card.power = 9001;
   }
@@ -390,4 +390,36 @@ function pointsForSavedAbility(args: AbilityInput) {
 
 function swapOppCardAbility(args: AbilityInput) {
   console.log("swapOppCardAbility: Played");
+}
+
+function allyReplayAbility(args: AbilityInput) {
+
+  const playerData = args.roomData.users.find(el => el.player == args.player.player);
+
+  const teammatePlayer = args.roomData.users.find(el => el.team == playerData.team && el.player != playerData.player);
+
+  const liftCardIndex = args.roomData.lift.findIndex(el => el.player == teammatePlayer.player);
+
+  // Store the next players turn in pendingTurn variable
+  if (args.roomData.turn >= 4) {
+    args.roomData.allyPendingTurn = 1;
+  }
+  else {
+    args.roomData.allyPendingTurn = args.roomData.turn + 1;
+  }
+
+  // Make it the turn of the player whose card was chosen
+  args.roomData.turn = teammatePlayer.player;
+
+  const liftCard = args.roomData.lift[liftCardIndex];
+
+  // Remove card from lift
+  if (liftCardIndex > -1) {
+    args.roomData.lift.splice(liftCardIndex, 1);
+  }
+
+  // Add card back to player's hand
+  teammatePlayer.cards.push({ ...liftCard });
+
+  orderCards(args.roomData.users);
 }
