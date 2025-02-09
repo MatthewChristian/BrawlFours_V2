@@ -65,7 +65,9 @@ export function initialiseDeck() {
         suit: suits[i],
         value: values[j],
         power: power[j],
-        points: ability == CardAbilities.twentyPoints ? 20 : points[j],
+        points: ability == CardAbilities.twentyPoints ? 20
+          : ability == CardAbilities.ninePoints ? 9
+          : points[j],
         playable: false,
         ability: ability,
         isRandom: getIsRandom(values[j], suits[i]),

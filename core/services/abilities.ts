@@ -7,13 +7,13 @@ export const hangSaverPointsEarned = 3;
 
 export enum CardAbilities {
   // Spades
-  alwaysPlayable,     // 2 TESTED
-  ninePowerful,       // 9 TESTED
-  trumpDisabled,      // 10 Need to test when trump played after trump was called
-  targetPowerless,    // J TESTED
-  noWinLift,          // Q TESTED
-  shuffleHand,        // K TESTED - Need to implement animations
-  oppReplay,          // A TESTING IN PROGRESS
+  alwaysPlayable,     // 2  TESTED
+  ninePowerful,       // 9  TESTED
+  trumpDisabled,      // 10 TESTING - Need to test when trump played after trump was called
+  targetPowerless,    // J  TESTED
+  noWinLift,          // Q  TESTED
+  shuffleHand,        // K  TESTED - Need to implement animations
+  oppReplay,          // A  TESTING IN PROGRESS
 
   // Hearts
   royalsDisabled,     // 2  TESTED
@@ -22,11 +22,11 @@ export enum CardAbilities {
   pointsForSaved,     // J  TESTED
   abilitiesDisabled,  // Q  TESTED
   swapOppCard,        // K  TESTED
-  allyReplay,         // A  TESTED - Need to test what happens when use allyReplay into oppReplay and vice versa
+  allyReplay,         // A  TESTING - Need to test what happens when use allyReplay into oppReplay and vice versa
 
   // Dimes
-  forceStand,         // 2
-  ninePoints,         // 9
+  forceStand,         // 2  TESTING - Need to test with actual 2 of dimes card and also with 9 of clubs
+  ninePoints,         // 9  TESTED
   oppositePower,      // 10
   allyPlaysLast,      // J
   freePlay,           // Q
@@ -240,8 +240,8 @@ const abilityData: Partial<AbilityData> = {
     ability: (args: AbilityInput) => forceStandAbility(args),
   },
   [CardAbilities.ninePoints]: {
-    description: "This card is worth 9 points for game",
-    ability: (args: AbilityInput) => targetPowerlessAbility(args),
+    description: "Worth 9 points for game",
+    ability: (args: AbilityInput) => ninePointsAbility(args),
   },
   [CardAbilities.oppositePower]: {
     description: "Card power is opposite this turn",
@@ -427,4 +427,8 @@ function allyReplayAbility(args: AbilityInput) {
 
 function forceStandAbility(args: AbilityInput) {
   console.log("forceStandAbility: Played");
+}
+
+function ninePointsAbility(args: AbilityInput) {
+  console.log("ninePointsAbility: Played");
 }
