@@ -194,14 +194,19 @@ export function scoreLift(roomData: RoomSocket): ScoreLiftOutput {
 
   let teamsWithGreaterPowerThanJack = [false, false];
   let highestPowerInLift = 0;
+  let lowestPowerInLift = 10000;
   let liftPoints = 0;
 
 
   // Loop through lift
   roomData.lift.forEach(el => {
     // Add 100 points to power if card was trump, minus 100 points from power if card was not suit that was called
-    const power = el.power + (el.suit == roomData.trump ? 100 : el.suit != roomData.called.suit ? -100 : 0);
+    let power = el.power + (el.suit == roomData.trump ? 100 : el.suit != roomData.called.suit ? -100 : 0);
     const player = roomData.users.find(usr => usr.player == el.player);
+
+    if (roomData.activeAbilities?.includes(CardAbilities.oppositePower)) {
+      power = power * -1;
+    }
 
     // If card ability
 

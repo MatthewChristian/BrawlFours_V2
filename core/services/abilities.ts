@@ -245,7 +245,7 @@ const abilityData: Partial<AbilityData> = {
   },
   [CardAbilities.oppositePower]: {
     description: "Card power is opposite this turn",
-    ability: (args: AbilityInput) => targetPowerlessAbility(args),
+    ability: (args: AbilityInput) => oppositePowerAbility(args),
     duration: 'lift'
   },
   [CardAbilities.chooseStarter]: {
@@ -431,4 +431,8 @@ function forceStandAbility(args: AbilityInput) {
 
 function ninePointsAbility(args: AbilityInput) {
   console.log("ninePointsAbility: Played");
+}
+
+function oppositePowerAbility(args: AbilityInput) {
+  args.roomData.activeAbilities.push(CardAbilities.oppositePower);
 }
