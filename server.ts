@@ -940,7 +940,7 @@ async function liftScoring(data: BasicRoomInput) {
   setCardsPlayability(data.roomId);
 
 
-  if (highestHangerPlayer && highestHangerPlayer.team != jackOwnerPlayer.team) { // Hang Jack
+  if (highestHangerPlayer && jackOwnerPlayer && highestHangerPlayer.team != jackOwnerPlayer.team) { // Hang Jack
     io.to(data.roomId).emit('message', { message: highestHangerPlayer.nickname + ' hung jack!!!', shortcode: 'HANG' });
   }
 

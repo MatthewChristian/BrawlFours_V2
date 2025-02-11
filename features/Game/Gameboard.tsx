@@ -305,23 +305,28 @@ export default function Gameboard({ roomId }: Props) {
     }
 
     if (!areAbilitiesDisabled) {
-      // TODO: Handle cases where opponent hand is empty, lift is empty, etc...
       if (card.ability == CardAbilities.swapOppCard) {
-        setOppSelectionModalVisible(true);
-        setPlayedCard(card);
-        return;
+        if (player2Data.numCards && player4Data.numCards && player2Data.numCards != 0 && player4Data.numCards != 0) {
+          setOppSelectionModalVisible(true);
+          setPlayedCard(card);
+          return;
+        }
       }
 
       if (card.ability == CardAbilities.targetPowerless) {
-        setIsTargettingLift(true);
-        setPlayedCard(card);
-        return;
+        if (lift && lift.length != 0) {
+          setIsTargettingLift(true);
+          setPlayedCard(card);
+          return;
+        }
       }
 
       if (card.ability == CardAbilities.oppReplay) {
-        setIsTargettingOppLift(true);
-        setPlayedCard(card);
-        return;
+        if (lift && lift.length != 0) {
+          setIsTargettingOppLift(true);
+          setPlayedCard(card);
+          return;
+        }
       }
 
     }
@@ -830,13 +835,17 @@ export default function Gameboard({ roomId }: Props) {
         <div className="px-12">Choose a card an an opponent to swap the card with</div>
 
         <div className='flex flex-row gap-5 justify-center mt-3'>
+        { player2Data.numCards != 0 &&
           <Button className={selectedOpp?.id == player2Data?.id ? 'blue-button' : 'white-button'} onClick={() => setSelectedOpp(player2Data)}>
             {player2Data.nickname}
           </Button>
+        }
 
+        { player4Data.numCards != 0 &&
           <Button className={selectedOpp?.id == player4Data?.id ? 'blue-button' : 'white-button'} onClick={() => setSelectedOpp(player4Data)}>
             {player4Data.nickname}
           </Button>
+        }
         </div>
 
           { selectedCard &&

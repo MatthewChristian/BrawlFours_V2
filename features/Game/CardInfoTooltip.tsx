@@ -93,8 +93,8 @@ export default function CardInfoTooltip({ card, active, offsetY }: Props) {
             : <></>
           }
 
-          <div className={isDisabled ? 'text-red-500 flex flex-col gap-1' : ''}>
-            {isDisabled && abilityDescription ? <div>ABILITY DISABLED</div> : undefined}
+          <div className={isDisabled && card.ability != CardAbilities.abilitiesDisabled ? 'text-red-500 flex flex-col gap-1' : ''}>
+            {isDisabled && card.ability != CardAbilities.abilitiesDisabled && abilityDescription ? <div>ABILITY DISABLED</div> : undefined}
             {abilityDescription}
           </div>
 
