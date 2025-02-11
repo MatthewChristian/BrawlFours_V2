@@ -183,6 +183,26 @@ export function determineIfCardsPlayable(roomData: RoomSocket, player: PlayerSoc
   });
 }
 
+function handleOppositePower(roomData: RoomSocket, power: number) {
+  if (roomData.activeAbilities.includes(CardAbilities.oppositePower)) {
+    const powerArr = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
+
+    const index = powerArr.findIndex(el => el == power);
+
+    const reversePowerArr = [...powerArr].reverse();
+
+    if (index > -1) {
+      return reversePowerArr[index];
+    }
+    else {
+      return 0;
+    }
+  }
+  else {
+    return power;
+  }
+}
+
 
 
 export function scoreLift(roomData: RoomSocket): ScoreLiftOutput {
@@ -194,21 +214,15 @@ export function scoreLift(roomData: RoomSocket): ScoreLiftOutput {
 
   let teamsWithGreaterPowerThanJack = [false, false];
   let highestPowerInLift = 0;
-  let lowestPowerInLift = 10000;
   let liftPoints = 0;
-
+  let jackPower = roomData.activeAbilities.includes(CardAbilities.oppositePower) ? 105 : 111;
 
   // Loop through lift
   roomData.lift.forEach(el => {
     // Add 100 points to power if card was trump, minus 100 points from power if card was not suit that was called
-    let power = el.power + (el.suit == roomData.trump ? 100 : el.suit != roomData.called.suit ? -100 : 0);
+    // Call function to check if oppositePower ability is in effect
+    let power = handleOppositePower(roomData, el.power) + (el.suit == roomData.trump ? 100 : el.suit != roomData.called.suit ? -100 : 0);
     const player = roomData.users.find(usr => usr.player == el.player);
-
-    if (roomData.activeAbilities?.includes(CardAbilities.oppositePower)) {
-      power = power * -1;
-    }
-
-    // If card ability
 
     if (el.suit == roomData.trump) {
 
@@ -233,7 +247,7 @@ export function scoreLift(roomData: RoomSocket): ScoreLiftOutput {
     }
 
     // Determine if hanger in lift
-    if (power > 111) {
+    if (power > jackPower) {
 
       teamsWithGreaterPowerThanJack[player.team] = true;
 

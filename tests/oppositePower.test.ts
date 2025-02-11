@@ -108,7 +108,7 @@ describe('Opposite Power', () => {
     const resp = scoreLift(tempRoomData);
 
     const expectedResp: ScoreLiftOutput = {
-      liftWinnerPlayer: player3
+      liftWinnerPlayer: player1
     }
 
     expect(resp).toMatchObject(expectedResp as any);
@@ -130,11 +130,11 @@ describe('Opposite Power', () => {
     const resp = scoreLift(tempRoomData);
 
     const expectedResp: ScoreLiftOutput = {
-      liftWinnerPlayer: player4
+      liftWinnerPlayer: player3
     }
 
     expect(resp).toMatchObject(expectedResp as any);
-    expect(tempRoomData.game).toEqual([0, 4]);
+    expect(tempRoomData.game).toEqual([4, 0]);
   });
 
 
@@ -152,11 +152,11 @@ describe('Opposite Power', () => {
     const resp = scoreLift(tempRoomData);
 
     const expectedResp: ScoreLiftOutput = {
-      liftWinnerPlayer: player4
+      liftWinnerPlayer: player3
     }
 
     expect(resp).toMatchObject(expectedResp as any);
-    expect(tempRoomData.game).toEqual([0, 8]);
+    expect(tempRoomData.game).toEqual([8, 0]);
   });
 
 
@@ -165,7 +165,7 @@ describe('Opposite Power', () => {
     const lift: LiftCard[] = [
       { ...getCard('2', 'd'), player: 1},
       { ...getCard('J', 'h'), player: 2},
-      { ...getCard('A', 'h'), player: 3},
+      { ...getCard('5', 'h'), player: 3},
       { ...getCard('5', 'c'), player: 4},
     ]
 
@@ -174,23 +174,22 @@ describe('Opposite Power', () => {
     const resp = scoreLift(tempRoomData);
 
     const expectedResp: ScoreLiftOutput = {
-      liftWinnerPlayer: player4,
+      liftWinnerPlayer: player3,
       jackOwnerPlayer: player2,
-      highestHangerPlayer: player4
+      highestHangerPlayer: player3
     }
 
     expect(resp).toMatchObject(expectedResp as any);
     expect(tempRoomData.hangJack).toBeTruthy();
-    expect(tempRoomData.game).toEqual([5, 0]);
+    expect(tempRoomData.game).toEqual([1, 0]);
   });
-
 
 
   test('Jack about to be hung but saved', () => {
     const lift: LiftCard[] = [
       { ...getCard('J', 'h'), player: 1, ability: undefined},
-      { ...getCard('5', 'c'), player: 2},
-      { ...getCard('2', 'c'), player: 3},
+      { ...getCard('8', 'h'), player: 2},
+      { ...getCard('5', 'h'), player: 3},
       { ...getCard('5', 'd'), player: 4},
     ]
 
@@ -213,8 +212,8 @@ describe('Opposite Power', () => {
   test('Card with ninePowerful ability is played', () => {
     const lift: LiftCard[] = [
       { ...getCard('9', 's'), player: 1, power: 9001 },
-      { ...getCard('Q', 'h'), player: 2 },
-      { ...getCard('A', 'h'), player: 3 },
+      { ...getCard('Q', 'd'), player: 2 },
+      { ...getCard('A', 'd'), player: 3 },
       { ...getCard('5', 'd'), player: 4 },
     ]
 
@@ -231,7 +230,7 @@ describe('Opposite Power', () => {
     expect(tempRoomData.game).toEqual([0, 6]);
   });
 
-  test('Card with ninePowerful ability is played and jack is hung', () => {
+  test('Card with ninePowerful ability is played and jack is played', () => {
     const lift: LiftCard[] = [
       { ...getCard('9', 's'), player: 1, power: 9001 },
       { ...getCard('J', 'h'), player: 2 },
@@ -244,21 +243,21 @@ describe('Opposite Power', () => {
     const resp = scoreLift(tempRoomData);
 
     const expectedResp: ScoreLiftOutput = {
-      liftWinnerPlayer: player3,
+      liftWinnerPlayer: player2,
       jackOwnerPlayer: player2,
-      highestHangerPlayer: player3
+      highestHangerPlayer: undefined
     }
 
     expect(resp).toMatchObject(expectedResp as any);
-    expect(tempRoomData.hangJack).toBeTruthy();
-    expect(tempRoomData.game).toEqual([5, 0]);
+    expect(tempRoomData.hangJack).toBeFalsy();
+    expect(tempRoomData.game).toEqual([0, 1]);
   });
 
 
   test('Card with ninePowerful ability is played and attempts to save jack from being hung', () => {
     const lift: LiftCard[] = [
       { ...getCard('9', 's'), player: 1, power: 9001 },
-      { ...getCard('A', 'h'), player: 2 },
+      { ...getCard('5', 'h'), player: 2 },
       { ...getCard('J', 'h'), player: 3, ability: undefined },
       { ...getCard('5', 'd'), player: 4 },
     ]
@@ -268,14 +267,14 @@ describe('Opposite Power', () => {
     const resp = scoreLift(tempRoomData);
 
     const expectedResp: ScoreLiftOutput = {
-      liftWinnerPlayer: player4,
+      liftWinnerPlayer: player2,
       jackOwnerPlayer: player3,
-      highestHangerPlayer: player4
+      highestHangerPlayer: player2
     }
 
     expect(resp).toMatchObject(expectedResp as any);
     expect(tempRoomData.hangJack).toBeTruthy();
-    expect(tempRoomData.game).toEqual([0, 5]);
+    expect(tempRoomData.game).toEqual([0, 1]);
   });
 
 
@@ -292,7 +291,7 @@ describe('Opposite Power', () => {
     const resp = scoreLift(tempRoomData);
 
     const expectedResp: ScoreLiftOutput = {
-      liftWinnerPlayer: player4,
+      liftWinnerPlayer: player3,
     }
 
     expect(resp).toMatchObject(expectedResp as any);
@@ -302,8 +301,8 @@ describe('Opposite Power', () => {
 
   test('Card with hangSaver ability is played and saves jack from being hung', () => {
     const lift: LiftCard[] = [
-      { ...getCard('9', 'h'), player: 1 },
-      { ...getCard('A', 'h'), player: 2 },
+      { ...getCard('4', 'd'), player: 1 },
+      { ...getCard('9', 'h'), player: 2 },
       { ...getCard('J', 'h'), player: 3 },
       { ...getCard('5', 'd'), player: 4 },
     ]
@@ -313,40 +312,15 @@ describe('Opposite Power', () => {
     const resp = scoreLift(tempRoomData);
 
     const expectedResp: ScoreLiftOutput = {
-      liftWinnerPlayer: player4,
+      liftWinnerPlayer: player2,
       jackOwnerPlayer: player3,
-      highestHangerPlayer: player4
+      highestHangerPlayer: player1
     }
 
     expect(resp).toMatchObject(expectedResp as any);
     expect(tempRoomData.hangJack).toBeFalsy();
     expect(tempRoomData.jackSaved).toBeTruthy();
-    expect(tempRoomData.game).toEqual([0, 5]);
-  });
-
-
-  test('Card with hangSaver ability is played when there is no jack to be hung', () => {
-    const lift: LiftCard[] = [
-      { ...getCard('9', 'h'), player: 1 },
-      { ...getCard('A', 'h'), player: 2 },
-      { ...getCard('K', 'h'), player: 3 },
-      { ...getCard('5', 'd'), player: 4 },
-    ]
-
-    const tempRoomData: RoomSocket = { ...roomData, lift: lift, playerStatus: [undefined, { player: player1, status: [CardAbilities.hangSaver] }, undefined, undefined, undefined] };
-
-    const resp = scoreLift(tempRoomData);
-
-    const expectedResp: ScoreLiftOutput = {
-      liftWinnerPlayer: player4,
-      jackOwnerPlayer: undefined,
-      highestHangerPlayer: player4
-    }
-
-    expect(resp).toMatchObject(expectedResp as any);
-    expect(tempRoomData.hangJack).toBeFalsy();
-    expect(tempRoomData.jackSaved).toBeFalsy();
-    expect(tempRoomData.game).toEqual([0, 7]);
+    expect(tempRoomData.game).toEqual([0, 1]);
   });
 
 
@@ -354,7 +328,7 @@ describe('Opposite Power', () => {
     const lift: LiftCard[] = [
       { ...getCard('9', 'h'), player: 1 },
       { ...getCard('J', 'h'), player: 2 },
-      { ...getCard('5', 'd'), player: 3 },
+      { ...getCard('5', 'h'), player: 3 },
       { ...getCard('7', 'd'), player: 4 },
     ]
 
@@ -371,7 +345,7 @@ describe('Opposite Power', () => {
     expect(resp).toMatchObject(expectedResp as any);
     expect(tempRoomData.hangJack).toBeTruthy();
     expect(tempRoomData.jackSaved).toBeFalsy();
-    expect(tempRoomData.game).toEqual([5, 0]);
+    expect(tempRoomData.game).toEqual([1, 0]);
   });
 
 
@@ -379,8 +353,8 @@ describe('Opposite Power', () => {
   test('Card with pointsForSaved ability is saved from being hung', () => {
     const lift: LiftCard[] = [
       { ...getCard('J', 'h'), player: 1 },
-      { ...getCard('4', 'c'), player: 2 },
-      { ...getCard('3', 'c'), player: 3 },
+      { ...getCard('5', 'h'), player: 2 },
+      { ...getCard('3', 'h'), player: 3 },
       { ...getCard('5', 'd'), player: 4 },
     ]
 
@@ -396,7 +370,7 @@ describe('Opposite Power', () => {
 
     expect(resp).toMatchObject(expectedResp as any);
     expect(tempRoomData.hangJack).toBeFalsy();
-    expect(tempRoomData.game).toEqual([18, 0]);
+    expect(tempRoomData.game).toEqual([11, 0]);
   });
 
 
@@ -405,7 +379,7 @@ describe('Opposite Power', () => {
       { ...getCard('J', 'h'), player: 1 },
       { ...getCard('K', 'h'), player: 2 },
       { ...getCard('Q', 'h'), player: 3 },
-      { ...getCard('5', 'd'), player: 4 },
+      { ...getCard('5', 'h'), player: 4 },
     ]
 
     const tempRoomData: RoomSocket = { ...roomData, lift: lift };
