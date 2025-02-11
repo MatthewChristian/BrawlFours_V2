@@ -22,7 +22,7 @@ export enum CardAbilities {
   pointsForSaved,     // J  TESTED
   abilitiesDisabled,  // Q  TESTED
   swapOppCard,        // K  TESTED
-  allyReplay,         // A  TESTING - Need to test what happens when use allyReplay into oppReplay and vice versa
+  allyReplay,         // A  TESTING - Need to test what happens when use allyReplay into oppReplay and vice versa, need to fix when played when ally hasnt played anything yet
 
   // Dimes
   forceStand,         // 2  TESTING - Need to test with actual 2 of dimes card and also with 9 of clubs

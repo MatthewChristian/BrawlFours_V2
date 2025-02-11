@@ -183,26 +183,29 @@ export function determineIfCardsPlayable(roomData: RoomSocket, player: PlayerSoc
   });
 }
 
+export function oppositePowerMap(power: number) {
+  const powerArr = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
+
+  const index = powerArr.findIndex(el => el == power);
+
+  const reversePowerArr = [...powerArr].reverse();
+
+  if (index > -1) {
+    return reversePowerArr[index];
+  }
+  else {
+    return 0;
+  }
+}
+
 function handleOppositePower(roomData: RoomSocket, power: number) {
   if (roomData.activeAbilities.includes(CardAbilities.oppositePower)) {
-    const powerArr = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
-
-    const index = powerArr.findIndex(el => el == power);
-
-    const reversePowerArr = [...powerArr].reverse();
-
-    if (index > -1) {
-      return reversePowerArr[index];
-    }
-    else {
-      return 0;
-    }
+    return oppositePowerMap(power);
   }
   else {
     return power;
   }
 }
-
 
 
 export function scoreLift(roomData: RoomSocket): ScoreLiftOutput {

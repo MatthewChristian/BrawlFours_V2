@@ -8,6 +8,7 @@ import powerSvg from "../../public/images/power.svg";
 import powerZeroSvg from "../../public/images/powerZero.svg";
 import { useAppSelector } from '../../store/hooks';
 import { getActiveAbilities } from '../../slices/game.slice';
+import { oppositePowerMap } from '../../core/services/sharedGameFunctions';
 
 interface Props {
   card: DeckCard;
@@ -27,6 +28,15 @@ export default function CardInfoTooltip({ card, active, offsetY }: Props) {
     return false;
   }, [activeAbilities]);
 
+  const isOppositePower = useMemo(() => {
+    if (activeAbilities.includes(CardAbilities.oppositePower)) {
+      return true;
+    }
+
+    return false;
+  }, [activeAbilities]);
+
+
   const anchorSelect = useMemo(() => {
     return getCardAnchorSelect(card);
   }, [card]);
@@ -34,6 +44,20 @@ export default function CardInfoTooltip({ card, active, offsetY }: Props) {
   const abilityDescription = useMemo(() => {
     return getAbilityData(card?.ability)?.description;
   }, [card]);
+
+
+  const cardPower = useMemo(() => {
+    if (!card?.power) {
+      return 0;
+    }
+
+    if (!isOppositePower) {
+      return card.power;
+    }
+    else {
+      return oppositePowerMap(card.power);
+    }
+  }, [card, isOppositePower]);
 
   return (
     active ?
@@ -52,7 +76,7 @@ export default function CardInfoTooltip({ card, active, offsetY }: Props) {
                 src={card.power == 0 ? powerZeroSvg : powerSvg}
                 alt="" />
             </div>
-            <div className={card.power == 0 ? 'text-red-500' : 'text-green-500'}>{card.power} Power</div>
+            <div className={card.power == 0 ? 'text-red-500' : 'text-green-500'}>{cardPower} Power</div>
           </div>
 
           <div className='border-t-2 border-white'></div>
