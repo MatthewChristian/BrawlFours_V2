@@ -22,7 +22,7 @@ export enum CardAbilities {
   pointsForSaved,     // J  TESTED
   abilitiesDisabled,  // Q  TESTED
   swapOppCard,        // K  TESTED
-  allyReplay,         // A  TESTING - Need to test what happens when use allyReplay into oppReplay and vice versa, need to fix when played when ally hasnt played anything yet
+  allyReplay,         // A  TESTING - Need to test what happens when use allyReplay into oppReplay and vice versa
 
   // Dimes
   forceStand,         // 2  TESTING - Need to test with actual 2 of dimes card and also with 9 of clubs
@@ -400,6 +400,11 @@ function allyReplayAbility(args: AbilityInput) {
   const teammatePlayer = args.roomData.users.find(el => el.team == playerData.team && el.player != playerData.player);
 
   const liftCardIndex = args.roomData.lift.findIndex(el => el.player == teammatePlayer.player);
+
+  // If their teammate hasn't played a card yet, do nothing
+  if (liftCardIndex == -1) {
+    return;
+  }
 
   // Store the next players turn in pendingTurn variable
   if (args.roomData.turn >= 4) {

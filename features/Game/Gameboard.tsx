@@ -305,7 +305,7 @@ export default function Gameboard({ roomId }: Props) {
     }
 
     if (!areAbilitiesDisabled) {
-
+      // TODO: Handle cases where opponent hand is empty, lift is empty, etc...
       if (card.ability == CardAbilities.swapOppCard) {
         setOppSelectionModalVisible(true);
         setPlayedCard(card);
