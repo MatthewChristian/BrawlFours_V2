@@ -28,6 +28,7 @@ import TrumpDisabledIcon from './StatusIcons/TrumpDisabledIcon';
 import TwoWinGameIcon from './StatusIcons/TwoWinGameIcon';
 import HangSaverIcon from './StatusIcons/HangSaverIcon';
 import { isCardRoyal } from '../../core/services/sharedGameFunctions';
+import PlayerStatusIcons from './PlayerStatusIcons';
 
 interface Props {
   roomId?: string;
@@ -540,7 +541,7 @@ export default function Gameboard({ roomId }: Props) {
               <div className='flex flex-row gap-2'>
                 <DealerIcon active={dealerData && player3Data.id == dealerData.id} />
                 <TurnIcon active={turnPlayerData && player3Data.id == turnPlayerData.id} />
-                <HangSaverIcon active={player3Status.includes(CardAbilities.hangSaver)} />
+                <PlayerStatusIcons playerStatus={player3Status} />
               </div>
             </div>
 
@@ -573,10 +574,10 @@ export default function Gameboard({ roomId }: Props) {
                 }
               </div>
 
-              <div className='flex flex-row flex-wrap gap-2'>
+              <div className='flex flex-row flex-wrap gap-2 px-2'>
                 <DealerIcon active={dealerData && player4Data.id == dealerData.id} />
                 <TurnIcon active={turnPlayerData && player4Data.id == turnPlayerData.id} />
-                <HangSaverIcon active={player4Status.includes(CardAbilities.hangSaver)} />
+                <PlayerStatusIcons playerStatus={player4Status} />
               </div>
             </div>
 
@@ -695,7 +696,7 @@ export default function Gameboard({ roomId }: Props) {
               <div className='flex flex-row flex-wrap gap-2'>
                 <DealerIcon active={dealerData && player2Data.id == dealerData.id} />
                 <TurnIcon active={turnPlayerData && player2Data.id == turnPlayerData.id} />
-                <HangSaverIcon active={player2Status.includes(CardAbilities.hangSaver)} />
+                <PlayerStatusIcons playerStatus={player2Status} />
               </div>
             </div>
             {/* -----------------------------------------------------------------*/}
@@ -743,7 +744,7 @@ export default function Gameboard({ roomId }: Props) {
               <div className='flex flex-row gap-2'>
                 <DealerIcon active={dealerData && player1Data.id == dealerData.id}/>
                 <TurnIcon active={turnPlayerData && player1Data.id == turnPlayerData.id} />
-                <HangSaverIcon active={player1Status.includes(CardAbilities.hangSaver)} />
+                <PlayerStatusIcons playerStatus={player1Status} />
               </div>
 
             </div>

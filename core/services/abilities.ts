@@ -27,7 +27,7 @@ export enum CardAbilities {
   // Dimes
   forceStand,         // 2  TESTING - Need to test with actual 2 of dimes card and also with 9 of clubs
   ninePoints,         // 9  TESTED
-  oppositePower,      // 10
+  oppositePower,      // 10 TESTED
   allyPlaysLast,      // J
   freePlay,           // Q
   doublePoints,       // K
@@ -248,6 +248,11 @@ const abilityData: Partial<AbilityData> = {
     ability: (args: AbilityInput) => oppositePowerAbility(args),
     duration: 'lift'
   },
+  [CardAbilities.allyPlaysLast]: {
+    description: "Your ally plays their card last this turn",
+    ability: (args: AbilityInput) => allyPlaysLastAbility(args),
+    duration: 'lift'
+  },
   [CardAbilities.chooseStarter]: {
     description: "Choose a player to play first next turn",
     ability: (args: AbilityInput) => targetPowerlessAbility(args),
@@ -299,7 +304,6 @@ export function handleAbility(args: AbilityInput) {
 
   return abilityData[args.card.ability]?.ability(args);
 }
-
 
 function alwaysPlayableAbility(args: AbilityInput) {
   console.log("alwaysPlayableAbility: Played");
@@ -440,4 +444,20 @@ function ninePointsAbility(args: AbilityInput) {
 
 function oppositePowerAbility(args: AbilityInput) {
   args.roomData.activeAbilities.push(CardAbilities.oppositePower);
+}
+
+function allyPlaysLastAbility(args: AbilityInput) {
+  const player = args.roomData.users.find(el => el.id == args.id);
+
+  const teammate = args.roomData.users.find(el => el.team == player.team && el.id != player.id);
+
+  if (!args.roomData.playerStatus) {
+    args.roomData.playerStatus = [];
+  }
+
+  if (!args.roomData.playerStatus[teammate.player]) {
+    args.roomData.playerStatus[teammate.player] = { player: { ...teammate, cards: null }, status: [] };
+  }
+
+  args.roomData.playerStatus[teammate.player].status.push(CardAbilities.allyPlaysLast);
 }
