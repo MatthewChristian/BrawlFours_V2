@@ -412,10 +412,10 @@ function allyReplayAbility(args: AbilityInput) {
 
   // Store the next players turn in pendingTurn variable
   if (args.roomData.turn >= 4) {
-    args.roomData.allyPendingTurn = 1;
+    args.roomData.tempPendingTurn = 1;
   }
   else {
-    args.roomData.allyPendingTurn = args.roomData.turn + 1;
+    args.roomData.tempPendingTurn = args.roomData.turn + 1;
   }
 
   // Make it the turn of the player whose card was chosen

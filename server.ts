@@ -826,18 +826,18 @@ async function playCard(data: PlayCardInput, gameSocket: Socket) {
     return;
   }
 
-  // Reset lift winner
-  io.to(data.roomId).emit('liftWinner', undefined);
-
   // Add card to lift
   if (!roomUsers[data.roomId].lift) {
+    // Reset lift winner
+    io.to(data.roomId).emit('liftWinner', undefined);
+
     roomUsers[data.roomId].lift = [{ ...cardData, player: player.player }];
   }
   else {
     roomUsers[data.roomId].lift.push({ ...cardData, player: player.player });
   }
 
-  // If trump has not been called yet
+  // If suit has not been called yet
   if (!roomUsers[data.roomId].called) {
     roomUsers[data.roomId].called = cardData;
   }
@@ -876,15 +876,18 @@ async function playCard(data: PlayCardInput, gameSocket: Socket) {
   }
   else {
     // Increment player turn
-    if (roomUsers[data.roomId].pendingTurn) {
+    if (roomUsers[data.roomId].pendingTurn && roomUsers[data.roomId].pendingTurn.length > 0) {
       // Check if there is a player's turn pending (caused by card ability which allows an opponent to take back and replay a card)
-      roomUsers[data.roomId].turn = roomUsers[data.roomId].pendingTurn;
-      roomUsers[data.roomId].pendingTurn = undefined;
+      roomUsers[data.roomId].turn = roomUsers[data.roomId].pendingTurn.shift();
     }
-    else if (roomUsers[data.roomId].allyPendingTurn) {
+    else if (roomUsers[data.roomId].tempPendingTurn) {
       // Check if there is a player's turn pending (caused by card ability which allows an ally to take back and replay a card)
-      roomUsers[data.roomId].pendingTurn = roomUsers[data.roomId].allyPendingTurn;
-      roomUsers[data.roomId].allyPendingTurn = undefined;
+      if (!roomUsers[data.roomId].pendingTurn) {
+        roomUsers[data.roomId].pendingTurn = [];
+      }
+
+      roomUsers[data.roomId].pendingTurn.push(roomUsers[data.roomId].tempPendingTurn);
+      roomUsers[data.roomId].tempPendingTurn = undefined;
     }
     else if (roomUsers[data.roomId].turn >= 4) {
       roomUsers[data.roomId].turn = 1;
@@ -967,6 +970,9 @@ function resetRoundState(roomId: string) {
   roomUsers[roomId].low = undefined;
   roomUsers[roomId].jack = undefined;
   roomUsers[roomId].jackSaved = undefined;
+  roomUsers[roomId].tempPendingTurn = undefined;
+  roomUsers[roomId].pendingTurn = [];
+  roomUsers[roomId].playerStatus = [];
 
   io.to(roomId).emit('game', [0, 0]);
 }
@@ -1194,12 +1200,16 @@ function handleOppReplay(data: PlayCardInput) {
 
     const liftCardPlayer = roomUsers[data.roomId].lift[liftCardIndex].player;
 
+    if (!roomUsers[data.roomId].pendingTurn) {
+      roomUsers[data.roomId].pendingTurn = [];
+    }
+
     // Store the next players turn in pendingTurn variable
     if (roomUsers[data.roomId].turn >= 4) {
-      roomUsers[data.roomId].pendingTurn = 1;
+      roomUsers[data.roomId].tempPendingTurn = 1;
     }
     else {
-      roomUsers[data.roomId].pendingTurn = roomUsers[data.roomId].turn + 1;
+      roomUsers[data.roomId].tempPendingTurn = roomUsers[data.roomId].turn + 1;
     }
 
     // Make it the turn of the player whose card was chosen
@@ -1251,7 +1261,7 @@ async function handleSwapOppCard(data: SwapOppCardInput, socket: Socket) {
     selectedPlayer.cards.splice(randomCardIndex, 1);
 
     // Add card to target's hand
-    selectedPlayer.cards.push(data.card)
+    selectedPlayer.cards.push(data.card);
 
     // Send system messages
     sendIndividualMessage(`You swapped your ${getCardName(data.card)} for ${selectedPlayer.nickname}'s ${getCardName(randomCard)}`, player.socketId, true, '#db2777');
@@ -1273,44 +1283,6 @@ async function handleSwapOppCard(data: SwapOppCardInput, socket: Socket) {
     console.log(data.roomId + ': ' + 'Room doesnt exist');
   }
 }
-
-function handleAllyReplay(data: PlayCardInput) {
-  if (io.of('/').adapter.rooms.get(data.roomId)) {
-
-    // Not player's turn yet
-    if (roomUsers[data.roomId].turn != data.player) {
-      return;
-    }
-
-
-    const playerData = roomUsers[data.roomId].users.find(el => el.team == data.player);
-
-    const teammatePlayer = roomUsers[data.roomId].users.find(el => el.team == playerData.team && el.player != playerData.player);
-
-    const liftCardIndex = roomUsers[data.roomId].lift.findIndex(el => el.player == teammatePlayer.player);
-
-    // Store the next players turn in pendingTurn variable
-    if (roomUsers[data.roomId].turn >= 4) {
-      roomUsers[data.roomId].pendingTurn = 1;
-    }
-    else {
-      roomUsers[data.roomId].pendingTurn = roomUsers[data.roomId].turn + 1;
-    }
-
-    // Make it the turn of the player whose card was chosen
-    roomUsers[data.roomId].turn = teammatePlayer.player;
-
-    // Remove card from lift
-    if (liftCardIndex > -1) {
-      roomUsers[data.roomId].lift.splice(liftCardIndex, 1);
-    }
-
-  }
-  else {
-    console.log(data.roomId + ': ' + 'Room doesnt exist');
-  }
-}
-
 
 nextApp.prepare()
   .then(() => {
