@@ -307,7 +307,7 @@ export default function Gameboard({ roomId }: Props) {
 
     if (!areAbilitiesDisabled) {
       if (card.ability == CardAbilities.swapOppCard) {
-        if (player2Data.numCards && player4Data.numCards && player2Data.numCards != 0 && player4Data.numCards != 0) {
+        if (player2Data.numCards && player4Data.numCards && player1Cards?.length && player1Cards.length != 1 && player2Data.numCards != 0 && player4Data.numCards != 0) {
           setOppSelectionModalVisible(true);
           setPlayedCard(card);
           return;
