@@ -12,7 +12,7 @@ import { PlayerSocket } from './models/PlayerSocket';
 import { BegResponseInput } from './models/BegResponseInput';
 import { PlayCardInput } from './models/PlayCardInput';
 import { delay } from './core/services/delay';
-import { CardAbilities, getAbilityData, getIsRandom, handleAbility, hangSaverPointsEarned, mapAbility } from './core/services/abilities';
+import { CardAbilities, getAbilityData, handleAbility, hangSaverPointsEarned } from './core/services/abilities';
 import { ChatInput } from './models/ChatInput';
 import { ChatMessage } from './models/ChatMessage';
 import { getCardName } from './core/services/parseCard';
@@ -896,6 +896,24 @@ async function playCard(data: PlayCardInput, gameSocket: Socket) {
       roomUsers[data.roomId].turn = roomUsers[data.roomId].turn + 1;
     }
 
+    // Handle allyPlaysLast ability
+    if (roomUsers[data.roomId].allyPlaysLast == roomUsers[data.roomId].turn) {
+      if (!roomUsers[data.roomId].pendingTurn) {
+        roomUsers[data.roomId].pendingTurn = [];
+      }
+
+      roomUsers[data.roomId].pendingTurn.push(roomUsers[data.roomId].turn);
+
+      if (roomUsers[data.roomId].turn >= 4) {
+        roomUsers[data.roomId].turn = 1;
+      }
+      else {
+        roomUsers[data.roomId].turn = roomUsers[data.roomId].turn + 1;
+      }
+
+      roomUsers[data.roomId].allyPlaysLast = undefined;
+    }
+
     // Set playable status of cards of player whose turn is next
     setCardsPlayability(data.roomId);
 
@@ -973,6 +991,7 @@ function resetRoundState(roomId: string) {
   roomUsers[roomId].tempPendingTurn = undefined;
   roomUsers[roomId].pendingTurn = [];
   roomUsers[roomId].playerStatus = [];
+  roomUsers[roomId].allyPlaysLast = undefined;
 
   io.to(roomId).emit('game', [0, 0]);
 }

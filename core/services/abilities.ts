@@ -25,10 +25,10 @@ export enum CardAbilities {
   allyReplay,         // A  TESTING - Need to test what happens when use allyReplay into oppReplay and vice versa
 
   // Dimes
-  forceStand,         // 2  TESTING - Need to test with actual 2 of dimes card and also with 9 of clubs
+  forceStand,         // 2  TESTING - Need to test 9 of clubs
   ninePoints,         // 9  TESTED
   oppositePower,      // 10 TESTED
-  allyPlaysLast,      // J
+  allyPlaysLast,      // J  TESTING - Need to test when played then oppReplay is played on it and then played again
   freePlay,           // Q
   doublePoints,       // K
   chooseStarter,      // A
@@ -447,6 +447,7 @@ function oppositePowerAbility(args: AbilityInput) {
 }
 
 function allyPlaysLastAbility(args: AbilityInput) {
+  // Push status to player
   const player = args.roomData.users.find(el => el.id == args.id);
 
   const teammate = args.roomData.users.find(el => el.team == player.team && el.id != player.id);
@@ -460,4 +461,6 @@ function allyPlaysLastAbility(args: AbilityInput) {
   }
 
   args.roomData.playerStatus[teammate.player].status.push(CardAbilities.allyPlaysLast);
+
+  args.roomData.allyPlaysLast = teammate.player;
 }

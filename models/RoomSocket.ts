@@ -17,6 +17,7 @@ export interface RoomSocket {
   beg?: 'begging' | 'begged' | 'stand' | 'give' | 'run';
   pendingTurn?: number[];
   tempPendingTurn?: number;
+  allyPlaysLast?: number;
 
   trump?: string;
   called?: DeckCard;
