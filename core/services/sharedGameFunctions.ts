@@ -276,6 +276,11 @@ export function scoreLift(roomData: RoomSocket): ScoreLiftOutput {
     roomData.game = [0, 0];
   }
 
+  // Handle doublePoints ability is active
+  if (roomData.activeAbilities.includes(CardAbilities.doublePoints)) {
+    liftPoints = liftPoints * 2;
+  }
+
   // Assign points for game
   if (!roomData.activeAbilities.includes(CardAbilities.noWinLift)) { // Check to see if teams are allowed to earn points for this lift
     if (liftWinnerPlayer.team == 1) {
@@ -321,6 +326,8 @@ export function scoreLift(roomData: RoomSocket): ScoreLiftOutput {
       roomData.jackWinner = jackOwnerPlayer;
     }
   }
+
+
 
   return ({
     liftWinnerPlayer: liftWinnerPlayer,

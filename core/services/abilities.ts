@@ -28,9 +28,9 @@ export enum CardAbilities {
   forceStand,         // 2  TESTING - Need to test 9 of clubs
   ninePoints,         // 9  TESTED
   oppositePower,      // 10 TESTED
-  allyPlaysLast,      // J  TESTING - Need to test when played then oppReplay is played on it and then played again
+  allyPlaysLast,      // J  TESTING - Need to test when played then oppReplay is played on it and then played again, Need to fix when ally was playing last anyway
   freePlay,           // Q
-  doublePoints,       // K
+  doublePoints,       // K  TESTED
   chooseStarter,      // A
 
   // Clubs
@@ -253,6 +253,16 @@ const abilityData: Partial<AbilityData> = {
     ability: (args: AbilityInput) => allyPlaysLastAbility(args),
     duration: 'lift'
   },
+  [CardAbilities.freePlay]: {
+    description: "This card can be played outside your turn",
+    ability: (args: AbilityInput) => allyPlaysLastAbility(args),
+    duration: 'lift'
+  },
+  [CardAbilities.doublePoints]: {
+    description: "This lift will be worth double the points",
+    ability: (args: AbilityInput) => doublePointsAbility(args),
+    duration: 'lift'
+  },
   [CardAbilities.chooseStarter]: {
     description: "Choose a player to play first next turn",
     ability: (args: AbilityInput) => targetPowerlessAbility(args),
@@ -463,4 +473,8 @@ function allyPlaysLastAbility(args: AbilityInput) {
   args.roomData.playerStatus[teammate.player].status.push(CardAbilities.allyPlaysLast);
 
   args.roomData.allyPlaysLast = teammate.player;
+}
+
+function doublePointsAbility(args: AbilityInput) {
+  args.roomData.activeAbilities.push(CardAbilities.doublePoints);
 }
