@@ -494,7 +494,10 @@ function dealAll(data: BasicRoomInput) {
     roomUsers[data.roomId].users[i].cards = resp.hand;
     tempPlayer[i] = resp.hand;
     tempDeck = resp.deck;
+
   }
+
+
 
   roomUsers[data.roomId].deck = tempDeck;
 
@@ -945,7 +948,11 @@ async function liftScoring(data: BasicRoomInput) {
 
   roomUsers[data.roomId].lift = undefined;
   roomUsers[data.roomId].called = undefined;
-  roomUsers[data.roomId].turn = liftWinnerPlayer.player;
+
+  // Set starter as lift winner or the target of the chooseStarter ability if it was active
+  roomUsers[data.roomId].turn = roomUsers[data.roomId].chooseStarterPlayer ?? liftWinnerPlayer.player;
+
+  roomUsers[data.roomId].chooseStarterPlayer = undefined;
 
   // Remove abilities that only last for a lift
   const removedLiftAbilities = roomUsers[data.roomId].activeAbilities?.filter(el => getAbilityData(el).duration != 'lift');
@@ -956,6 +963,10 @@ async function liftScoring(data: BasicRoomInput) {
     const removedPlayerStatuses = stat.status?.filter(el => getAbilityData(el).duration != 'lift');
     stat.status = removedPlayerStatuses;
   })
+
+  // Reset pending turns
+  roomUsers[data.roomId].tempPendingTurn = undefined;
+  roomUsers[data.roomId].pendingTurn = [];
 
 
   // Set playable status of cards of player whose turn is next
@@ -993,6 +1004,7 @@ function resetRoundState(roomId: string) {
   roomUsers[roomId].pendingTurn = [];
   roomUsers[roomId].playerStatus = [];
   roomUsers[roomId].allyPlaysLastPlayer = undefined;
+  roomUsers[roomId].chooseStarterPlayer = undefined;
 
   io.to(roomId).emit('game', [0, 0]);
 }
@@ -1317,20 +1329,19 @@ async function handleChooseStarter(data: TargetPlayerInput, socket: Socket) {
     }
 
     if (!roomUsers[data.roomId].playerStatus[selectedPlayer.player]) {
-      roomUsers[data.roomId].playerStatus[selectedPlayer.player] = { player: { ...player, cards: null }, status: [] };
+      roomUsers[data.roomId].playerStatus[selectedPlayer.player] = { player: { ...selectedPlayer, cards: null }, status: [] };
     }
 
     roomUsers[data.roomId].playerStatus[selectedPlayer.player].status.push(CardAbilities.chooseStarter);
 
     // Update chooseStarter room variable
-    roomUsers[data.roomId].chooseStarter = {
-      player: selectedPlayer.player,
-      count: 1
-    };
+    roomUsers[data.roomId].chooseStarterPlayer = selectedPlayer.player;
 
     // Send system messages
     sendSystemMessage(`${player.nickname} chose ${selectedPlayer.nickname} to play first next lift!`, data.roomId, '#db2777');
 
+    // Emit status
+    io.to(data.roomId).emit('playerStatus', roomUsers[data.roomId].playerStatus);
 
     // Finalize
     await playCard({ ...data, card: data.playedCard }, socket);

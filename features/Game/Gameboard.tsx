@@ -76,6 +76,7 @@ export default function Gameboard({ roomId }: Props) {
   const [redealModalVisible, setRedealModalVisible] = useState<boolean>(false);
   const [roundWinnersModalVisible, setRoundWinnersModalVisible] = useState<boolean>(false);
   const [oppSelectionModalVisible, setOppSelectionModalVisible] = useState<boolean>(false);
+  const [chooseStarterModalVisible, setChooseStarterModalVisible] = useState<boolean>(false);
 
   // Selected opponent when choosing opponent from ability
   const [selectedOpp, setSelectedOpp] = useState<PlayerSocket>();
@@ -330,6 +331,14 @@ export default function Gameboard({ roomId }: Props) {
         }
       }
 
+      if (card.ability == CardAbilities.chooseStarter) {
+        if (player1Cards?.length > 1) {
+          setChooseStarterModalVisible(true);
+          setPlayedCard(card);
+          return;
+        }
+      }
+
     }
 
 
@@ -366,6 +375,17 @@ export default function Gameboard({ roomId }: Props) {
     setPlayedCard(undefined);
     setSelectedOpp(undefined);
     setSelectedCard(undefined);
+  }
+
+  function handleChooseStarterConfirm() {
+    socket.emit('chooseStarter', { ...socketData, player: playerNumber, target: selectedOpp, playedCard: playedCard });
+    handleChooseStarterModalClose();
+  }
+
+  function handleChooseStarterModalClose() {
+    setChooseStarterModalVisible(false);
+    setPlayedCard(undefined);
+    setSelectedOpp(undefined);
   }
 
   useEffect(() => {
@@ -758,6 +778,7 @@ export default function Gameboard({ roomId }: Props) {
       {/* ------------------------ Modals ------------------------*/}
       <RoundWinnersModal isVisible={roundWinnersModalVisible} setIsVisible={setRoundWinnersModalVisible} players={players} roundWinners={roundWinnersStored} />
 
+      {/* ----- Beggar Beg Modal -----*/}
       <Modal open={begModalVisible && !roundWinnersModalVisible} closeOnDocumentClick={false} onClose={() => setBegModalVisible(false)}>
         <div className="flex flex-col justify-center items-center mx-5">
           <div className="">Do you want to beg or stand?</div>
@@ -773,7 +794,7 @@ export default function Gameboard({ roomId }: Props) {
         </div>
       </Modal>
 
-
+      {/* ----- Dealer Beg Modal -----*/}
       <Modal open={begResponseModalVisible} closeOnDocumentClick={false} onClose={() => setBegResponseModalVisible(false)} contentStyle={isForceStandCardInHand ? { width: '30em' } : undefined}>
         <div className="flex flex-col justify-center items-center mx-5">
           <div className="">{turnPlayerData?.nickname} has begged!</div>
@@ -796,12 +817,14 @@ export default function Gameboard({ roomId }: Props) {
         </div>
       </Modal>
 
+      {/* ----- Waiting Beg Modal -----*/}
       <Modal open={waitingBegResponseModalVisible} closeOnDocumentClick={false} onClose={() => setWaitingBegResponseModalVisible(false)}>
         <div className="flex flex-col justify-center items-center mx-5">
           <div className="">Waiting for response from {dealerData?.nickname}...</div>
         </div>
       </Modal>
 
+      {/* ----- Buss Pack Modal -----*/}
       <Modal open={redealModalVisible} closeOnDocumentClick={false} onClose={() => setBegResponseModalVisible(false)}>
         <div className="flex flex-col justify-center items-center mx-5">
           <div className="">The deck has run out of cards and must be redealt!</div>
@@ -813,6 +836,7 @@ export default function Gameboard({ roomId }: Props) {
         </div>
       </Modal>
 
+      {/* ----- targetPowerless Modal -----*/}
       <Modal className='top-modal' contentStyle={{ width: 'fit-content' }} open={isTargettingLift} closeOnDocumentClick={false}>
         <div className="px-12">Choose a card in the lift to be powerless and worth 0 points</div>
         <div className='flex flex-row justify-center'>
@@ -822,6 +846,7 @@ export default function Gameboard({ roomId }: Props) {
         </div>
       </Modal>
 
+      {/* ----- oppReplay Modal -----*/}
       <Modal className='top-modal' contentStyle={{ width: 'fit-content' }} open={isTargettingOppLift} closeOnDocumentClick={false}>
         <div className="px-12">Choose a card in the lift for the opponent to take back</div>
         <div className='flex flex-row justify-center'>
@@ -831,7 +856,7 @@ export default function Gameboard({ roomId }: Props) {
         </div>
       </Modal>
 
-
+      {/* ----- swapOppCard Modal -----*/}
       <Modal contentStyle={{ width: 'fit-content' }} open={oppSelectionModalVisible} closeOnDocumentClick={false}>
         <div className="px-12">Choose a card an an opponent to swap the card with</div>
 
@@ -872,6 +897,41 @@ export default function Gameboard({ roomId }: Props) {
           </Button>
 
           <Button className='red-button mt-5' onClick={() => { handleOppSelectionClose(); }}>
+            Cancel
+          </Button>
+        </div>
+      </Modal>
+
+
+      {/* ----- chooseStarter Modal -----*/}
+      <Modal contentStyle={{ width: 'fit-content' }} open={chooseStarterModalVisible} closeOnDocumentClick={false}>
+        <div className="px-12">Choose who will play first next lift</div>
+
+        <div className='flex flex-col gap-5 justify-center items-center mt-3 mx-5'>
+          <Button className={(selectedOpp?.id == player1Data?.id ? 'blue-button' : 'white-button') + ' w-full justify-center'} onClick={() => setSelectedOpp(player1Data)}>
+            {player1Data.nickname}
+          </Button>
+
+          <Button className={(selectedOpp?.id == player2Data?.id ? 'blue-button' : 'white-button') + ' w-full justify-center'} onClick={() => setSelectedOpp(player2Data)}>
+            {player2Data.nickname}
+          </Button>
+
+          <Button className={(selectedOpp?.id == player3Data?.id ? 'blue-button' : 'white-button') + ' w-full justify-center'} onClick={() => setSelectedOpp(player3Data)}>
+            {player3Data.nickname}
+          </Button>
+
+          <Button className={(selectedOpp?.id == player4Data?.id ? 'blue-button' : 'white-button') + ' w-full justify-center'} onClick={() => setSelectedOpp(player4Data)}>
+            {player4Data.nickname}
+          </Button>
+
+        </div>
+
+        <div className='flex flex-row gap-5 justify-center'>
+          <Button disabled={!selectedOpp} className='green-button mt-5' onClick={() => { handleChooseStarterConfirm(); }}>
+            Confirm
+          </Button>
+
+          <Button className='red-button mt-5' onClick={() => { handleChooseStarterModalClose(); }}>
             Cancel
           </Button>
         </div>

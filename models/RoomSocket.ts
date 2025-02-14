@@ -18,10 +18,7 @@ export interface RoomSocket {
   pendingTurn?: number[];
   tempPendingTurn?: number;
   allyPlaysLastPlayer?: number;
-  chooseStarter?: {
-    player: number;
-    count: number;
-  };
+  chooseStarterPlayer?: number;
 
   trump?: string;
   called?: DeckCard;

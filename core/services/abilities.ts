@@ -13,7 +13,7 @@ export enum CardAbilities {
   targetPowerless,    // J  TESTED
   noWinLift,          // Q  TESTED
   shuffleHand,        // K  TESTED - Need to implement animations
-  oppReplay,          // A  TESTING IN PROGRESS
+  oppReplay,          // A  TESTING IN PROGRESS, on Gameboard.tsx, make it so that play card function is called from server rather than from frontend
 
   // Hearts
   royalsDisabled,     // 2  TESTED
@@ -31,7 +31,7 @@ export enum CardAbilities {
   allyPlaysLast,      // J  TESTING - Need to test when played then oppReplay is played on it and then played again, Need to fix when ally was playing last anyway
   freePlay,           // Q
   doublePoints,       // K  TESTED
-  chooseStarter,      // A  WORKING ON
+  chooseStarter,      // A  TESTED
 
   // Clubs
   twoWinGame,         // 2
