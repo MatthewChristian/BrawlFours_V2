@@ -31,7 +31,7 @@ export enum CardAbilities {
   allyPlaysLast,      // J  TESTING - Need to test when played then oppReplay is played on it and then played again, Need to fix when ally was playing last anyway
   freePlay,           // Q
   doublePoints,       // K  TESTED
-  chooseStarter,      // A
+  chooseStarter,      // A  WORKING ON
 
   // Clubs
   twoWinGame,         // 2
@@ -265,7 +265,7 @@ const abilityData: Partial<AbilityData> = {
   },
   [CardAbilities.chooseStarter]: {
     description: "Choose a player to play first next turn",
-    ability: (args: AbilityInput) => targetPowerlessAbility(args),
+    ability: (args: AbilityInput) => chooseStarterAbility(args),
     duration: 'lift'
   },
   [CardAbilities.twoWinGame]: {
@@ -457,7 +457,6 @@ function oppositePowerAbility(args: AbilityInput) {
 }
 
 function allyPlaysLastAbility(args: AbilityInput) {
-  // Push status to player
   const player = args.roomData.users.find(el => el.id == args.id);
 
   const teammate = args.roomData.users.find(el => el.team == player.team && el.id != player.id);
@@ -472,9 +471,13 @@ function allyPlaysLastAbility(args: AbilityInput) {
 
   args.roomData.playerStatus[teammate.player].status.push(CardAbilities.allyPlaysLast);
 
-  args.roomData.allyPlaysLast = teammate.player;
+  args.roomData.allyPlaysLastPlayer = teammate.player;
 }
 
 function doublePointsAbility(args: AbilityInput) {
   args.roomData.activeAbilities.push(CardAbilities.doublePoints);
+}
+
+function chooseStarterAbility(args: AbilityInput) {
+  console.log("chooseStarterAbility: Played");
 }

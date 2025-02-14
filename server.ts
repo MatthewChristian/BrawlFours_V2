@@ -17,7 +17,7 @@ import { ChatInput } from './models/ChatInput';
 import { ChatMessage } from './models/ChatMessage';
 import { getCardName } from './core/services/parseCard';
 import { determineIfCardsPlayable, emitPlayerCardData, initialiseDeck, orderCards, scoreLift, shuffleDeck } from './core/services/sharedGameFunctions';
-import { SwapOppCardInput } from './models/SwapOppCardInput';
+import { TargetPlayerInput } from './models/TargetPlayerInput';
 
 const app = express();
 const server = createServer(app);
@@ -56,6 +56,7 @@ io.on('connection', (socket) => {
   socket.on('targetPowerless', (data) => handleTargetPowerless(data));
   socket.on('oppReplay', (data) => handleOppReplay(data));
   socket.on('swapOppCard', async (data) => await handleSwapOppCard(data, socket));
+  socket.on('chooseStarter', async (data) => await handleChooseStarter(data, socket));
 });
 
 function sendSystemMessage(message: string, roomId: string, colour?: string) {
@@ -897,7 +898,7 @@ async function playCard(data: PlayCardInput, gameSocket: Socket) {
     }
 
     // Handle allyPlaysLast ability
-    if (roomUsers[data.roomId].allyPlaysLast == roomUsers[data.roomId].turn) {
+    if (roomUsers[data.roomId].allyPlaysLastPlayer == roomUsers[data.roomId].turn) {
       if (!roomUsers[data.roomId].pendingTurn) {
         roomUsers[data.roomId].pendingTurn = [];
       }
@@ -911,7 +912,7 @@ async function playCard(data: PlayCardInput, gameSocket: Socket) {
         roomUsers[data.roomId].turn = roomUsers[data.roomId].turn + 1;
       }
 
-      roomUsers[data.roomId].allyPlaysLast = undefined;
+      roomUsers[data.roomId].allyPlaysLastPlayer = undefined;
     }
 
     // Set playable status of cards of player whose turn is next
@@ -991,7 +992,7 @@ function resetRoundState(roomId: string) {
   roomUsers[roomId].tempPendingTurn = undefined;
   roomUsers[roomId].pendingTurn = [];
   roomUsers[roomId].playerStatus = [];
-  roomUsers[roomId].allyPlaysLast = undefined;
+  roomUsers[roomId].allyPlaysLastPlayer = undefined;
 
   io.to(roomId).emit('game', [0, 0]);
 }
@@ -1255,7 +1256,7 @@ function handleOppReplay(data: PlayCardInput) {
 }
 
 
-async function handleSwapOppCard(data: SwapOppCardInput, socket: Socket) {
+async function handleSwapOppCard(data: TargetPlayerInput, socket: Socket) {
   if (io.of('/').adapter.rooms.get(data.roomId)) {
 
     // Get random card from target
@@ -1295,6 +1296,43 @@ async function handleSwapOppCard(data: SwapOppCardInput, socket: Socket) {
 
     emitPlayerCardData(roomUsers[data.roomId].users, io);
 
+    await playCard({ ...data, card: data.playedCard }, socket);
+
+  }
+  else {
+    console.log(data.roomId + ': ' + 'Room doesnt exist');
+  }
+}
+
+async function handleChooseStarter(data: TargetPlayerInput, socket: Socket) {
+  if (io.of('/').adapter.rooms.get(data.roomId)) {
+
+    // Push status to selected player
+    const selectedPlayer = roomUsers[data.roomId].users.find((el) => el.player == data.target.player);
+
+    const player = roomUsers[data.roomId].users.find((el) => el.player == data.player);
+
+    if (!roomUsers[data.roomId].playerStatus) {
+      roomUsers[data.roomId].playerStatus = [];
+    }
+
+    if (!roomUsers[data.roomId].playerStatus[selectedPlayer.player]) {
+      roomUsers[data.roomId].playerStatus[selectedPlayer.player] = { player: { ...player, cards: null }, status: [] };
+    }
+
+    roomUsers[data.roomId].playerStatus[selectedPlayer.player].status.push(CardAbilities.chooseStarter);
+
+    // Update chooseStarter room variable
+    roomUsers[data.roomId].chooseStarter = {
+      player: selectedPlayer.player,
+      count: 1
+    };
+
+    // Send system messages
+    sendSystemMessage(`${player.nickname} chose ${selectedPlayer.nickname} to play first next lift!`, data.roomId, '#db2777');
+
+
+    // Finalize
     await playCard({ ...data, card: data.playedCard }, socket);
 
   }
