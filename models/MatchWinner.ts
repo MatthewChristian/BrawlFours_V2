@@ -1,5 +1,5 @@
 export interface MatchWinner {
   matchWinners: string;
-  winByKick ?: boolean;
+  winByKick?: boolean;
   gameWinners: string;
 }

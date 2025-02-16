@@ -851,6 +851,13 @@ async function playCard(data: PlayCardInput, gameSocket: Socket) {
   // Remove card clicked from array
   playerCards.splice(cardIndex, 1);
 
+  // Show player their cards if round has officially started (ie player stood and played a card)
+  if (!roomUsers[data.roomId].roundStarted) {
+    resetRoundState(data.roomId);
+    roomUsers[data.roomId].roundStarted = true;
+    emitPlayerCardData(roomUsers[data.roomId].users, io);
+  }
+
   // Trigger card ability if it has one
   handleAbility({ roomData: roomUsers[data.roomId], card: cardData, socket: gameSocket, io: io, id: data.localId, player: player });
 
@@ -862,10 +869,10 @@ async function playCard(data: PlayCardInput, gameSocket: Socket) {
     if (!roomUsers[data.roomId].twosPlayed) {
       roomUsers[data.roomId].twosPlayed = [];
     }
-    roomUsers[data.roomId].twosPlayed.push(cardData.suit as 'd' | 'h' | 's');
+    if (!roomUsers[data.roomId].twosPlayed.includes(cardData.suit as 'd' | 'h' | 's')) {
+      roomUsers[data.roomId].twosPlayed.push(cardData.suit as 'd' | 'h' | 's');
+    }
   }
-
-
 
   // Emit data
   gameSocket.emit('playerCards', roomUsers[data.roomId].users.find(el => el.id == data.localId).cards);
@@ -876,13 +883,6 @@ async function playCard(data: PlayCardInput, gameSocket: Socket) {
   io.to(data.roomId).emit('twosPlayed', roomUsers[data.roomId].twosPlayed);
 
   playersInRoom(data);
-
-  // Show player their cards if round has officially started (ie player stood and played a card)
-  if (!roomUsers[data.roomId].roundStarted) {
-    resetRoundState(data.roomId);
-    roomUsers[data.roomId].roundStarted = true;
-    emitPlayerCardData(roomUsers[data.roomId].users, io);
-  }
 
   if (roomUsers[data.roomId].lift.length >= 4) {
     await liftScoring(data);
@@ -1015,6 +1015,7 @@ function resetRoundState(roomId: string) {
   roomUsers[roomId].allyPlaysLastPlayer = undefined;
   roomUsers[roomId].chooseStarterPlayer = undefined;
   roomUsers[roomId].twosPlayed = [];
+  roomUsers[roomId].twoWinGameWinnerTeam = undefined;
 
   io.to(roomId).emit('game', [0, 0]);
   io.to(roomId).emit('twosPlayed', undefined);
@@ -1032,7 +1033,8 @@ function roundScoring(data: BasicRoomInput) {
     jack: roomUsers[data.roomId].jack,
     hangJack: roomUsers[data.roomId].hangJack,
     jackSaved: roomUsers[data.roomId].jackSaved,
-    game: roomUsers[data.roomId].game
+    game: roomUsers[data.roomId].game,
+    twoWinGameWinnerTeam: roomUsers[data.roomId].twoWinGameWinnerTeam,
   };
 
   io.to(data.roomId).emit('roundWinners', { ...roundWinners });
@@ -1114,6 +1116,9 @@ function roundScoring(data: BasicRoomInput) {
 
   // Assign points for game
   if (roomUsers[data.roomId].game) {
+    if (roomUsers[data.roomId].twoWinGameWinnerTeam) {  // If twoWinGame ability was been activated
+      gameWinnerTeam = roomUsers[data.roomId].twoWinGameWinnerTeam;
+    }
     if (roomUsers[data.roomId].game[0] > roomUsers[data.roomId].game[1]) {
       roomUsers[data.roomId].teamScore[0] = roomUsers[data.roomId].teamScore[0] + (roomUsers[data.roomId].gameIsTwo ? 2 : 1);
       gameWinnerTeam = 1;
@@ -1177,7 +1182,12 @@ function announceWinner(roomId: string, winByKick?: boolean) {
       if (el.team == roomUsers[roomId].matchWinner) {
         winnerNames.push(el.nickname);
       }
-      if (roomUsers[roomId].game[0] > roomUsers[roomId].game[1]) {
+      if (roomUsers[roomId].twoWinGameWinnerTeam) {
+        if (el.team == roomUsers[roomId].twoWinGameWinnerTeam) {
+          gameWinners.push(el.nickname);
+        }
+      }
+      else if (roomUsers[roomId].game[0] > roomUsers[roomId].game[1]) {
         if (el.team == 1) {
           gameWinners.push(el.nickname);
         }
@@ -1209,7 +1219,7 @@ function announceWinner(roomId: string, winByKick?: boolean) {
   io.to(roomId).emit('matchWinner', {
     matchWinners: winnerNames,
     winByKick: winByKick,
-    gameWinners: gameWinners
+    gameWinners: gameWinners,
   });
 }
 

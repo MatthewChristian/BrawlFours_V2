@@ -488,5 +488,11 @@ function chooseStarterAbility(args: AbilityInput) {
 }
 
 function twoWinGameAbility(args: AbilityInput) {
-  console.log("twoWinGameAbility: Played");
+  // If all other twos have not been played yet, do nothing
+  if (args.roomData.twosPlayed.length < 3) {
+    return;
+  }
+
+  args.roomData.twoWinGameWinnerTeam = args.player.team;
+  args.roomData.activeAbilities.push(CardAbilities.twoWinGame);
 }

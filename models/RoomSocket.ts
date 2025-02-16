@@ -45,4 +45,5 @@ export interface RoomSocket {
   playerStatus?: PlayerStatus[];
 
   twosPlayed?: ('d' | 's' | 'h')[];
+  twoWinGameWinnerTeam?: number;
 }

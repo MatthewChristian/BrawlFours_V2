@@ -9,4 +9,5 @@ export interface RoundWinners {
   jack: RoomSocket['jack'];
   hangJack: RoomSocket['hangJack'];
   game: RoomSocket['game'];
+  twoWinGameWinnerTeam?: number;
 }

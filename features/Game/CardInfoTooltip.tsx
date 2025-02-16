@@ -2,7 +2,7 @@ import React, { useMemo } from 'react'
 import Image from 'next/image';
 import { Tooltip } from 'react-tooltip'
 import { DeckCard } from '../../models/DeckCard'
-import { getCardAnchorSelect } from '../../core/services/parseCard';
+import { getCardAnchorSelect, parseSuit } from '../../core/services/parseCard';
 import { CardAbilities, getAbilityData } from '../../core/services/abilities';
 import powerSvg from "../../public/images/power.svg";
 import powerZeroSvg from "../../public/images/powerZero.svg";
@@ -37,7 +37,6 @@ export default function CardInfoTooltip({ card, active, offsetY }: Props) {
     return false;
   }, [activeAbilities]);
 
-
   const anchorSelect = useMemo(() => {
     return getCardAnchorSelect(card);
   }, [card]);
@@ -64,13 +63,15 @@ export default function CardInfoTooltip({ card, active, offsetY }: Props) {
       return 'None';
     }
 
+    console.log("TP: ", twosPlayed);
+
     let twosPlayedStr = '';
 
     twosPlayed.forEach((el, i) => {
 
-      twosPlayedStr = twosPlayedStr + el;
+      twosPlayedStr = twosPlayedStr + parseSuit(el);
 
-      if (i != twosPlayed.length) {
+      if (i < twosPlayed.length - 1) {
         twosPlayedStr = twosPlayedStr + ', '
       }
     });
@@ -119,7 +120,7 @@ export default function CardInfoTooltip({ card, active, offsetY }: Props) {
 
 
             {
-              card.isRandom ?
+              card?.isRandom ?
               <div className='text-xs text-gray-400 italic'>
                 This card's ability is random every game
               </div>
@@ -128,9 +129,9 @@ export default function CardInfoTooltip({ card, active, offsetY }: Props) {
             }
 
             {
-              card.ability == CardAbilities.twoWinGame ?
+              card?.ability == CardAbilities.twoWinGame ?
               <div className='text-xs text-gray-400 italic'>
-                Two's Played: {formatTwosPlayed()}
+                Twos Played: {formatTwosPlayed()}
               </div> : null
             }
           </div>

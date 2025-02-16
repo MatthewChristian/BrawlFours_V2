@@ -7,6 +7,8 @@ import { useAppSelector } from '../../store/hooks';
 import { delay } from '../../core/services/delay';
 import { getPlayer1HandPos, getPlayer2HandPos, getPlayer3HandPos, getPlayer4HandPos } from '../../slices/position.slice';
 import CardInfoTooltip from './CardInfoTooltip';
+import { getTwosPlayed } from '../../slices/game.slice';
+import { CardAbilities } from '../../core/services/abilities';
 
 
 
@@ -47,6 +49,8 @@ export default function PlayingCard({
 
   const [focused, setFocused] = useState<boolean>(false);
 
+  const twosPlayed = useAppSelector(getTwosPlayed);
+
   const player1HandPos = useAppSelector(getPlayer1HandPos);
   const player2HandPos = useAppSelector(getPlayer2HandPos);
   const player3HandPos = useAppSelector(getPlayer3HandPos);
@@ -63,6 +67,18 @@ export default function PlayingCard({
   const tooltipEnabled = useMemo(() => {
     return (!isDeckCard && card) ? true : false
   }, [card]);
+
+  const isTwoWinGameActive = useMemo(() => {
+    if (cardData?.ability != CardAbilities.twoWinGame) {
+      return;
+    }
+
+    if (twosPlayed?.length == 3) {
+      return true;
+    }
+
+    return false;
+  }, [twosPlayed, cardData])
 
   function handleClick() {
     if (!isNotPlayable && onClickHandler) {
@@ -119,7 +135,10 @@ export default function PlayingCard({
     }
 
     if (cardData.playable) {
-      if (cardData.trump) {
+      if (isTwoWinGameActive) {
+        return 'purple-glow';
+      }
+      else if (cardData.trump) {
         return 'gold-glow';
       }
 
