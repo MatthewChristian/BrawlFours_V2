@@ -7,7 +7,7 @@ import { CardAbilities, getAbilityData } from '../../core/services/abilities';
 import powerSvg from "../../public/images/power.svg";
 import powerZeroSvg from "../../public/images/powerZero.svg";
 import { useAppSelector } from '../../store/hooks';
-import { getActiveAbilities } from '../../slices/game.slice';
+import { getActiveAbilities, getTwosPlayed } from '../../slices/game.slice';
 import { oppositePowerMap } from '../../core/services/sharedGameFunctions';
 
 interface Props {
@@ -19,6 +19,7 @@ interface Props {
 export default function CardInfoTooltip({ card, active, offsetY }: Props) {
 
   const activeAbilities = useAppSelector(getActiveAbilities);
+  const twosPlayed = useAppSelector(getTwosPlayed);
 
   const isDisabled = useMemo(() => {
     if (activeAbilities.includes(CardAbilities.abilitiesDisabled)) {
@@ -45,7 +46,6 @@ export default function CardInfoTooltip({ card, active, offsetY }: Props) {
     return getAbilityData(card?.ability)?.description;
   }, [card]);
 
-
   const cardPower = useMemo(() => {
     if (!card?.power) {
       return 0;
@@ -58,6 +58,25 @@ export default function CardInfoTooltip({ card, active, offsetY }: Props) {
       return oppositePowerMap(card.power);
     }
   }, [card, isOppositePower]);
+
+  function formatTwosPlayed() {
+    if (!twosPlayed || twosPlayed.length == 0) {
+      return 'None';
+    }
+
+    let twosPlayedStr = '';
+
+    twosPlayed.forEach((el, i) => {
+
+      twosPlayedStr = twosPlayedStr + el;
+
+      if (i != twosPlayed.length) {
+        twosPlayedStr = twosPlayedStr + ', '
+      }
+    });
+
+    return twosPlayedStr;
+  }
 
   return (
     active ?
@@ -106,6 +125,13 @@ export default function CardInfoTooltip({ card, active, offsetY }: Props) {
               </div>
               :
               null
+            }
+
+            {
+              card.ability == CardAbilities.twoWinGame ?
+              <div className='text-xs text-gray-400 italic'>
+                Two's Played: {formatTwosPlayed()}
+              </div> : null
             }
           </div>
 

@@ -15,6 +15,21 @@ export function getCardAnchorSelect(cardData?: DeckCard) {
   return 'card_' + getCardShortcode(cardData);
 }
 
+export function parseSuit(suit?: string) {
+  if (suit == 'c') {
+    return 'Clubs'
+  }
+  else if (suit == 'd') {
+    return 'Dimes'
+  }
+  else if (suit == 's') {
+    return 'Spades'
+  }
+  else if (suit == 'h') {
+    return 'Hearts'
+  }
+}
+
 export function getCardName(cardData?: DeckCard) {
   if (!cardData) {
     return undefined;

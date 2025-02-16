@@ -9,11 +9,11 @@ export enum CardAbilities {
   // Spades
   alwaysPlayable,     // 2  TESTED
   ninePowerful,       // 9  TESTED
-  trumpDisabled,      // 10 TESTING - Need to test when trump played after trump was called
+  trumpDisabled,      // 10 TESTING IN PROGRESS- Need to test when trump played after trump was called
   targetPowerless,    // J  TESTED
   noWinLift,          // Q  TESTED
   shuffleHand,        // K  TESTED - Need to implement animations
-  oppReplay,          // A  TESTING IN PROGRESS, on Gameboard.tsx, make it so that play card function is called from server rather than from frontend
+  oppReplay,          // A  TESTING IN PROGRESS - on Gameboard.tsx, make it so that play card function is called from server rather than from frontend
 
   // Hearts
   royalsDisabled,     // 2  TESTED
@@ -22,13 +22,13 @@ export enum CardAbilities {
   pointsForSaved,     // J  TESTED
   abilitiesDisabled,  // Q  TESTED
   swapOppCard,        // K  TESTED
-  allyReplay,         // A  TESTING - Need to test what happens when use allyReplay into oppReplay and vice versa
+  allyReplay,         // A  TESTING IN PROGRESS - Need to test what happens when use allyReplay into oppReplay and vice versa
 
   // Dimes
-  forceStand,         // 2  TESTING - Need to test 9 of clubs
+  forceStand,         // 2  TESTING IN PROGRESS- Need to test 9 of clubs
   ninePoints,         // 9  TESTED
   oppositePower,      // 10 TESTED
-  allyPlaysLast,      // J  TESTING - Need to test when played then oppReplay is played on it and then played again, Need to fix when ally was playing last anyway
+  allyPlaysLast,      // J  TESTING IN PROGRESS - Need to test when played then oppReplay is played on it and then played again, Need to fix when ally was playing last anyway
   freePlay,           // Q
   doublePoints,       // K  TESTED
   chooseStarter,      // A  TESTED
@@ -159,7 +159,12 @@ function getRandomAbility() {
     const enumValues = (Object.values(CardAbilities) as unknown) as CardAbilities[];
     const randomIndex = Math.floor(Math.random() * enumValues.length);
     randomAbility = enumValues[randomIndex];
-  } while (randomAbility == CardAbilities.randomAbility || randomAbility == CardAbilities.pointsForSaved); // Redo if function got random ability again or if got points for saved ability
+  } while (
+    // Redo if function got these abilities
+    randomAbility == CardAbilities.randomAbility ||
+    randomAbility == CardAbilities.pointsForSaved ||
+    randomAbility == CardAbilities.twoWinGame
+  );
 
   return randomAbility
 }
@@ -269,8 +274,8 @@ const abilityData: Partial<AbilityData> = {
     duration: 'lift'
   },
   [CardAbilities.twoWinGame]: {
-    description: "If every 2 has already been played this round, win game for that round",
-    ability: (args: AbilityInput) => targetPowerlessAbility(args),
+    description: "If every other 2 has already been played this round, win game for that round",
+    ability: (args: AbilityInput) => twoWinGameAbility(args),
     duration: 'round'
   },
   [CardAbilities.revealedBare]: {
@@ -480,4 +485,8 @@ function doublePointsAbility(args: AbilityInput) {
 
 function chooseStarterAbility(args: AbilityInput) {
   console.log("chooseStarterAbility: Played");
+}
+
+function twoWinGameAbility(args: AbilityInput) {
+  console.log("twoWinGameAbility: Played");
 }

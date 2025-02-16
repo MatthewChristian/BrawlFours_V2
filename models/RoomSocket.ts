@@ -43,4 +43,6 @@ export interface RoomSocket {
 
   activeAbilities?: CardAbilities[];
   playerStatus?: PlayerStatus[];
+
+  twosPlayed?: ('d' | 's' | 'h')[];
 }

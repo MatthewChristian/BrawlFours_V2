@@ -9,6 +9,7 @@ import { BegResponseInput } from '../models/BegResponseInput';
 import { MatchWinner } from '../models/MatchWinner';
 import { CardAbilities } from '../core/services/abilities';
 import { PlayerStatus } from '../models/PlayerStatus';
+import { RoomSocket } from '../models/RoomSocket';
 
 
 
@@ -37,7 +38,9 @@ interface GameSlice {
   playerJoinedRoom: boolean;
   activeAbilities: CardAbilities[];
   playerStatus: PlayerStatus[];
+  twosPlayed: RoomSocket['twosPlayed'];
 }
+
 const initialState: GameSlice = {
   playerList: [],
   joinModalOpen: false,
@@ -50,7 +53,8 @@ const initialState: GameSlice = {
   gameStarted: false,
   playerJoinedRoom: false,
   activeAbilities: [],
-  playerStatus: []
+  playerStatus: [],
+  twosPlayed: []
 };
 
 /**
@@ -145,6 +149,10 @@ export const gameSlice = createSlice({
       state.playerStatus = action.payload;
     },
 
+    setTwosPlayed: (state, action: PayloadAction<RoomSocket['twosPlayed']>) => {
+      state.twosPlayed = action.payload;
+    },
+
   }
 });
 
@@ -176,6 +184,7 @@ export const {
   setPlayerJoinedRoom,
   setActiveAbilities,
   setPlayerStatus,
+  setTwosPlayed
 } =  gameSlice.actions;
 
 // Selectors
@@ -221,3 +230,5 @@ export const getPlayerJoinedRoom = (state: RootState): boolean => state.gameSlic
 export const getActiveAbilities = (state: RootState): CardAbilities[] => state.gameSlice.activeAbilities;
 
 export const getPlayerStatus = (state: RootState): PlayerStatus[] => state.gameSlice.playerStatus;
+
+export const getTwosPlayed = (state: RootState): RoomSocket['twosPlayed'] => state.gameSlice.twosPlayed;

@@ -857,14 +857,23 @@ async function playCard(data: PlayCardInput, gameSocket: Socket) {
   // Reset card playability of player who just played
   resetCardsPlayability(roomUsers[data.roomId].users.find(el => el.id == data.localId)); // Need to get data directly from roomUsers object because data might have changed in handleAbility
 
+  // Set twosPlayed value if card played was a two and not the 2 of clubs
+  if (cardData.value == '2' && cardData.suit != 'c') {
+    if (!roomUsers[data.roomId].twosPlayed) {
+      roomUsers[data.roomId].twosPlayed = [];
+    }
+    roomUsers[data.roomId].twosPlayed.push(cardData.suit as 'd' | 'h' | 's');
+  }
+
+
+
   // Emit data
   gameSocket.emit('playerCards', roomUsers[data.roomId].users.find(el => el.id == data.localId).cards);
   io.to(data.roomId).emit('lift', roomUsers[data.roomId].lift);
   io.to(data.roomId).emit('turn', roomUsers[data.roomId].turn);
   io.to(data.roomId).emit('activeAbilities', roomUsers[data.roomId].activeAbilities);
   io.to(data.roomId).emit('playerStatus', roomUsers[data.roomId].playerStatus);
-
-
+  io.to(data.roomId).emit('twosPlayed', roomUsers[data.roomId].twosPlayed);
 
   playersInRoom(data);
 
@@ -1005,8 +1014,10 @@ function resetRoundState(roomId: string) {
   roomUsers[roomId].playerStatus = [];
   roomUsers[roomId].allyPlaysLastPlayer = undefined;
   roomUsers[roomId].chooseStarterPlayer = undefined;
+  roomUsers[roomId].twosPlayed = [];
 
   io.to(roomId).emit('game', [0, 0]);
+  io.to(roomId).emit('twosPlayed', undefined);
 }
 
 function roundScoring(data: BasicRoomInput) {
