@@ -183,6 +183,8 @@ function emitInitGameData(data: BasicRoomInput, gameSocket: Socket) {
   io.to(gameSocket.id).emit('kickedCards', roomUsers[data.roomId].kicked);
   io.to(gameSocket.id).emit('teamScore', roomUsers[data.roomId].teamScore);
   io.to(data.roomId).emit('lift', roomUsers[data.roomId].lift);
+
+  // TODO: Emit all other necessary ability related data
 }
 
 function playersInRoom(data: BasicRoomInput) {
@@ -853,6 +855,24 @@ async function playCard(data: PlayCardInput, gameSocket: Socket) {
     }
   }
 
+  // Check if player was revealed to be bare
+  if (roomUsers[data.roomId].called &&                                    // If a suit was called
+    roomUsers[data.roomId].called.suit == roomUsers[data.roomId].trump && // If the suit called was trump
+    cardData.suit != roomUsers[data.roomId].called.suit &&                // If the card played was not the suit that was called
+    (cardData.ability != CardAbilities.alwaysPlayable && !roomUsers[data.roomId].activeAbilities.includes(CardAbilities.abilitiesDisabled))) { // If the card played's ability was not alwaysPlayable and abilities are not disabled
+
+      // Set revealedBare value
+      roomUsers[data.roomId].revealedBare[player.player] = true;
+
+      // Set cards with the revealedBare ability to be trump
+      player.cards.find(card => card.ability == CardAbilities.revealedBare).trump = true;
+
+      // Emit revealedBare status to player
+      io.to(player.socketId).emit('revealedBare', true);
+
+  }
+
+
   // Emit data
   gameSocket.emit('playerCards', roomUsers[data.roomId].users.find(el => el.id == data.localId).cards);
   io.to(data.roomId).emit('lift', roomUsers[data.roomId].lift);
@@ -997,9 +1017,11 @@ function resetRoundState(roomId: string) {
   roomUsers[roomId].twoWinGameWinnerTeam = undefined;
   roomUsers[roomId].activeAbilities = [];
   roomUsers[roomId].playerStatus = undefined;
+  roomUsers[roomId].revealedBare = [false, false, false, false, false];
 
   io.to(roomId).emit('game', [0, 0]);
   io.to(roomId).emit('twosPlayed', undefined);
+  io.to(roomId).emit('revealedBare', undefined);
 }
 
 function roundScoring(data: BasicRoomInput) {

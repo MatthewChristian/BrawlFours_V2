@@ -46,4 +46,6 @@ export interface RoomSocket {
 
   twosPlayed?: ('d' | 's' | 'h')[];
   twoWinGameWinnerTeam?: number;
+
+  revealedBare?: boolean[];
 }

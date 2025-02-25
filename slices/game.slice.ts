@@ -39,6 +39,7 @@ interface GameSlice {
   activeAbilities: CardAbilities[];
   playerStatus: PlayerStatus[];
   twosPlayed: RoomSocket['twosPlayed'];
+  revealedBare: boolean;
 }
 
 const initialState: GameSlice = {
@@ -54,7 +55,8 @@ const initialState: GameSlice = {
   playerJoinedRoom: false,
   activeAbilities: [],
   playerStatus: [],
-  twosPlayed: []
+  twosPlayed: [],
+  revealedBare: false
 };
 
 /**
@@ -153,6 +155,10 @@ export const gameSlice = createSlice({
       state.twosPlayed = action.payload;
     },
 
+    setRevealedBare: (state, action: PayloadAction<boolean>) => {
+      state.revealedBare = action.payload;
+    },
+
   }
 });
 
@@ -184,7 +190,8 @@ export const {
   setPlayerJoinedRoom,
   setActiveAbilities,
   setPlayerStatus,
-  setTwosPlayed
+  setTwosPlayed,
+  setRevealedBare,
 } =  gameSlice.actions;
 
 // Selectors
@@ -232,3 +239,5 @@ export const getActiveAbilities = (state: RootState): CardAbilities[] => state.g
 export const getPlayerStatus = (state: RootState): PlayerStatus[] => state.gameSlice.playerStatus;
 
 export const getTwosPlayed = (state: RootState): RoomSocket['twosPlayed'] => state.gameSlice.twosPlayed;
+
+export const getRevealedBare = (state: RootState): boolean => state.gameSlice.revealedBare;

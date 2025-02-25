@@ -1,5 +1,5 @@
 import React, {  Suspense, useEffect } from 'react';
-import { setActiveAbilities, setBeg, setDealer, setDeck, setErrorMsg, setGame, setGameStarted, setJoinModalOpen, setKickedCards, setLift, setLiftWinner, setMatchWinner, setMessage, setPlayerCards, setPlayerJoinedRoom, setPlayerList, setPlayerStatus, setRoomId, setRoundWinners, setTeamScore, setTurn, setTwosPlayed } from '../../slices/game.slice';
+import { setActiveAbilities, setBeg, setDealer, setDeck, setErrorMsg, setGame, setGameStarted, setJoinModalOpen, setKickedCards, setLift, setLiftWinner, setMatchWinner, setMessage, setPlayerCards, setPlayerJoinedRoom, setPlayerList, setPlayerStatus, setRevealedBare, setRoomId, setRoundWinners, setTeamScore, setTurn, setTwosPlayed } from '../../slices/game.slice';
 import { useAppDispatch } from '../../store/hooks';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
@@ -135,6 +135,10 @@ export default function Layout({ children }: Props) {
 
     socket.on('twosPlayed', (state) => {
       dispatch(setTwosPlayed(state ?? []));
+    });
+
+    socket.on('revealedBare', (state) => {
+      dispatch(setRevealedBare(state ?? []));
     });
 
   }, [socket]);
