@@ -1,7 +1,7 @@
 import { AbilityData } from "../../models/AbilityData";
 import { AbilityInput } from "../../models/AbilityInput";
 import { DeckCard } from "../../models/DeckCard";
-import { determineIfCardsPlayable, emitPlayerCardData, orderCards, shuffleDeck } from "./sharedGameFunctions";
+import { determineIfCardsPlayable, emitPlayerCardData, orderCards, sendSystemMessage, shuffleDeck } from "./sharedGameFunctions";
 
 export const hangSaverPointsEarned = 3;
 
@@ -16,7 +16,7 @@ export enum CardAbilities {
   oppReplay,          // A  TESTING IN PROGRESS - Make it so they cant replay card unless its their only card left, on Gameboard.tsx, make it so that play card function is called from server rather than from frontend
 
   // Hearts
-  royalsDisabled,     // 2  TESTED - Broken, if flush they are not allowed to play the royal
+  royalsDisabled,     // 2  TESTED - Broken, if flush they are not allowed to play the royal, check out trumpDisabled and see if similar issue is there
   hangSaver,          // 9  TESTED
   twentyPoints,       // 10 TESTED
   pointsForSaved,     // J  TESTED
@@ -29,7 +29,7 @@ export enum CardAbilities {
   ninePoints,         // 9  TESTED
   oppositePower,      // 10 TESTED
   allyPlaysLast,      // J  TESTING IN PROGRESS - Need to test when played then oppReplay is played on it and then played again, Need to fix when ally was playing last anyway
-  freePlay,           // Q
+  drawOne,            // Q  TESTED
   doublePoints,       // K  TESTED
   chooseStarter,      // A  TESTED
 
@@ -114,7 +114,7 @@ export function mapAbility(value: string, suit: string) {
       return undefined
     }
     else if (value == 'Q') {
-      return CardAbilities.freePlay;
+      return CardAbilities.drawOne;
     }
     else if (value == 'K') {
       return CardAbilities.doublePoints;
@@ -259,10 +259,9 @@ const abilityData: Partial<AbilityData> = {
     ability: (args: AbilityInput) => allyPlaysLastAbility(args),
     duration: 'lift'
   },
-  [CardAbilities.freePlay]: {
-    description: "This card can be played outside your turn",
-    ability: (args: AbilityInput) => targetPowerlessAbility(args),
-    duration: 'lift'
+  [CardAbilities.drawOne]: {
+    description: "All players draw one card",
+    ability: (args: AbilityInput) => drawOneAbility(args),
   },
   [CardAbilities.doublePoints]: {
     description: "This lift will be worth double the points",
@@ -281,7 +280,7 @@ const abilityData: Partial<AbilityData> = {
   },
   [CardAbilities.revealedBare]: {
     description: "If you are revealed to have no trump then this card becomes trump",
-    ability: (args: AbilityInput) => targetPowerlessAbility(args),
+    ability: (args: AbilityInput) => revealedBareAbility(args),
   },
   [CardAbilities.nextCardTrump]: {
     description: "The next card you play becomes trump",
@@ -462,6 +461,46 @@ function oppositePowerAbility(args: AbilityInput) {
   args.roomData.activeAbilities.push(CardAbilities.oppositePower);
 }
 
+function drawOneAbility(args: AbilityInput) {
+  if (args.roomData.deck.length < 4) {
+    sendSystemMessage({
+      io: args.io,
+      message: 'The deck does not have enough cards for each player to draw one!',
+      roomId: args.roomId,
+      colour: '#db2777',
+      showToast: true
+    });
+    return;
+  }
+
+  const tempDeck: DeckCard[] = [ ...args.roomData.deck ];
+
+  const cards: DeckCard[] = [];
+
+  // Draw 4 cards from deck
+  for (let i = 0; i < 4; i++) {
+    cards.push(tempDeck.pop());
+  }
+
+  // Add card to every player's hand
+  args.roomData.users.forEach(user => {
+    user.cards.push(cards.pop());
+  });
+
+  orderCards(args.roomData.users);
+
+  emitPlayerCardData(args.roomData.users, args.io);
+
+  sendSystemMessage({
+    io: args.io,
+    message: 'Each player drew a card!',
+    roomId: args.roomId,
+    colour: '#db2777',
+    showToast: true
+  });
+
+}
+
 function allyPlaysLastAbility(args: AbilityInput) {
   const player = args.roomData.users.find(el => el.id == args.id);
 
@@ -508,4 +547,8 @@ function twoWinGameAbility(args: AbilityInput) {
   }
 
   args.roomData.playerStatus[player.player].status.push(CardAbilities.twoWinGame);
+}
+
+function revealedBareAbility(args: AbilityInput) {
+  console.log("revealedBareAbility: Played");
 }

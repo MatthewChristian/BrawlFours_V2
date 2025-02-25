@@ -10,4 +10,5 @@ export interface AbilityInput {
    io: Server;
    id: string;
    player: PlayerSocket;
+   roomId: string;
 }

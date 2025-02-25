@@ -5,6 +5,7 @@ import { RoomSocket } from "../../models/RoomSocket";
 import { CardAbilities, getIsRandom, mapAbility } from "./abilities";
 import { ScoreLiftOutput } from "../../models/ScoreLiftOutput";
 import { ChatMessage } from "../../models/ChatMessage";
+import { SendSystemMessageInput } from "../../models/SendSystemMessageInput";
 
 export function emitPlayerCardData(users: PlayerSocket[], io: Server) {
   // Loop through users in room
@@ -14,25 +15,16 @@ export function emitPlayerCardData(users: PlayerSocket[], io: Server) {
   });
 }
 
-export function sendSystemMessage(io: Server, message: string, roomId: string, colour?: string) {
+export function sendSystemMessage(args: SendSystemMessageInput) {
   const messageObj: ChatMessage = {
-    message: message,
-    messageColour: colour ?? '#f59e0b',
-    mode: 'log'
-  };
-
-  io.to(roomId).emit('chat', messageObj);
-}
-
-export function sendIndividualMessage(io: Server, message: string, socketId: string, showToast?: boolean, colour?: string) {
-  const messageObj: ChatMessage = {
-    message: message,
-    messageColour: colour ?? '#f59e0b',
+    message: args.message,
+    messageColour: args.colour ?? '#f59e0b',
     mode: 'log',
-    showToast: showToast
+    showToast: args.showToast
   };
 
-  io.to(socketId).emit('chat', messageObj);
+  // If pass in a player's socket id instead of room ID, it will only emit message to that player
+  args.io.to(args.roomId).emit('chat', messageObj);
 }
 
 export function orderCards(users: PlayerSocket[]) {
