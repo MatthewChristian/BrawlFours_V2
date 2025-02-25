@@ -16,7 +16,7 @@ import { CardAbilities, getAbilityData, handleAbility, hangSaverPointsEarned } f
 import { ChatInput } from './models/ChatInput';
 import { ChatMessage } from './models/ChatMessage';
 import { getCardName } from './core/services/parseCard';
-import { determineIfCardsPlayable, emitPlayerCardData, initialiseDeck, orderCards, scoreLift, sendIndividualMessage, sendSystemMessage, shuffleDeck } from './core/services/sharedGameFunctions';
+import { determineIfCardsPlayable, emitPlayerCardData, initialiseDeck, orderCards, scoreLift, sendSystemMessage, shuffleDeck } from './core/services/sharedGameFunctions';
 import { TargetPlayerInput } from './models/TargetPlayerInput';
 
 const app = express();
@@ -375,7 +375,7 @@ function checkKicked(kicked: DeckCard, roomId: string, dealer: PlayerSocket) {
 
   if (kickedPointsText) {
     const message = dealerName + ' kicked ' + kickedPointsText;
-    sendSystemMessage(io, message, roomId, '#22c55e');
+    sendSystemMessage({ io, message, roomId, colour: '#22c55e'});
 
     io.to(roomId).emit('message', {
       message: message,
@@ -706,11 +706,11 @@ function begResponse(data: BegResponseInput, gameSocket: Socket) {
         message: begger.nickname + ' has begged!',
         shortcode: 'BEGGED'
       });
-      sendSystemMessage(io, begger.nickname + ' has begged!', data.roomId, "#06b6d4");
+      sendSystemMessage({io, message: begger.nickname + ' has begged!', roomId: data.roomId, colour: "#06b6d4"});
     }
     else if (data.response == 'stand') {
       roomUsers[data.roomId].beg = 'stand';
-      sendSystemMessage(io, begger.nickname + ' has stood!', data.roomId, "#06b6d4");
+      sendSystemMessage({io, message: begger.nickname + ' has stood!', roomId: data.roomId, colour: "#06b6d4"});
     }
     else if (data.response == 'give') {
       roomUsers[data.roomId].beg = 'give';
@@ -725,7 +725,7 @@ function begResponse(data: BegResponseInput, gameSocket: Socket) {
           shortcode: 'GIVE'
         });
 
-        sendSystemMessage(io, dealer.nickname + ' forced ' + begger.nickname + ' to stand without giving a point!', data.roomId, "#06b6d4");
+        sendSystemMessage({io, message: dealer.nickname + ' forced ' + begger.nickname + ' to stand without giving a point!', roomId: data.roomId, colour: "#06b6d4"});
       }
       else {
         if (beggerTeam == 1) {
@@ -756,14 +756,14 @@ function begResponse(data: BegResponseInput, gameSocket: Socket) {
           shortcode: 'GIVE'
         });
 
-        sendSystemMessage(io, dealer.nickname + ' gave a point!', data.roomId, "#06b6d4");
+        sendSystemMessage({io, message: dealer.nickname + ' gave a point!', roomId: data.roomId, colour: "#06b6d4"});
       }
     }
     else if (data.response == 'run') {
       roomUsers[data.roomId].beg = 'run';
       runPack(data);
       playerCards(data, gameSocket);
-      sendSystemMessage(io, dealer.nickname + ' ran the pack!', data.roomId, "#06b6d4");
+      sendSystemMessage({io, message: dealer.nickname + ' ran the pack!', roomId: data.roomId, colour: "#06b6d4"});
     }
 
     io.to(data.roomId).emit('beg', roomUsers[data.roomId].beg);
@@ -825,7 +825,7 @@ async function playCard(data: PlayCardInput, gameSocket: Socket) {
     roomUsers[data.roomId].called = cardData;
   }
 
-  sendSystemMessage(io, player.nickname + ' played ' + getCardName(cardData), data.roomId);
+  sendSystemMessage({io, message: player.nickname + ' played ' + getCardName(cardData), roomId: data.roomId});
 
   // Remove card clicked from array
   playerCards.splice(cardIndex, 1);
@@ -838,7 +838,7 @@ async function playCard(data: PlayCardInput, gameSocket: Socket) {
   }
 
   // Trigger card ability if it has one
-  handleAbility({ roomData: roomUsers[data.roomId], card: cardData, socket: gameSocket, io: io, id: data.localId, player: player });
+  handleAbility({ roomData: roomUsers[data.roomId], card: cardData, socket: gameSocket, io: io, id: data.localId, player: player, roomId: data.roomId });
 
   // Reset card playability of player who just played
   resetCardsPlayability(roomUsers[data.roomId].users.find(el => el.id == data.localId)); // Need to get data directly from roomUsers object because data might have changed in handleAbility
@@ -967,7 +967,7 @@ async function liftScoring(data: BasicRoomInput) {
 
   io.to(data.roomId).emit('liftWinner', liftWinnerPlayer.player);
 
-  sendSystemMessage(io, liftWinnerPlayer.nickname + ' won the lift!', data.roomId, '#f97316');
+  sendSystemMessage({io, message: liftWinnerPlayer.nickname + ' won the lift!', roomId: data.roomId, colour: '#f97316'});
 
   // Wait 1.5 seconds before emitting to allow players to see last card played
   await delay(1500);
@@ -1024,12 +1024,12 @@ function roundScoring(data: BasicRoomInput) {
   let matchWinner: number;
 
   // Send chat log for high, low and jack winner
-  sendSystemMessage(io, roundWinners.highWinner.nickname + ' won high!', data.roomId, '#22c55e');
-  sendSystemMessage(io, roundWinners.lowWinner.nickname + ' won low!', data.roomId, '#22c55e');
+  sendSystemMessage({io, message: roundWinners.highWinner.nickname + ' won high!', roomId: data.roomId, colour: '#22c55e'});
+  sendSystemMessage({io, message: roundWinners.lowWinner.nickname + ' won low!', roomId: data.roomId, colour: '#22c55e'});
 
   if (roundWinners.jackWinner) {
     const jackWinnerMsg = roundWinners.hangJack ? ' hung Jack!!!' : roundWinners.jackSaved ? ' saved Jack!!!' : ' won Jack!';
-    sendSystemMessage(io, roundWinners.jackWinner.nickname + jackWinnerMsg, data.roomId, '#22c55e');
+    sendSystemMessage({io, message: roundWinners.jackWinner.nickname + jackWinnerMsg, roomId: data.roomId, colour: '#22c55e'});
   }
 
 
@@ -1113,10 +1113,10 @@ function roundScoring(data: BasicRoomInput) {
   // Send chat log for game winner
   roomUsers[data.roomId].users.forEach((el, i) => {
     if (el.team == gameWinnerTeam) {
-      sendSystemMessage(io, 'Your team won game!', el.socketId, '#22c55e' )
+      sendSystemMessage({io, message: 'Your team won game!', roomId: el.socketId, colour: '#22c55e'})
     }
     else {
-      sendSystemMessage(io, 'The opposing team won game!', el.socketId, '#22c55e')
+      sendSystemMessage({io, message: 'The opposing team won game!', roomId: el.socketId, colour: '#22c55e'})
     }
   });
 
@@ -1298,9 +1298,9 @@ async function handleSwapOppCard(data: TargetPlayerInput, socket: Socket) {
     selectedPlayer.cards.push(data.card);
 
     // Send system messages
-    sendIndividualMessage(io, `You swapped your ${getCardName(data.card)} for ${selectedPlayer.nickname}'s ${getCardName(randomCard)}`, player.socketId, true, '#db2777');
+    sendSystemMessage({io, message: `You swapped your ${getCardName(data.card)} for ${selectedPlayer.nickname}'s ${getCardName(randomCard)}`, roomId: player.socketId, showToast: true, colour: '#db2777'});
 
-    sendIndividualMessage(io, `${player.nickname} swapped your ${getCardName(randomCard)} for their ${getCardName(data.card)}`, data.target.socketId, true, '#db2777');
+    sendSystemMessage({io, message: `${player.nickname} swapped your ${getCardName(randomCard)} for their ${getCardName(data.card)}`, roomId: data.target.socketId, showToast: true, colour: '#db2777'});
 
 
     // Finalize
@@ -1340,7 +1340,7 @@ async function handleChooseStarter(data: TargetPlayerInput, socket: Socket) {
     roomUsers[data.roomId].chooseStarterPlayer = selectedPlayer.player;
 
     // Send system messages
-    sendSystemMessage(io, `${player.nickname} chose ${selectedPlayer.nickname} to play first next lift!`, data.roomId, '#db2777');
+    sendSystemMessage({io, message: `${player.nickname} chose ${selectedPlayer.nickname} to play first next lift!`, roomId: data.roomId, colour: '#db2777'});
 
     // Emit status
     io.to(data.roomId).emit('playerStatus', roomUsers[data.roomId].playerStatus);
