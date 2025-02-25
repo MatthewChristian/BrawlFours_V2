@@ -16,7 +16,7 @@ export default function TwoWinGameIcon({ active }: Props) {
         alt="" />}
       twBgColour='bg-amber-200'
       twBorderColour='border-amber-600'
-      tooltip="The team who played the two of clubs will win game!"
+      tooltip="This player's team will win game!"
       shortcode='twoWinGame'
       active={active}
     />

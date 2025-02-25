@@ -4,6 +4,7 @@ import { DeckCard } from "../../models/DeckCard";
 import { RoomSocket } from "../../models/RoomSocket";
 import { CardAbilities, getIsRandom, mapAbility } from "./abilities";
 import { ScoreLiftOutput } from "../../models/ScoreLiftOutput";
+import { ChatMessage } from "../../models/ChatMessage";
 
 export function emitPlayerCardData(users: PlayerSocket[], io: Server) {
   // Loop through users in room
@@ -11,6 +12,27 @@ export function emitPlayerCardData(users: PlayerSocket[], io: Server) {
     // Send player card data to each player
     io.to(el.socketId).emit('playerCards', el.cards);
   });
+}
+
+export function sendSystemMessage(io: Server, message: string, roomId: string, colour?: string) {
+  const messageObj: ChatMessage = {
+    message: message,
+    messageColour: colour ?? '#f59e0b',
+    mode: 'log'
+  };
+
+  io.to(roomId).emit('chat', messageObj);
+}
+
+export function sendIndividualMessage(io: Server, message: string, socketId: string, showToast?: boolean, colour?: string) {
+  const messageObj: ChatMessage = {
+    message: message,
+    messageColour: colour ?? '#f59e0b',
+    mode: 'log',
+    showToast: showToast
+  };
+
+  io.to(socketId).emit('chat', messageObj);
 }
 
 export function orderCards(users: PlayerSocket[]) {

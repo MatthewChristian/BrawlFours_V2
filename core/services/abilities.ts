@@ -13,10 +13,10 @@ export enum CardAbilities {
   targetPowerless,    // J  TESTED
   noWinLift,          // Q  TESTED
   shuffleHand,        // K  TESTED - Need to implement animations
-  oppReplay,          // A  TESTING IN PROGRESS - on Gameboard.tsx, make it so that play card function is called from server rather than from frontend
+  oppReplay,          // A  TESTING IN PROGRESS - Make it so they cant replay card unless its their only card left, on Gameboard.tsx, make it so that play card function is called from server rather than from frontend
 
   // Hearts
-  royalsDisabled,     // 2  TESTED
+  royalsDisabled,     // 2  TESTED - Broken, if flush they are not allowed to play the royal
   hangSaver,          // 9  TESTED
   twentyPoints,       // 10 TESTED
   pointsForSaved,     // J  TESTED
@@ -34,7 +34,7 @@ export enum CardAbilities {
   chooseStarter,      // A  TESTED
 
   // Clubs
-  twoWinGame,         // 2
+  twoWinGame,         // 2  TESTED
   randomAbility,      // 9
   revealedBare,       // 10
   nextCardTrump,      // J
@@ -110,7 +110,8 @@ export function mapAbility(value: string, suit: string) {
       return CardAbilities.oppositePower;
     }
     else if (value == 'J') {
-      return CardAbilities.allyPlaysLast;
+      // return CardAbilities.allyPlaysLast;
+      return undefined
     }
     else if (value == 'Q') {
       return CardAbilities.freePlay;
@@ -260,7 +261,7 @@ const abilityData: Partial<AbilityData> = {
   },
   [CardAbilities.freePlay]: {
     description: "This card can be played outside your turn",
-    ability: (args: AbilityInput) => allyPlaysLastAbility(args),
+    ability: (args: AbilityInput) => targetPowerlessAbility(args),
     duration: 'lift'
   },
   [CardAbilities.doublePoints]: {
@@ -494,5 +495,17 @@ function twoWinGameAbility(args: AbilityInput) {
   }
 
   args.roomData.twoWinGameWinnerTeam = args.player.team;
-  args.roomData.activeAbilities.push(CardAbilities.twoWinGame);
+
+  // Add player status
+  const player = args.roomData.users.find(el => el.id == args.id);
+
+  if (!args.roomData.playerStatus) {
+    args.roomData.playerStatus = [];
+  }
+
+  if (!args.roomData.playerStatus[player.player]) {
+    args.roomData.playerStatus[player.player] = { player: { ...player, cards: null }, status: [] };
+  }
+
+  args.roomData.playerStatus[player.player].status.push(CardAbilities.twoWinGame);
 }

@@ -656,7 +656,6 @@ export default function Gameboard({ roomId }: Props) {
                   <DoubleLiftIcon active={activeAbilities?.includes(CardAbilities.doubleLift)} />
                   <DoublePointsIcon active={activeAbilities?.includes(CardAbilities.doublePoints)} />
                   <NinePowerfulIcon active={activeAbilities?.includes(CardAbilities.ninePowerful)} />
-                  <TwoWinGameIcon active={activeAbilities?.includes(CardAbilities.twoWinGame)} />
 
                 </div>
 
