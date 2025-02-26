@@ -125,6 +125,10 @@ export default function PlayingCard({
       return 'red-glow';
     }
 
+    if (liftCard && cardData.trump) {
+      return 'gold-glow';
+    }
+
     if (isNotPlayable) {
       return '';
     }

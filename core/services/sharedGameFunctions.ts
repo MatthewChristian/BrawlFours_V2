@@ -98,14 +98,14 @@ export function initialiseDeck() {
     Determine whether or not a player tried to undertrump
   */
 function didUndertrump(roomData: RoomSocket, card: DeckCard) {
-  if (!roomData.lift || !roomData.trump || card?.suit != roomData.trump) {
+  if (!roomData.lift || !roomData.trump || !card?.trump) {
     return false;
   }
 
   let undertrumped = false;
 
   roomData.lift.forEach(el => {
-    if ((el.suit == roomData.trump) && (el.power > card.power)) {
+    if ((el.trump) && (el.power > card.power)) {
       undertrumped = true;
     }
   });
@@ -134,8 +134,13 @@ export function determineIfCardsPlayable(roomData: RoomSocket, player: PlayerSoc
 
 
   player.cards.forEach((el) => {
+
     // Determine which cards are trump
     if (el.suit == roomData.trump) {
+      el.trump = true;
+    }
+    // If ability is revealedBare and the player has already been revealed to be bare and abilities are not disabled
+    else if (el.ability == CardAbilities.revealedBare && roomData.revealedBare[player.player] && !roomData.activeAbilities.includes(CardAbilities.abilitiesDisabled)) {
       el.trump = true;
     }
     else { // Need to put else statement in case pack was run
@@ -183,11 +188,11 @@ export function determineIfCardsPlayable(roomData: RoomSocket, player: PlayerSoc
     // * Has cards in their hand that correspond to the called suit, and
     // * the card played is not trump,
     // then end function and do not add card to lift
-    else if (roomData.called && card.suit != roomData.called.suit && !bare && card.suit != trump) {
+    else if (roomData.called && card.suit != roomData.called.suit && !bare && !card.trump) {
       card.playable = false;
     }
     // If the player attempted to undertrump, end function and do not add card to lift
-    else if (roomData.called && (card.suit == roomData.trump && undertrumped == true) && roomData.called.suit != trump && !bare) {
+    else if (roomData.called && (card.trump && undertrumped == true) && roomData.called.suit != trump && !bare) {
       card.playable = false;
     }
     else {
@@ -238,10 +243,10 @@ export function scoreLift(roomData: RoomSocket): ScoreLiftOutput {
   roomData.lift.forEach(el => {
     // Add 100 points to power if card was trump, minus 100 points from power if card was not suit that was called
     // Call function to check if oppositePower ability is in effect
-    let power = handleOppositePower(roomData, el.power) + (el.suit == roomData.trump ? 100 : el.suit != roomData.called.suit ? -100 : 0);
+    let power = handleOppositePower(roomData, el.power) + (el.trump ? 100 : el.suit != roomData.called.suit ? -100 : 0);
     const player = roomData.users.find(usr => usr.player == el.player);
 
-    if (el.suit == roomData.trump) {
+    if (el.trump) {
 
       // Store potential high
       if (!roomData.high || el.power > roomData.high.power) {

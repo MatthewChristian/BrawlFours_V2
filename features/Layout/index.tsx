@@ -138,7 +138,7 @@ export default function Layout({ children }: Props) {
     });
 
     socket.on('revealedBare', (state) => {
-      dispatch(setRevealedBare(state ?? []));
+      dispatch(setRevealedBare(state));
     });
 
   }, [socket]);
