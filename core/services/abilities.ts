@@ -284,7 +284,7 @@ const abilityData: Partial<AbilityData> = {
   },
   [CardAbilities.nextCardTrump]: {
     description: "The next card you play becomes trump",
-    ability: (args: AbilityInput) => targetPowerlessAbility(args),
+    ability: (args: AbilityInput) => nextCardTrumpAbility(args),
     duration: 'round'
   },
   [CardAbilities.swapAllyCard]: {
@@ -551,4 +551,26 @@ function twoWinGameAbility(args: AbilityInput) {
 
 function revealedBareAbility(args: AbilityInput) {
   console.log("revealedBareAbility: Played");
+}
+
+function nextCardTrumpAbility(args: AbilityInput) {
+  // If all other twos have not been played yet, do nothing
+  if (args.roomData.twosPlayed.length < 3) {
+    return;
+  }
+
+  args.roomData.twoWinGameWinnerTeam = args.player.team;
+
+  // Add player status
+  const player = args.roomData.users.find(el => el.id == args.id);
+
+  if (!args.roomData.playerStatus) {
+    args.roomData.playerStatus = [];
+  }
+
+  if (!args.roomData.playerStatus[player.player]) {
+    args.roomData.playerStatus[player.player] = { player: { ...player, cards: null }, status: [] };
+  }
+
+  args.roomData.playerStatus[player.player].status.push(CardAbilities.twoWinGame);
 }
