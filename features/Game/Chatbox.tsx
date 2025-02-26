@@ -52,9 +52,9 @@ export default function Chatbox({ socketData }: Props) {
             : undefined
           }
 
-          <span className='mr-2' style={{ color: msg.senderColour }}>
+          <span style={{ color: msg.senderColour }}>
             {msg.sender}
-            <span color='black'>{msg.mode == 'log' ? '' : ':'}</span>
+            <span className={msg.mode != 'log' ? 'mr-1' : ''}>{msg.mode == 'log' ? '' : ':'}</span>
           </span >
 
           <span style={{ color: msg.messageColour }}>
