@@ -37,7 +37,7 @@ export enum CardAbilities {
   twoWinGame,         // 2  TESTED
   randomAbility,      // 9
   revealedBare,       // 10 TESTING IN PROGRESS - Need to test cases: Undertrump, trumpDisabled, abilitiesDisabled, oppositePower
-  nextCardTrump,      // J
+  nextCardTrump,      // J  TESTED
   swapAllyCard,       // Q
   doubleLift,         // K
   swapHands,          // A
@@ -285,7 +285,6 @@ const abilityData: Partial<AbilityData> = {
   [CardAbilities.nextCardTrump]: {
     description: "The next card you play becomes trump",
     ability: (args: AbilityInput) => nextCardTrumpAbility(args),
-    duration: 'round'
   },
   [CardAbilities.swapAllyCard]: {
     description: "Swap a card with your ally",
@@ -554,13 +553,6 @@ function revealedBareAbility(args: AbilityInput) {
 }
 
 function nextCardTrumpAbility(args: AbilityInput) {
-  // If all other twos have not been played yet, do nothing
-  if (args.roomData.twosPlayed.length < 3) {
-    return;
-  }
-
-  args.roomData.twoWinGameWinnerTeam = args.player.team;
-
   // Add player status
   const player = args.roomData.users.find(el => el.id == args.id);
 
@@ -572,5 +564,5 @@ function nextCardTrumpAbility(args: AbilityInput) {
     args.roomData.playerStatus[player.player] = { player: { ...player, cards: null }, status: [] };
   }
 
-  args.roomData.playerStatus[player.player].status.push(CardAbilities.twoWinGame);
+  args.roomData.playerStatus[player.player].status.push(CardAbilities.nextCardTrump);
 }

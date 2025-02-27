@@ -6,6 +6,7 @@ import { CardAbilities, getIsRandom, mapAbility } from "./abilities";
 import { ScoreLiftOutput } from "../../models/ScoreLiftOutput";
 import { ChatMessage } from "../../models/ChatMessage";
 import { SendSystemMessageInput } from "../../models/SendSystemMessageInput";
+import { PlayerStatus } from "../../models/PlayerStatus";
 
 export function emitPlayerCardData(users: PlayerSocket[], io: Server) {
   // Loop through users in room
@@ -131,12 +132,32 @@ export function determineIfCardsPlayable(roomData: RoomSocket, player: PlayerSoc
   let flushRoyalsCalled = true;
   let flushRoyals = true;
   const trump = roomData.trump;
+  let nextCardTrumpActive = false;
+  let status: PlayerStatus;
 
+  // Check if player has nextCardTrump status
+  if (roomData?.playerStatus && player) {
+    status = roomData.playerStatus[player.player];
+
+    if (status?.status?.includes(CardAbilities.nextCardTrump)) {
+      nextCardTrumpActive = true;
+    }
+  }
 
   player.cards.forEach((el) => {
 
     // Determine which cards are trump
-    if (el.suit == roomData.trump) {
+
+    // If nextCardTrump ability is active for player
+    if (nextCardTrumpActive) {
+      el.trump = true;
+
+      // Remove player status
+      const removedPlayerStatuses = status?.status.filter(el => el != CardAbilities.nextCardTrump);
+      status.status = removedPlayerStatuses;
+    }
+    // If suit of card played is trump
+    else if (el.suit == roomData.trump) {
       el.trump = true;
     }
     // If ability is revealedBare and the player has already been revealed to be bare and abilities are not disabled

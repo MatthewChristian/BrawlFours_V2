@@ -14,8 +14,8 @@ export default function NextCardTrumpIcon({ active }: Props) {
       icon={<Image priority
         src={nextCardTrumpSvg}
         alt="" />}
-      twBgColour='bg-red-200'
-      twBorderColour='border-red-600'
+      twBgColour='bg-amber-200'
+      twBorderColour='border-amber-600'
       tooltip='The next card this player plays will count as trump'
       shortcode='nextCardTrump'
       active={active}
