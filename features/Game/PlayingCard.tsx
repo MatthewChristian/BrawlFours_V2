@@ -66,7 +66,7 @@ export default function PlayingCard({
 
   const tooltipEnabled = useMemo(() => {
     return (!isDeckCard && card) ? true : false
-  }, [card]);
+  }, [card, isDeckCard]);
 
   const isTwoWinGameActive = useMemo(() => {
     if (cardData?.ability != CardAbilities.twoWinGame) {

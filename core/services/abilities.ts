@@ -374,7 +374,7 @@ function shuffleHandAbility(args: AbilityInput) {
 
   determineIfCardsPlayable(args.roomData, player);
 
-  emitPlayerCardData(args.roomData.users, args.io);
+  emitPlayerCardData(args.io, args.roomData);
 }
 
 function royalsDisabledAbility(args: AbilityInput) {
@@ -488,7 +488,7 @@ function drawOneAbility(args: AbilityInput) {
 
   orderCards(args.roomData.users);
 
-  emitPlayerCardData(args.roomData.users, args.io);
+  emitPlayerCardData(args.io, args.roomData);
 
   sendSystemMessage({
     io: args.io,

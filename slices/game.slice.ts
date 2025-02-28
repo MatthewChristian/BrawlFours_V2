@@ -24,6 +24,7 @@ interface GameSlice {
   deck: DeckCard[];
   kickedCards: DeckCard[];
   playerCards: DeckCard[];
+  teammateCards: DeckCard[];
   dealer?: number;
   turn?: number;
   beg?: BegResponseInput['response'];
@@ -48,6 +49,7 @@ const initialState: GameSlice = {
   deck: [],
   kickedCards: [],
   playerCards: [],
+  teammateCards: [],
   teamScore: [0, 0],
   lift: [],
   game: [0, 0],
@@ -93,6 +95,10 @@ export const gameSlice = createSlice({
 
     setPlayerCards: (state, action: PayloadAction<DeckCard[]>) => {
       state.playerCards = action.payload;
+    },
+
+    setTeammateCards: (state, action: PayloadAction<DeckCard[]>) => {
+      state.teammateCards = action.payload;
     },
 
     setDealer: (state, action: PayloadAction<number>) => {
@@ -176,6 +182,7 @@ export const {
   setDeck,
   setKickedCards,
   setPlayerCards,
+  setTeammateCards,
   setBeg,
   setDealer,
   setTurn,
@@ -209,6 +216,8 @@ export const getDeck = (state: RootState): DeckCard[] => state.gameSlice.deck;
 export const getKickedCards = (state: RootState): DeckCard[] => state.gameSlice.kickedCards;
 
 export const getPlayerCards = (state: RootState): DeckCard[] => state.gameSlice.playerCards;
+
+export const getTeammateCards = (state: RootState): DeckCard[] => state.gameSlice.teammateCards;
 
 export const getDealer = (state: RootState): number | undefined => state.gameSlice.dealer;
 

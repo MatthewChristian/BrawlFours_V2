@@ -231,6 +231,8 @@ function setTeams(data: ChoosePartnerInput) {
 
     let isTeam2MemberSetAlready = false;
 
+    const socketIds = [];
+
     // Loop through users in room
     roomUsers[data.roomId].users.forEach((el, i) => {
 
@@ -238,24 +240,45 @@ function setTeams(data: ChoosePartnerInput) {
       if (el.id == data.localId) {
         roomUsers[data.roomId].users[i].team = 1;
         roomUsers[data.roomId].users[i].player = 1;
+        socketIds[1] = el.socketId;
       }
       else if (el.id == data.partnerId) { // Set host's chosen partner to team 1 and as player 3
         roomUsers[data.roomId].users[i].team = 1;
         roomUsers[data.roomId].users[i].player = 3;
+        socketIds[3] = el.socketId;
       }
       else { // Set other users to team 2
         roomUsers[data.roomId].users[i].team = 2;
 
-
         if (!isTeam2MemberSetAlready) { // If a player has not been added to team 2 as yet, assign them as player 2
           roomUsers[data.roomId].users[i].player = 2;
+          socketIds[2] = el.socketId;
           isTeam2MemberSetAlready = true;
         }
         else { // Else assign them as player 4
           roomUsers[data.roomId].users[i].player = 4;
+          socketIds[4] = el.socketId;
         }
       }
     });
+
+
+    // Second loop to set teammate socket id
+    roomUsers[data.roomId].users.forEach((el, i) => {
+      if (el.player == 1) {
+        roomUsers[data.roomId].users[i].teammateSocketId = socketIds[3];
+      }
+      else if (el.player == 2) {
+        roomUsers[data.roomId].users[i].teammateSocketId = socketIds[4];
+      }
+      else if (el.player == 3) {
+        roomUsers[data.roomId].users[i].teammateSocketId = socketIds[1];
+      }
+      else if (el.player == 4) {
+        roomUsers[data.roomId].users[i].teammateSocketId = socketIds[2];
+      }
+    });
+
 
     resetGameState(data.roomId);
     io.to(data.roomId).emit('roundWinners', undefined);
@@ -614,6 +637,23 @@ function playerCards(data: BasicRoomInput, gameSocket: Socket) {
   }
 }
 
+function teammateCards(data: BasicRoomInput, gameSocket: Socket) {
+  if (io.of('/').adapter.rooms.get(data.roomId)) {
+
+    // Loop through users in room
+    roomUsers[data.roomId].users.forEach((el) => {
+      // Send player card data to player if the round has started OR if round has not yet started but player is dealer or it is players turn (i.e. player hasnt beg or stood yet)
+      if (el.id == data.localId && (roomUsers[data.roomId].roundStarted || (!(roomUsers[data.roomId].turn == el.player || roomUsers[data.roomId].dealer == el.player)))) {
+        gameSocket.emit('playerCards', el.cards);
+        return;
+      }
+    });
+  }
+  else {
+    console.log(data.roomId + ': ' + 'Room doesnt exist');
+  }
+}
+
 
 function runPack(data: BasicRoomInput) {
   if (!roomUsers[data.roomId] || !roomUsers[data.roomId].kicked) {
@@ -689,7 +729,7 @@ function runPack(data: BasicRoomInput) {
     }
   });
 
-  emitPlayerCardData(roomUsers[data.roomId].users, io);
+  emitPlayerCardData(io, roomUsers[data.roomId]);
 
 }
 
@@ -836,7 +876,7 @@ async function playCard(data: PlayCardInput, gameSocket: Socket) {
   if (!roomUsers[data.roomId].roundStarted) {
     resetRoundState(data.roomId);
     roomUsers[data.roomId].roundStarted = true;
-    emitPlayerCardData(roomUsers[data.roomId].users, io);
+    emitPlayerCardData(io, roomUsers[data.roomId]);
   }
 
   // Trigger card ability if it has one
@@ -1328,7 +1368,7 @@ async function handleSwapOppCard(data: TargetPlayerInput, socket: Socket) {
 
     determineIfCardsPlayable(roomUsers[data.roomId], player);
 
-    emitPlayerCardData(roomUsers[data.roomId].users, io);
+    emitPlayerCardData(io, roomUsers[data.roomId]);
 
     await playCard({ ...data, card: data.playedCard }, socket);
 

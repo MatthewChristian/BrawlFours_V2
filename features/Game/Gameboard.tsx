@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { DeckCard } from '../../models/DeckCard';
 import PlayingCard from './PlayingCard';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { getActiveAbilities, getBeg, getDealer, getLift, getLiftWinner, getMatchWinner, getMessage, getPlayerCards, getPlayerJoinedRoom, getPlayerList, getPlayerStatus, getRoundWinners, getTurn, setMessage } from '../../slices/game.slice';
+import { getActiveAbilities, getBeg, getDealer, getLift, getLiftWinner, getMatchWinner, getMessage, getPlayerCards, getPlayerJoinedRoom, getPlayerList, getPlayerStatus, getRoundWinners, getTeammateCards, getTurn, setMessage } from '../../slices/game.slice';
 import { PlayerSocket } from '../../models/PlayerSocket';
 import DealerIcon from './StatusIcons/DealerIcon';
 import TurnIcon from './StatusIcons/TurnIcon';
@@ -25,10 +25,9 @@ import NoWinLiftIcon from './StatusIcons/NoWinLiftIcon';
 import OppositePowerIcon from './StatusIcons/OppositePowerIcon';
 import RoyalsDisabledIcon from './StatusIcons/RoyalsDisabledIcon';
 import TrumpDisabledIcon from './StatusIcons/TrumpDisabledIcon';
-import TwoWinGameIcon from './StatusIcons/TwoWinGameIcon';
-import HangSaverIcon from './StatusIcons/HangSaverIcon';
 import { isCardRoyal } from '../../core/services/sharedGameFunctions';
 import PlayerStatusIcons from './PlayerStatusIcons';
+import { IoMdEye } from "react-icons/io";
 
 interface Props {
   roomId?: string;
@@ -69,7 +68,10 @@ export default function Gameboard({ roomId }: Props) {
   // Cards in the hand of the client player
   const playerCards = useAppSelector(getPlayerCards);
 
+  // Cards in the hand of the client player's teammate
+  const teammateCards = useAppSelector(getTeammateCards);
 
+  // Modal visibility
   const [begModalVisible, setBegModalVisible] = useState<boolean>(false);
   const [begResponseModalVisible, setBegResponseModalVisible] = useState<boolean>(false);
   const [waitingBegResponseModalVisible, setWaitingBegResponseModalVisible] = useState<boolean>(false);
@@ -96,6 +98,9 @@ export default function Gameboard({ roomId }: Props) {
   // Store round winners in a state to keep round winners stored in case it is wiped from server
   const [roundWinnersStored, setRoundWinnersStored] = useState<RoundWinners>();
 
+  // If looking at teammate's cards face up
+  const [isTeammateCardsVisible, setIsTeammateCardsVisible] = useState<boolean>(false);
+
 
   // React refs for player hand div
   const player1Hand = useRef<HTMLDivElement>(null);
@@ -105,6 +110,7 @@ export default function Gameboard({ roomId }: Props) {
 
   // React states to manage what cards players have
   const [player1Cards, setPlayer1Cards] = useState<DeckCard[]>([]);
+  const [player3Cards, setPlayer3Cards] = useState<DeckCard[]>([]);
 
   const [player1Data, setPlayer1Data] = useState<PlayerSocket>({});
   const [player2Data, setPlayer2Data] = useState<PlayerSocket>({});
@@ -392,6 +398,10 @@ export default function Gameboard({ roomId }: Props) {
     displayPlayerCards(playerCards ?? []);
   }, [playerCards]);
 
+  useEffect(() => {
+    setPlayer3Cards(teammateCards ?? []);
+  }, [teammateCards]);
+
 
   // Join room
   useEffect(() => {
@@ -565,20 +575,45 @@ export default function Gameboard({ roomId }: Props) {
               </div>
             </div>
 
-            <div className="w-full flex flex-row justify-center items-center" ref={player3Hand}>
-              {
-                Array.from({ length: player3Data?.numCards ?? 0 }, (_, k) => (
-                  <PlayingCard
-                    key={'3' + k}
-                    player={3}
-                    isDeckCard
-                    className='-mx-2 p-0'
-                  />
-                ))
-              }
+            <div className='w-full flex flex-row justify-center items-center relative'>
+              <div className={`flex flex-row justify-center items-center relative ${player3Cards?.length > 0 ? 'left-5' : ''}`} ref={player3Hand}>
+                {
+                  Array.from({ length: player3Data?.numCards ?? 0 }, (_, k) => (
+                    <PlayingCard
+                      key={'3' + k}
+                      player={3}
+                      cardData={player3Cards[k]}
+                      isDeckCard={!isTeammateCardsVisible}
+                      isNotPlayable
+                      className='-mx-2 p-0'
+                    />
 
-              <Marker dispatchFunction={setPlayer3HandPos} />
-            </div>
+                    // <PlayingCard
+                    //     key={'1' + k}
+                    //     player={1}
+                    //     cardData={player1Cards[k]}
+                    //     isDeckCard={player1Cards.length == 0 ? true : false}
+                    //     onClickHandler={() => player1Cards.length == 0 ? undefined : oppSelectionModalVisible ? handleSelectCard(player1Cards[k]) : playCard(player1Cards[k])}
+                    //     className='-mx-2'
+                    //     spotlighted={oppSelectionActive}
+                    //     glow={oppSelectionActive ? 'blue' : undefined}
+                    //   />
+                  ))
+                }
+                <Marker dispatchFunction={setPlayer3HandPos} />
+              </div>
+
+              { player3Cards?.length > 0 &&
+                <div className='flex justify-center items-center relative left-10'>
+                  <Button
+                    className='blue-button'
+                    iconClassName=''
+                    icon={<IoMdEye />}
+                    onClick={() => setIsTeammateCardsVisible((prev) => !prev)}
+                  />
+                </div>
+              }
+              </div>
           </div>
           {/* -----------------------------------------------------------------*/}
 

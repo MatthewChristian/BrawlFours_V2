@@ -63,8 +63,6 @@ export default function CardInfoTooltip({ card, active, offsetY }: Props) {
       return 'None';
     }
 
-    console.log("TP: ", twosPlayed);
-
     let twosPlayedStr = '';
 
     twosPlayed.forEach((el, i) => {

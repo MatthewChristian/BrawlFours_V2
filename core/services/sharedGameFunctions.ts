@@ -8,11 +8,13 @@ import { ChatMessage } from "../../models/ChatMessage";
 import { SendSystemMessageInput } from "../../models/SendSystemMessageInput";
 import { PlayerStatus } from "../../models/PlayerStatus";
 
-export function emitPlayerCardData(users: PlayerSocket[], io: Server) {
+export function emitPlayerCardData(io: Server, roomData: RoomSocket) {
   // Loop through users in room
-  users.forEach((el) => {
-    // Send player card data to each player
+
+  roomData.users.forEach((el) => {
+    // Send player card data to each player and their teammate
     io.to(el.socketId).emit('playerCards', el.cards);
+    io.to(el.teammateSocketId).emit('teammateCards', el.cards);
   });
 }
 
