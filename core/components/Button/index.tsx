@@ -11,7 +11,7 @@ interface Props {
 
 export default function Button({ children, onClick, className, iconClassName, disabled, icon }: Props) {
   return (
-    <div className={`rounded-lg p-2 w-fit flex flex-row items-center transition-colors ${disabled ? 'disabled-button' : 'cursor-pointer'} ${className}`} onClick={() => onClick && !disabled ? onClick() : undefined}>
+    <button className={`rounded-lg p-2 w-fit flex flex-row items-center transition-colors ${disabled ? 'disabled-button' : 'cursor-pointer'} ${className}`} onClick={() => onClick && !disabled ? onClick() : undefined}>
       {
         icon ?
           <div className={iconClassName ?? 'mr-2'}>
@@ -19,6 +19,6 @@ export default function Button({ children, onClick, className, iconClassName, di
           </div> : undefined
       }
       {children}
-    </div>
+    </button>
   );
 }
