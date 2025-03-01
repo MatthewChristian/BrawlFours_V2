@@ -18,6 +18,7 @@ import { ChatMessage } from './models/ChatMessage';
 import { getCardName } from './core/services/parseCard';
 import { determineIfCardsPlayable, emitPlayerCardData, initialiseDeck, orderCards, scoreLift, sendSystemMessage, shuffleDeck } from './core/services/sharedGameFunctions';
 import { TargetPlayerInput } from './models/TargetPlayerInput';
+import { SwapAllyCardInput } from './models/SwapAllyCardInput';
 
 const app = express();
 const server = createServer(app);
@@ -56,6 +57,7 @@ io.on('connection', (socket) => {
   socket.on('targetPowerless', (data) => handleTargetPowerless(data));
   socket.on('oppReplay', (data) => handleOppReplay(data));
   socket.on('swapOppCard', async (data) => await handleSwapOppCard(data, socket));
+  socket.on('swapAllyCard', async (data) => await handleSwapAllyCard(data, socket));
   socket.on('chooseStarter', async (data) => await handleChooseStarter(data, socket));
 });
 
@@ -116,7 +118,7 @@ function joinRoom(data: JoinRoomInput, gameSocket: Socket) {
     // Find if user is already in room using id from local storage
     const userIndex = roomUsers[data.roomId].users.findIndex(el => el.id == data.localId);
 
-    // If room is not full
+    // If room is not full or if user is already in room
     if (io.of('/').adapter.rooms.get(data.roomId).size < 4 || userIndex >= 0) {
 
       // Join the room
@@ -134,7 +136,15 @@ function joinRoom(data: JoinRoomInput, gameSocket: Socket) {
         }
         else { // Otherwise update their data in the room
           roomUsers[data.roomId].users[userIndex].id = data.localId;
-          roomUsers[data.roomId].users[userIndex].socketId = gameSocket.id
+          roomUsers[data.roomId].users[userIndex].socketId = gameSocket.id;
+
+          // Update teammateSocketId variables
+          const team = roomUsers[data.roomId].users[userIndex].team;
+
+          const teammate = roomUsers[data.roomId].users.find(el => el.team == team && el.id != data.localId);
+
+          roomUsers[data.roomId].users[userIndex].teammateSocketId = teammate.socketId;
+          teammate.teammateSocketId = gameSocket.id;
         }
       }
       else {
@@ -1364,6 +1374,49 @@ async function handleSwapOppCard(data: TargetPlayerInput, socket: Socket) {
     sendSystemMessage({io, message: `You swapped your ${getCardName(data.card)} for ${selectedPlayer.nickname}'s ${getCardName(randomCard)}`, roomId: player.socketId, showToast: true, colour: '#db2777'});
 
     sendSystemMessage({io, message: `${player.nickname} swapped your ${getCardName(randomCard)} for their ${getCardName(data.card)}`, roomId: data.target.socketId, showToast: true, colour: '#db2777'});
+
+
+    // Finalize
+    orderCards(roomUsers[data.roomId].users);
+
+    determineIfCardsPlayable(roomUsers[data.roomId], player);
+
+    emitPlayerCardData(io, roomUsers[data.roomId]);
+
+    await playCard({ ...data, card: data.playedCard }, socket);
+
+  }
+  else {
+    console.log(data.roomId + ': ' + 'Room doesnt exist');
+  }
+}
+
+async function handleSwapAllyCard(data: SwapAllyCardInput, socket: Socket) {
+  if (io.of('/').adapter.rooms.get(data.roomId)) {
+
+
+    const player = roomUsers[data.roomId].users.find((el) => el.player == data.player);
+
+    const teammatePlayer = roomUsers[data.roomId].users.find((el) => el.socketId == player.teammateSocketId);
+
+    // Remove card from player's hand
+    const selectedCardIndex = player.cards.findIndex(el => el.suit == data.card.suit && el.value == data.card.value);
+    player.cards.splice(selectedCardIndex, 1);
+
+    // Add ally card to player's hand
+    player.cards.push(data.allyCard);
+
+    // Remove card from ally's hand
+    const selectedAllyCardIndex = teammatePlayer.cards.findIndex(el => el.suit == data.allyCard.suit && el.value == data.allyCard.value);
+    teammatePlayer.cards.splice(selectedAllyCardIndex, 1);
+
+    // Add card to ally's hand
+    teammatePlayer.cards.push(data.card);
+
+    // Send system messages
+    sendSystemMessage({ io, message: `You swapped your ${getCardName(data.card)} for ${teammatePlayer.nickname}'s ${getCardName(data.allyCard)}`, roomId: player.socketId, showToast: true, colour: '#db2777' });
+
+    sendSystemMessage({ io, message: `${player.nickname} swapped your ${getCardName(data.allyCard)} for their ${getCardName(data.card)}`, roomId: teammatePlayer.socketId, showToast: true, colour: '#db2777' });
 
 
     // Finalize

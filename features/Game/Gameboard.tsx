@@ -27,7 +27,8 @@ import RoyalsDisabledIcon from './StatusIcons/RoyalsDisabledIcon';
 import TrumpDisabledIcon from './StatusIcons/TrumpDisabledIcon';
 import { isCardRoyal } from '../../core/services/sharedGameFunctions';
 import PlayerStatusIcons from './PlayerStatusIcons';
-import { IoMdEye } from "react-icons/io";
+import { IoMdEye, IoMdSwap } from "react-icons/io";
+
 
 interface Props {
   roomId?: string;
@@ -79,12 +80,16 @@ export default function Gameboard({ roomId }: Props) {
   const [roundWinnersModalVisible, setRoundWinnersModalVisible] = useState<boolean>(false);
   const [oppSelectionModalVisible, setOppSelectionModalVisible] = useState<boolean>(false);
   const [chooseStarterModalVisible, setChooseStarterModalVisible] = useState<boolean>(false);
+  const [allySelectionModalVisible, setAllySelectionModalVisible] = useState<boolean>(false);
 
   // Selected opponent when choosing opponent from ability
   const [selectedOpp, setSelectedOpp] = useState<PlayerSocket>();
 
   // Selected card when choosing card from hand from ability
   const [selectedCard, setSelectedCard] = useState<DeckCard>();
+
+  // Selected card when choosing card from ally's hand from ability
+  const [selectedAllyCard, setSelectedAllyCard] = useState<DeckCard>();
 
   // If a card ability allows the player to target a card in the lift
   const [isTargettingLift, setIsTargettingLift] = useState<boolean>(false);
@@ -100,6 +105,7 @@ export default function Gameboard({ roomId }: Props) {
 
   // If looking at teammate's cards face up
   const [isTeammateCardsVisible, setIsTeammateCardsVisible] = useState<boolean>(false);
+
 
 
   // React refs for player hand div
@@ -321,6 +327,14 @@ export default function Gameboard({ roomId }: Props) {
         }
       }
 
+      if (card.ability == CardAbilities.swapAllyCard) {
+        if (player3Data.numCards && player1Cards?.length && player1Cards.length != 1 && player3Data.numCards != 0) {
+          setAllySelectionModalVisible(true);
+          setPlayedCard(card);
+          return;
+        }
+      }
+
       if (card.ability == CardAbilities.targetPowerless) {
         if (lift && lift.length != 0) {
           setIsTargettingLift(true);
@@ -371,6 +385,10 @@ export default function Gameboard({ roomId }: Props) {
     setSelectedCard(card);
   }
 
+  function handleSelectAllyCard(card: DeckCard) {
+    setSelectedAllyCard(card);
+  }
+
   function handleOppSelectionConfirm() {
     socket.emit('swapOppCard', { ...socketData, card: selectedCard, player: playerNumber, target: selectedOpp, playedCard: playedCard,  });
     handleOppSelectionClose();
@@ -383,6 +401,18 @@ export default function Gameboard({ roomId }: Props) {
     setSelectedCard(undefined);
   }
 
+  function handleAllySelectionConfirm() {
+    socket.emit('swapAllyCard', { ...socketData, card: selectedCard, allyCard: selectedAllyCard, player: playerNumber, playedCard: playedCard, });
+    handleAllySelectionClose();
+  }
+
+  function handleAllySelectionClose() {
+    setAllySelectionModalVisible(false);
+    setPlayedCard(undefined);
+    setSelectedCard(undefined);
+    setSelectedAllyCard(undefined);
+  }
+
   function handleChooseStarterConfirm() {
     socket.emit('chooseStarter', { ...socketData, player: playerNumber, target: selectedOpp, playedCard: playedCard });
     handleChooseStarterModalClose();
@@ -393,6 +423,8 @@ export default function Gameboard({ roomId }: Props) {
     setPlayedCard(undefined);
     setSelectedOpp(undefined);
   }
+
+
 
   useEffect(() => {
     displayPlayerCards(playerCards ?? []);
@@ -578,27 +610,22 @@ export default function Gameboard({ roomId }: Props) {
             <div className='w-full flex flex-row justify-center items-center relative'>
               <div className={`flex flex-row justify-center items-center relative ${player3Cards?.length > 0 ? 'left-5' : ''}`} ref={player3Hand}>
                 {
-                  Array.from({ length: player3Data?.numCards ?? 0 }, (_, k) => (
+
+                  Array.from({ length: player3Data?.numCards ?? 0 }, (_, k) => {
+                    return (
                     <PlayingCard
                       key={'3' + k}
                       player={3}
                       cardData={player3Cards[k]}
-                      isDeckCard={!isTeammateCardsVisible}
-                      isNotPlayable
+                      isDeckCard={!(isTeammateCardsVisible || allySelectionModalVisible)}
+                      isNotPlayable={!allySelectionModalVisible}
                       className='-mx-2 p-0'
+                      spotlighted={allySelectionModalVisible}
+                      glow={allySelectionModalVisible ? 'blue' : undefined}
+                      onClickHandler={() => player3Cards.length == 0 ? undefined : allySelectionModalVisible ? handleSelectAllyCard(player3Cards[k]) : undefined}
                     />
-
-                    // <PlayingCard
-                    //     key={'1' + k}
-                    //     player={1}
-                    //     cardData={player1Cards[k]}
-                    //     isDeckCard={player1Cards.length == 0 ? true : false}
-                    //     onClickHandler={() => player1Cards.length == 0 ? undefined : oppSelectionModalVisible ? handleSelectCard(player1Cards[k]) : playCard(player1Cards[k])}
-                    //     className='-mx-2'
-                    //     spotlighted={oppSelectionActive}
-                    //     glow={oppSelectionActive ? 'blue' : undefined}
-                    //   />
-                  ))
+                    );
+                  })
                 }
                 <Marker dispatchFunction={setPlayer3HandPos} />
               </div>
@@ -768,18 +795,17 @@ export default function Gameboard({ roomId }: Props) {
               {
                 Array.from({ length: player1Cards.length == 0 ? player1Data?.numCards ?? 0 : player1Cards.length}, (_, k) => {
 
-                  const oppSelectionActive = (oppSelectionModalVisible && (!(player1Cards[k].suit == playedCard?.suit && player1Cards[k].value == playedCard?.value)));
-
+                  const selectionActive = ((oppSelectionModalVisible || allySelectionModalVisible) && (!(player1Cards[k].suit == playedCard?.suit && player1Cards[k].value == playedCard?.value)));
                   return (
                     <PlayingCard
                       key={'1' + k}
                       player={1}
                       cardData={player1Cards[k]}
                       isDeckCard={player1Cards.length == 0 ? true : false}
-                      onClickHandler={() => player1Cards.length == 0 ? undefined : oppSelectionModalVisible ? handleSelectCard(player1Cards[k]) : playCard(player1Cards[k])}
+                      onClickHandler={() => player1Cards.length == 0 ? undefined : selectionActive ? handleSelectCard(player1Cards[k]) : playCard(player1Cards[k])}
                       className='-mx-2'
-                      spotlighted={oppSelectionActive}
-                      glow={oppSelectionActive ? 'blue' : undefined}
+                      spotlighted={selectionActive}
+                      glow={selectionActive ? 'blue' : undefined}
                     />
                   );}
                 )
@@ -931,6 +957,50 @@ export default function Gameboard({ roomId }: Props) {
           </Button>
 
           <Button className='red-button mt-5' onClick={() => { handleOppSelectionClose(); }}>
+            Cancel
+          </Button>
+        </div>
+      </Modal>
+
+
+      {/* ----- swapAllyCard Modal -----*/}
+      <Modal contentStyle={{ width: 'fit-content' }} open={allySelectionModalVisible} closeOnDocumentClick={false}>
+
+
+
+        <div className='px-5'>
+          <div className='flex flex-row justify-center items-center mt-3 gap-5'>
+            <PlayingCard
+              key={'swap-card'}
+              cardData={selectedCard}
+              isDeckCard={false}
+              isOutline={!selectedCard}
+              isNotPlayable
+            />
+
+            <IoMdSwap size={32}/>
+
+            <PlayingCard
+              key={'swap-card'}
+              cardData={selectedAllyCard}
+              isDeckCard={false}
+              isOutline={!selectedAllyCard}
+              isNotPlayable
+            />
+          </div>
+
+
+          <div className='mt-3 text-bold text-center text-lg text-blue-500'>Swapping these two cards</div>
+
+        </div>
+
+
+        <div className='flex flex-row gap-5 justify-center'>
+          <Button disabled={!(selectedCard && selectedAllyCard)} className='green-button mt-5' onClick={() => { handleAllySelectionConfirm(); }}>
+            Confirm
+          </Button>
+
+          <Button className='red-button mt-5' onClick={() => { handleAllySelectionClose(); }}>
             Cancel
           </Button>
         </div>

@@ -288,7 +288,7 @@ const abilityData: Partial<AbilityData> = {
   },
   [CardAbilities.swapAllyCard]: {
     description: "Swap a card with your ally",
-    ability: (args: AbilityInput) => targetPowerlessAbility(args),
+    ability: (args: AbilityInput) => swapAllyCardAbility(args),
   },
   [CardAbilities.doubleLift]: {
     description: "Leave the current lift on table and the winner of next lift takes both lifts",
@@ -565,4 +565,8 @@ function nextCardTrumpAbility(args: AbilityInput) {
   }
 
   args.roomData.playerStatus[player.player].status.push(CardAbilities.nextCardTrump);
+}
+
+function swapAllyCardAbility(args: AbilityInput) {
+  console.log("swapAllyCardAbility: Played");
 }
