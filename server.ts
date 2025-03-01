@@ -175,6 +175,7 @@ function emitInitGameData(data: BasicRoomInput, gameSocket: Socket) {
   playersInRoom(data);
 
   playerCards(data, gameSocket);
+  teammateCards(data, gameSocket);
 
   io.to(gameSocket.id).emit('dealer', roomUsers[data.roomId].dealer);
   io.to(gameSocket.id).emit('turn', roomUsers[data.roomId].turn);
@@ -644,7 +645,8 @@ function teammateCards(data: BasicRoomInput, gameSocket: Socket) {
     roomUsers[data.roomId].users.forEach((el) => {
       // Send player card data to player if the round has started OR if round has not yet started but player is dealer or it is players turn (i.e. player hasnt beg or stood yet)
       if (el.id == data.localId && (roomUsers[data.roomId].roundStarted || (!(roomUsers[data.roomId].turn == el.player || roomUsers[data.roomId].dealer == el.player)))) {
-        gameSocket.emit('playerCards', el.cards);
+        const teammateCards = roomUsers[data.roomId].users.find(user => user.socketId == el.teammateSocketId).cards;
+        gameSocket.emit('teammateCards', teammateCards);
         return;
       }
     });
@@ -805,6 +807,7 @@ function begResponse(data: BegResponseInput, gameSocket: Socket) {
       roomUsers[data.roomId].beg = 'run';
       runPack(data);
       playerCards(data, gameSocket);
+      teammateCards(data, gameSocket);
       sendSystemMessage({io, message: dealer.nickname + ' ran the pack!', roomId: data.roomId, colour: "#06b6d4"});
     }
 
