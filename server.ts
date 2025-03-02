@@ -1047,6 +1047,7 @@ async function liftScoring(data: BasicRoomInput) {
   io.to(data.roomId).emit('game', roomUsers[data.roomId].game);
   io.to(data.roomId).emit('activeAbilities', roomUsers[data.roomId].activeAbilities);
   io.to(data.roomId).emit('playerStatus', roomUsers[data.roomId].playerStatus);
+  io.to(data.roomId).emit('doubleLiftCards', roomUsers[data.roomId].doubleLiftCards);
 }
 
 function resetRoundState(roomId: string) {
@@ -1069,10 +1070,13 @@ function resetRoundState(roomId: string) {
   roomUsers[roomId].activeAbilities = [];
   roomUsers[roomId].playerStatus = undefined;
   roomUsers[roomId].revealedBare = [false, false, false, false, false];
+  roomUsers[roomId].doubleLiftCards = [];
+  roomUsers[roomId].doubleLiftJack= undefined;
 
   io.to(roomId).emit('game', [0, 0]);
   io.to(roomId).emit('twosPlayed', undefined);
   io.to(roomId).emit('revealedBare', undefined);
+  io.to(roomId).emit('doubleLiftCards', undefined);
 }
 
 function roundScoring(data: BasicRoomInput) {

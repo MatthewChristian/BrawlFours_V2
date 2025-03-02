@@ -9,9 +9,10 @@ interface Props {
   twTextColour?: string;
   twBgColour?: string;
   active?: boolean;
+  onClick?: () => void;
 }
 
-export default function StatusIcon({ icon, shortcode, tooltip, twBgColour, twTextColour, twBorderColour, active }: Props) {
+export default function StatusIcon({ icon, shortcode, tooltip, twBgColour, twTextColour, twBorderColour, active, onClick }: Props) {
   return (
     active ?
       <>
@@ -22,7 +23,10 @@ export default function StatusIcon({ icon, shortcode, tooltip, twBgColour, twTex
         : undefined
         }
 
-        <div className={`border-2 rounded-lg h-7 w-7 flex flex-row justify-center items-center ${shortcode} ${twBgColour} ${twTextColour} ${twBorderColour}`}>
+        <div
+          className={`border-2 rounded-lg h-7 w-7 flex flex-row justify-center items-center ${onClick ? 'cursor-pointer' : ''} ${shortcode} ${twBgColour} ${twTextColour} ${twBorderColour}`}
+          onClick={onClick ? () => onClick() : undefined}
+        >
           {icon}
         </div>
       </>

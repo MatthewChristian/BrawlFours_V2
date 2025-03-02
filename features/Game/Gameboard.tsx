@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { DeckCard } from '../../models/DeckCard';
 import PlayingCard from './PlayingCard';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { getActiveAbilities, getBeg, getDealer, getLift, getLiftWinner, getMatchWinner, getMessage, getPlayerCards, getPlayerJoinedRoom, getPlayerList, getPlayerStatus, getRoundWinners, getTeammateCards, getTurn, setMessage } from '../../slices/game.slice';
+import { getActiveAbilities, getBeg, getDealer, getDoubleLiftCards, getDoubleLiftModalVisible, getLift, getLiftWinner, getMatchWinner, getMessage, getPlayerCards, getPlayerJoinedRoom, getPlayerList, getPlayerStatus, getRoundWinners, getTeammateCards, getTurn, setDoubleLiftModalVisible, setMessage } from '../../slices/game.slice';
 import { PlayerSocket } from '../../models/PlayerSocket';
 import DealerIcon from './StatusIcons/DealerIcon';
 import TurnIcon from './StatusIcons/TurnIcon';
@@ -28,6 +28,7 @@ import TrumpDisabledIcon from './StatusIcons/TrumpDisabledIcon';
 import { isCardRoyal } from '../../core/services/sharedGameFunctions';
 import PlayerStatusIcons from './PlayerStatusIcons';
 import { IoMdEye, IoMdSwap } from "react-icons/io";
+import DoubleLift2Icon from './StatusIcons/DoubleLift2Icon';
 
 
 interface Props {
@@ -66,6 +67,8 @@ export default function Gameboard({ roomId }: Props) {
 
   const playerStatus = useAppSelector(getPlayerStatus);
 
+  const doubleLiftCards = useAppSelector(getDoubleLiftCards);
+
   // Cards in the hand of the client player
   const playerCards = useAppSelector(getPlayerCards);
 
@@ -81,6 +84,10 @@ export default function Gameboard({ roomId }: Props) {
   const [oppSelectionModalVisible, setOppSelectionModalVisible] = useState<boolean>(false);
   const [chooseStarterModalVisible, setChooseStarterModalVisible] = useState<boolean>(false);
   const [allySelectionModalVisible, setAllySelectionModalVisible] = useState<boolean>(false);
+
+  const doubleLiftModalVisible = useAppSelector(getDoubleLiftModalVisible);
+
+  console.log("DLV: ", doubleLiftModalVisible);
 
   // Selected opponent when choosing opponent from ability
   const [selectedOpp, setSelectedOpp] = useState<PlayerSocket>();
@@ -716,6 +723,7 @@ export default function Gameboard({ roomId }: Props) {
                   <NoWinLiftIcon active={activeAbilities?.includes(CardAbilities.noWinLift)} />
                   <OppositePowerIcon active={activeAbilities?.includes(CardAbilities.oppositePower)} />
                   <DoubleLiftIcon active={activeAbilities?.includes(CardAbilities.doubleLift)} />
+                  <DoubleLift2Icon active={doubleLiftCards?.length > 0} />
                   <DoublePointsIcon active={activeAbilities?.includes(CardAbilities.doublePoints)} />
                   <NinePowerfulIcon active={activeAbilities?.includes(CardAbilities.ninePowerful)} />
 
@@ -1037,6 +1045,32 @@ export default function Gameboard({ roomId }: Props) {
 
           <Button className='red-button mt-5' onClick={() => { handleChooseStarterModalClose(); }}>
             Cancel
+          </Button>
+        </div>
+      </Modal>
+
+
+      {/* ----- doubleLift Modal -----*/}
+      <Modal contentStyle={{ width: 'fit-content' }} open={doubleLiftModalVisible} closeOnDocumentClick={true}>
+        <div className="px-12">Cards that the winner of this lift will also win</div>
+
+        <div className='grid grid-cols-4 gap-5 justify-center items-center mt-3 mx-5'>
+          {
+            Array.from({ length: doubleLiftCards?.length ?? 0 }, (_, k) => (
+              <PlayingCard
+                key={'dl' + k}
+                cardData={doubleLiftCards[k]}
+                isNotPlayable
+                glow='none'
+              />
+            ))
+          }
+
+        </div>
+
+        <div className='flex flex-row gap-5 justify-center'>
+          <Button className='red-button mt-5' onClick={() => { dispatch(setDoubleLiftModalVisible(false)); }}>
+            Close
           </Button>
         </div>
       </Modal>

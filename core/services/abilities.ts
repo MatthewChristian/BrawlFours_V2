@@ -39,7 +39,7 @@ export enum CardAbilities {
   revealedBare,       // 10 TESTING IN PROGRESS - Need to test cases: Undertrump, trumpDisabled, abilitiesDisabled, oppositePower
   nextCardTrump,      // J  TESTED
   swapAllyCard,       // Q  TESTED
-  doubleLift,         // K  WORKING ON - What if doubleLift is stacked, what if doubleLift activates when nobody has cards left
+  doubleLift,         // K  WORKING ON - What if doubleLift is stacked, what if doubleLift activates when nobody has cards left, when jack is hung via second lift, when jack is saved from hanging via second lift
   swapHands,          // A
 
 }
@@ -155,19 +155,19 @@ export function mapAbility(value: string, suit: string) {
 }
 
 function getRandomAbility() {
-  let randomAbility: CardAbilities;
+  let randomIndex: CardAbilities;
   do {
     const enumValues = (Object.values(CardAbilities) as unknown) as CardAbilities[];
-    const randomIndex = Math.floor(Math.random() * enumValues.length);
-    randomAbility = enumValues[randomIndex];
+    randomIndex = Math.floor(Math.random() * enumValues.length);
   } while (
     // Redo if function got these abilities
-    randomAbility == CardAbilities.randomAbility ||
-    randomAbility == CardAbilities.pointsForSaved ||
-    randomAbility == CardAbilities.twoWinGame
+    randomIndex == CardAbilities.randomAbility ||
+    randomIndex == CardAbilities.pointsForSaved ||
+    randomIndex == CardAbilities.twoWinGame
   );
 
-  return randomAbility
+  console.log("RA: ", randomIndex);
+  return randomIndex
 }
 
 export function getIsRandom(value: string, suit: string) {

@@ -49,6 +49,6 @@ export interface RoomSocket {
 
   revealedBare?: boolean[];
 
-  doubleLiftCards?: DeckCard[];
-  doubleLiftContainsTrumpJack?: boolean;
+  doubleLiftCards?: LiftCard[];
+  doubleLiftJack?: LiftCard;
 }

@@ -41,6 +41,8 @@ interface GameSlice {
   playerStatus: PlayerStatus[];
   twosPlayed: RoomSocket['twosPlayed'];
   revealedBare: boolean;
+  doubleLiftCards: LiftCard[];
+  doubleLiftModalVisible: boolean;
 }
 
 const initialState: GameSlice = {
@@ -58,7 +60,9 @@ const initialState: GameSlice = {
   activeAbilities: [],
   playerStatus: [],
   twosPlayed: [],
-  revealedBare: false
+  revealedBare: false,
+  doubleLiftCards: [],
+  doubleLiftModalVisible: false
 };
 
 /**
@@ -165,6 +169,14 @@ export const gameSlice = createSlice({
       state.revealedBare = action.payload;
     },
 
+    setDoubleLiftCards: (state, action: PayloadAction<LiftCard[]>) => {
+      state.doubleLiftCards = action.payload;
+    },
+
+    setDoubleLiftModalVisible: (state, action: PayloadAction<boolean>) => {
+      state.doubleLiftModalVisible = action.payload;
+    },
+
   }
 });
 
@@ -199,6 +211,8 @@ export const {
   setPlayerStatus,
   setTwosPlayed,
   setRevealedBare,
+  setDoubleLiftCards,
+  setDoubleLiftModalVisible,
 } =  gameSlice.actions;
 
 // Selectors
@@ -250,3 +264,7 @@ export const getPlayerStatus = (state: RootState): PlayerStatus[] => state.gameS
 export const getTwosPlayed = (state: RootState): RoomSocket['twosPlayed'] => state.gameSlice.twosPlayed;
 
 export const getRevealedBare = (state: RootState): boolean => state.gameSlice.revealedBare;
+
+export const getDoubleLiftCards = (state: RootState): LiftCard[] => state.gameSlice.doubleLiftCards;
+
+export const getDoubleLiftModalVisible = (state: RootState): boolean => state.gameSlice.doubleLiftModalVisible;
