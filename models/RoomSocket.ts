@@ -48,4 +48,7 @@ export interface RoomSocket {
   twoWinGameWinnerTeam?: number;
 
   revealedBare?: boolean[];
+
+  doubleLiftCards?: DeckCard[];
+  doubleLiftContainsTrumpJack?: boolean;
 }

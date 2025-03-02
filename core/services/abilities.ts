@@ -38,8 +38,8 @@ export enum CardAbilities {
   randomAbility,      // 9
   revealedBare,       // 10 TESTING IN PROGRESS - Need to test cases: Undertrump, trumpDisabled, abilitiesDisabled, oppositePower
   nextCardTrump,      // J  TESTED
-  swapAllyCard,       // Q
-  doubleLift,         // K
+  swapAllyCard,       // Q  TESTED
+  doubleLift,         // K  WORKING ON - What if doubleLift is stacked, what if doubleLift activates when nobody has cards left
   swapHands,          // A
 
 }
@@ -292,12 +292,12 @@ const abilityData: Partial<AbilityData> = {
   },
   [CardAbilities.doubleLift]: {
     description: "Leave the current lift on table and the winner of next lift takes both lifts",
-    ability: (args: AbilityInput) => targetPowerlessAbility(args),
+    ability: (args: AbilityInput) => doubleLiftAbility(args),
     duration: 'lift'
   },
   [CardAbilities.swapHands]: {
     description: "Swap hands with any player",
-    ability: (args: AbilityInput) => targetPowerlessAbility(args),
+    ability: (args: AbilityInput) => swapHandsAbility(args),
   },
 }
 
@@ -569,4 +569,12 @@ function nextCardTrumpAbility(args: AbilityInput) {
 
 function swapAllyCardAbility(args: AbilityInput) {
   console.log("swapAllyCardAbility: Played");
+}
+
+function doubleLiftAbility(args: AbilityInput) {
+  args.roomData.activeAbilities.push(CardAbilities.doubleLift);
+}
+
+function swapHandsAbility(args: AbilityInput) {
+  console.log("swapHandsAbility: Played");
 }

@@ -262,6 +262,36 @@ export function scoreLift(roomData: RoomSocket): ScoreLiftOutput {
   let liftPoints = 0;
   let jackPower = roomData.activeAbilities.includes(CardAbilities.oppositePower) ? 105 : 111;
 
+  // If doubleLift ability is active, then don't score lift and instead store the lift cards in variable
+  if (roomData.activeAbilities.includes(CardAbilities.doubleLift) && (!roomData.activeAbilities.includes(CardAbilities.abilitiesDisabled))) {
+    const formattedLift: DeckCard[] = [];
+
+    roomData.lift.forEach((el) => {
+      let power = handleOppositePower(roomData, el.power) + (el.trump ? 100 : el.suit != roomData.called.suit ? -100 : 0);
+      const player = roomData.users.find(usr => usr.player == el.player);
+
+      if (el.trump && el.value == 'J') {
+        roomData.doubleLiftContainsTrumpJack = true;
+      }
+
+      // Determine if card is winning the lift
+      if (power > highestPowerInLift) {
+        liftWinnerPlayer = player;
+        highestPowerInLift = power;
+      }
+
+      formattedLift.push({ ...el, power: 0, trump: false });
+    });
+
+    roomData.doubleLiftCards = formattedLift;
+
+    return({
+      liftWinnerPlayer: liftWinnerPlayer,
+      highestHangerPlayer: undefined,
+      jackOwnerPlayer: undefined,
+    });
+  }
+
   // Loop through lift
   roomData.lift.forEach(el => {
     // Add 100 points to power if card was trump, minus 100 points from power if card was not suit that was called
