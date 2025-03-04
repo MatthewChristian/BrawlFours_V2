@@ -1033,7 +1033,10 @@ async function liftScoring(data: BasicRoomInput) {
 
 
   if (highestHangerPlayer && jackOwnerPlayer && highestHangerPlayer.team != jackOwnerPlayer.team) { // Hang Jack
-    io.to(data.roomId).emit('message', { message: highestHangerPlayer.nickname + ' hung jack!!!', shortcode: 'HANG' });
+    sendSystemMessage({ io, message: highestHangerPlayer.nickname + ' hung jack!!!', roomId: data.roomId, colour: '#f97316', showToast: true })
+  }
+  else if (roomUsers[data.roomId].jackSaved && highestHangerPlayer) { // Save Jack
+    sendSystemMessage({ io, message: highestHangerPlayer.nickname + ' saved jack from being hung!!!', roomId: data.roomId, colour: '#db2777', showToast: true });
   }
 
   io.to(data.roomId).emit('liftWinner', liftWinnerPlayer.player);

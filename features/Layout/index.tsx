@@ -146,7 +146,6 @@ export default function Layout({ children }: Props) {
     });
 
     socket.on('doubleLiftCards', (state) => {
-      console.log("DLC: ", state);
       dispatch(setDoubleLiftCards(state));
     });
 

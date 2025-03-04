@@ -39,7 +39,7 @@ export enum CardAbilities {
   revealedBare,       // 10 TESTING IN PROGRESS - Need to test cases: Undertrump, trumpDisabled, abilitiesDisabled, oppositePower
   nextCardTrump,      // J  TESTED
   swapAllyCard,       // Q  TESTED
-  doubleLift,         // K  WORKING ON - What if doubleLift is stacked, what if doubleLift activates when nobody has cards left, when jack is hung via second lift, when jack is saved from hanging via second lift
+  doubleLift,         // K  TESTED
   swapHands,          // A
 
 }
@@ -166,7 +166,6 @@ function getRandomAbility() {
     randomIndex == CardAbilities.twoWinGame
   );
 
-  console.log("RA: ", randomIndex);
   return randomIndex
 }
 

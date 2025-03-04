@@ -42,7 +42,6 @@ export default function CardInfoTooltip({ card, active, offsetY }: Props) {
   }, [card]);
 
   const abilityDescription = useMemo(() => {
-    console.log("Card: ", card);
     return getAbilityData(card?.ability)?.description;
   }, [card]);
 

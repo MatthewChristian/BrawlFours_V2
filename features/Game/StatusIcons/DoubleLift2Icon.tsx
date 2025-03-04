@@ -22,7 +22,7 @@ export default function DoubleLift2Icon({ active }: Props) {
       twBgColour='bg-blue-200'
       twBorderColour='border-blue-600'
       tooltip='The winner of this lift wins the previous lift! Click this icon to view cards.'
-      shortcode='doubleLift'
+      shortcode='doubleLift2'
       onClick={() => dispatch(setDoubleLiftModalVisible(true))}
       active={active}
     />

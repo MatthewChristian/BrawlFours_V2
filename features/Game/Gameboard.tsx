@@ -87,8 +87,6 @@ export default function Gameboard({ roomId }: Props) {
 
   const doubleLiftModalVisible = useAppSelector(getDoubleLiftModalVisible);
 
-  console.log("DLV: ", doubleLiftModalVisible);
-
   // Selected opponent when choosing opponent from ability
   const [selectedOpp, setSelectedOpp] = useState<PlayerSocket>();
 
@@ -1051,7 +1049,7 @@ export default function Gameboard({ roomId }: Props) {
 
 
       {/* ----- doubleLift Modal -----*/}
-      <Modal contentStyle={{ width: 'fit-content' }} open={doubleLiftModalVisible} closeOnDocumentClick={true}>
+      <Modal contentStyle={{ width: 'fit-content' }} open={doubleLiftModalVisible} onClose={() => dispatch(setDoubleLiftModalVisible(false))} closeOnDocumentClick={true}>
         <div className="px-12">Cards that the winner of this lift will also win</div>
 
         <div className='grid grid-cols-4 gap-5 justify-center items-center mt-3 mx-5'>
