@@ -158,7 +158,7 @@ function getRandomAbility() {
   let randomIndex: CardAbilities;
   do {
     const enumValues = (Object.values(CardAbilities) as unknown) as CardAbilities[];
-    randomIndex = Math.floor(Math.random() * enumValues.length);
+    randomIndex = Math.floor(Math.random() * (enumValues.length)/2);
   } while (
     // Redo if function got these abilities
     randomIndex == CardAbilities.randomAbility ||
