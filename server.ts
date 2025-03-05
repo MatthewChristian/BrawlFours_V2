@@ -1503,19 +1503,38 @@ async function handleSwapHands(data: TargetPlayerInput, socket: Socket) {
 
       const tempSelectedPlayerCards = [...selectedPlayer.cards];
 
-      player.cards = tempSelectedPlayerCards;
+      player.cards = tempSelectedPlayerCards.concat([data.playedCard]);;
       selectedPlayer.cards = playerCards;
+
+      // Send system messages to selected player
+      sendSystemMessage({ io, message: `You swapped your hand with ${player.nickname}'s hand!`, roomId: selectedPlayer.socketId, showToast: true, colour: '#db2777' });
+
     }
     else {
+      // Get random card from selected player's hand to not swap
+      const randomCardIndex = Math.floor(Math.random() * selectedPlayer.cards.length);
 
+      const randomCard = selectedPlayer.cards[randomCardIndex];
+
+      // Remove card from list of cards to be swapped
+      const tempSelectedPlayerCards = [...selectedPlayer.cards].splice(randomCardIndex, 1);
+
+      player.cards = tempSelectedPlayerCards.concat([data.playedCard]);
+      selectedPlayer.cards = playerCards.concat([randomCard]);
+
+      // Send system messages to selected player
+      sendSystemMessage({ io, message: `You swapped your hand with ${player.nickname}'s hand and kept your ${getCardName(randomCard)}!`, roomId: selectedPlayer.socketId, showToast: true, colour: '#db2777' });
     }
 
-
-    // Send system messages
+    // Send system messages to player
     sendSystemMessage({ io, message: `You swapped your hand with ${selectedPlayer.nickname}'s hand!`, roomId: player.socketId, showToast: true, colour: '#db2777' });
 
-    sendSystemMessage({ io, message: `You swapped your hand with ${player.nickname}'s hand!`, roomId: selectedPlayer.socketId, showToast: true, colour: '#db2777' });
-
+    // Send system messages to other players
+    roomUsers[data.roomId].users.forEach(el => {
+      if (!(el.id == player.id || el.id == selectedPlayer.id)) {
+        sendSystemMessage({ io, message: `${player.nickname} and ${selectedPlayer.nickname} swapped hands!`, roomId: player.socketId, colour: '#db2777' });
+      }
+    })
 
     // Finalize
     orderCards(roomUsers[data.roomId].users);

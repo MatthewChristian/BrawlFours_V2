@@ -365,6 +365,14 @@ export default function Gameboard({ roomId }: Props) {
         }
       }
 
+      if (card.ability == CardAbilities.swapHands) {
+        if (player1Cards?.length > 1) {
+          setSwapHandsModalVisible(true);
+          setPlayedCard(card);
+          return;
+        }
+      }
+
     }
 
 
@@ -1089,9 +1097,6 @@ export default function Gameboard({ roomId }: Props) {
         <div className="px-12">Choose the player you want to swap hands with</div>
 
         <div className='flex flex-col gap-5 justify-center items-center mt-3 mx-5'>
-          <Button className={(selectedOpp?.id == player1Data?.id ? 'blue-button' : 'white-button') + ' w-full justify-center'} onClick={() => setSelectedOpp(player1Data)}>
-            {player1Data.nickname}
-          </Button>
 
           <Button className={(selectedOpp?.id == player2Data?.id ? 'blue-button' : 'white-button') + ' w-full justify-center'} onClick={() => setSelectedOpp(player2Data)}>
             {player2Data.nickname}
