@@ -84,6 +84,7 @@ export default function Gameboard({ roomId }: Props) {
   const [oppSelectionModalVisible, setOppSelectionModalVisible] = useState<boolean>(false);
   const [chooseStarterModalVisible, setChooseStarterModalVisible] = useState<boolean>(false);
   const [allySelectionModalVisible, setAllySelectionModalVisible] = useState<boolean>(false);
+  const [swapHandsModalVisible, setSwapHandsModalVisible] = useState<boolean>(false);
 
   const doubleLiftModalVisible = useAppSelector(getDoubleLiftModalVisible);
 
@@ -429,7 +430,16 @@ export default function Gameboard({ roomId }: Props) {
     setSelectedOpp(undefined);
   }
 
+  function handleSwapHandsConfirm() {
+    socket.emit('swapHands', { ...socketData, player: playerNumber, target: selectedOpp, playedCard: playedCard });
+    handleSwapHandsModalClose();
+  }
 
+  function handleSwapHandsModalClose() {
+    setSwapHandsModalVisible(false);
+    setPlayedCard(undefined);
+    setSelectedOpp(undefined);
+  }
 
   useEffect(() => {
     displayPlayerCards(playerCards ?? []);
@@ -1069,6 +1079,41 @@ export default function Gameboard({ roomId }: Props) {
         <div className='flex flex-row gap-5 justify-center'>
           <Button className='red-button mt-5' onClick={() => { dispatch(setDoubleLiftModalVisible(false)); }}>
             Close
+          </Button>
+        </div>
+      </Modal>
+
+
+      {/* ----- swapHands Modal -----*/}
+      <Modal contentStyle={{ width: 'fit-content' }} open={swapHandsModalVisible} closeOnDocumentClick={false}>
+        <div className="px-12">Choose the player you want to swap hands with</div>
+
+        <div className='flex flex-col gap-5 justify-center items-center mt-3 mx-5'>
+          <Button className={(selectedOpp?.id == player1Data?.id ? 'blue-button' : 'white-button') + ' w-full justify-center'} onClick={() => setSelectedOpp(player1Data)}>
+            {player1Data.nickname}
+          </Button>
+
+          <Button className={(selectedOpp?.id == player2Data?.id ? 'blue-button' : 'white-button') + ' w-full justify-center'} onClick={() => setSelectedOpp(player2Data)}>
+            {player2Data.nickname}
+          </Button>
+
+          <Button className={(selectedOpp?.id == player3Data?.id ? 'blue-button' : 'white-button') + ' w-full justify-center'} onClick={() => setSelectedOpp(player3Data)}>
+            {player3Data.nickname}
+          </Button>
+
+          <Button className={(selectedOpp?.id == player4Data?.id ? 'blue-button' : 'white-button') + ' w-full justify-center'} onClick={() => setSelectedOpp(player4Data)}>
+            {player4Data.nickname}
+          </Button>
+
+        </div>
+
+        <div className='flex flex-row gap-5 justify-center'>
+          <Button disabled={!selectedOpp} className='green-button mt-5' onClick={() => { handleSwapHandsConfirm(); }}>
+            Confirm
+          </Button>
+
+          <Button className='red-button mt-5' onClick={() => { handleSwapHandsModalClose(); }}>
+            Cancel
           </Button>
         </div>
       </Modal>
