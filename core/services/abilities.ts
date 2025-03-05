@@ -18,7 +18,7 @@ export enum CardAbilities {
   // Hearts
   royalsDisabled,     // 2  TESTED - Broken, if flush they are not allowed to play the royal, check out trumpDisabled and see if similar issue is there
   hangSaver,          // 9  TESTED
-  twentyPoints,       // 10 TESTED
+  twentyPoints,       // 10 TESTED - Need to fix so that it doesnt work when abilities are disabled, do same thing for ninePoints
   pointsForSaved,     // J  TESTED
   abilitiesDisabled,  // Q  TESTED
   swapOppCard,        // K  TESTED

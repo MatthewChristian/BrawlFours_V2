@@ -132,6 +132,13 @@ export default function CardInfoTooltip({ card, active, offsetY }: Props) {
                 Twos Played: {formatTwosPlayed()}
               </div> : null
             }
+
+          {
+            card?.ability == CardAbilities.swapHands ?
+              <div className='text-xs text-gray-400 italic'>
+                If the chosen player has more cards, then one random card in their hand will not be swapped
+              </div> : null
+          }
           </div>
 
       </Tooltip>

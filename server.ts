@@ -59,6 +59,7 @@ io.on('connection', (socket) => {
   socket.on('swapOppCard', async (data) => await handleSwapOppCard(data, socket));
   socket.on('swapAllyCard', async (data) => await handleSwapAllyCard(data, socket));
   socket.on('chooseStarter', async (data) => await handleChooseStarter(data, socket));
+  socket.on('swapHands', async (data) => await handleSwapHands(data, socket));
 });
 
 function generateRoomId() {
@@ -1469,6 +1470,60 @@ async function handleChooseStarter(data: TargetPlayerInput, socket: Socket) {
     io.to(data.roomId).emit('playerStatus', roomUsers[data.roomId].playerStatus);
 
     // Finalize
+    await playCard({ ...data, card: data.playedCard }, socket);
+
+  }
+  else {
+    console.log(data.roomId + ': ' + 'Room doesnt exist');
+  }
+}
+
+async function handleSwapHands(data: TargetPlayerInput, socket: Socket) {
+  if (io.of('/').adapter.rooms.get(data.roomId)) {
+
+    let sameAmountOfCards = false;
+
+
+    const player = roomUsers[data.roomId].users.find((el) => el.player == data.player);
+
+    const selectedPlayer = roomUsers[data.roomId].users.find((el) => el.player == data.target.player);
+
+    // Remove played card from hand before swapping
+    const playedCardIndex = player.cards.findIndex(el => el.suit == data.playedCard.suit && el.value == data.playedCard.value);
+    const playerCards = [...player.cards].splice(playedCardIndex, 1);
+
+    // Check if player or target has any cards remaining to swap
+    if (!playerCards.length || !selectedPlayer.cards.length) {
+      return;
+    }
+
+    // Check if players have same amount of cards in hand
+    if (playerCards.length == selectedPlayer.cards.length) {
+      sameAmountOfCards = true;
+
+      const tempSelectedPlayerCards = [...selectedPlayer.cards];
+
+      player.cards = tempSelectedPlayerCards;
+      selectedPlayer.cards = playerCards;
+    }
+    else {
+
+    }
+
+
+    // Send system messages
+    sendSystemMessage({ io, message: `You swapped your hand with ${selectedPlayer.nickname}'s hand!`, roomId: player.socketId, showToast: true, colour: '#db2777' });
+
+    sendSystemMessage({ io, message: `You swapped your hand with ${player.nickname}'s hand!`, roomId: selectedPlayer.socketId, showToast: true, colour: '#db2777' });
+
+
+    // Finalize
+    orderCards(roomUsers[data.roomId].users);
+
+    determineIfCardsPlayable(roomUsers[data.roomId], player);
+
+    emitPlayerCardData(io, roomUsers[data.roomId]);
+
     await playCard({ ...data, card: data.playedCard }, socket);
 
   }
