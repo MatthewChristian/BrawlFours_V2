@@ -926,7 +926,8 @@ async function playCard(data: PlayCardInput, gameSocket: Socket) {
 
 
   // Emit data
-  gameSocket.emit('playerCards', roomUsers[data.roomId].users.find(el => el.id == data.localId).cards);
+  gameSocket.emit('playerCards', player.cards);
+  io.to(player.teammateSocketId).emit('teammateCards', player.cards);
   io.to(data.roomId).emit('lift', roomUsers[data.roomId].lift);
   io.to(data.roomId).emit('turn', roomUsers[data.roomId].turn);
   io.to(data.roomId).emit('activeAbilities', roomUsers[data.roomId].activeAbilities);
@@ -1481,16 +1482,15 @@ async function handleChooseStarter(data: TargetPlayerInput, socket: Socket) {
 async function handleSwapHands(data: TargetPlayerInput, socket: Socket) {
   if (io.of('/').adapter.rooms.get(data.roomId)) {
 
-    let sameAmountOfCards = false;
-
-
     const player = roomUsers[data.roomId].users.find((el) => el.player == data.player);
 
     const selectedPlayer = roomUsers[data.roomId].users.find((el) => el.player == data.target.player);
 
     // Remove played card from hand before swapping
     const playedCardIndex = player.cards.findIndex(el => el.suit == data.playedCard.suit && el.value == data.playedCard.value);
-    const playerCards = [...player.cards].splice(playedCardIndex, 1);
+    const playerCards = [...player.cards];
+
+    playerCards.splice(playedCardIndex, 1);
 
     // Check if player or target has any cards remaining to swap
     if (!playerCards.length || !selectedPlayer.cards.length) {
@@ -1499,16 +1499,13 @@ async function handleSwapHands(data: TargetPlayerInput, socket: Socket) {
 
     // Check if players have same amount of cards in hand
     if (playerCards.length == selectedPlayer.cards.length) {
-      sameAmountOfCards = true;
-
       const tempSelectedPlayerCards = [...selectedPlayer.cards];
 
-      player.cards = tempSelectedPlayerCards.concat([data.playedCard]);;
+      player.cards = tempSelectedPlayerCards.concat([data.playedCard]);
       selectedPlayer.cards = playerCards;
 
       // Send system messages to selected player
       sendSystemMessage({ io, message: `You swapped your hand with ${player.nickname}'s hand!`, roomId: selectedPlayer.socketId, showToast: true, colour: '#db2777' });
-
     }
     else {
       // Get random card from selected player's hand to not swap
@@ -1517,22 +1514,24 @@ async function handleSwapHands(data: TargetPlayerInput, socket: Socket) {
       const randomCard = selectedPlayer.cards[randomCardIndex];
 
       // Remove card from list of cards to be swapped
-      const tempSelectedPlayerCards = [...selectedPlayer.cards].splice(randomCardIndex, 1);
+      const tempSelectedPlayerCards = [...selectedPlayer.cards];
+
+      tempSelectedPlayerCards.splice(randomCardIndex, 1);
 
       player.cards = tempSelectedPlayerCards.concat([data.playedCard]);
       selectedPlayer.cards = playerCards.concat([randomCard]);
 
       // Send system messages to selected player
-      sendSystemMessage({ io, message: `You swapped your hand with ${player.nickname}'s hand and kept your ${getCardName(randomCard)}!`, roomId: selectedPlayer.socketId, showToast: true, colour: '#db2777' });
+      sendSystemMessage({ io, message: `You and ${player.nickname} swapped hands and you kept your ${getCardName(randomCard)}!`, roomId: selectedPlayer.socketId, showToast: true, colour: '#db2777' });
     }
 
     // Send system messages to player
-    sendSystemMessage({ io, message: `You swapped your hand with ${selectedPlayer.nickname}'s hand!`, roomId: player.socketId, showToast: true, colour: '#db2777' });
+    sendSystemMessage({ io, message: `You and ${selectedPlayer.nickname} swapped hands!`, roomId: player.socketId, showToast: true, colour: '#db2777' });
 
     // Send system messages to other players
     roomUsers[data.roomId].users.forEach(el => {
       if (!(el.id == player.id || el.id == selectedPlayer.id)) {
-        sendSystemMessage({ io, message: `${player.nickname} and ${selectedPlayer.nickname} swapped hands!`, roomId: player.socketId, colour: '#db2777' });
+        sendSystemMessage({ io, message: `${player.nickname} and ${selectedPlayer.nickname} swapped hands!`, roomId: el.socketId, colour: '#db2777' });
       }
     })
 
