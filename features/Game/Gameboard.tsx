@@ -318,9 +318,8 @@ export default function Gameboard({ roomId }: Props) {
 
     // Check if abilities/royals are disabled before applying/sending ability data to server
     const areAbilitiesDisabled = activeAbilities.includes(CardAbilities.abilitiesDisabled);
-    const areRoyalsDisabled = activeAbilities.includes(CardAbilities.royalsDisabled);
 
-    if (isCardRoyal(card) && areRoyalsDisabled) {
+    if (!card.playable) {
       return;
     }
 

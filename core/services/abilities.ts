@@ -9,14 +9,14 @@ export enum CardAbilities {
   // Spades
   alwaysPlayable,     // 2  TESTED
   ninePowerful,       // 9  TESTED
-  trumpDisabled,      // 10 TESTING IN PROGRESS- Need to test when trump played after trump was called
+  trumpDisabled,      // 10 TESTING IN PROGRESS - Need to test when trump played after trump was called, check if works properly when player is flush
   targetPowerless,    // J  TESTED
   noWinLift,          // Q  TESTED
   shuffleHand,        // K  TESTED - Need to implement animations
   oppReplay,          // A  TESTING IN PROGRESS - Make it so they cant replay card unless its their only card left, on Gameboard.tsx, make it so that play card function is called from server rather than from frontend
 
   // Hearts
-  royalsDisabled,     // 2  TESTED - Broken, if flush they are not allowed to play the royal, check out trumpDisabled and see if similar issue is there
+  royalsDisabled,     // 2  TESTED
   hangSaver,          // 9  TESTED
   twentyPoints,       // 10 TESTED - Need to fix so that it doesnt work when abilities are disabled, do same thing for ninePoints
   pointsForSaved,     // J  TESTED
@@ -28,7 +28,7 @@ export enum CardAbilities {
   forceStand,         // 2  TESTING IN PROGRESS- Need to test 9 of clubs
   ninePoints,         // 9  TESTED
   oppositePower,      // 10 TESTED
-  allyPlaysLast,      // J  TESTING IN PROGRESS - Need to test when played then oppReplay is played on it and then played again, Need to fix when ally was playing last anyway
+  allyPlaysLast,      // J  TESTED
   drawOne,            // Q  TESTED
   doublePoints,       // K  TESTED
   chooseStarter,      // A  TESTED

@@ -1387,15 +1387,13 @@ async function handleSwapOppCard(data: TargetPlayerInput, socket: Socket) {
 
 
     // Finalize
-    orderCards(roomUsers[data.roomId].users);
-
-    determineIfCardsPlayable(roomUsers[data.roomId], player);
-
-    emitPlayerCardData(io, roomUsers[data.roomId]);
-
     await playCard({ ...data, card: data.playedCard }, socket);
 
+    orderCards(roomUsers[data.roomId].users);
+
+    emitPlayerCardData(io, roomUsers[data.roomId]);
   }
+
   else {
     console.log(data.roomId + ': ' + 'Room doesnt exist');
   }
@@ -1430,14 +1428,11 @@ async function handleSwapAllyCard(data: SwapAllyCardInput, socket: Socket) {
 
 
     // Finalize
-    orderCards(roomUsers[data.roomId].users);
-
-    determineIfCardsPlayable(roomUsers[data.roomId], player);
-
-    emitPlayerCardData(io, roomUsers[data.roomId]);
-
     await playCard({ ...data, card: data.playedCard }, socket);
 
+    orderCards(roomUsers[data.roomId].users);
+
+    emitPlayerCardData(io, roomUsers[data.roomId]);
   }
   else {
     console.log(data.roomId + ': ' + 'Room doesnt exist');
@@ -1537,14 +1532,11 @@ async function handleSwapHands(data: TargetPlayerInput, socket: Socket) {
     })
 
     // Finalize
-    orderCards(roomUsers[data.roomId].users);
-
-    determineIfCardsPlayable(roomUsers[data.roomId], player);
-
-    emitPlayerCardData(io, roomUsers[data.roomId]);
-
     await playCard({ ...data, card: data.playedCard }, socket);
 
+    orderCards(roomUsers[data.roomId].users);
+
+    emitPlayerCardData(io, roomUsers[data.roomId]);
   }
   else {
     console.log(data.roomId + ': ' + 'Room doesnt exist');

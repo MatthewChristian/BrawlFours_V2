@@ -203,7 +203,15 @@ export function determineIfCardsPlayable(roomData: RoomSocket, player: PlayerSoc
       card.playable = false;
     }
     // If card is a royal but royals are disabled for that round and the player is not flush in the suit that was called
-    else if (roomData.activeAbilities?.includes(CardAbilities.royalsDisabled) && isCardRoyal(card) && (!flushRoyalsCalled || (flushRoyalsCalled && !flushRoyals && card.suit == trump) || (!flushRoyals && bare))) {
+    else if (
+      roomData.activeAbilities?.includes(CardAbilities.royalsDisabled)
+      && isCardRoyal(card)
+      && (
+        !flushRoyalsCalled
+        || (flushRoyalsCalled && !flushRoyals && card.trump && card.suit != roomData.called.suit)
+        || (!flushRoyals && bare)
+      )
+    ) {
       card.playable = false;
     }
     // If the player:
@@ -387,7 +395,7 @@ export function scoreLift(roomData: RoomSocket): ScoreLiftOutput {
 
   // Determine who won/hung Jack
   if (jackOwnerPlayer || roomData.doubleLiftJack) {
-    if ((highestHangerPlayer && highestHangerPlayer.team != jackOwnerPlayer.team) || (doubleLiftJackPlayer.team != liftWinnerPlayer.team)) { // Hang Jack
+    if ((highestHangerPlayer && highestHangerPlayer.team != jackOwnerPlayer.team) || (doubleLiftJackPlayer && doubleLiftJackPlayer.team != liftWinnerPlayer.team)) { // Hang Jack
 
       const jackOwnerTeammate = roomData.users.find(el => el.team == jackOwnerPlayer.team && el.player != jackOwnerPlayer.player);
 
