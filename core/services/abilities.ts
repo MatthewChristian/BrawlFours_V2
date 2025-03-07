@@ -40,7 +40,7 @@ export enum CardAbilities {
   nextCardTrump,      // J  TESTED
   swapAllyCard,       // Q  TESTED
   doubleLift,         // K  TESTED
-  swapHands,          // A
+  swapHands,          // A  TESTED
 
 }
 
@@ -110,8 +110,7 @@ export function mapAbility(value: string, suit: string) {
       return CardAbilities.oppositePower;
     }
     else if (value == 'J') {
-      // return CardAbilities.allyPlaysLast;
-      return undefined
+      return CardAbilities.allyPlaysLast;
     }
     else if (value == 'Q') {
       return CardAbilities.drawOne;
@@ -511,6 +510,12 @@ function allyPlaysLastAbility(args: AbilityInput) {
   if (!args.roomData.playerStatus[teammate.player]) {
     args.roomData.playerStatus[teammate.player] = { player: { ...teammate, cards: null }, status: [] };
   }
+
+  // Remove allyPlaysLast status from other players
+  args.roomData.playerStatus?.forEach((stat) => {
+    const removedPlayerStatuses = stat.status?.filter(el => el != CardAbilities.allyPlaysLast);
+    stat.status = removedPlayerStatuses;
+  })
 
   args.roomData.playerStatus[teammate.player].status.push(CardAbilities.allyPlaysLast);
 

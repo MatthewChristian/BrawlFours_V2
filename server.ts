@@ -961,8 +961,8 @@ async function playCard(data: PlayCardInput, gameSocket: Socket) {
       roomUsers[data.roomId].turn = roomUsers[data.roomId].turn + 1;
     }
 
-    // Handle allyPlaysLast ability
-    if (roomUsers[data.roomId].allyPlaysLastPlayer == roomUsers[data.roomId].turn) {
+    // Handle allyPlaysLast ability, ignore if lift has 3 cards ie player was playing last anyway
+    if (roomUsers[data.roomId].allyPlaysLastPlayer == roomUsers[data.roomId].turn && roomUsers[data.roomId].lift?.length < 3) {
       if (!roomUsers[data.roomId].pendingTurn) {
         roomUsers[data.roomId].pendingTurn = [];
       }
@@ -1009,6 +1009,7 @@ async function liftScoring(data: BasicRoomInput) {
 
   roomUsers[data.roomId].lift = undefined;
   roomUsers[data.roomId].called = undefined;
+  roomUsers[data.roomId].allyPlaysLastPlayer = undefined;
 
   // Set starter as lift winner or the target of the chooseStarter ability if it was active
   roomUsers[data.roomId].turn = roomUsers[data.roomId].chooseStarterPlayer ?? liftWinnerPlayer.player;
