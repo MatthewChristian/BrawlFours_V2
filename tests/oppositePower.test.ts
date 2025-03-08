@@ -10,7 +10,14 @@ import { CardAbilities } from "../core/services/abilities";
 function getCard(value: string, suit: string) {
   const deck = [...testDeck];
 
-  return deck.find(el => el.suit == suit && el.value == value);
+  const card = deck.find(el => el.suit == suit && el.value == value);
+
+  if (card.suit == 'h') {
+    return { ...card, trump: true }
+  }
+  else {
+    return card;
+  }
 }
 
 describe('Opposite Power', () => {

@@ -6,11 +6,20 @@ import { testCard, testDeck } from "./testCard";
 import { ScoreLiftOutput } from "../models/ScoreLiftOutput";
 import { LiftCard } from "../models/LiftCard";
 import { CardAbilities } from "../core/services/abilities";
+import { DeckCard } from "../models/DeckCard";
 
-function getCard(value: string, suit: string) {
+function getCard(value: string, suit: string): DeckCard {
   const deck = [...testDeck];
 
-  return deck.find(el => el.suit == suit && el.value == value);
+  const card = deck.find(el => el.suit == suit && el.value == value);
+
+  if (card.suit == 'h') {
+    return { ...card, trump: true}
+  }
+  else {
+    return card;
+  }
+
 }
 
 describe('Score Lift', () => {

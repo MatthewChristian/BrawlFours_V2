@@ -191,7 +191,7 @@ describe('Are Cards Playable', () => {
 
     player.cards = cards;
 
-    const tempRoomData: RoomSocket = { ...roomData, lift: [{ ...testCard, value: 'X', suit: 'h', power: 10 }] };
+    const tempRoomData: RoomSocket = { ...roomData, lift: [{ ...testCard, value: 'X', suit: 'h', trump: true, power: 10 }] };
     const tempPlayer: PlayerSocket = { cards: cards };
 
     determineIfCardsPlayable(tempRoomData, tempPlayer);

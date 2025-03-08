@@ -224,7 +224,7 @@ export function determineIfCardsPlayable(roomData: RoomSocket, player: PlayerSoc
       card.playable = false;
     }
     // If the player attempted to undertrump, end function and do not add card to lift
-    else if (roomData.called && (card.trump && undertrumped == true) && roomData.called.suit != trump && !bare) {
+    else if (roomData.called && (card.trump && undertrumped == true) && !roomData.called.trump && !bare) {
       card.playable = false;
     }
     else {
