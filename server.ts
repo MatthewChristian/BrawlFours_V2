@@ -1299,6 +1299,10 @@ function handleTargetPowerless(data: PlayCardInput) {
 
     liftCardData.power = 0;
     liftCardData.points = 0;
+
+    if (liftCardData.abilityPoints) {
+      liftCardData.abilityPoints = 0;
+    }
   }
   else {
     console.log(data.roomId + ': ' + 'Room doesnt exist');

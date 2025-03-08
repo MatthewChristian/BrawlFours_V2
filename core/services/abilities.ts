@@ -9,7 +9,7 @@ export enum CardAbilities {
   // Spades
   alwaysPlayable,     // 2  TESTED
   ninePowerful,       // 9  TESTED
-  trumpDisabled,      // 10 TESTING IN PROGRESS - Need to test when trump played after trump was called, check if works properly when player is flush
+  trumpDisabled,      // 10 TESTED
   targetPowerless,    // J  TESTED
   noWinLift,          // Q  TESTED
   shuffleHand,        // K  TESTED - Need to implement animations

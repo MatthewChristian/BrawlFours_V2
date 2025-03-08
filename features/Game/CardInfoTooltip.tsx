@@ -45,6 +45,15 @@ export default function CardInfoTooltip({ card, active, offsetY }: Props) {
     return getAbilityData(card?.ability)?.description;
   }, [card]);
 
+  const cardPoints = useMemo(() => {
+    if (card?.abilityPoints && !isDisabled) {
+      return card.abilityPoints;
+    }
+    else {
+      return card?.points;
+    }
+  }, [card, isDisabled]);
+
   const cardPower = useMemo(() => {
     if (!card?.power) {
       return 0;
@@ -101,9 +110,9 @@ export default function CardInfoTooltip({ card, active, offsetY }: Props) {
 
           <div className='flex flex-row gap-1 items-center'>
             <div className='w-5 flex justify-center'>
-              <div className={`rounded-full h-3 w-3 border-2 ${card.points == 0 ? 'border-red-700 bg-red-500' : 'border-amber-600 bg-amber-500'} `}></div>
+              <div className={`rounded-full h-3 w-3 border-2 ${cardPoints == 0 ? 'border-red-700 bg-red-500' : 'border-amber-600 bg-amber-500'} `}></div>
             </div>
-            <div className={`${card.points == 0 ? 'text-red-500' : 'text-amber-500'} relative top-[2px]`}>{card.points} {card.points == 1 ? 'Point' : 'Points'}</div>
+            <div className={`${cardPoints == 0 ? 'text-red-500' : 'text-amber-500'} relative top-[2px]`}>{cardPoints} {cardPoints == 1 ? 'Point' : 'Points'}</div>
           </div>
 
           {abilityDescription ?

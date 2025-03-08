@@ -83,9 +83,10 @@ export function initialiseDeck() {
         suit: suits[i],
         value: values[j],
         power: power[j],
-        points: ability == CardAbilities.twentyPoints ? 20
+        points: points[j],
+        abilityPoints: ability == CardAbilities.twentyPoints ? 20
           : ability == CardAbilities.ninePoints ? 9
-          : points[j],
+            : undefined,
         playable: false,
         ability: ability,
         isRandom: getIsRandom(values[j], suits[i]),
@@ -275,8 +276,10 @@ export function scoreLift(roomData: RoomSocket): ScoreLiftOutput {
   let jackPower = roomData.activeAbilities.includes(CardAbilities.oppositePower) ? 105 : 111;
   let lift: LiftCard[] = [...roomData.lift];
 
+  const abilitiesDisabled = roomData.activeAbilities.includes(CardAbilities.abilitiesDisabled);
+
   // If doubleLift ability is active and everybody's hand is not empty, then don't score lift and instead store the lift cards in variable
-  if (roomData.activeAbilities.includes(CardAbilities.doubleLift) && roomData.users[0].cards.length > 0 && (!roomData.activeAbilities.includes(CardAbilities.abilitiesDisabled))) {
+  if (roomData.activeAbilities.includes(CardAbilities.doubleLift) && roomData.users[0].cards.length > 0 && (!abilitiesDisabled)) {
     const formattedLift: LiftCard[] = [];
 
     roomData.lift.forEach((el) => {
@@ -365,7 +368,7 @@ export function scoreLift(roomData: RoomSocket): ScoreLiftOutput {
     }
 
     // Tally lift points
-    liftPoints = liftPoints + el.points;
+    liftPoints = liftPoints + (!abilitiesDisabled && el.abilityPoints ? el.abilityPoints : el.points);
 
   });
 
