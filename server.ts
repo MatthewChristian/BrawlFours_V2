@@ -474,6 +474,26 @@ function deal(player: PlayerSocket, deck: DeckCard[]) {
   const tempPlayer: PlayerSocket = { ...player };
   const tempDeck: DeckCard[] = [ ...deck ];
 
+  /*********FOR WHEN YOU WANT TO START A PLAYER WITH A SPECIFIC CARD*************/
+  // if (!tempPlayer.cards) {
+  //   tempPlayer.cards = [];
+  // }
+
+  // if (tempPlayer.player == 2) {
+  //   const card = tempDeck.find(el => el.suit == 'h' && el.value == 'A');
+  //   if (card){
+  //     tempPlayer.cards.push(card);
+  //   }
+
+  // }
+  // else if (tempPlayer.player == 1) {
+  //   const card = tempDeck.find(el => el.suit == 's' && el.value == 'A');
+  //   if (card) {
+  //     tempPlayer.cards.push(card);
+  //   }
+  // }
+  /**********************/
+
   for (let i = 0; i < 3; i++) {
     card = tempDeck.pop();
 
@@ -941,12 +961,13 @@ async function playCard(data: PlayCardInput, gameSocket: Socket) {
     await liftScoring(data);
   }
   else {
+
     // Increment player turn
-    if (roomUsers[data.roomId].pendingTurn && roomUsers[data.roomId].pendingTurn.length > 0) {
+    if (roomUsers[data.roomId].pendingTurn && roomUsers[data.roomId].pendingTurn.length > 0 && !roomUsers[data.roomId].tempPendingTurn) {
       // Check if there is a player's turn pending (caused by card ability which allows an opponent to take back and replay a card)
       roomUsers[data.roomId].turn = roomUsers[data.roomId].pendingTurn.shift();
-    }
-    else if (roomUsers[data.roomId].tempPendingTurn) {
+    } else
+    if (roomUsers[data.roomId].tempPendingTurn) {
       // Check if there is a player's turn pending (caused by card ability which allows an ally to take back and replay a card)
       if (!roomUsers[data.roomId].pendingTurn) {
         roomUsers[data.roomId].pendingTurn = [];

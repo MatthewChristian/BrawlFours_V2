@@ -273,7 +273,7 @@ export default function Gameboard({ roomId }: Props) {
     let forceStand = false;
 
     player1Cards.forEach(el => {
-      if (el.ability == CardAbilities.forceStand) {
+      if (el?.ability == CardAbilities.forceStand) {
         forceStand = true;
         return;
       }
