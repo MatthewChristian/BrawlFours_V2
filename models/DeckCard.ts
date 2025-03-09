@@ -10,4 +10,5 @@ export interface DeckCard {
   ability?: CardAbilities;
   isRandom: boolean;
   trump: boolean;
+  disabled?: boolean;
 }

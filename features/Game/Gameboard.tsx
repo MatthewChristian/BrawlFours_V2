@@ -381,13 +381,12 @@ export default function Gameboard({ roomId }: Props) {
   function handleLiftCardClick(card: DeckCard) {
 
     if (isTargettingLift) {
-      socket.emit('targetPowerless', { ...socketData, card: card, player: playerNumber });
+      socket.emit('targetPowerless', { ...socketData, card: card, player: playerNumber, playedCard: playedCard });
     }
     else if (isTargettingOppLift) {
-      socket.emit('oppReplay', { ...socketData, card: card, player: playerNumber });
+      socket.emit('oppReplay', { ...socketData, card: card, player: playerNumber, playedCard: playedCard });
     }
 
-    socket.emit('playCard', { ...socketData, card: playedCard, player: playerNumber });
   }
 
   function handleSelectCard(card: DeckCard) {

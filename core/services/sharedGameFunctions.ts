@@ -135,7 +135,6 @@ export function determineIfCardsPlayable(roomData: RoomSocket, player: PlayerSoc
   let flush = true;
   let flushRoyalsCalled = true;
   let flushRoyals = true;
-  const trump = roomData.trump;
   let nextCardTrumpActive = false;
   let status: PlayerStatus;
 
@@ -151,7 +150,6 @@ export function determineIfCardsPlayable(roomData: RoomSocket, player: PlayerSoc
   player.cards.forEach((el) => {
 
     // Determine which cards are trump
-
     // If nextCardTrump ability is active for player
     if (nextCardTrumpActive) {
       el.trump = true;
@@ -172,22 +170,25 @@ export function determineIfCardsPlayable(roomData: RoomSocket, player: PlayerSoc
       el.trump = false;
     }
 
-    // Determine if a player does not have a card in the suit of the card that was called
-    if (roomData.called && (el.suit == roomData.called.suit)) {
-      bare = false;
-    }
 
-    // Determine if player is flush (only has trump in hand)
-    if (!el.trump) {
-      flush = false;
-    }
-
-    // Determine if a player only has royals in the suit that called
-    if (!isCardRoyal(el)) {
-      flushRoyals = false;
-
+    if (!el.disabled) {
+      // Determine if a player does not have a card in the suit of the card that was called
       if (roomData.called && (el.suit == roomData.called.suit)) {
-        flushRoyalsCalled = false;
+        bare = false;
+      }
+
+      // Determine if player is flush (only has trump in hand)
+      if (!el.trump) {
+        flush = false;
+      }
+
+      // Determine if a player only has royals in the suit that called
+      if (!isCardRoyal(el)) {
+        flushRoyals = false;
+
+        if (roomData.called && (el.suit == roomData.called.suit)) {
+          flushRoyalsCalled = false;
+        }
       }
     }
   });
@@ -195,8 +196,13 @@ export function determineIfCardsPlayable(roomData: RoomSocket, player: PlayerSoc
   player.cards.forEach((card) => {
     const undertrumped = didUndertrump(roomData, card);
 
+    // If card was removed from lift because of oppReplay
+    if (card.disabled) {
+      card.playable = false;
+      card.disabled = false;
+    }
     // If the card has an ability that allows them to be played (and abilities are not disabled)
-    if (card.ability == CardAbilities.alwaysPlayable && !roomData.activeAbilities?.includes(CardAbilities.abilitiesDisabled)) {
+    else if (card.ability == CardAbilities.alwaysPlayable && !roomData.activeAbilities?.includes(CardAbilities.abilitiesDisabled)) {
       card.playable = true;
     }
     // If card is trump but trump is disabled for that round and the player is not flush and trump was not called

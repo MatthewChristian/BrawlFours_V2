@@ -19,6 +19,7 @@ import { getCardName } from './core/services/parseCard';
 import { determineIfCardsPlayable, emitPlayerCardData, initialiseDeck, orderCards, scoreLift, sendSystemMessage, shuffleDeck } from './core/services/sharedGameFunctions';
 import { TargetPlayerInput } from './models/TargetPlayerInput';
 import { SwapAllyCardInput } from './models/SwapAllyCardInput';
+import { TargetLiftInput } from './models/TargetLiftInput';
 
 const app = express();
 const server = createServer(app);
@@ -54,8 +55,8 @@ io.on('connection', (socket) => {
   socket.on('redeal', (data) => initialiseGameCards(data));
   socket.on('playCard', async (data) => await playCard(data, socket));
   socket.on('chat', (data) => handleChatMessage(data));
-  socket.on('targetPowerless', (data) => handleTargetPowerless(data));
-  socket.on('oppReplay', (data) => handleOppReplay(data));
+  socket.on('targetPowerless', async (data) => await handleTargetPowerless(data, socket));
+  socket.on('oppReplay', async (data) => await handleOppReplay(data, socket));
   socket.on('swapOppCard', async (data) => await handleSwapOppCard(data, socket));
   socket.on('swapAllyCard', async (data) => await handleSwapAllyCard(data, socket));
   socket.on('chooseStarter', async (data) => await handleChooseStarter(data, socket));
@@ -1287,7 +1288,7 @@ function announceWinner(roomId: string, winByKick?: boolean) {
   });
 }
 
-function handleTargetPowerless(data: PlayCardInput) {
+async function handleTargetPowerless(data: TargetLiftInput, socket: Socket) {
   if (io.of('/').adapter.rooms.get(data.roomId)) {
 
     // Not player's turn yet
@@ -1303,13 +1304,16 @@ function handleTargetPowerless(data: PlayCardInput) {
     if (liftCardData.abilityPoints) {
       liftCardData.abilityPoints = 0;
     }
+
+    await playCard({ ...data, card: data.playedCard }, socket);
+
   }
   else {
     console.log(data.roomId + ': ' + 'Room doesnt exist');
   }
 }
 
-function handleOppReplay(data: PlayCardInput) {
+async function handleOppReplay(data: TargetLiftInput, socket: Socket) {
   if (io.of('/').adapter.rooms.get(data.roomId)) {
 
     // Not player's turn yet
@@ -1346,9 +1350,17 @@ function handleOppReplay(data: PlayCardInput) {
     // Add card back to player's hand
     const liftCardPlayerObj = roomUsers[data.roomId].users.find(el => el.player == liftCardPlayer);
 
-    liftCardPlayerObj.cards.push({ ...liftCard });
+    const isPlayerHandEmpty = liftCardPlayerObj.cards.length ? false : true;
+
+    liftCardPlayerObj.cards.push({ ...liftCard, disabled: isPlayerHandEmpty ? false : true });
+
+    await playCard({ ...data, card: data.playedCard }, socket);
 
     orderCards(roomUsers[data.roomId].users);
+
+    emitPlayerCardData(io, roomUsers[data.roomId]);
+
+    io.to(liftCardPlayerObj.socketId).emit('playerCards', liftCardPlayerObj.cards);
 
   }
   else {

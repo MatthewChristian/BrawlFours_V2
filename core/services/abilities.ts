@@ -13,7 +13,7 @@ export enum CardAbilities {
   targetPowerless,    // J  TESTED
   noWinLift,          // Q  TESTED
   shuffleHand,        // K  TESTED - Need to implement animations
-  oppReplay,          // A  TESTING IN PROGRESS - Make it so they cant replay card unless its their only card left, on Gameboard.tsx, make it so that play card function is called from server rather than from frontend
+  oppReplay,          // A  TESTED
 
   // Hearts
   royalsDisabled,     // 2  TESTED
