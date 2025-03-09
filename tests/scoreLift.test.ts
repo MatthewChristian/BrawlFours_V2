@@ -432,4 +432,85 @@ describe('Score Lift', () => {
     expect(tempRoomData.game).toEqual([0, 6]);
   });
 
+  test('ninePoints in lift', () => {
+    const lift: LiftCard[] = [
+      { ...getCard('3', 'd'), player: 1 },
+      { ...getCard('5', 'd'), player: 2 },
+      { ...getCard('9', 'd'), player: 3 },
+      { ...getCard('4', 'd'), player: 4 },
+    ]
+
+    const tempRoomData: RoomSocket = { ...roomData, lift: lift };
+
+    const resp = scoreLift(tempRoomData);
+
+    const expectedResp: ScoreLiftOutput = {
+      liftWinnerPlayer: player3
+    }
+
+    expect(resp).toMatchObject(expectedResp as any);
+    expect(tempRoomData.game).toEqual([9, 0]);
+  });
+
+  test('ninePoints in lift, abilities disabled', () => {
+    const lift: LiftCard[] = [
+      { ...getCard('3', 'd'), player: 1 },
+      { ...getCard('5', 'd'), player: 2 },
+      { ...getCard('9', 'd'), player: 3 },
+      { ...getCard('4', 'd'), player: 4 },
+    ]
+
+    const tempRoomData: RoomSocket = { ...roomData, lift: lift, activeAbilities: [CardAbilities.abilitiesDisabled] };
+
+    const resp = scoreLift(tempRoomData);
+
+    const expectedResp: ScoreLiftOutput = {
+      liftWinnerPlayer: player3
+    }
+
+    expect(resp).toMatchObject(expectedResp as any);
+    expect(tempRoomData.game).toEqual([0, 0]);
+  });
+
+
+  test('twentyPoints in lift', () => {
+    const lift: LiftCard[] = [
+      { ...getCard('3', 'd'), player: 1 },
+      { ...getCard('5', 'd'), player: 2 },
+      { ...getCard('X', 'h'), player: 3 },
+      { ...getCard('4', 'd'), player: 4 },
+    ]
+
+    const tempRoomData: RoomSocket = { ...roomData, lift: lift };
+
+    const resp = scoreLift(tempRoomData);
+
+    const expectedResp: ScoreLiftOutput = {
+      liftWinnerPlayer: player3
+    }
+
+    expect(resp).toMatchObject(expectedResp as any);
+    expect(tempRoomData.game).toEqual([20, 0]);
+  });
+
+  test('twentyPoints in lift, abilities disabled', () => {
+    const lift: LiftCard[] = [
+      { ...getCard('3', 'd'), player: 1 },
+      { ...getCard('5', 'd'), player: 2 },
+      { ...getCard('X', 'h'), player: 3 },
+      { ...getCard('4', 'd'), player: 4 },
+    ]
+
+    const tempRoomData: RoomSocket = { ...roomData, lift: lift, activeAbilities: [CardAbilities.abilitiesDisabled] };
+
+    const resp = scoreLift(tempRoomData);
+
+    const expectedResp: ScoreLiftOutput = {
+      liftWinnerPlayer: player3
+    }
+
+    expect(resp).toMatchObject(expectedResp as any);
+    expect(tempRoomData.game).toEqual([10, 0]);
+  });
+
 });

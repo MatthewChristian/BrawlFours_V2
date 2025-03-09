@@ -18,7 +18,7 @@ export enum CardAbilities {
   // Hearts
   royalsDisabled,     // 2  TESTED
   hangSaver,          // 9  TESTED
-  twentyPoints,       // 10 TESTED - Need to fix so that it doesnt work when abilities are disabled, do same thing for ninePoints
+  twentyPoints,       // 10 TESTED
   pointsForSaved,     // J  TESTED
   abilitiesDisabled,  // Q  TESTED
   swapOppCard,        // K  TESTED
