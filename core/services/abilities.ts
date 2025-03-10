@@ -36,7 +36,7 @@ export enum CardAbilities {
   // Clubs
   twoWinGame,         // 2  TESTED
   randomAbility,      // 9
-  revealedBare,       // 10 TESTING IN PROGRESS - Need to test cases: Undertrump, trumpDisabled, abilitiesDisabled, oppositePower
+  revealedBare,       // 10 TESTED
   nextCardTrump,      // J  TESTED
   swapAllyCard,       // Q  TESTED
   doubleLift,         // K  TESTED

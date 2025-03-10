@@ -1,9 +1,17 @@
+@import url('https://fonts.googleapis.com/css?family=Epilogue');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+
 *:focus {
   outline: none;
+}
+
+body {
+  background-color: #f7f7f7 !important;
+  font-family: 'Epilogue' !important;
 }
 
 /***** BUTTONS *****/

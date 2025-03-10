@@ -136,6 +136,7 @@ export default function Lobby() {
                 className='w-full'
                 onChange={handleNickChange}
                 defaultValue={nickname}
+                maxLength={15}
               />
               {showNickWarning ? (
                 <div className="text-red-500 mt-1">Must enter a nickname first!</div>
@@ -159,6 +160,7 @@ export default function Lobby() {
                   <Input
                     inputRef={joinRoomRef}
                     placeholder=""
+                    maxLength={5}
                   />
 
                   { errorMsg ?

@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import { socket } from '../SocketClient';
 import { ChoosePartnerInput } from '../../models/ChoosePartnerInput';
 import { BasicRoomInput } from '../../models/BasicRoomInput';
+import { IoExit, IoCheckmark, IoCopyOutline } from "react-icons/io5";
 
 interface Props {
   roomId?: string;
@@ -91,6 +92,11 @@ export default function Room({ roomId }: Props) {
         <p className="text-5xl font-semibold mt-2">{roomId}</p>
       </div>
 
+      <div className='text-sky-500 hover:text-sky-400 cursor-pointer flex flex-row gap-2 items-center py-2'>
+        <IoCopyOutline size={22} />
+        Copy URL
+      </div>
+
       <div className="mt-3">
         <div className='text-sm text-gray-500'>Players waiting in Lobby</div>
         <div className='flex flex-col rounded-lg border border-gray-400'>
@@ -99,7 +105,7 @@ export default function Room({ roomId }: Props) {
               <div key={i} className={`text-center ${i == players.length - 1 ? '' : 'border-b border-gray-400'}`}>
                 <div className='flex flex-row items-center justify-start pt-1'>
                   { i == 0 ?
-                    <div className='px-2 w-3 relative' style={{ bottom: 2 }}>
+                    <div className='left-2 w-3 relative' style={{ bottom: 2 }}>
                       <FaCrown color='#facc15'/>
                     </div>
                     : <div className='w-3'></div>
@@ -114,12 +120,12 @@ export default function Room({ roomId }: Props) {
 
       <div className='flex flex-row gap-5 mt-5'>
         { players?.length > 0 && socketData.localId == players[0].id ?
-          <Button className='green-button' disabled={players.length < 4} onClick={() => setChooseModalOpen(true)}>
+          <Button className='green-button' disabled={players.length < 4} onClick={() => setChooseModalOpen(true)} icon={<IoCheckmark size={22} />}>
             Start Game
           </Button> : undefined
         }
 
-        <Button className='red-button' onClick={leaveRoom}>
+        <Button className='red-button' onClick={leaveRoom} icon={<IoExit size={22} />}>
           Leave Room
         </Button>
       </div>
