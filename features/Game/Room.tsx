@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Button from '../../core/components/Button';
 import { FaCrown } from 'react-icons/fa';
 import { IoDice, IoEnter } from 'react-icons/io5';
@@ -9,11 +9,12 @@ import { useRouter } from 'next/navigation';
 import { socket } from '../SocketClient';
 import { ChoosePartnerInput } from '../../models/ChoosePartnerInput';
 import { BasicRoomInput } from '../../models/BasicRoomInput';
-import { IoExit, IoCheckmark, IoCopyOutline } from "react-icons/io5";
+import { IoExit, IoCheckmark, IoCopyOutline, IoLink } from "react-icons/io5";
 import RoundWinnersModal from './Modals/RoundWinnersModal';
 import MatchWinnersModal from './Modals/MatchWinnersModal';
 import { JoinRoomInput } from '../../models/JoinRoomInput';
 import Input from '../../core/components/Input';
+import { Tooltip } from 'react-tooltip';
 
 interface Props {
   roomId?: string;
@@ -41,6 +42,7 @@ export default function Room({ roomId }: Props) {
   const errorMsg = useAppSelector(getErrorMsg);
 
   const [urlCopied, setUrlCopied] = useState<boolean>(false);
+  const [codeCopied, setCodeCopied] = useState<boolean>(false);
 
   const players = useAppSelector(getPlayerList);
   const gameStarted = useAppSelector(getGameStarted);
@@ -142,6 +144,18 @@ export default function Room({ roomId }: Props) {
     }, 2000);
   }
 
+  async function copyCode() {
+
+    navigator.clipboard.writeText(roomId);
+    if (codeCopied) {
+      return;
+    }
+    setCodeCopied(true);
+    setTimeout(() => {
+      setCodeCopied(false);
+    }, 2000);
+  }
+
   useEffect(() => {
 
     if (players && players[0] && players[0].team && gameStarted && !matchWinner) {
@@ -178,13 +192,18 @@ export default function Room({ roomId }: Props) {
       <div className='bg-white rounded-lg border border-gray-400 p-10'>
         <div className='text-3xl mb-5 text-center'>Brawl Fours</div>
           <div className="flex flex-col justify-center items-center">
+
             <div className="">Share this code with your friends:</div>
-            <div className="">
+
+            <div className='flex flex-row items-center gap-2'>
               <p className="text-5xl font-semibold mt-2">{roomId}</p>
+              <button className='text-sky-500 hover:text-sky-400 cursor-pointer copy-icon' onClick={copyCode}>
+                <IoCopyOutline size={32} />
+              </button>
             </div>
 
             <button className='text-sky-500 hover:text-sky-400 cursor-pointer flex flex-row gap-2 items-center py-1' onClick={copyUrl}>
-              <IoCopyOutline size={22} />
+              <IoLink size={22} />
               {
                 urlCopied ?
                   <div>Link Copied!</div> :
@@ -277,6 +296,16 @@ export default function Room({ roomId }: Props) {
               </div>
             </Popup>
 
+            <Tooltip
+              anchorSelect={`.copy-icon`}
+              place="top"
+              noArrow
+              isOpen={codeCopied}
+              className='copy-tooltip'
+              opacity={1}
+            >
+              <div>Room Code Copied!</div>
+            </Tooltip>
         </div>
       </div>
     </div>

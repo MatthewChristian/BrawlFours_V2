@@ -138,6 +138,11 @@ body {
   background: rgba(0, 0, 0, 0.5);
 }
 
+.copy-tooltip {
+  background: #0ea5e9 !important;
+  border-radius: 20px !important;
+}
+
 .top-modal-content {
   bottom: 40% !important;
 }
