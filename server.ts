@@ -143,10 +143,13 @@ function joinRoom(data: JoinRoomInput, gameSocket: Socket) {
           // Update teammateSocketId variables
           const team = roomUsers[data.roomId].users[userIndex].team;
 
-          const teammate = roomUsers[data.roomId].users.find(el => el.team == team && el.id != data.localId);
+          const teammate = roomUsers[data.roomId].users.find(el => el.team && el.team == team && el.id != data.localId);
 
-          roomUsers[data.roomId].users[userIndex].teammateSocketId = teammate.socketId;
-          teammate.teammateSocketId = gameSocket.id;
+          if (teammate) {
+            roomUsers[data.roomId].users[userIndex].teammateSocketId = teammate.socketId;
+            teammate.teammateSocketId = gameSocket.id;
+          }
+
         }
       }
       else {
@@ -227,7 +230,7 @@ function leaveRoom(data: BasicRoomInput, gameSocket: Socket) {
   if (io.of('/').adapter.rooms.get(data.roomId)) {
     gameSocket.leave(data.roomId);
 
-    const index = roomUsers[data.roomId]?.users.findIndex((el) => el.id == gameSocket.id);
+    const index = roomUsers[data.roomId]?.users.findIndex((el) => el.socketId == gameSocket.id);
 
     if (index >= 0) {
       roomUsers[data.roomId].users.splice(index, 1);

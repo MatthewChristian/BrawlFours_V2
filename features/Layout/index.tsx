@@ -33,11 +33,13 @@ export default function Layout({ children }: Props) {
 
     socket?.on('newRoomCreated', data => {
       dispatch(setRoomId(String(data.room_id)));
+      router.push(`/room?roomId=${String(data.room_id)}`);
     });
 
     socket?.on('playerJoinedRoom', data => {
       if (data.success) {
         dispatch(setRoomId(String(data.room_id)));
+        router.push(`/room?roomId=${String(data.room_id)}`);
         dispatch(setJoinModalOpen(false));
         dispatch(setErrorMsg(undefined));
         dispatch(setPlayerJoinedRoom(true));
@@ -55,6 +57,7 @@ export default function Layout({ children }: Props) {
     socket?.on('playerLeftRoom', data => {
       dispatch(setPlayerJoinedRoom(false));
       dispatch(setRoomId(undefined));
+      router.push('/');
     });
 
     socket.on('deck', (deck) => {

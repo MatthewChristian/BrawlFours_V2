@@ -18,7 +18,9 @@ export default function Button({ children, onClick, className, iconClassName, di
             {icon}
           </div> : undefined
       }
-      {children}
+      <div className='relative top-[2px]'>
+        {children}
+      </div>
     </button>
   );
 }

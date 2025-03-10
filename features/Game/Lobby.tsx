@@ -1,16 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
-import Room from './Room';
 import Button from '../../core/components/Button';
 import Input from '../../core/components/Input';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { getErrorMsg, getJoinModalOpen, getMatchWinner, getPlayerList, getRoomId, getRoundWinners, setJoinModalOpen, setRoomId } from '../../slices/game.slice';
-import MatchWinnersModal from './Modals/MatchWinnersModal';
-import RoundWinnersModal from './Modals/RoundWinnersModal';
+import { getErrorMsg, getJoinModalOpen, getRoomId, setJoinModalOpen } from '../../slices/game.slice';
 import { socket } from '../SocketClient';
 import { CreateRoomInput } from '../../models/CreateRoomInput';
 import { JoinRoomInput } from '../../models/JoinRoomInput';
+import { IoAdd, IoEnter } from "react-icons/io5";
 
 export default function Lobby() {
 
@@ -22,9 +20,6 @@ export default function Lobby() {
   // Store room ID of game that player created
   const [showNickWarning, setShowNickWarning] = useState(false);
 
-  const [matchWinnerModalVisible, setMatchWinnerModalVisible] = useState<boolean>(false);
-  const [roundWinnersModalVisible, setRoundWinnersModalVisible] = useState<boolean>(false);
-
   // React ref to access text field values
   const joinRoomRef = useRef<HTMLInputElement>(null);
 
@@ -33,11 +28,7 @@ export default function Lobby() {
   const errorMsg = useAppSelector(getErrorMsg);
   const joinModalOpen = useAppSelector(getJoinModalOpen);
 
-  const matchWinner = useAppSelector(getMatchWinner);
 
-  const players = useAppSelector(getPlayerList);
-
-  const roundWinners = useAppSelector(getRoundWinners);
 
   const closeJoinModal = () => dispatch(setJoinModalOpen(false));
 
@@ -70,6 +61,8 @@ export default function Lobby() {
       localId = socket.id
     }
 
+    localStorage.setItem("nickname", String(nickname));
+
     const data: CreateRoomInput = {
       nickname: String(nickname),
       localId: localId
@@ -88,6 +81,8 @@ export default function Lobby() {
       localId = socket.id
     }
 
+    localStorage.setItem("nickname", String(nickname));
+
     const roomIdVal = joinRoomRef?.current?.value;
     const data: JoinRoomInput = {
       roomId: String(roomIdVal),
@@ -96,9 +91,7 @@ export default function Lobby() {
     };
 
     socket.emit('joinRoom', data);
-    // setInRoom(true);
-    // setCreatedRoomId(String(roomIdVal));
-    // setJoinOpen(false);
+
   }
 
   function handleNickChange(val: string) {
@@ -113,22 +106,17 @@ export default function Lobby() {
   }
 
   useEffect(() => {
-    if (!matchWinner) {
-      return;
-    }
+    // Get nickname stored in local storage, otherwise set it
+    let localNick = typeof window !== 'undefined' ? localStorage.getItem("nickname") ?? undefined : undefined;
 
-    setMatchWinnerModalVisible(true);
-
-  }, [matchWinner]);
-
+    setNickname(localNick);
+  }, []);
 
   return (
     <div className='bg-slate-200 h-screen flex flex-col justify-center items-center'>
       <div className='bg-white rounded-lg border border-gray-400 p-10'>
         <div className='text-3xl mb-5 text-center'>Brawl Fours</div>
-        {roomId ? (
-          <Room roomId={roomId}></Room>
-        ) : (
+
           <div className="">
             <div className="">
               <Input
@@ -145,12 +133,12 @@ export default function Lobby() {
               }
 
               <div className='flex flex-row gap-5 mt-5'>
-                <Button className='blue-button' onClick={() => joinRoomPressed()}>
-                Join Room
+                <Button className='blue-button' onClick={() => joinRoomPressed()} icon={<IoEnter size={22} />}>
+                  Join Room
                 </Button>
 
-                <Button className="green-button" onClick={() => createRoomPressed()}>
-                Create Room
+                <Button className="green-button" onClick={() => createRoomPressed()} icon={<IoAdd size={22} />}>
+                  Create Room
                 </Button>
               </div>
 
@@ -161,6 +149,7 @@ export default function Lobby() {
                     inputRef={joinRoomRef}
                     placeholder=""
                     maxLength={5}
+                    className='text-center'
                   />
 
                   { errorMsg ?
@@ -170,7 +159,7 @@ export default function Lobby() {
                     : undefined
                   }
 
-                  <Button className='blue-button mt-5' onClick={() => joinRoom()}>
+                  <Button className='blue-button mt-5' onClick={() => joinRoom()} icon={<IoEnter size={22} />}>
                     Join Room
                   </Button>
                 </div>
@@ -179,12 +168,10 @@ export default function Lobby() {
             </div>
 
           </div>
-        )}
+
       </div>
 
-      <RoundWinnersModal isVisible={roundWinnersModalVisible} setIsVisible={setRoundWinnersModalVisible} players={players} roundWinners={roundWinners} />
 
-      <MatchWinnersModal isVisible={matchWinnerModalVisible} setIsVisible={setMatchWinnerModalVisible} matchWinners={matchWinner} />
     </div>
   );
 }
