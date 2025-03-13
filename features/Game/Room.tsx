@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Button from '../../core/components/Button';
-import { FaCrown } from 'react-icons/fa';
+import { FaCrown, FaPencilAlt, FaRegTimesCircle } from 'react-icons/fa';
 import { IoDice, IoEnter } from 'react-icons/io5';
 import Popup from 'reactjs-popup';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
@@ -224,7 +224,18 @@ export default function Room({ roomId }: Props) {
                           </div>
                           : <div className='w-3'></div>
                         }
-                        <div className='mx-5'>{el.nickname}</div>
+                        <div className='flex flex-row justify-between items-center w-full'>
+                          <div className={`mx-5 ${el?.id == socketData?.localId ? 'font-bold' : ''}`}>{el.nickname}</div>
+                          {el?.id == socketData?.localId ?
+                            <div className='right-3 w-3 relative text-blue-500 hover:text-blue-400' style={{ bottom: 2 }}>
+                              <FaPencilAlt className='cursor-pointer' onClick={() => dispatch(setJoinModalOpen(true))} />
+                            </div>
+                            : players && players[0]?.id == socketData?.localId ?
+                            <div className='right-3 w-3 relative text-red-500 hover:text-red-400' style={{ bottom: 2 }}>
+                              <FaRegTimesCircle className='cursor-pointer' onClick={() => dispatch(setJoinModalOpen(true))} />
+                            </div> :<div className='w-3'></div>
+                          }
+                        </div>
                       </div>
                     </div>
                   )
