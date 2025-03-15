@@ -60,6 +60,16 @@ export default function Layout({ children }: Props) {
       router.push('/');
     });
 
+    socket?.on('playerKicked', data => {
+      dispatch(setPlayerJoinedRoom(false));
+      dispatch(setRoomId(undefined));
+      router.push('/');
+      toast('You have been kicked from the room!', {
+        type: 'error',
+        hideProgressBar: true
+      });
+    });
+
     socket.on('deck', (deck) => {
       dispatch(setDeck(deck));
     });

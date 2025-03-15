@@ -20,6 +20,7 @@ import { determineIfCardsPlayable, emitPlayerCardData, initialiseDeck, orderCard
 import { TargetPlayerInput } from './models/TargetPlayerInput';
 import { SwapAllyCardInput } from './models/SwapAllyCardInput';
 import { TargetLiftInput } from './models/TargetLiftInput';
+import { KickPlayerInput } from './models/KickPlayerInput';
 
 const app = express();
 const server = createServer(app);
@@ -48,6 +49,7 @@ io.on('connection', (socket) => {
   socket.on('createRoom', (data) => createRoom(data, socket));
   socket.on('joinRoom', (data) => joinRoom(data, socket));
   socket.on('leaveRoom', (data) => leaveRoom(data, socket));
+  socket.on('kickPlayer', (data) => kickPlayer(data, socket));
   socket.on('setTeams', (data) => setTeams(data));
   socket.on('initialiseGame', (data) => initialiseGame(data));
   socket.on('playerCards', (data) => playerCards(data, socket));
@@ -139,6 +141,11 @@ function joinRoom(data: JoinRoomInput, gameSocket: Socket) {
         else { // Otherwise update their data in the room
           roomUsers[data.roomId].users[userIndex].id = data.localId;
           roomUsers[data.roomId].users[userIndex].socketId = gameSocket.id;
+
+          if (data.nickname) {
+            roomUsers[data.roomId].users[userIndex].nickname = data.nickname;
+          }
+
 
           // Update teammateSocketId variables
           const team = roomUsers[data.roomId].users[userIndex].team;
@@ -238,6 +245,26 @@ function leaveRoom(data: BasicRoomInput, gameSocket: Socket) {
 
     io.to(data.roomId).emit('playersInRoom', roomUsers[data.roomId].users);
     gameSocket.emit('playerLeftRoom', true);
+  }
+}
+
+function kickPlayer(data: KickPlayerInput, gameSocket: Socket) {
+  // If the room exists...
+  if (io.of('/').adapter.rooms.get(data.roomId)) {
+
+    io.in(data.kickedPlayerSocketId).socketsLeave(data.roomId);
+
+    const index = roomUsers[data.roomId]?.users.findIndex((el) => el.socketId == data.kickedPlayerSocketId);
+
+    if (index >= 0) {
+      roomUsers[data.roomId].users.splice(index, 1);
+    }
+
+    io.to(data.roomId).emit('playersInRoom', roomUsers[data.roomId].users);
+    io.to(data.kickedPlayerSocketId).emit('playerKicked', true);
+
+    const message = data.kickedPlayerNickname + ' has been kicked!';
+    sendSystemMessage({ io, message, roomId: data.roomId, colour: '#991b1b' });
   }
 }
 

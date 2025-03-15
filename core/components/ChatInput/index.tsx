@@ -11,9 +11,10 @@ interface Props {
   defaultValue?: string;
   onSend?: () => void;
   charLimit?: number;
+  hideTeam?: boolean;
 }
 
-export default function ChatInput({ inputRef, className, placeholder, onChange, defaultValue, onSend, charLimit }: Props) {
+export default function ChatInput({ inputRef, className, placeholder, onChange, defaultValue, onSend, charLimit, hideTeam }: Props) {
 
   const dispatch = useAppDispatch();
 
@@ -49,7 +50,10 @@ export default function ChatInput({ inputRef, className, placeholder, onChange, 
     <div>
       <div className='rounded-lg bg-white border border-black flex flex-row justify-between items-center shadow-md'>
 
-      { chatMode == 'all' ?
+      {
+        hideTeam ? undefined
+        :
+        chatMode == 'all' ?
         <div
           className={`bg-red-500 hover:bg-red-400 ${toggleClassName}`}
           style={{ borderTopLeftRadius: 7, borderBottomLeftRadius: 7 }}
@@ -70,7 +74,7 @@ export default function ChatInput({ inputRef, className, placeholder, onChange, 
 
         <input
           type="text"
-          className={`${className} p-2`}
+          className={`${className} px-2`}
           ref={inputRef}
           placeholder={placeholder ?? 'Enter input...'}
           onChange={(val) => handleOnChange(val.target.value)}

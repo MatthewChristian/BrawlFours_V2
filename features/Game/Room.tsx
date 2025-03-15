@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Button from '../../core/components/Button';
 import { FaCrown, FaPencilAlt, FaRegTimesCircle } from 'react-icons/fa';
-import { IoDice, IoEnter } from 'react-icons/io5';
+import { IoDice, IoEnter, IoPencil } from 'react-icons/io5';
 import Popup from 'reactjs-popup';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { getErrorMsg, getGameStarted, getJoinModalOpen, getMatchWinner, getPlayerList, getRoundWinners, setJoinModalOpen } from '../../slices/game.slice';
@@ -15,6 +15,10 @@ import MatchWinnersModal from './Modals/MatchWinnersModal';
 import { JoinRoomInput } from '../../models/JoinRoomInput';
 import Input from '../../core/components/Input';
 import { Tooltip } from 'react-tooltip';
+import { PlayerSocket } from '../../models/PlayerSocket';
+import { KickPlayerInput } from '../../models/KickPlayerInput';
+import Chatbox from './Chatbox';
+import Popconfirm from '../../core/components/Popconfirm';
 
 interface Props {
   roomId?: string;
@@ -29,10 +33,9 @@ export default function Room({ roomId }: Props) {
 
   const [matchWinnerModalVisible, setMatchWinnerModalVisible] = useState<boolean>(false);
   const [roundWinnersModalVisible, setRoundWinnersModalVisible] = useState<boolean>(false);
+  const [isChangingNickname, setIsChangingNickname] = useState<boolean>(false);
 
   const joinModalOpen = useAppSelector(getJoinModalOpen);
-
-  const closeJoinModal = () => dispatch(setJoinModalOpen(false));
 
   // Store room ID of game that player created
   const [showNickWarning, setShowNickWarning] = useState(false);
@@ -131,6 +134,26 @@ export default function Room({ roomId }: Props) {
     }
   }
 
+  function changeName() {
+    setIsChangingNickname(true);
+    dispatch(setJoinModalOpen(true));
+  }
+
+  function kickPlayer(player: PlayerSocket) {
+    const data: KickPlayerInput = {
+      ...socketData,
+      kickedPlayerSocketId: player.socketId,
+      kickedPlayerNickname: player.nickname
+    };
+
+    socket.emit('kickPlayer', data);
+  }
+
+  function closeJoinModal() {
+    setIsChangingNickname(false);
+    dispatch(setJoinModalOpen(false));
+  }
+
   async function copyUrl() {
 
     navigator.clipboard.writeText(window.location.href);
@@ -188,135 +211,155 @@ export default function Room({ roomId }: Props) {
 
 
   return (
-    <div className='bg-slate-200 h-screen flex flex-col justify-center items-center'>
-      <div className='bg-white rounded-lg border border-gray-400 p-10'>
-        <div className='text-3xl mb-5 text-center'>Brawl Fours</div>
-          <div className="flex flex-col justify-center items-center">
+    <div className='h-screen w-screen bg-slate-300'>
 
-            <div className="">Share this code with your friends:</div>
+      <div className='flex flex-row'>
 
-            <div className='flex flex-row items-center gap-2'>
-              <p className="text-5xl font-semibold mt-2">{roomId}</p>
-              <button className='text-sky-500 hover:text-sky-400 cursor-pointer copy-icon' onClick={copyCode}>
-                <IoCopyOutline size={32} />
-              </button>
-            </div>
+        <div className='h-screen absolute flex items-center left-2'>
+          <Chatbox socketData={socketData} className='h-[98%]' hideTeam />
+        </div>
 
-            <button className='text-sky-500 hover:text-sky-400 cursor-pointer flex flex-row gap-2 items-center py-1' onClick={copyUrl}>
-              <IoLink size={22} />
-              {
-                urlCopied ?
-                  <div>Link Copied!</div> :
-                  <div>Copy Link</div>
-              }
-            </button>
+        <div className="h-screen w-screen flex flex-col items-center justify-center">
 
-            <div className="mt-3">
-              <div className='text-sm text-gray-500'>Players waiting in Lobby</div>
-              <div className='flex flex-col rounded-lg border border-gray-400'>
+        <div className='bg-white rounded-lg border border-gray-400 p-10'>
+          <div className='text-3xl mb-5 text-center'>Brawl Fours</div>
+            <div className="flex flex-col justify-center items-center">
+
+              <div className="">Share this code with your friends:</div>
+
+              <div className='flex flex-row items-center gap-2'>
+                <p className="text-5xl font-semibold mt-2">{roomId}</p>
+                <button className='text-sky-500 hover:text-sky-400 cursor-pointer copy-icon' onClick={copyCode}>
+                  <IoCopyOutline size={32} />
+                </button>
+              </div>
+
+              <button className='text-sky-500 hover:text-sky-400 cursor-pointer flex flex-row gap-2 items-center py-1' onClick={copyUrl}>
+                <IoLink size={22} />
                 {
-                  players?.map((el, i) =>
-                    <div key={i} className={`text-center ${i == players.length - 1 ? '' : 'border-b border-gray-400'}`}>
-                      <div className='flex flex-row items-center justify-start pt-1'>
-                        { i == 0 ?
-                          <div className='left-2 w-3 relative' style={{ bottom: 2 }}>
-                            <FaCrown color='#facc15'/>
-                          </div>
-                          : <div className='w-3'></div>
-                        }
-                        <div className='flex flex-row justify-between items-center w-full'>
-                          <div className={`mx-5 ${el?.id == socketData?.localId ? 'font-bold' : ''}`}>{el.nickname}</div>
-                          {el?.id == socketData?.localId ?
-                            <div className='right-3 w-3 relative text-blue-500 hover:text-blue-400' style={{ bottom: 2 }}>
-                              <FaPencilAlt className='cursor-pointer' onClick={() => dispatch(setJoinModalOpen(true))} />
+                  urlCopied ?
+                    <div>Link Copied!</div> :
+                    <div>Copy Link</div>
+                }
+              </button>
+
+              <div className="mt-3">
+                <div className='text-sm text-gray-500'>Players waiting in Lobby</div>
+                <div className='flex flex-col rounded-lg border border-gray-400'>
+                  {
+                    players?.map((el, i) =>
+                      <div key={i} className={`text-center ${i == players.length - 1 ? '' : 'border-b border-gray-400'}`}>
+                        <div className='flex flex-row items-center justify-start pt-1'>
+                          { i == 0 ?
+                            <div className='left-2 w-3 relative' style={{ bottom: 2 }}>
+                              <FaCrown color='#facc15'/>
                             </div>
-                            : players && players[0]?.id == socketData?.localId ?
-                            <div className='right-3 w-3 relative text-red-500 hover:text-red-400' style={{ bottom: 2 }}>
-                              <FaRegTimesCircle className='cursor-pointer' onClick={() => dispatch(setJoinModalOpen(true))} />
-                            </div> :<div className='w-3'></div>
+                            : <div className='w-3'></div>
                           }
+                          <div className='flex flex-row justify-between items-center w-full'>
+                            <div className={`mx-5 ${el?.id == socketData?.localId ? 'font-bold' : ''}`}>{el.nickname}</div>
+                            {el?.id == socketData?.localId ?
+                              <div className='right-3 w-3 relative text-blue-500 hover:text-blue-400' style={{ bottom: 2 }}>
+                                <FaPencilAlt className='cursor-pointer' onClick={changeName} />
+                              </div>
+                              : players && players[0]?.id == socketData?.localId ?
+                                <Popconfirm shortcode={`kick-${i}`} message='Are you sure you want to kick this player?' onConfirm={() => kickPlayer(el)}>
+                                  <button className={`right-3 w-3 relative text-red-500 hover:text-red-400 kick-${i}`} style={{ top: 2 }}>
+                                    <FaRegTimesCircle className='cursor-pointer' />
+                                  </button>
+                              </Popconfirm> :<div className='w-3'></div>
+                            }
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )
-                }
-              </div>
-            </div>
-
-            <div className='flex flex-row gap-5 mt-5'>
-              { players?.length > 0 && socketData.localId == players[0].id ?
-                <Button className='green-button' disabled={players.length < 4} onClick={() => setChooseModalOpen(true)} icon={<IoCheckmark size={22} />}>
-                  Start Game
-                </Button> : undefined
-              }
-
-              <Button className='red-button' onClick={leaveRoom} icon={<IoExit size={22} />}>
-                Leave Room
-              </Button>
-            </div>
-
-
-            <Popup contentStyle={{ left: '0%', width: '25em' }} open={chooseModalOpen} closeOnDocumentClick onClose={() => setChooseModalOpen(false)}>
-              <div className="flex flex-col justify-center items-center mx-5">
-                <div className="">Choose your partner</div>
-                <div className='w-full'>
-                  {
-                    players?.map((el, i) => i != 0 ? <div key={'partner_' + i}>
-                      <Button className='white-button mt-5 w-full text-center' onClick={() => el.id ? choosePartner(el.id) : undefined}>
-                        {el.nickname}
-                      </Button>
-                    </div> : undefined
-                    )}
+                    )
+                  }
                 </div>
+              </div>
 
-                <Button className='blue-button mt-5' icon={<IoDice size={24} />} onClick={() => randomPartner()}>
-                  Randomise Teams
+              <div className='flex flex-row gap-5 mt-5'>
+                { players?.length > 0 && socketData.localId == players[0].id ?
+                  <Button className='green-button' disabled={players.length < 4} onClick={() => setChooseModalOpen(true)} icon={<IoCheckmark size={22} />}>
+                    Start Game
+                  </Button> : undefined
+                }
+
+                <Button className='red-button' onClick={leaveRoom} icon={<IoExit size={22} />}>
+                  Leave Room
                 </Button>
               </div>
-            </Popup>
 
-            <RoundWinnersModal isVisible={roundWinnersModalVisible} setIsVisible={setRoundWinnersModalVisible} players={players} roundWinners={roundWinners} />
 
-            <MatchWinnersModal isVisible={matchWinnerModalVisible} setIsVisible={setMatchWinnerModalVisible} matchWinners={matchWinner} />
+              <Popup contentStyle={{ left: '0%', width: '25em' }} open={chooseModalOpen} closeOnDocumentClick onClose={() => setChooseModalOpen(false)}>
+                <div className="flex flex-col justify-center items-center mx-5">
+                  <div className="">Choose your partner</div>
+                  <div className='w-full'>
+                    {
+                      players?.map((el, i) => i != 0 ? <div key={'partner_' + i}>
+                        <Button className='white-button mt-5 w-full text-center' onClick={() => el.id ? choosePartner(el.id) : undefined}>
+                          {el.nickname}
+                        </Button>
+                      </div> : undefined
+                      )}
+                  </div>
 
-            <Popup contentStyle={{ left: '0%', width: '25em'}} open={joinModalOpen} closeOnDocumentClick onClose={closeJoinModal}>
-              <div className="flex flex-col justify-center items-center">
-                <div className="">Enter nickname:</div>
-                  <Input
-                    placeholder="Enter nickname..."
-                    onChange={handleNickChange}
-                    defaultValue={nickname}
-                    maxLength={15}
-                  />
-                  {showNickWarning ? (
-                    <div className="text-red-500 mt-1">Must enter a nickname first!</div>
-                  ) :
-                    (null)
-                  }
+                  <Button className='blue-button mt-5' icon={<IoDice size={24} />} onClick={() => randomPartner()}>
+                    Randomise Teams
+                  </Button>
+                </div>
+              </Popup>
 
-                  { errorMsg ?
-                    <div className='mt-5 text-red-500'>
-                      {errorMsg}
-                    </div>
-                    : undefined
-                  }
+              <RoundWinnersModal isVisible={roundWinnersModalVisible} setIsVisible={setRoundWinnersModalVisible} players={players} roundWinners={roundWinners} />
 
-                <Button className='blue-button mt-5' onClick={() => joinRoom()} icon={<IoEnter size={22} />}>
-                  Join Room
-                </Button>
-              </div>
-            </Popup>
+              <MatchWinnersModal isVisible={matchWinnerModalVisible} setIsVisible={setMatchWinnerModalVisible} matchWinners={matchWinner} />
 
-            <Tooltip
-              anchorSelect={`.copy-icon`}
-              place="top"
-              noArrow
-              isOpen={codeCopied}
-              className='copy-tooltip'
-              opacity={1}
-            >
-              <div>Room Code Copied!</div>
-            </Tooltip>
+              <Popup contentStyle={{ left: '0%', width: '25em'}} open={joinModalOpen} closeOnDocumentClick onClose={closeJoinModal}>
+                <div className="flex flex-col justify-center items-center">
+                  <div className="">Enter nickname:</div>
+                    <Input
+                      placeholder="Enter nickname..."
+                      onChange={handleNickChange}
+                      defaultValue={nickname}
+                      maxLength={15}
+                    />
+                    {showNickWarning ? (
+                      <div className="text-red-500 mt-1">Must enter a nickname first!</div>
+                    ) :
+                      (null)
+                    }
+
+                    { errorMsg ?
+                      <div className='mt-5 text-red-500'>
+                        {errorMsg}
+                      </div>
+                      : undefined
+                    }
+
+                    { isChangingNickname ?
+                      <Button className='blue-button mt-5' onClick={() => joinRoom()} icon={<IoPencil size={22} />}>
+                        Change Name
+                      </Button>
+                    :
+                      <Button className='blue-button mt-5' onClick={() => joinRoom()} icon={<IoEnter size={22} />}>
+                        Join Room
+                      </Button>
+                    }
+                </div>
+              </Popup>
+
+              <Tooltip
+                anchorSelect={`.copy-icon`}
+                place="top"
+                noArrow
+                isOpen={codeCopied}
+                className='copy-tooltip'
+                opacity={1}
+              >
+                <div>Room Code Copied!</div>
+              </Tooltip>
+
+            </div>
+          </div>
         </div>
       </div>
     </div>

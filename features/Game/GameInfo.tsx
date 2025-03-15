@@ -65,7 +65,7 @@ export default function GameInfo({ playerTeam, socketData } : Props) {
         </div>
       </div>
 
-      <Chatbox socketData={socketData} />
+      <Chatbox socketData={socketData} className='h-[68vh]'/>
 
     </div>
   );

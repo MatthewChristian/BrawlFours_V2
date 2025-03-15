@@ -7,9 +7,11 @@ import ChatInput from '../../core/components/ChatInput';
 
 interface Props {
   socketData?: BasicRoomInput;
+  className?: string
+  hideTeam?: boolean;
 }
 
-export default function Chatbox({ socketData }: Props) {
+export default function Chatbox({ socketData, className, hideTeam }: Props) {
 
   const chatInputRef = useRef<HTMLInputElement>(null);
   const chatBoxRef = useRef<HTMLInputElement>(null);
@@ -40,10 +42,10 @@ export default function Chatbox({ socketData }: Props) {
   }, [chatMessages]);
 
   return (
-    <div className='h-[68vh] flex flex-col justify-between w-full bg-white rounded-lg px-2 pt-2 shadow'>
+    <div className={`flex flex-col justify-between w-full bg-white rounded-lg px-2 pt-2 shadow ${className}`}>
       <div ref={chatBoxRef} className='flex flex-col gap-2 h-[58vh] w-full overflow-y-scroll pr-1'>
         {chatMessages?.map(msg => <div className='flex-none text-balance whitespace-normal break-words'>
-          { msg.mode && msg.mode != 'log' ?
+          { msg.mode && msg.mode != 'log' && !hideTeam ?
             <span className='mr-1' style={{ color: msg.modeColour }}>
               {
                 "[" + msg.mode?.toUpperCase() + "]"
@@ -70,6 +72,7 @@ export default function Chatbox({ socketData }: Props) {
           className='w-full'
           onSend={handleChatSend}
           charLimit={50}
+          hideTeam={hideTeam}
         />
 
       </div>

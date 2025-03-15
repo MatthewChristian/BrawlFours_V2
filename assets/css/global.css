@@ -143,6 +143,12 @@ body {
   border-radius: 20px !important;
 }
 
+.popconfirm-tooltip {
+  background: #f3f4f6 !important;
+  border-radius: 20px !important;
+  color: black !important;
+}
+
 .top-modal-content {
   bottom: 40% !important;
 }
