@@ -25,10 +25,10 @@ import NoWinLiftIcon from './StatusIcons/NoWinLiftIcon';
 import OppositePowerIcon from './StatusIcons/OppositePowerIcon';
 import RoyalsDisabledIcon from './StatusIcons/RoyalsDisabledIcon';
 import TrumpDisabledIcon from './StatusIcons/TrumpDisabledIcon';
-import { isCardRoyal } from '../../core/services/sharedGameFunctions';
 import PlayerStatusIcons from './PlayerStatusIcons';
 import { IoMdEye, IoMdSwap } from "react-icons/io";
 import DoubleLift2Icon from './StatusIcons/DoubleLift2Icon';
+import LoadingIcon from './LoadingIcon';
 
 
 interface Props {
@@ -68,6 +68,8 @@ export default function Gameboard({ roomId }: Props) {
   const playerStatus = useAppSelector(getPlayerStatus);
 
   const doubleLiftCards = useAppSelector(getDoubleLiftCards);
+
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   // Cards in the hand of the client player
   const playerCards = useAppSelector(getPlayerCards);
@@ -601,6 +603,10 @@ export default function Gameboard({ roomId }: Props) {
     if (matchWinner) {
       router.push(`/?roomId=${String(roomId)}`);
     }
+
+    if (roomId) {
+      setIsLoading(false);
+    }
   }, [matchWinner, roomId]);
 
   return (
@@ -611,6 +617,13 @@ export default function Gameboard({ roomId }: Props) {
         <GameInfo playerTeam={player1Data.team} socketData={socketData} />
 
         <div className="h-screen w-4/5">
+        {
+          isLoading ?
+          <div className='w-full h-full flex justify-center items-center'>
+            <LoadingIcon />
+          </div>
+          :
+        <>
 
           {/* ------------------------ Player 3 Info  ------------------------*/}
           <div className='h-[25vh] flex flex-col justify-between'>
@@ -644,6 +657,7 @@ export default function Gameboard({ roomId }: Props) {
                       spotlighted={allySelectionModalVisible}
                       glow={allySelectionModalVisible ? 'blue' : undefined}
                       onClickHandler={() => player3Cards.length == 0 ? undefined : allySelectionModalVisible ? handleSelectAllyCard(player3Cards[k]) : undefined}
+                      flipped={isTeammateCardsVisible}
                     />
                     );
                   })
@@ -852,8 +866,11 @@ export default function Gameboard({ roomId }: Props) {
             </div>
           </div>
           {/* -----------------------------------------------------------------*/}
-
+        </>
+        }
         </div>
+
+
       </div>
 
 
