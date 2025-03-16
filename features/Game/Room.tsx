@@ -19,6 +19,7 @@ import { PlayerSocket } from '../../models/PlayerSocket';
 import { KickPlayerInput } from '../../models/KickPlayerInput';
 import Chatbox from './Chatbox';
 import Popconfirm from '../../core/components/Popconfirm';
+import LoadingIcon from './LoadingIcon';
 
 interface Props {
   roomId?: string;
@@ -245,36 +246,40 @@ export default function Room({ roomId }: Props) {
 
               <div className="mt-3">
                 <div className='text-sm text-gray-500'>Players waiting in Lobby</div>
-                <div className='flex flex-col rounded-lg border border-gray-400'>
-                  {
-                    players?.map((el, i) =>
-                      <div key={i} className={`text-center ${i == players.length - 1 ? '' : 'border-b border-gray-400'}`}>
-                        <div className='flex flex-row items-center justify-start pt-1'>
-                          { i == 0 ?
-                            <div className='left-2 w-3 relative' style={{ bottom: 2 }}>
-                              <FaCrown color='#facc15'/>
-                            </div>
-                            : <div className='w-3'></div>
-                          }
-                          <div className='flex flex-row justify-between items-center w-full'>
-                            <div className={`mx-5 ${el?.id == socketData?.localId ? 'font-bold' : ''}`}>{el.nickname}</div>
-                            {el?.id == socketData?.localId ?
-                              <div className='right-3 w-3 relative text-blue-500 hover:text-blue-400' style={{ bottom: 2 }}>
-                                <FaPencilAlt className='cursor-pointer' onClick={changeName} />
+                { !players || players.length == 0 ?
+                  <LoadingIcon />
+                :
+                  <div className='flex flex-col rounded-lg border border-gray-400'>
+                    {
+                      players?.map((el, i) =>
+                        <div key={i} className={`text-center ${i == players.length - 1 ? '' : 'border-b border-gray-400'}`}>
+                          <div className='flex flex-row items-center justify-start pt-1'>
+                            { i == 0 ?
+                              <div className='left-2 w-3 relative' style={{ bottom: 2 }}>
+                                <FaCrown color='#facc15'/>
                               </div>
-                              : players && players[0]?.id == socketData?.localId ?
-                                <Popconfirm shortcode={`kick-${i}`} message='Are you sure you want to kick this player?' onConfirm={() => kickPlayer(el)}>
-                                  <button className={`right-3 w-3 relative text-red-500 hover:text-red-400 kick-${i}`} style={{ top: 2 }}>
-                                    <FaRegTimesCircle className='cursor-pointer' />
-                                  </button>
-                              </Popconfirm> :<div className='w-3'></div>
+                              : <div className='w-3'></div>
                             }
+                            <div className='flex flex-row justify-between items-center w-full'>
+                              <div className={`mx-5 ${el?.id == socketData?.localId ? 'font-bold' : ''}`}>{el.nickname}</div>
+                              {el?.id == socketData?.localId ?
+                                <div className='right-3 w-3 relative text-blue-500 hover:text-blue-400' style={{ bottom: 2 }}>
+                                  <FaPencilAlt className='cursor-pointer' onClick={changeName} />
+                                </div>
+                                : players && players[0]?.id == socketData?.localId ?
+                                  <Popconfirm shortcode={`kick-${i}`} message='Are you sure you want to kick this player?' onConfirm={() => kickPlayer(el)}>
+                                    <button className={`right-3 w-3 relative text-red-500 hover:text-red-400 kick-${i}`} style={{ top: 2 }}>
+                                      <FaRegTimesCircle className='cursor-pointer' />
+                                    </button>
+                                </Popconfirm> :<div className='w-3'></div>
+                              }
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    )
-                  }
-                </div>
+                      )
+                    }
+                  </div>
+                }
               </div>
 
               <div className='flex flex-row gap-5 mt-5'>

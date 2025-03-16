@@ -152,3 +152,45 @@ body {
 .top-modal-content {
   bottom: 40% !important;
 }
+
+
+/***** LOADING *****/
+
+.loading-icon {
+  font-size: 2rem;
+  animation: loader 2s infinite;
+}
+
+@keyframes animate {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(720deg);
+  }
+}
+
+@keyframes loader {
+  0% {
+    rotate: 0deg;
+  }
+
+  25% {
+    rotate: y 90deg;
+    scale: 0.5;
+  }
+
+  50% {
+    rotate: 180deg;
+  }
+
+  75% {
+    rotate: x 270deg;
+    border-radius: 50%;
+  }
+
+  100% {
+    rotate: 360deg;
+  }
+}
