@@ -2,7 +2,7 @@ import { Server } from "socket.io";
 import { PlayerSocket } from "../../models/PlayerSocket";
 import { DeckCard } from "../../models/DeckCard";
 import { RoomSocket } from "../../models/RoomSocket";
-import { CardAbilities, getIsRandom, mapAbility } from "./abilities";
+import { CardAbilities, getIsRandom, mapAbility, pointsForSavedPointsEarned } from "./abilities";
 import { ScoreLiftOutput } from "../../models/ScoreLiftOutput";
 import { ChatMessage } from "../../models/ChatMessage";
 import { SendSystemMessageInput } from "../../models/SendSystemMessageInput";
@@ -415,6 +415,7 @@ export function scoreLift(roomData: RoomSocket): ScoreLiftOutput {
         roomData.jackSaved = true;
         roomData.jackWinner = jackOwnerTeammate;
         highestHangerPlayer = jackOwnerTeammate;
+
       }
       else {
         roomData.jackWinner = roomData.doubleLiftJack ? liftWinnerPlayer : highestHangerPlayer;
@@ -440,10 +441,10 @@ export function scoreLift(roomData: RoomSocket): ScoreLiftOutput {
         (roomData.doubleLiftJack && teamsWhoCouldveWonLift[1] && teamsWhoCouldveWonLift[2]) // If jack of trump was in pending lift from doubleLift, check if opposing team couldve won the lift at some point and thus couldve hung jack but was stopped
       )) {
         if (jackOwnerPlayer.team == 1) {
-          roomData.game[0] = roomData.game[0] + 10;
+          roomData.game[0] = roomData.game[0] + pointsForSavedPointsEarned;
         }
         else if (jackOwnerPlayer.team == 2) {
-          roomData.game[1] = roomData.game[1] + 10;
+          roomData.game[1] = roomData.game[1] + pointsForSavedPointsEarned;
         }
 
       }

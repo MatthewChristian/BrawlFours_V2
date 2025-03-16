@@ -4,42 +4,43 @@ import { DeckCard } from "../../models/DeckCard";
 import { determineIfCardsPlayable, emitPlayerCardData, orderCards, sendSystemMessage, shuffleDeck } from "./sharedGameFunctions";
 
 export const hangSaverPointsEarned = 3;
+export const pointsForSavedPointsEarned = 10;
 
 export enum CardAbilities {
   // Spades
   alwaysPlayable,     // 2  TESTED
   ninePowerful,       // 9  TESTED
-  trumpDisabled,      // 10 TESTED
-  targetPowerless,    // J  TESTED
-  noWinLift,          // Q  TESTED
-  shuffleHand,        // K  TESTED - Need to implement animations
-  oppReplay,          // A  TESTED
+  trumpDisabled,      // 10 TESTEDq
+  targetPowerless,    // J  TESTEDq
+  noWinLift,          // Q  TESTEDq
+  shuffleHand,        // K  TESTEDq - Need to implement animations
+  oppReplay,          // A  TESTEDq
 
   // Hearts
-  royalsDisabled,     // 2  TESTED
+  royalsDisabled,     // 2  TESTEDq
   hangSaver,          // 9  TESTED
   twentyPoints,       // 10 TESTED
   pointsForSaved,     // J  TESTED
-  abilitiesDisabled,  // Q  TESTED
-  swapOppCard,        // K  TESTED
-  allyReplay,         // A  TESTED
+  abilitiesDisabled,  // Q  TESTEDq
+  swapOppCard,        // K  TESTEDq
+  allyReplay,         // A  TESTEDq
 
   // Dimes
   forceStand,         // 2  TESTING IN PROGRESS- Need to test 9 of clubs
   ninePoints,         // 9  TESTED
-  oppositePower,      // 10 TESTED
-  allyPlaysLast,      // J  TESTED
+  oppositePower,      // 10 TESTEDq
+  allyPlaysLast,      // J  TESTEDq
   drawOne,            // Q  TESTED
-  doublePoints,       // K  TESTED
+  doublePoints,       // K  TESTEDq
   chooseStarter,      // A  TESTED
 
   // Clubs
-  twoWinGame,         // 2  TESTED
+  twoWinGame,         // 2  TESTEDq
   randomAbility,      // 9
   revealedBare,       // 10 TESTED
-  nextCardTrump,      // J  TESTED
-  swapAllyCard,       // Q  TESTED
-  doubleLift,         // K  TESTED
+  nextCardTrump,      // J  TESTEDq
+  swapAllyCard,       // Q  TESTEDq
+  doubleLift,         // K  TESTEDq
   swapHands,          // A  TESTED
 
 }
@@ -223,7 +224,7 @@ const abilityData: Partial<AbilityData> = {
     ability: (args: AbilityInput) => twentyPointsAbility(args),
   },
   [CardAbilities.pointsForSaved]: {
-    description: 'If saved from hanging, get 10 points for game',
+    description: `If saved from hanging, get ${pointsForSavedPointsEarned} points for game`,
     ability: (args: AbilityInput) => pointsForSavedAbility(args),
   },
   [CardAbilities.abilitiesDisabled]: {
@@ -330,6 +331,12 @@ function ninePowerfulAbility(args: AbilityInput) {
 
 function trumpDisabledAbility(args: AbilityInput) {
   args.roomData.activeAbilities.push(CardAbilities.trumpDisabled);
+  sendSystemMessage({
+    io: args.io,
+    message: 'Trump is disabled for this turn!',
+    roomId: args.roomId,
+    colour: '#db2777'
+  });
 }
 
 function targetPowerlessAbility(args: AbilityInput) {
@@ -338,10 +345,22 @@ function targetPowerlessAbility(args: AbilityInput) {
 
 function noWinLiftAbility(args: AbilityInput) {
   args.roomData.activeAbilities.push(CardAbilities.noWinLift);
+  sendSystemMessage({
+    io: args.io,
+    message: 'No team will earn points for this lift!',
+    roomId: args.roomId,
+    colour: '#db2777'
+  });
 }
 
 function abilitiesDisabledAbility(args: AbilityInput) {
   args.roomData.activeAbilities = [CardAbilities.abilitiesDisabled];
+  sendSystemMessage({
+    io: args.io,
+    message: 'Abilities are disabled for this turn!',
+    roomId: args.roomId,
+    colour: '#db2777'
+  });
 }
 
 function shuffleHandAbility(args: AbilityInput) {
@@ -368,6 +387,13 @@ function shuffleHandAbility(args: AbilityInput) {
     }
   }
 
+  sendSystemMessage({
+    io: args.io,
+    message: player.nickname + ' has shuffled their hand!',
+    roomId: args.roomId,
+    colour: '#db2777'
+  });
+
   orderCards(args.roomData.users);
 
   determineIfCardsPlayable(args.roomData, player);
@@ -377,6 +403,12 @@ function shuffleHandAbility(args: AbilityInput) {
 
 function royalsDisabledAbility(args: AbilityInput) {
   args.roomData.activeAbilities.push(CardAbilities.royalsDisabled);
+  sendSystemMessage({
+    io: args.io,
+    message: 'Royals are disabled for this turn!',
+    roomId: args.roomId,
+    colour: '#db2777'
+  });
 }
 
 function oppReplayAbility(args: AbilityInput) {
@@ -443,6 +475,13 @@ function allyReplayAbility(args: AbilityInput) {
   // Add card back to player's hand
   teammatePlayer.cards.push({ ...liftCard });
 
+  sendSystemMessage({
+    io: args.io,
+    message: teammatePlayer.nickname + ' gets to replay their card!',
+    roomId: args.roomId,
+    colour: '#db2777'
+  });
+
   orderCards(args.roomData.users);
 }
 
@@ -456,6 +495,12 @@ function ninePointsAbility(args: AbilityInput) {
 
 function oppositePowerAbility(args: AbilityInput) {
   args.roomData.activeAbilities.push(CardAbilities.oppositePower);
+  sendSystemMessage({
+    io: args.io,
+    message: 'Card power is opposite this turn!',
+    roomId: args.roomId,
+    colour: '#db2777'
+  });
 }
 
 function drawOneAbility(args: AbilityInput) {
@@ -520,10 +565,23 @@ function allyPlaysLastAbility(args: AbilityInput) {
   args.roomData.playerStatus[teammate.player].status.push(CardAbilities.allyPlaysLast);
 
   args.roomData.allyPlaysLastPlayer = teammate.player;
+
+  sendSystemMessage({
+    io: args.io,
+    message: teammate.nickname + ' is playing last this turn!',
+    roomId: args.roomId,
+    colour: '#db2777'
+  });
 }
 
 function doublePointsAbility(args: AbilityInput) {
   args.roomData.activeAbilities.push(CardAbilities.doublePoints);
+  sendSystemMessage({
+    io: args.io,
+    message: 'The lift is worth double points this turn!',
+    roomId: args.roomId,
+    colour: '#db2777'
+  });
 }
 
 function chooseStarterAbility(args: AbilityInput) {
@@ -550,6 +608,13 @@ function twoWinGameAbility(args: AbilityInput) {
   }
 
   args.roomData.playerStatus[player.player].status.push(CardAbilities.twoWinGame);
+
+  sendSystemMessage({
+    io: args.io,
+    message: player.nickname + "'s team will win game this round!",
+    roomId: args.roomId,
+    colour: '#db2777'
+  });
 }
 
 function revealedBareAbility(args: AbilityInput) {
@@ -569,6 +634,13 @@ function nextCardTrumpAbility(args: AbilityInput) {
   }
 
   args.roomData.playerStatus[player.player].status.push(CardAbilities.nextCardTrump);
+
+  sendSystemMessage({
+    io: args.io,
+    message: 'The next card that ' + player.nickname + ' plays will be trump!',
+    roomId: args.roomId,
+    colour: '#db2777'
+  });
 }
 
 function swapAllyCardAbility(args: AbilityInput) {
@@ -577,6 +649,12 @@ function swapAllyCardAbility(args: AbilityInput) {
 
 function doubleLiftAbility(args: AbilityInput) {
   args.roomData.activeAbilities.push(CardAbilities.doubleLift);
+  sendSystemMessage({
+    io: args.io,
+    message: 'The winner of the next lift wins both lifts!',
+    roomId: args.roomId,
+    colour: '#db2777'
+  });
 }
 
 function swapHandsAbility(args: AbilityInput) {

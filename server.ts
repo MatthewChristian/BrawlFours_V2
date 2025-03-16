@@ -137,12 +137,23 @@ function joinRoom(data: JoinRoomInput, gameSocket: Socket) {
             id: data.localId,
             socketId: gameSocket.id
           });
+
+          const message = data.nickname + ' has joined the room!';
+
+          sendSystemMessage({ io, message, roomId: data.roomId, colour: '#22c55e' });
         }
         else { // Otherwise update their data in the room
           roomUsers[data.roomId].users[userIndex].id = data.localId;
           roomUsers[data.roomId].users[userIndex].socketId = gameSocket.id;
 
+          const oldNickname = roomUsers[data.roomId].users[userIndex].nickname;
+
           if (data.nickname) {
+            if (data.nickname != oldNickname) {
+              const message = oldNickname + ' has changed their name to ' + data.nickname;
+
+              sendSystemMessage({ io, message, roomId: data.roomId, colour: '#22c55e' });
+            }
             roomUsers[data.roomId].users[userIndex].nickname = data.nickname;
           }
 
@@ -202,12 +213,15 @@ function emitInitGameData(data: BasicRoomInput, gameSocket: Socket) {
   io.to(gameSocket.id).emit('dealer', roomUsers[data.roomId].dealer);
   io.to(gameSocket.id).emit('turn', roomUsers[data.roomId].turn);
   io.to(gameSocket.id).emit('beg', roomUsers[data.roomId].beg);
-
   io.to(gameSocket.id).emit('kickedCards', roomUsers[data.roomId].kicked);
   io.to(gameSocket.id).emit('teamScore', roomUsers[data.roomId].teamScore);
-  io.to(data.roomId).emit('lift', roomUsers[data.roomId].lift);
+  io.to(gameSocket.id).emit('lift', roomUsers[data.roomId].lift);
+  io.to(gameSocket.id).emit('activeAbilities', roomUsers[data.roomId].activeAbilities);
+  io.to(gameSocket.id).emit('playerStatus', roomUsers[data.roomId].playerStatus);
+  io.to(gameSocket.id).emit('twosPlayed', roomUsers[data.roomId].twosPlayed);
+  io.to(gameSocket.id).emit('revealedBare', roomUsers[data.roomId].revealedBare);
+  io.to(gameSocket.id).emit('doubleLiftCards', roomUsers[data.roomId].doubleLiftCards);
 
-  // TODO: Emit all other necessary ability related data
 }
 
 function playersInRoom(data: BasicRoomInput) {
@@ -240,6 +254,10 @@ function leaveRoom(data: BasicRoomInput, gameSocket: Socket) {
     const index = roomUsers[data.roomId]?.users.findIndex((el) => el.socketId == gameSocket.id);
 
     if (index >= 0) {
+      const message = roomUsers[data.roomId]?.users[index].nickname + ' has left the room!';
+
+      sendSystemMessage({ io, message, roomId: data.roomId, colour: '#991b1b' });
+
       roomUsers[data.roomId].users.splice(index, 1);
     }
 
@@ -1356,6 +1374,13 @@ async function handleTargetPowerless(data: TargetLiftInput, socket: Socket) {
       liftCardData.abilityPoints = 0;
     }
 
+    sendSystemMessage({
+      io,
+      message: 'The ' + getCardName(liftCardData) + ' has been made powerless!',
+      roomId: data.roomId,
+      colour: '#db2777'
+    });
+
     await playCard({ ...data, card: data.playedCard }, socket);
 
   }
@@ -1405,6 +1430,13 @@ async function handleOppReplay(data: TargetLiftInput, socket: Socket) {
 
     liftCardPlayerObj.cards.push({ ...liftCard, disabled: isPlayerHandEmpty ? false : true });
 
+    sendSystemMessage({
+      io: io,
+      message: liftCardPlayerObj.nickname + ' has to play another card!',
+      roomId: data.roomId,
+      colour: '#db2777'
+    });
+
     await playCard({ ...data, card: data.playedCard }, socket);
 
     orderCards(roomUsers[data.roomId].users);
@@ -1452,6 +1484,12 @@ async function handleSwapOppCard(data: TargetPlayerInput, socket: Socket) {
 
     sendSystemMessage({io, message: `${player.nickname} swapped your ${getCardName(randomCard)} for their ${getCardName(data.card)}`, roomId: data.target.socketId, showToast: true, colour: '#db2777'});
 
+    sendSystemMessage({
+      io: io,
+      message: `${player.nickname} has swapped their ${getCardName(data.card)} for ${selectedPlayer.nickname}'s ${getCardName(randomCard)}`,
+      roomId: [selectedPlayer.teammateSocketId, player.teammateSocketId],
+      colour: '#db2777'
+    });
 
     // Finalize
     await playCard({ ...data, card: data.playedCard }, socket);
@@ -1474,6 +1512,8 @@ async function handleSwapAllyCard(data: SwapAllyCardInput, socket: Socket) {
 
     const teammatePlayer = roomUsers[data.roomId].users.find((el) => el.socketId == player.teammateSocketId);
 
+    const oppPlayer = roomUsers[data.roomId].users.find((el) => el.socketId != player.teammateSocketId && el.socketId != player.socketId);
+
     // Remove card from player's hand
     const selectedCardIndex = player.cards.findIndex(el => el.suit == data.card.suit && el.value == data.card.value);
     player.cards.splice(selectedCardIndex, 1);
@@ -1493,6 +1533,12 @@ async function handleSwapAllyCard(data: SwapAllyCardInput, socket: Socket) {
 
     sendSystemMessage({ io, message: `${player.nickname} swapped your ${getCardName(data.allyCard)} for their ${getCardName(data.card)}`, roomId: teammatePlayer.socketId, showToast: true, colour: '#db2777' });
 
+    sendSystemMessage({
+      io: io,
+      message: player.nickname + ' and ' + teammatePlayer.nickname + ' swapped a card!',
+      roomId: [oppPlayer.socketId, oppPlayer.teammateSocketId],
+      colour: '#db2777'
+    });
 
     // Finalize
     await playCard({ ...data, card: data.playedCard }, socket);
