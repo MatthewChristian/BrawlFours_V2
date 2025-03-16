@@ -148,12 +148,11 @@ function joinRoom(data: JoinRoomInput, gameSocket: Socket) {
 
           const oldNickname = roomUsers[data.roomId].users[userIndex].nickname;
 
-          if (data.nickname) {
-            if (data.nickname != oldNickname) {
-              const message = oldNickname + ' has changed their name to ' + data.nickname;
+          if (data.nickname && data.nickname != oldNickname) {
+            const message = oldNickname + ' has changed their name to ' + data.nickname;
 
-              sendSystemMessage({ io, message, roomId: data.roomId, colour: '#22c55e' });
-            }
+            sendSystemMessage({ io, message, roomId: data.roomId, colour: '#22c55e' });
+
             roomUsers[data.roomId].users[userIndex].nickname = data.nickname;
           }
 

@@ -34,7 +34,7 @@ export default function Popconfirm({ children, message, shortcode, onConfirm }: 
         <div>
           {message}
           <div className='flex flex-row justify-end gap-2 mt-2'>
-            <Button className='blue-button text-xs rounded-xl' padding='px-2 py-1' onClick={onConfirm}>
+            <Button className='blue-button text-xs rounded-xl' padding='px-2 py-1' onClick={() => { onConfirm(); setIsOpen(false); }}>
               Yes
             </Button>
 

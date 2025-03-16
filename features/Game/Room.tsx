@@ -35,6 +35,7 @@ export default function Room({ roomId }: Props) {
   const [matchWinnerModalVisible, setMatchWinnerModalVisible] = useState<boolean>(false);
   const [roundWinnersModalVisible, setRoundWinnersModalVisible] = useState<boolean>(false);
   const [isChangingNickname, setIsChangingNickname] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const joinModalOpen = useAppSelector(getJoinModalOpen);
 
@@ -99,6 +100,7 @@ export default function Room({ roomId }: Props) {
   }
 
   function choosePartner(id: string) {
+    setIsLoading(true);
 
     const data: ChoosePartnerInput = {
       partnerId: String(id),
@@ -106,6 +108,7 @@ export default function Room({ roomId }: Props) {
     };
 
     socket.emit('setTeams', data);
+
   }
 
   function randomPartner() {
@@ -210,13 +213,19 @@ export default function Room({ roomId }: Props) {
     }
   }, []);
 
+  useEffect(() => {
+    return () => {
+      setIsLoading(false);
+    }
+  }, []);
+
 
   return (
     <div className='h-screen w-screen bg-slate-300'>
 
       <div className='flex flex-row'>
 
-        <div className='h-screen absolute flex items-center left-2'>
+        <div className='h-screen absolute flex items-center left-2 w-1/5'>
           <Chatbox socketData={socketData} className='h-[98%]' hideTeam />
         </div>
 
@@ -298,19 +307,26 @@ export default function Room({ roomId }: Props) {
               <Popup contentStyle={{ left: '0%', width: '25em' }} open={chooseModalOpen} closeOnDocumentClick onClose={() => setChooseModalOpen(false)}>
                 <div className="flex flex-col justify-center items-center mx-5">
                   <div className="">Choose your partner</div>
-                  <div className='w-full'>
-                    {
-                      players?.map((el, i) => i != 0 ? <div key={'partner_' + i}>
-                        <Button className='white-button mt-5 w-full text-center' onClick={() => el.id ? choosePartner(el.id) : undefined}>
-                          {el.nickname}
-                        </Button>
-                      </div> : undefined
-                      )}
-                  </div>
+                  {
+                    isLoading ?
+                      <LoadingIcon />
+                    :
+                    <>
+                      <div className='w-full'>
+                        {
+                          players?.map((el, i) => i != 0 ? <div key={'partner_' + i}>
+                            <Button className='white-button mt-5 w-full text-center' onClick={() => el.id ? choosePartner(el.id) : undefined}>
+                              {el.nickname}
+                            </Button>
+                          </div> : undefined
+                          )}
+                      </div>
 
-                  <Button className='blue-button mt-5' icon={<IoDice size={24} />} onClick={() => randomPartner()}>
-                    Randomise Teams
-                  </Button>
+                      <Button className='blue-button mt-5' icon={<IoDice size={24} />} onClick={() => randomPartner()}>
+                        Randomise Teams
+                      </Button>
+                    </>
+                  }
                 </div>
               </Popup>
 

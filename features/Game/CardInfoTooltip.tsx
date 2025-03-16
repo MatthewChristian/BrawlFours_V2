@@ -22,7 +22,7 @@ export default function CardInfoTooltip({ card, active, offsetY }: Props) {
   const twosPlayed = useAppSelector(getTwosPlayed);
 
   const isDisabled = useMemo(() => {
-    if (activeAbilities.includes(CardAbilities.abilitiesDisabled)) {
+    if (activeAbilities?.includes(CardAbilities.abilitiesDisabled)) {
       return true;
     }
 
@@ -30,7 +30,7 @@ export default function CardInfoTooltip({ card, active, offsetY }: Props) {
   }, [activeAbilities]);
 
   const isOppositePower = useMemo(() => {
-    if (activeAbilities.includes(CardAbilities.oppositePower)) {
+    if (activeAbilities?.includes(CardAbilities.oppositePower)) {
       return true;
     }
 

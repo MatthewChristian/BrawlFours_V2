@@ -39,7 +39,6 @@ export default function Layout({ children }: Props) {
     socket?.on('playerJoinedRoom', data => {
       if (data.success) {
         dispatch(setRoomId(String(data.room_id)));
-        router.push(`/room?roomId=${String(data.room_id)}`);
         dispatch(setJoinModalOpen(false));
         dispatch(setErrorMsg(undefined));
         dispatch(setPlayerJoinedRoom(true));

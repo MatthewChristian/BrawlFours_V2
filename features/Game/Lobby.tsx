@@ -9,10 +9,13 @@ import { socket } from '../SocketClient';
 import { CreateRoomInput } from '../../models/CreateRoomInput';
 import { JoinRoomInput } from '../../models/JoinRoomInput';
 import { IoAdd, IoEnter } from "react-icons/io5";
+import { useRouter } from 'next/navigation';
 
 export default function Lobby() {
 
   const dispatch = useAppDispatch();
+
+  const router = useRouter();
 
   // Store room ID of game that player created
   const roomId = useAppSelector(getRoomId);
@@ -111,6 +114,12 @@ export default function Lobby() {
 
     setNickname(localNick);
   }, []);
+
+  useEffect(() => {
+    if (roomId) {
+      router.push(`/room?roomId=${String(roomId)}`);
+    }
+  }, [roomId]);
 
   return (
     <div className='bg-slate-200 h-screen flex flex-col justify-center items-center'>

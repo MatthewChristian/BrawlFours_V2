@@ -6,6 +6,14 @@ import { determineIfCardsPlayable, emitPlayerCardData, orderCards, sendSystemMes
 export const hangSaverPointsEarned = 3;
 export const pointsForSavedPointsEarned = 10;
 
+// Need Animations :
+// shuffleHand
+// swapOppCard
+// drawOne
+// swapAllyCard
+// swapHands
+// Maybe an animation whne toggling visibility
+
 export enum CardAbilities {
   // Spades
   alwaysPlayable,     // 2  TESTED
