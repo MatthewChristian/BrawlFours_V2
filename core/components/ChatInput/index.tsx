@@ -54,21 +54,21 @@ export default function ChatInput({ inputRef, className, placeholder, onChange, 
         hideTeam ? undefined
         :
         chatMode == 'all' ?
-        <div
+        <button
           className={`bg-red-500 hover:bg-red-400 ${toggleClassName}`}
           style={{ borderTopLeftRadius: 7, borderBottomLeftRadius: 7 }}
           onClick={() => dispatch(setChatMode('team'))}
         >
           ALL
-        </div>
+        </button>
         : chatMode == 'team' ?
-         <div
+         <button
           className={`bg-green-500 hover:bg-green-400 ${toggleClassName}`}
           style={{ borderTopLeftRadius: 7, borderBottomLeftRadius: 7 }}
           onClick={() => dispatch(setChatMode('all'))}
         >
           TEAM
-        </div>
+        </button>
         : undefined
       }
 
@@ -82,12 +82,12 @@ export default function ChatInput({ inputRef, className, placeholder, onChange, 
           onKeyDown={(target) => { target.key == 'Enter' ? handleSend() : undefined; }}
         />
 
-        <div
+        <button
           className='ml-1 p-2 transition ease-in-out duration-300 text-sky-500 hover:text-sky-400 hover:cursor-pointer'
           onClick={handleSend}
         >
           <IoSend size={24} />
-        </div>
+        </button>
 
       </div>
 
