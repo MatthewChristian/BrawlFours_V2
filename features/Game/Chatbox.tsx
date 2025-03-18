@@ -25,7 +25,10 @@ export default function Chatbox({ socketData, className, hideTeam }: Props) {
   function handleChatSend() {
     const message = chatInputRef?.current?.value;
 
-    socket.emit('chat', { ...socketData, message: message, mode: chatMode });
+    if (message.length) {
+      socket.emit('chat', { ...socketData, message: message, mode: chatMode });
+    }
+
   }
 
   useEffect(() => {
