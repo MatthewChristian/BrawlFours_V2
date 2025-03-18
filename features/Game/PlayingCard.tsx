@@ -25,6 +25,7 @@ interface Props {
   liftWinner?: number;
   spotlighted?: boolean;
   glow?: string;
+  flipped?: boolean;
 }
 
 export default function PlayingCard({
@@ -39,7 +40,8 @@ export default function PlayingCard({
   liftCard,
   liftWinner,
   spotlighted,
-  glow
+  glow,
+  flipped
 }: Props) {
 
   const cardRef = useRef<HTMLDivElement>(null);
@@ -121,11 +123,11 @@ export default function PlayingCard({
       return `${glow}-glow`
     }
 
-    if (cardData.power == 0) {
+    if (cardData?.power == 0) {
       return 'red-glow';
     }
 
-    if (liftCard && cardData.trump) {
+    if (liftCard && cardData?.trump) {
       return 'gold-glow';
     }
 
@@ -138,11 +140,11 @@ export default function PlayingCard({
       return 'blue-glow';
     }
 
-    if (cardData.playable) {
+    if (cardData?.playable) {
       if (isTwoWinGameActive) {
         return 'purple-glow';
       }
-      else if (cardData.trump) {
+      else if (cardData?.trump) {
         return 'gold-glow';
       }
 
@@ -176,6 +178,122 @@ export default function PlayingCard({
       <CardInfoTooltip card={cardData} active={tooltipEnabled} offsetY={-y}/>
 
       <div
+        ref={cardRef}
+        className={`${className} ${anchorSelect}`}
+        onClick={() => {handleClick(); console.log("Click")}}
+        style={{ zIndex: spotlighted ? 9999 : liftCard ? 10 : undefined, ...style }}
+      >
+        <motion.div
+          className="card-container"
+          style={{
+            aspectRatio: '3/5',
+            height: "15vh",
+            perspective: "1000px", // Adds depth for 3D animation
+          }}
+        >
+          <motion.div
+            className="card"
+            animate={{ rotateY: flipped ? 180 : 0 }} // Animates the flip
+            transition={{ duration: 0.5 }} // Controls the flip speed
+            style={{
+              width: "100%",
+              height: "100%",
+              position: "relative",
+              transformStyle: "preserve-3d", // Enables 3D effect
+            }}
+          >
+            {/* Front Side */}
+            <motion.div
+              className="card-front"
+              style={{
+                position: "absolute",
+                backfaceVisibility: "hidden", // Ensures only one side is visible
+                width: "100%",
+                height: "100%",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+
+              {!isDeckCard ? (
+                card ?
+                  <motion.div
+                    animate={{ x, y }}
+                    transition={{ type: liftWinner ? "tween" : "spring" }}
+                    initial={liftCard == 1 ? { y: 20 } : liftCard == 2 ? { x: 20 } : liftCard == 3 ? { y: -20 } : liftCard == 4 ? { x: -20 } : undefined}
+                  >
+                    <div
+                      style={{ position: 'relative', height: '15vh', aspectRatio: '3/5' }}
+                      onMouseOver={() => (cardData?.playable && !isNotPlayable) || glow == 'blue' ? setFocused(true) : undefined}
+                      onMouseLeave={() => setFocused(false)}
+                    >
+                      <Image
+                        src={`/images/${card}.png`}
+                        fill
+                        sizes="10vw"
+                        style={{ objectFit: 'fill' }}
+                        alt='card'
+                        className={getGlowClassName()}
+                      />
+                    </div>
+                  </motion.div>
+                  : isOutline ?
+                    <div style={{ position: 'relative', height: '15vh', aspectRatio: '3/5' }}>
+                      <Image
+                        src={'/images/card-outline.png'}
+                        fill
+                        style={{ objectFit: 'fill' }}
+                        sizes="10vw"
+                        alt='card'
+                      />
+                    </div>
+                    : null
+              )
+                :
+                (
+                  <div style={{ position: 'relative', height: '15vh', aspectRatio: '3/5' }}>
+                    <Image
+                      src={'/images/red_back.png'}
+                      fill
+                      style={{ objectFit: 'fill' }}
+                      sizes="10vw"
+                      alt='card'
+                    />
+                  </div>
+                )}
+
+              </motion.div>
+
+              {/* Back Side */}
+              <motion.div
+                className="card-back"
+                style={{
+                  position: "absolute",
+                  backfaceVisibility: "hidden",
+                  transform: "rotateY(180deg)", // Flips the back face
+                  width: "100%",
+                  height: "100%",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+              <div style={{ position: 'relative', height: '15vh', aspectRatio: '3/5' }}>
+                <Image
+                  src={'/images/red_back.png'}
+                  fill
+                  style={{ objectFit: 'fill' }}
+                  sizes="10vw"
+                  alt='card'
+                />
+              </div>
+              </motion.div>
+            </motion.div>
+          </motion.div>
+        </div>
+
+      {/* <div
         ref={cardRef}
         className={`${className} ${anchorSelect}`}
         onClick={handleClick}
@@ -226,7 +344,7 @@ export default function PlayingCard({
               />
             </div>
           ) }
-      </div>
+      </div> */}
     </>
   );
 }

@@ -319,7 +319,7 @@ export default function Gameboard({ roomId }: Props) {
     }
 
     // Check if abilities/royals are disabled before applying/sending ability data to server
-    const areAbilitiesDisabled = activeAbilities.includes(CardAbilities.abilitiesDisabled);
+    const areAbilitiesDisabled = activeAbilities?.includes(CardAbilities.abilitiesDisabled);
 
     if (!card.playable) {
       return;
@@ -651,13 +651,12 @@ export default function Gameboard({ roomId }: Props) {
                       key={'3' + k}
                       player={3}
                       cardData={player3Cards[k]}
-                      isDeckCard={!(isTeammateCardsVisible || allySelectionModalVisible)}
                       isNotPlayable={!allySelectionModalVisible}
                       className='-mx-2 p-0'
                       spotlighted={allySelectionModalVisible}
                       glow={allySelectionModalVisible ? 'blue' : undefined}
                       onClickHandler={() => player3Cards.length == 0 ? undefined : allySelectionModalVisible ? handleSelectAllyCard(player3Cards[k]) : undefined}
-                      flipped={isTeammateCardsVisible}
+                      flipped={!(isTeammateCardsVisible || allySelectionModalVisible)}
                     />
                     );
                   })
