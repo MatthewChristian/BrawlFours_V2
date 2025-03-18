@@ -47,7 +47,7 @@ export default function Chatbox({ socketData, className, hideTeam }: Props) {
   return (
     <div className={`flex flex-col justify-between w-full bg-white rounded-lg px-2 pt-2 shadow ${className}`}>
       <div ref={chatBoxRef} className='flex flex-col gap-2 h-[58vh] w-full overflow-y-scroll pr-1'>
-        {chatMessages?.map(msg => <div className='flex-none text-balance whitespace-normal break-words'>
+        {chatMessages?.map((msg, i)=> <div key={msg + '_' + i} className='flex-none text-balance whitespace-normal break-words'>
           { msg.mode && msg.mode != 'log' && !hideTeam ?
             <span className='mr-1' style={{ color: msg.modeColour }}>
               {
