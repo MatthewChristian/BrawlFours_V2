@@ -1,4 +1,5 @@
 import React from 'react';
+import { Tooltip } from 'react-tooltip';
 
 interface Props {
   children?: JSX.Element | string;
@@ -8,11 +9,14 @@ interface Props {
   disabled?: boolean;
   icon?: JSX.Element;
   padding?: string;
+  tooltip?: string;
+  tooltipAnchor?: string;
 }
 
-export default function Button({ children, onClick, className, iconClassName, disabled, icon, padding }: Props) {
+export default function Button({ children, onClick, className, iconClassName, disabled, icon, padding, tooltip, tooltipAnchor }: Props) {
   return (
-    <button className={`rounded-lg ${padding ?? 'p-2'} w-fit flex flex-row items-center transition-colors ${disabled ? 'disabled-button' : 'cursor-pointer'} ${className}`} onClick={() => onClick && !disabled ? onClick() : undefined}>
+    <>
+      <button className={`rounded-lg ${padding ?? 'p-2'} w-fit flex flex-row items-center transition-colors ${disabled ? 'disabled-button' : 'cursor-pointer'} ${tooltipAnchor} ${className}`} onClick={() => onClick && !disabled ? onClick() : undefined}>
       {
         icon ?
           <div className={iconClassName ?? 'mr-2'}>
@@ -23,5 +27,17 @@ export default function Button({ children, onClick, className, iconClassName, di
         {children}
       </div>
     </button>
+
+      {tooltip && tooltipAnchor &&
+        <Tooltip
+          anchorSelect={`.${tooltipAnchor}`}
+          place="top"
+        >
+          <div>
+            {tooltip}
+          </div>
+        </Tooltip>
+      }
+    </>
   );
 }

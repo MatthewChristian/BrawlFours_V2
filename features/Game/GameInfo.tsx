@@ -4,6 +4,8 @@ import { useAppSelector } from '../../store/hooks';
 import { getActiveAbilities, getGame, getKickedCards, getTeamScore } from '../../slices/game.slice';
 import Chatbox from './Chatbox';
 import { BasicRoomInput } from '../../models/BasicRoomInput';
+import Button from '../../core/components/Button';
+import { IoExit, IoSettings } from 'react-icons/io5';
 
 interface Props {
   playerTeam?: number;
@@ -43,9 +45,36 @@ export default function GameInfo({ playerTeam, socketData } : Props) {
 
 
   return (
-    <div className="bg-red-100 p-2 h-screen w-1/5 z-[9999] min-w-min">
+    <div className="bg-stone-200 p-2 h-screen w-1/5 z-[9999] min-w-min">
 
       <div className='h-[30vh]'>
+
+        <div className='flex flex-row justify-between mb-2'>
+          <div>
+
+          </div>
+
+          <div className='flex flex-row gap-2'>
+            <Button
+              className='red-button'
+              iconClassName='relative '
+              icon={<IoExit size={20} />}
+              tooltip='Leave Room'
+              tooltipAnchor='leave'
+              // onClick={() => setIsTeammateCardsVisible((prev) => !prev)}
+            />
+
+            <Button
+              className='blue-button'
+              iconClassName='relative '
+              icon={<IoSettings size={20} />}
+              tooltip='Settings'
+              tooltipAnchor='settings'
+            // onClick={() => setIsTeammateCardsVisible((prev) => !prev)}
+            />
+          </div>
+        </div>
+
         <div className='flex flex-row'>
           <PlayingCard isDeckCard className="deck"></PlayingCard>
           <div className='flex flex-row'>
@@ -56,12 +85,14 @@ export default function GameInfo({ playerTeam, socketData } : Props) {
           </div>
         </div>
 
-        <div>
-          <p>Score: {teamScoreOrdered[0]} - {teamScoreOrdered[1]}</p>
-        </div>
+        <div className='mt-2 mx-2 font-bold'>
+          <div>
+            <p>Score: <span className='text-blue-500'>{teamScoreOrdered[0]}</span> - <span className='text-red-500'>{teamScoreOrdered[1]}</span></p>
+          </div>
 
-        <div>
-          <p>Game: {gameOrdered[0]} - {gameOrdered[1]}</p>
+          <div>
+            <p>Game: <span className='text-blue-500'>{gameOrdered[0]}</span> - <span className='text-red-500'>{gameOrdered[1]}</span></p>
+          </div>
         </div>
       </div>
 
