@@ -221,7 +221,7 @@ export default function Room({ roomId }: Props) {
 
 
   return (
-    <div className='h-screen w-screen bg-slate-300'>
+    <div className='h-screen w-screen lobby-bg'>
 
       <div className='flex flex-row'>
 

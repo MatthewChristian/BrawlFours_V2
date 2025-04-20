@@ -122,7 +122,7 @@ export default function Lobby() {
   }, [roomId]);
 
   return (
-    <div className='bg-slate-200 h-screen flex flex-col justify-center items-center'>
+    <div className='lobby-bg h-screen flex flex-col justify-center items-center'>
       <div className='bg-white rounded-lg border border-gray-400 p-10'>
         <div className='text-3xl mb-5 text-center'>Brawl Fours</div>
 
