@@ -1,4 +1,4 @@
-import { BasicRoomInput } from "./BasicRoomInput";
+import { BasicRoomInput } from './BasicRoomInput';
 
 export interface ChatInput extends BasicRoomInput {
   message?: string;

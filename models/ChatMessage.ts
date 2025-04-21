@@ -1,4 +1,4 @@
-import { ChatInput } from "./ChatInput";
+import { ChatInput } from './ChatInput';
 
 export interface ChatMessage {
   message?: string;

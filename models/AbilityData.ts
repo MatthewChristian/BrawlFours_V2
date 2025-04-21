@@ -1,5 +1,5 @@
-import { CardAbilities } from "../core/services/abilities";
-import { AbilityInput } from "./AbilityInput";
+import { CardAbilities } from '../core/services/abilities';
+import { AbilityInput } from './AbilityInput';
 
 export type AbilityData = {
   [key in CardAbilities]: {

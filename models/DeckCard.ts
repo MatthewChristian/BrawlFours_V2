@@ -1,4 +1,4 @@
-import { CardAbilities } from "../core/services/abilities";
+import { CardAbilities } from '../core/services/abilities';
 
 export interface DeckCard {
   suit: string;

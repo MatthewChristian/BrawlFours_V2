@@ -1,4 +1,4 @@
-import { PlayerSocket } from "./PlayerSocket"
+import { PlayerSocket } from './PlayerSocket';
 
 export interface ScoreLiftOutput {
   liftWinnerPlayer: PlayerSocket;

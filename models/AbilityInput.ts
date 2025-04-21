@@ -1,7 +1,7 @@
-import { Server, Socket } from "socket.io";
-import { DeckCard } from "./DeckCard";
-import { RoomSocket } from "./RoomSocket";
-import { PlayerSocket } from "./PlayerSocket";
+import { Server, Socket } from 'socket.io';
+import { DeckCard } from './DeckCard';
+import { RoomSocket } from './RoomSocket';
+import { PlayerSocket } from './PlayerSocket';
 
 export interface AbilityInput {
    roomData: RoomSocket,

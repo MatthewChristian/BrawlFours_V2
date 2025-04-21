@@ -1,5 +1,5 @@
-import { CardAbilities } from "../core/services/abilities";
-import { PlayerSocket } from "./PlayerSocket";
+import { CardAbilities } from '../core/services/abilities';
+import { PlayerSocket } from './PlayerSocket';
 
 export interface PlayerStatus {
   player: PlayerSocket;
