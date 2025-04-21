@@ -1,11 +1,11 @@
-import React, { useMemo } from 'react'
+import React, { useMemo } from 'react';
 import Image from 'next/image';
-import { Tooltip } from 'react-tooltip'
-import { DeckCard } from '../../models/DeckCard'
+import { Tooltip } from 'react-tooltip';
+import { DeckCard } from '../../models/DeckCard';
 import { getCardAnchorSelect, parseSuit } from '../../core/services/parseCard';
 import { CardAbilities, getAbilityData } from '../../core/services/abilities';
-import powerSvg from "../../public/images/power.svg";
-import powerZeroSvg from "../../public/images/powerZero.svg";
+import powerSvg from '../../public/images/power.svg';
+import powerZeroSvg from '../../public/images/powerZero.svg';
 import { useAppSelector } from '../../store/hooks';
 import { getActiveAbilities, getTwosPlayed } from '../../slices/game.slice';
 import { oppositePowerMap } from '../../core/services/sharedGameFunctions';
@@ -79,7 +79,7 @@ export default function CardInfoTooltip({ card, active, offsetY }: Props) {
       twosPlayedStr = twosPlayedStr + parseSuit(el);
 
       if (i < twosPlayed.length - 1) {
-        twosPlayedStr = twosPlayedStr + ', '
+        twosPlayedStr = twosPlayedStr + ', ';
       }
     });
 
@@ -126,21 +126,21 @@ export default function CardInfoTooltip({ card, active, offsetY }: Props) {
           </div>
 
 
-            {
-              card?.isRandom ?
+          {
+            card?.isRandom ?
               <div className='text-xs text-gray-400 italic'>
-                This card's ability is random every game
+                This card&apos;s ability is random every game
               </div>
               :
               null
-            }
+          }
 
-            {
-              card?.ability == CardAbilities.twoWinGame ?
+          {
+            card?.ability == CardAbilities.twoWinGame ?
               <div className='text-xs text-gray-400 italic'>
                 Twos Played: {formatTwosPlayed()}
               </div> : null
-            }
+          }
 
           {
             card?.ability == CardAbilities.swapHands ?
@@ -148,9 +148,9 @@ export default function CardInfoTooltip({ card, active, offsetY }: Props) {
                 If the chosen player has more cards, then one random card in their hand will not be swapped
               </div> : null
           }
-          </div>
+        </div>
 
       </Tooltip>
-    : undefined
-  )
+      : undefined
+  );
 }

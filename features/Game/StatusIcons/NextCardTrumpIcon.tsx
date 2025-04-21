@@ -1,7 +1,7 @@
 import React from 'react';
 import StatusIcon from '../../../core/components/StatusIcon';
 import Image from 'next/image';
-import nextCardTrumpSvg from "../../../public/images/statusIcons/nextCardTrump.svg";
+import nextCardTrumpSvg from '../../../public/images/statusIcons/nextCardTrump.svg';
 
 
 interface Props {

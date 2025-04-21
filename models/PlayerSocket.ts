@@ -9,4 +9,5 @@ export interface PlayerSocket {
   cards?: DeckCard[];
   numCards?: number;
   player?: number;
+  disconnected?: boolean;
 }

@@ -1,7 +1,7 @@
 import React from 'react';
 import StatusIcon from '../../../core/components/StatusIcon';
 import Image from 'next/image';
-import noWinLiftSvg from "../../../public/images/statusIcons/noWinLift.svg";
+import noWinLiftSvg from '../../../public/images/statusIcons/noWinLift.svg';
 
 
 interface Props {

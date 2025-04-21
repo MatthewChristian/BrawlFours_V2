@@ -1,13 +1,13 @@
-import { Server } from "socket.io";
-import { PlayerSocket } from "../../models/PlayerSocket";
-import { DeckCard } from "../../models/DeckCard";
-import { RoomSocket } from "../../models/RoomSocket";
-import { CardAbilities, getIsRandom, mapAbility, pointsForSavedPointsEarned } from "./abilities";
-import { ScoreLiftOutput } from "../../models/ScoreLiftOutput";
-import { ChatMessage } from "../../models/ChatMessage";
-import { SendSystemMessageInput } from "../../models/SendSystemMessageInput";
-import { PlayerStatus } from "../../models/PlayerStatus";
-import { LiftCard } from "../../models/LiftCard";
+import { Server } from 'socket.io';
+import { PlayerSocket } from '../../models/PlayerSocket';
+import { DeckCard } from '../../models/DeckCard';
+import { RoomSocket } from '../../models/RoomSocket';
+import { CardAbilities, getIsRandom, mapAbility, pointsForSavedPointsEarned } from './abilities';
+import { ScoreLiftOutput } from '../../models/ScoreLiftOutput';
+import { ChatMessage } from '../../models/ChatMessage';
+import { SendSystemMessageInput } from '../../models/SendSystemMessageInput';
+import { PlayerStatus } from '../../models/PlayerStatus';
+import { LiftCard } from '../../models/LiftCard';
 
 export function emitPlayerCardData(io: Server, roomData: RoomSocket) {
   // Loop through users in room
@@ -127,7 +127,7 @@ export function isCardRoyal(card: DeckCard) {
     return true;
   }
 
-return false;
+  return false;
 }
 
 export function determineIfCardsPlayable(roomData: RoomSocket, player: PlayerSocket) {
@@ -274,12 +274,12 @@ export function scoreLift(roomData: RoomSocket): ScoreLiftOutput {
   let liftWinnerPlayer: PlayerSocket;
   let doubleLiftJackPlayer: PlayerSocket;
 
-  let teamsWithGreaterPowerThanJack = [false, false, false];
-  let teamsWhoCouldveWonLift = [false, false, false]; // Which teams coudve won the lift at some point, used for pointsForSaved and doubleLift interaction
+  const teamsWithGreaterPowerThanJack = [false, false, false];
+  const teamsWhoCouldveWonLift = [false, false, false]; // Which teams coudve won the lift at some point, used for pointsForSaved and doubleLift interaction
 
   let highestPowerInLift = 0;
   let liftPoints = 0;
-  let jackPower = roomData.activeAbilities.includes(CardAbilities.oppositePower) ? 105 : 111;
+  const jackPower = roomData.activeAbilities.includes(CardAbilities.oppositePower) ? 105 : 111;
   let lift: LiftCard[] = [...roomData.lift];
 
   const abilitiesDisabled = roomData.activeAbilities.includes(CardAbilities.abilitiesDisabled);
@@ -289,7 +289,7 @@ export function scoreLift(roomData: RoomSocket): ScoreLiftOutput {
     const formattedLift: LiftCard[] = [];
 
     roomData.lift.forEach((el) => {
-      let power = handleOppositePower(roomData, el.power) + (el.trump ? 100 : el.suit != roomData.called.suit ? -100 : 0);
+      const power = handleOppositePower(roomData, el.power) + (el.trump ? 100 : el.suit != roomData.called.suit ? -100 : 0);
       const player = roomData.users.find(usr => usr.player == el.player);
 
       if (el.trump && el.value == 'J') {
@@ -329,7 +329,7 @@ export function scoreLift(roomData: RoomSocket): ScoreLiftOutput {
   lift.forEach(el => {
     // Add 100 points to power if card was trump, minus 100 points from power if card was not suit that was called
     // Call function to check if oppositePower ability is in effect
-    let power = handleOppositePower(roomData, el.power) + (el.trump ? 100 : el.suit != roomData.called.suit ? -100 : 0);
+    const power = handleOppositePower(roomData, el.power) + (el.trump ? 100 : el.suit != roomData.called.suit ? -100 : 0);
     const player = roomData.users.find(usr => usr.player == el.player);
 
     if (el.trump) {
@@ -370,7 +370,7 @@ export function scoreLift(roomData: RoomSocket): ScoreLiftOutput {
     if (power > highestPowerInLift) {
       liftWinnerPlayer = player;
       highestPowerInLift = power;
-      teamsWhoCouldveWonLift[player.team] = true
+      teamsWhoCouldveWonLift[player.team] = true;
     }
 
     // Tally lift points
@@ -429,7 +429,7 @@ export function scoreLift(roomData: RoomSocket): ScoreLiftOutput {
     }
     else {
 
-      let roundJack = roomData.doubleLiftJack ?? roomData.jack;
+      const roundJack = roomData.doubleLiftJack ?? roomData.jack;
 
       // If jack was saved from hanging, grant 10 points for game if the card had the ability
       // If in this part of this if statement, it means that Jack was not hung
@@ -460,5 +460,5 @@ export function scoreLift(roomData: RoomSocket): ScoreLiftOutput {
     liftWinnerPlayer: liftWinnerPlayer,
     highestHangerPlayer: highestHangerPlayer,
     jackOwnerPlayer: jackOwnerPlayer
-  })
+  });
 }

@@ -1,6 +1,6 @@
-import React from 'react'
-import HangSaverIcon from './StatusIcons/HangSaverIcon'
-import { CardAbilities } from '../../core/services/abilities'
+import React from 'react';
+import HangSaverIcon from './StatusIcons/HangSaverIcon';
+import { CardAbilities } from '../../core/services/abilities';
 import AllyPlaysLastIcon from './StatusIcons/AllyPlaysLastIcon';
 import ChooseStarterIcon from './StatusIcons/ChooseStarterIcon';
 import TwoWinGameIcon from './StatusIcons/TwoWinGameIcon';
@@ -19,5 +19,5 @@ export default function PlayerStatusIcons({ playerStatus }: Props) {
       <ChooseStarterIcon active={playerStatus.includes(CardAbilities.chooseStarter)} />
       <AllyPlaysLastIcon active={playerStatus.includes(CardAbilities.allyPlaysLast)} />
     </React.Fragment>
-  )
+  );
 }

@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import { DeckCard } from '../../models/DeckCard';
 import { getCardAnchorSelect, getCardShortcode } from '../../core/services/parseCard';
-import { motion } from "framer-motion";
+import { motion } from 'framer-motion';
 import { useAppSelector } from '../../store/hooks';
 import { delay } from '../../core/services/delay';
 import { getPlayer1HandPos, getPlayer2HandPos, getPlayer3HandPos, getPlayer4HandPos } from '../../slices/position.slice';
@@ -67,7 +67,7 @@ export default function PlayingCard({
   }, [cardData]);
 
   const tooltipEnabled = useMemo(() => {
-    return (!isDeckCard && card) ? true : false
+    return (!isDeckCard && card) ? true : false;
   }, [card, isDeckCard]);
 
   const isTwoWinGameActive = useMemo(() => {
@@ -80,7 +80,7 @@ export default function PlayingCard({
     }
 
     return false;
-  }, [twosPlayed, cardData])
+  }, [twosPlayed, cardData]);
 
   function handleClick() {
     if (!isNotPlayable && onClickHandler) {
@@ -94,7 +94,7 @@ export default function PlayingCard({
 
     const cardPos = cardRef.current.getBoundingClientRect();
     const cardX = cardPos.left + cardPos.width / 2;
-    const cardY = cardPos.y + cardPos.height / 2
+    const cardY = cardPos.y + cardPos.height / 2;
 
     if (liftWinner == 1) {
       setY(player1HandPos.y - cardY);
@@ -120,7 +120,7 @@ export default function PlayingCard({
   function getGlowClassName() {
 
     if (glow) {
-      return `${glow}-glow`
+      return `${glow}-glow`;
     }
 
     if (cardData?.power == 0) {
@@ -180,15 +180,15 @@ export default function PlayingCard({
       <div
         ref={cardRef}
         className={`${className} ${anchorSelect}`}
-        onClick={() => {handleClick(); console.log("Click")}}
+        onClick={() => {handleClick(); console.log('Click');}}
         style={{ zIndex: spotlighted ? 9999 : liftCard ? 10 : undefined, ...style }}
       >
         <motion.div
           className="card-container"
           style={{
             aspectRatio: '3/5',
-            height: "15vh",
-            perspective: "1000px", // Adds depth for 3D animation
+            height: '15vh',
+            perspective: '1000px', // Adds depth for 3D animation
           }}
         >
           <motion.div
@@ -196,23 +196,23 @@ export default function PlayingCard({
             animate={{ rotateY: flipped ? 180 : 0 }} // Animates the flip
             transition={{ duration: 0.5 }} // Controls the flip speed
             style={{
-              width: "100%",
-              height: "100%",
-              position: "relative",
-              transformStyle: "preserve-3d", // Enables 3D effect
+              width: '100%',
+              height: '100%',
+              position: 'relative',
+              transformStyle: 'preserve-3d', // Enables 3D effect
             }}
           >
             {/* Front Side */}
             <motion.div
               className="card-front"
               style={{
-                position: "absolute",
-                backfaceVisibility: "hidden", // Ensures only one side is visible
-                width: "100%",
-                height: "100%",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
+                position: 'absolute',
+                backfaceVisibility: 'hidden', // Ensures only one side is visible
+                width: '100%',
+                height: '100%',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
               }}
             >
 
@@ -220,7 +220,7 @@ export default function PlayingCard({
                 card ?
                   <motion.div
                     animate={{ x, y }}
-                    transition={{ type: liftWinner ? "tween" : "spring" }}
+                    transition={{ type: liftWinner ? 'tween' : 'spring' }}
                     initial={liftCard == 1 ? { y: 20 } : liftCard == 2 ? { x: 20 } : liftCard == 3 ? { y: -20 } : liftCard == 4 ? { x: -20 } : undefined}
                   >
                     <div
@@ -263,22 +263,22 @@ export default function PlayingCard({
                   </div>
                 )}
 
-              </motion.div>
+            </motion.div>
 
-              {/* Back Side */}
-              <motion.div
-                className="card-back"
-                style={{
-                  position: "absolute",
-                  backfaceVisibility: "hidden",
-                  transform: "rotateY(180deg)", // Flips the back face
-                  width: "100%",
-                  height: "100%",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
+            {/* Back Side */}
+            <motion.div
+              className="card-back"
+              style={{
+                position: 'absolute',
+                backfaceVisibility: 'hidden',
+                transform: 'rotateY(180deg)', // Flips the back face
+                width: '100%',
+                height: '100%',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
               <div style={{ position: 'relative', height: '15vh', aspectRatio: '3/5' }}>
                 <Image
                   src={'/images/red_back.png'}
@@ -288,10 +288,10 @@ export default function PlayingCard({
                   alt='card'
                 />
               </div>
-              </motion.div>
             </motion.div>
           </motion.div>
-        </div>
+        </motion.div>
+      </div>
 
       {/* <div
         ref={cardRef}

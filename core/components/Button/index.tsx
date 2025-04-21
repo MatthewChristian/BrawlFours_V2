@@ -17,16 +17,16 @@ export default function Button({ children, onClick, className, iconClassName, di
   return (
     <>
       <button className={`rounded-lg ${padding ?? 'p-2'} w-fit flex flex-row items-center transition-colors ${disabled ? 'disabled-button' : 'cursor-pointer'} ${tooltipAnchor} ${className}`} onClick={() => onClick && !disabled ? onClick() : undefined}>
-      {
-        icon ?
-          <div className={iconClassName ?? 'mr-2'}>
-            {icon}
-          </div> : undefined
-      }
-      <div className='relative top-[2px]'>
-        {children}
-      </div>
-    </button>
+        {
+          icon ?
+            <div className={iconClassName ?? 'mr-2'}>
+              {icon}
+            </div> : undefined
+        }
+        <div className='relative top-[2px]'>
+          {children}
+        </div>
+      </button>
 
       {tooltip && tooltipAnchor &&
         <Tooltip

@@ -1,7 +1,7 @@
 import React from 'react';
 import StatusIcon from '../../../core/components/StatusIcon';
 import Image from 'next/image';
-import ninePowerfulSvg from "../../../public/images/statusIcons/ninePowerful.svg";
+import ninePowerfulSvg from '../../../public/images/statusIcons/ninePowerful.svg';
 
 
 interface Props {

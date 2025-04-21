@@ -1,7 +1,7 @@
 import React from 'react';
 import StatusIcon from '../../../core/components/StatusIcon';
 import Image from 'next/image';
-import chooseStarterSvg from "../../../public/images/statusIcons/chooseStarter.svg";
+import chooseStarterSvg from '../../../public/images/statusIcons/chooseStarter.svg';
 
 
 interface Props {

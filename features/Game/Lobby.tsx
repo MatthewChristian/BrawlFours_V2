@@ -8,7 +8,7 @@ import { getErrorMsg, getJoinModalOpen, getRoomId, setJoinModalOpen } from '../.
 import { socket } from '../SocketClient';
 import { CreateRoomInput } from '../../models/CreateRoomInput';
 import { JoinRoomInput } from '../../models/JoinRoomInput';
-import { IoAdd, IoEnter } from "react-icons/io5";
+import { IoAdd, IoEnter } from 'react-icons/io5';
 import { useRouter } from 'next/navigation';
 
 export default function Lobby() {
@@ -57,14 +57,14 @@ export default function Lobby() {
   function createRoom() {
 
     // Get ID stored in local storage, otherwise set it
-    let localId = typeof window !== 'undefined' ? localStorage.getItem("socketId") ?? undefined : undefined;
+    let localId = typeof window !== 'undefined' ? localStorage.getItem('socketId') ?? undefined : undefined;
 
     if (!localId && socket?.id) {
-      localStorage.setItem("socketId", socket.id);
-      localId = socket.id
+      localStorage.setItem('socketId', socket.id);
+      localId = socket.id;
     }
 
-    localStorage.setItem("nickname", String(nickname));
+    localStorage.setItem('nickname', String(nickname));
 
     const data: CreateRoomInput = {
       nickname: String(nickname),
@@ -77,14 +77,14 @@ export default function Lobby() {
   // Join a room
   function joinRoom() {
     // Get ID stored in local storage, otherwise set it
-    let localId = typeof window !== 'undefined' ? localStorage.getItem("socketId") ?? undefined : undefined;
+    let localId = typeof window !== 'undefined' ? localStorage.getItem('socketId') ?? undefined : undefined;
 
     if (!localId && socket?.id) {
-      localStorage.setItem("socketId", socket.id);
-      localId = socket.id
+      localStorage.setItem('socketId', socket.id);
+      localId = socket.id;
     }
 
-    localStorage.setItem("nickname", String(nickname));
+    localStorage.setItem('nickname', String(nickname));
 
     const roomIdVal = joinRoomRef?.current?.value;
     const data: JoinRoomInput = {
@@ -110,7 +110,7 @@ export default function Lobby() {
 
   useEffect(() => {
     // Get nickname stored in local storage, otherwise set it
-    let localNick = typeof window !== 'undefined' ? localStorage.getItem("nickname") ?? undefined : undefined;
+    const localNick = typeof window !== 'undefined' ? localStorage.getItem('nickname') ?? undefined : undefined;
 
     setNickname(localNick);
   }, []);
@@ -126,57 +126,57 @@ export default function Lobby() {
       <div className='bg-white rounded-lg border border-gray-400 p-10'>
         <div className='text-3xl mb-5 text-center'>Brawl Fours</div>
 
+        <div className="">
           <div className="">
-            <div className="">
-              <Input
-                placeholder="Enter nickname..."
-                className='w-full'
-                onChange={handleNickChange}
-                defaultValue={nickname}
-                maxLength={15}
-              />
-              {showNickWarning ? (
-                <div className="text-red-500 mt-1">Must enter a nickname first!</div>
-              ) :
-                (null)
-              }
+            <Input
+              placeholder="Enter nickname..."
+              className='w-full'
+              onChange={handleNickChange}
+              defaultValue={nickname}
+              maxLength={15}
+            />
+            {showNickWarning ? (
+              <div className="text-red-500 mt-1">Must enter a nickname first!</div>
+            ) :
+              (null)
+            }
 
-              <div className='flex flex-row gap-5 mt-5'>
-                <Button className='blue-button' onClick={() => joinRoomPressed()} icon={<IoEnter size={22} />}>
+            <div className='flex flex-row gap-5 mt-5'>
+              <Button className='blue-button' onClick={() => joinRoomPressed()} icon={<IoEnter size={22} />}>
                   Join Room
-                </Button>
+              </Button>
 
-                <Button className="green-button" onClick={() => createRoomPressed()} icon={<IoAdd size={22} />}>
+              <Button className="green-button" onClick={() => createRoomPressed()} icon={<IoAdd size={22} />}>
                   Create Room
-                </Button>
-              </div>
-
-              <Popup contentStyle={{ left: '0%', width: '25em'}} open={joinModalOpen} closeOnDocumentClick onClose={closeJoinModal}>
-                <div className="flex flex-col justify-center items-center">
-                  <div className="">Enter room code:</div>
-                  <Input
-                    inputRef={joinRoomRef}
-                    placeholder=""
-                    maxLength={5}
-                    className='text-center'
-                  />
-
-                  { errorMsg ?
-                    <div className='mt-5 text-red-500'>
-                      {errorMsg}
-                    </div>
-                    : undefined
-                  }
-
-                  <Button className='blue-button mt-5' onClick={() => joinRoom()} icon={<IoEnter size={22} />}>
-                    Join Room
-                  </Button>
-                </div>
-              </Popup>
-
+              </Button>
             </div>
 
+            <Popup contentStyle={{ left: '0%', width: '25em'}} open={joinModalOpen} closeOnDocumentClick onClose={closeJoinModal}>
+              <div className="flex flex-col justify-center items-center">
+                <div className="">Enter room code:</div>
+                <Input
+                  inputRef={joinRoomRef}
+                  placeholder=""
+                  maxLength={5}
+                  className='text-center'
+                />
+
+                { errorMsg ?
+                  <div className='mt-5 text-red-500'>
+                    {errorMsg}
+                  </div>
+                  : undefined
+                }
+
+                <Button className='blue-button mt-5' onClick={() => joinRoom()} icon={<IoEnter size={22} />}>
+                    Join Room
+                </Button>
+              </div>
+            </Popup>
+
           </div>
+
+        </div>
 
       </div>
 

@@ -26,7 +26,7 @@ import OppositePowerIcon from './StatusIcons/OppositePowerIcon';
 import RoyalsDisabledIcon from './StatusIcons/RoyalsDisabledIcon';
 import TrumpDisabledIcon from './StatusIcons/TrumpDisabledIcon';
 import PlayerStatusIcons from './PlayerStatusIcons';
-import { IoMdEye, IoMdSwap } from "react-icons/io";
+import { IoMdEye, IoMdSwap } from 'react-icons/io';
 import DoubleLift2Icon from './StatusIcons/DoubleLift2Icon';
 import LoadingIcon from './LoadingIcon';
 
@@ -134,11 +134,11 @@ export default function Gameboard({ roomId }: Props) {
   // Data to send to socket
   const socketData = useMemo(() => {
     // Get ID stored in local storage, otherwise set it
-    let localId = typeof window !== 'undefined' ? localStorage.getItem("socketId") ?? undefined : undefined;
+    let localId = typeof window !== 'undefined' ? localStorage.getItem('socketId') ?? undefined : undefined;
 
     if (!localId && socket?.id) {
-      localStorage.setItem("socketId", socket.id);
-      localId = socket.id
+      localStorage.setItem('socketId', socket.id);
+      localId = socket.id;
     }
 
     return ({
@@ -204,7 +204,7 @@ export default function Gameboard({ roomId }: Props) {
     else if (player3Data.player == winnerPlayer) {
       return 3;
     }
-     else if (player4Data.player == winnerPlayer) {
+    else if (player4Data.player == winnerPlayer) {
       return 4;
     }
 
@@ -617,255 +617,255 @@ export default function Gameboard({ roomId }: Props) {
         <GameInfo playerTeam={player1Data.team} socketData={socketData} />
 
         <div className="h-screen w-4/5 board-bg">
-        {
-          isLoading ?
-          <div className='w-full h-full flex justify-center items-center'>
-            <LoadingIcon />
-          </div>
-          :
-        <>
-
-          {/* ------------------------ Player 3 Info  ------------------------*/}
-          <div className='h-[25vh] flex flex-col justify-between items-center'>
-            <div className='flex flex-col items-center justify-center p-2 player-info player-3-info w-1/2'>
-              <div className='flex justify-center text-white'>
-                {
-                  player3Data.nickname
-                }
+          {
+            isLoading ?
+              <div className='w-full h-full flex justify-center items-center'>
+                <LoadingIcon />
               </div>
+              :
+              <>
 
-              <div className='flex flex-row gap-2'>
-                <DealerIcon active={dealerData && player3Data.id == dealerData.id} />
-                <TurnIcon active={turnPlayerData && player3Data.id == turnPlayerData.id} />
-                <PlayerStatusIcons playerStatus={player3Status} />
-              </div>
-            </div>
+                {/* ------------------------ Player 3 Info  ------------------------*/}
+                <div className='h-[25vh] flex flex-col justify-between items-center'>
+                  <div className='flex flex-col items-center justify-center p-2 player-info player-3-info w-1/2'>
+                    <div className='flex justify-center text-white'>
+                      {
+                        player3Data.nickname
+                      }
+                    </div>
 
-            <div className='w-full flex flex-row justify-center items-center relative'>
-              <div className={`flex flex-row justify-center items-center relative ${player3Cards?.length > 0 ? 'left-5' : ''}`} ref={player3Hand}>
-                {
+                    <div className='flex flex-row gap-2'>
+                      <DealerIcon active={dealerData && player3Data.id == dealerData.id} />
+                      <TurnIcon active={turnPlayerData && player3Data.id == turnPlayerData.id} />
+                      <PlayerStatusIcons playerStatus={player3Status} />
+                    </div>
+                  </div>
 
-                  Array.from({ length: player3Data?.numCards ?? 0 }, (_, k) => {
-                    return (
-                    <PlayingCard
-                      key={'3' + k}
-                      player={3}
-                      cardData={player3Cards[k]}
-                      isNotPlayable={!allySelectionModalVisible}
-                      className='-mx-2 p-0'
-                      spotlighted={allySelectionModalVisible}
-                      glow={allySelectionModalVisible ? 'blue' : undefined}
-                      onClickHandler={() => player3Cards.length == 0 ? undefined : allySelectionModalVisible ? handleSelectAllyCard(player3Cards[k]) : undefined}
-                      flipped={!(isTeammateCardsVisible || allySelectionModalVisible)}
-                    />
-                    );
-                  })
-                }
-                <Marker dispatchFunction={setPlayer3HandPos} />
-              </div>
+                  <div className='w-full flex flex-row justify-center items-center relative'>
+                    <div className={`flex flex-row justify-center items-center relative ${player3Cards?.length > 0 ? 'left-5' : ''}`} ref={player3Hand}>
+                      {
 
-              { player3Cards?.length > 0 &&
+                        Array.from({ length: player3Data?.numCards ?? 0 }, (_, k) => {
+                          return (
+                            <PlayingCard
+                              key={'3' + k}
+                              player={3}
+                              cardData={player3Cards[k]}
+                              isNotPlayable={!allySelectionModalVisible}
+                              className='-mx-2 p-0'
+                              spotlighted={allySelectionModalVisible}
+                              glow={allySelectionModalVisible ? 'blue' : undefined}
+                              onClickHandler={() => player3Cards.length == 0 ? undefined : allySelectionModalVisible ? handleSelectAllyCard(player3Cards[k]) : undefined}
+                              flipped={!(isTeammateCardsVisible || allySelectionModalVisible)}
+                            />
+                          );
+                        })
+                      }
+                      <Marker dispatchFunction={setPlayer3HandPos} />
+                    </div>
+
+                    { player3Cards?.length > 0 &&
                       <div className='flex justify-center items-center relative left-10'>
-                  <Button
-                    className='blue-button blue-outline'
-                    iconClassName=''
-                    icon={<IoMdEye />}
-                    onClick={() => setIsTeammateCardsVisible((prev) => !prev)}
-                  />
+                        <Button
+                          className='blue-button blue-outline'
+                          iconClassName=''
+                          icon={<IoMdEye />}
+                          onClick={() => setIsTeammateCardsVisible((prev) => !prev)}
+                        />
+                      </div>
+                    }
+                  </div>
                 </div>
-              }
-              </div>
-          </div>
-          {/* -----------------------------------------------------------------*/}
+                {/* -----------------------------------------------------------------*/}
 
 
 
 
-          <div className='flex flex-row'>
-            {/* ------------------------ Player 4 Info  ------------------------*/}
-            <div className='flex flex-col justify-center items-center w-2/12 player-info player-4-info'>
-              <div className='text-white'>
-                {
-                  player4Data.nickname
-                }
-              </div>
+                <div className='flex flex-row'>
+                  {/* ------------------------ Player 4 Info  ------------------------*/}
+                  <div className='flex flex-col justify-center items-center w-2/12 player-info player-4-info'>
+                    <div className='text-white'>
+                      {
+                        player4Data.nickname
+                      }
+                    </div>
 
-              <div className='flex flex-row flex-wrap gap-2 px-2'>
-                <DealerIcon active={dealerData && player4Data.id == dealerData.id} />
-                <TurnIcon active={turnPlayerData && player4Data.id == turnPlayerData.id} />
-                <PlayerStatusIcons playerStatus={player4Status} />
-              </div>
-            </div>
+                    <div className='flex flex-row flex-wrap gap-2 px-2'>
+                      <DealerIcon active={dealerData && player4Data.id == dealerData.id} />
+                      <TurnIcon active={turnPlayerData && player4Data.id == turnPlayerData.id} />
+                      <PlayerStatusIcons playerStatus={player4Status} />
+                    </div>
+                  </div>
 
-            <div className="w-1/6 h-[50vh] flex flex-col items-center justify-center gap-0" ref={player4Hand}>
-              {
-                Array.from({ length: player4Data?.numCards ?? 0 }, (_, k) => (
-                  <PlayingCard
-                    key={'4' + k}
-                    player={4}
-                    isDeckCard
-                    className='rotate-90 p-0'
-                    style={getTeam2CardMargins(player4Data?.numCards ?? 0)}
-                  />
-                ))
-              }
+                  <div className="w-1/6 h-[50vh] flex flex-col items-center justify-center gap-0" ref={player4Hand}>
+                    {
+                      Array.from({ length: player4Data?.numCards ?? 0 }, (_, k) => (
+                        <PlayingCard
+                          key={'4' + k}
+                          player={4}
+                          isDeckCard
+                          className='rotate-90 p-0'
+                          style={getTeam2CardMargins(player4Data?.numCards ?? 0)}
+                        />
+                      ))
+                    }
 
-              <Marker dispatchFunction={setPlayer4HandPos} />
-            </div>
-            {/* -----------------------------------------------------------------*/}
-
-
-
-
-
-            {/* ------------------------ Lift Info  ------------------------*/}
-            <div className='w-4/6 flex flex-col gap-2 items-center justify-center'>
-
-              <PlayingCard
-                cardData={player3CardPlayed}
-                isOutline
-                isNotPlayable={!isTargettingLift}
-                liftCard={3}
-                liftWinner={liftWinnerMapped}
-                onClickHandler={handleLiftCardClick}
-                spotlighted={isTargettingLift}
-              />
-
-              <div className='flex flex-row'>
-                <PlayingCard
-                  cardData={player4CardPlayed}
-                  isOutline
-                  isNotPlayable={!(isTargettingLift || isTargettingOppLift)}
-                  liftCard={4}
-                  liftWinner={liftWinnerMapped}
-                  onClickHandler={handleLiftCardClick}
-                  spotlighted={isTargettingLift || isTargettingOppLift}
-                />
-
-                <div className='w-32 px-2 flex flex-wrap justify-center items-center gap-2'>
-
-                  <AbilitiesDisabledIcon active={activeAbilities?.includes(CardAbilities.abilitiesDisabled)} />
-                  <RoyalsDisabledIcon active={activeAbilities?.includes(CardAbilities.royalsDisabled)} />
-                  <TrumpDisabledIcon active={activeAbilities?.includes(CardAbilities.trumpDisabled)} />
-                  <NoWinLiftIcon active={activeAbilities?.includes(CardAbilities.noWinLift)} />
-                  <OppositePowerIcon active={activeAbilities?.includes(CardAbilities.oppositePower)} />
-                  <DoubleLiftIcon active={activeAbilities?.includes(CardAbilities.doubleLift)} />
-                  <DoubleLift2Icon active={doubleLiftCards?.length > 0} />
-                  <DoublePointsIcon active={activeAbilities?.includes(CardAbilities.doublePoints)} />
-                  <NinePowerfulIcon active={activeAbilities?.includes(CardAbilities.ninePowerful)} />
-
-                </div>
-
-                <PlayingCard
-                  cardData={player2CardPlayed}
-                  isOutline
-                  isNotPlayable={!(isTargettingLift || isTargettingOppLift)}
-                  liftCard={2}
-                  liftWinner={liftWinnerMapped}
-                  onClickHandler={handleLiftCardClick}
-                  spotlighted={isTargettingLift || isTargettingOppLift}
-                />
-              </div>
-
-
-              <PlayingCard
-                cardData={player1CardPlayed}
-                isOutline
-                isNotPlayable={!isTargettingLift}
-                liftCard={1}
-                liftWinner={liftWinnerMapped}
-                spotlighted={isTargettingLift}
-              />
-
-
-            </div>
-            {/* -------------------------------------------------------------*/}
+                    <Marker dispatchFunction={setPlayer4HandPos} />
+                  </div>
+                  {/* -----------------------------------------------------------------*/}
 
 
 
 
 
-            {/* ------------------------ Player 2 Info  ------------------------*/}
-            <div className="w-1/6 h-[50vh] flex flex-col items-center justify-center gap-0" ref={player2Hand}>
-              {
-                Array.from({ length: player2Data?.numCards ?? 0 }, (_, k) => (
-                  <PlayingCard
-                    key={'2' + k}
-                    player={2}
-                    isDeckCard
-                    className='rotate-90 p-0'
-                    style={getTeam2CardMargins(player2Data?.numCards ?? 0)}
-                  />
-                ))
-              }
+                  {/* ------------------------ Lift Info  ------------------------*/}
+                  <div className='w-4/6 flex flex-col gap-2 items-center justify-center'>
 
-              <Marker dispatchFunction={setPlayer2HandPos} />
-            </div>
-              <div className='flex flex-col justify-center items-center w-2/12 player-info player-2-info'>
-              <div className='text-white'>
-                {
-                  player2Data.nickname
-                }
-              </div>
-
-              <div className='flex flex-row flex-wrap gap-2'>
-                <DealerIcon active={dealerData && player2Data.id == dealerData.id} />
-                <TurnIcon active={turnPlayerData && player2Data.id == turnPlayerData.id} />
-                <PlayerStatusIcons playerStatus={player2Status} />
-              </div>
-            </div>
-            {/* -----------------------------------------------------------------*/}
-          </div>
-
-
-
-
-
-
-          {/* ------------------------ Player 1 Info  ------------------------*/}
-            <div className='h-[25vh]  flex flex-col justify-between items-center'>
-
-              <div className="w-full flex flex-row justify-center items-center" ref={player1Hand}>
-              {
-                Array.from({ length: player1Cards.length == 0 ? player1Data?.numCards ?? 0 : player1Cards.length}, (_, k) => {
-
-                  const selectionActive = ((oppSelectionModalVisible || allySelectionModalVisible) && (!(player1Cards[k].suit == playedCard?.suit && player1Cards[k].value == playedCard?.value)));
-                  return (
                     <PlayingCard
-                      key={'1' + k}
-                      player={1}
-                      cardData={player1Cards[k]}
-                      isDeckCard={player1Cards.length == 0 ? true : false}
-                      onClickHandler={() => player1Cards.length == 0 ? undefined : selectionActive ? handleSelectCard(player1Cards[k]) : playCard(player1Cards[k])}
-                      className='-mx-2'
-                      spotlighted={selectionActive}
-                      glow={selectionActive ? 'blue' : undefined}
+                      cardData={player3CardPlayed}
+                      isOutline
+                      isNotPlayable={!isTargettingLift}
+                      liftCard={3}
+                      liftWinner={liftWinnerMapped}
+                      onClickHandler={handleLiftCardClick}
+                      spotlighted={isTargettingLift}
                     />
-                  );}
-                )
-              }
 
-              <Marker dispatchFunction={setPlayer1HandPos} />
-            </div>
+                    <div className='flex flex-row'>
+                      <PlayingCard
+                        cardData={player4CardPlayed}
+                        isOutline
+                        isNotPlayable={!(isTargettingLift || isTargettingOppLift)}
+                        liftCard={4}
+                        liftWinner={liftWinnerMapped}
+                        onClickHandler={handleLiftCardClick}
+                        spotlighted={isTargettingLift || isTargettingOppLift}
+                      />
 
-            <div className='flex flex-col items-center justify-center p-2 player-info player-1-info w-1/2'>
-              <div className='text-white'>
-                {
-                  player1Data.nickname
-                }
-              </div>
+                      <div className='w-32 px-2 flex flex-wrap justify-center items-center gap-2'>
 
-              <div className='flex flex-row gap-2'>
-                <DealerIcon active={dealerData && player1Data.id == dealerData.id}/>
-                <TurnIcon active={turnPlayerData && player1Data.id == turnPlayerData.id} />
-                <PlayerStatusIcons playerStatus={player1Status} />
-              </div>
+                        <AbilitiesDisabledIcon active={activeAbilities?.includes(CardAbilities.abilitiesDisabled)} />
+                        <RoyalsDisabledIcon active={activeAbilities?.includes(CardAbilities.royalsDisabled)} />
+                        <TrumpDisabledIcon active={activeAbilities?.includes(CardAbilities.trumpDisabled)} />
+                        <NoWinLiftIcon active={activeAbilities?.includes(CardAbilities.noWinLift)} />
+                        <OppositePowerIcon active={activeAbilities?.includes(CardAbilities.oppositePower)} />
+                        <DoubleLiftIcon active={activeAbilities?.includes(CardAbilities.doubleLift)} />
+                        <DoubleLift2Icon active={doubleLiftCards?.length > 0} />
+                        <DoublePointsIcon active={activeAbilities?.includes(CardAbilities.doublePoints)} />
+                        <NinePowerfulIcon active={activeAbilities?.includes(CardAbilities.ninePowerful)} />
 
-            </div>
-          </div>
-          {/* -----------------------------------------------------------------*/}
-        </>
-        }
+                      </div>
+
+                      <PlayingCard
+                        cardData={player2CardPlayed}
+                        isOutline
+                        isNotPlayable={!(isTargettingLift || isTargettingOppLift)}
+                        liftCard={2}
+                        liftWinner={liftWinnerMapped}
+                        onClickHandler={handleLiftCardClick}
+                        spotlighted={isTargettingLift || isTargettingOppLift}
+                      />
+                    </div>
+
+
+                    <PlayingCard
+                      cardData={player1CardPlayed}
+                      isOutline
+                      isNotPlayable={!isTargettingLift}
+                      liftCard={1}
+                      liftWinner={liftWinnerMapped}
+                      spotlighted={isTargettingLift}
+                    />
+
+
+                  </div>
+                  {/* -------------------------------------------------------------*/}
+
+
+
+
+
+                  {/* ------------------------ Player 2 Info  ------------------------*/}
+                  <div className="w-1/6 h-[50vh] flex flex-col items-center justify-center gap-0" ref={player2Hand}>
+                    {
+                      Array.from({ length: player2Data?.numCards ?? 0 }, (_, k) => (
+                        <PlayingCard
+                          key={'2' + k}
+                          player={2}
+                          isDeckCard
+                          className='rotate-90 p-0'
+                          style={getTeam2CardMargins(player2Data?.numCards ?? 0)}
+                        />
+                      ))
+                    }
+
+                    <Marker dispatchFunction={setPlayer2HandPos} />
+                  </div>
+                  <div className='flex flex-col justify-center items-center w-2/12 player-info player-2-info'>
+                    <div className='text-white'>
+                      {
+                        player2Data.nickname
+                      }
+                    </div>
+
+                    <div className='flex flex-row flex-wrap gap-2'>
+                      <DealerIcon active={dealerData && player2Data.id == dealerData.id} />
+                      <TurnIcon active={turnPlayerData && player2Data.id == turnPlayerData.id} />
+                      <PlayerStatusIcons playerStatus={player2Status} />
+                    </div>
+                  </div>
+                  {/* -----------------------------------------------------------------*/}
+                </div>
+
+
+
+
+
+
+                {/* ------------------------ Player 1 Info  ------------------------*/}
+                <div className='h-[25vh]  flex flex-col justify-between items-center'>
+
+                  <div className="w-full flex flex-row justify-center items-center" ref={player1Hand}>
+                    {
+                      Array.from({ length: player1Cards.length == 0 ? player1Data?.numCards ?? 0 : player1Cards.length}, (_, k) => {
+
+                        const selectionActive = ((oppSelectionModalVisible || allySelectionModalVisible) && (!(player1Cards[k].suit == playedCard?.suit && player1Cards[k].value == playedCard?.value)));
+                        return (
+                          <PlayingCard
+                            key={'1' + k}
+                            player={1}
+                            cardData={player1Cards[k]}
+                            isDeckCard={player1Cards.length == 0 ? true : false}
+                            onClickHandler={() => player1Cards.length == 0 ? undefined : selectionActive ? handleSelectCard(player1Cards[k]) : playCard(player1Cards[k])}
+                            className='-mx-2'
+                            spotlighted={selectionActive}
+                            glow={selectionActive ? 'blue' : undefined}
+                          />
+                        );}
+                      )
+                    }
+
+                    <Marker dispatchFunction={setPlayer1HandPos} />
+                  </div>
+
+                  <div className='flex flex-col items-center justify-center p-2 player-info player-1-info w-1/2'>
+                    <div className='text-white'>
+                      {
+                        player1Data.nickname
+                      }
+                    </div>
+
+                    <div className='flex flex-row gap-2'>
+                      <DealerIcon active={dealerData && player1Data.id == dealerData.id}/>
+                      <TurnIcon active={turnPlayerData && player1Data.id == turnPlayerData.id} />
+                      <PlayerStatusIcons playerStatus={player1Status} />
+                    </div>
+
+                  </div>
+                </div>
+                {/* -----------------------------------------------------------------*/}
+              </>
+          }
         </div>
 
 
@@ -958,20 +958,20 @@ export default function Gameboard({ roomId }: Props) {
         <div className="px-12">Choose a card an an opponent to swap the card with</div>
 
         <div className='flex flex-row gap-5 justify-center mt-3'>
-        { player2Data.numCards != 0 &&
+          { player2Data.numCards != 0 &&
           <Button className={selectedOpp?.id == player2Data?.id ? 'blue-button' : 'white-button'} onClick={() => setSelectedOpp(player2Data)}>
             {player2Data.nickname}
           </Button>
-        }
+          }
 
-        { player4Data.numCards != 0 &&
+          { player4Data.numCards != 0 &&
           <Button className={selectedOpp?.id == player4Data?.id ? 'blue-button' : 'white-button'} onClick={() => setSelectedOpp(player4Data)}>
             {player4Data.nickname}
           </Button>
-        }
+          }
         </div>
 
-          { selectedCard &&
+        { selectedCard &&
             <div>
               <div className='flex flex-row justify-center mt-3'>
                 <PlayingCard
@@ -983,10 +983,10 @@ export default function Gameboard({ roomId }: Props) {
               </div>
 
               { selectedOpp &&
-                <div className='mt-3 text-bold text-center text-lg text-blue-500'>Swapping this card with a random card from {selectedOpp.nickname}'s hand</div>
+                <div className='mt-3 text-bold text-center text-lg text-blue-500'>Swapping this card with a random card from {selectedOpp.nickname}&apos;s hand</div>
               }
             </div>
-          }
+        }
 
         <div className='flex flex-row gap-5 justify-center'>
           <Button disabled={!(selectedCard && selectedOpp)} className='green-button mt-5' onClick={() => { handleOppSelectionConfirm(); }}>

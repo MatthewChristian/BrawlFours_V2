@@ -1,5 +1,5 @@
 import React, { RefObject, useEffect, useState } from 'react';
-import { IoSend } from "react-icons/io5";
+import { IoSend } from 'react-icons/io5';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { getChatMode, setChatMode } from '../../../slices/chat.slice';
 
@@ -50,27 +50,27 @@ export default function ChatInput({ inputRef, className, placeholder, onChange, 
     <div>
       <div className='rounded-lg bg-white border border-black flex flex-row justify-between items-center shadow-md'>
 
-      {
-        hideTeam ? undefined
-        :
-        chatMode == 'all' ?
-        <button
-          className={`bg-red-500 hover:bg-red-400 ${toggleClassName}`}
-          style={{ borderTopLeftRadius: 7, borderBottomLeftRadius: 7 }}
-          onClick={() => dispatch(setChatMode('team'))}
-        >
-          ALL
-        </button>
-        : chatMode == 'team' ?
-         <button
-          className={`bg-green-500 hover:bg-green-400 ${toggleClassName}`}
-          style={{ borderTopLeftRadius: 7, borderBottomLeftRadius: 7 }}
-          onClick={() => dispatch(setChatMode('all'))}
-        >
-          TEAM
-        </button>
-        : undefined
-      }
+        {
+          hideTeam ? undefined
+            :
+            chatMode == 'all' ?
+              <button
+                className={`bg-red-500 hover:bg-red-400 ${toggleClassName}`}
+                style={{ borderTopLeftRadius: 7, borderBottomLeftRadius: 7 }}
+                onClick={() => dispatch(setChatMode('team'))}
+              >
+                ALL
+              </button>
+              : chatMode == 'team' ?
+                <button
+                  className={`bg-green-500 hover:bg-green-400 ${toggleClassName}`}
+                  style={{ borderTopLeftRadius: 7, borderBottomLeftRadius: 7 }}
+                  onClick={() => dispatch(setChatMode('all'))}
+                >
+                  TEAM
+                </button>
+                : undefined
+        }
 
         <input
           type="text"

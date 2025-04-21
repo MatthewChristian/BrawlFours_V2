@@ -1,16 +1,16 @@
-import { describe, test, expect } from "@jest/globals";
-import { determineIfCardsPlayable } from "../core/services/sharedGameFunctions";
-import { PlayerSocket } from "../models/PlayerSocket";
-import { RoomSocket } from "../models/RoomSocket";
-import { testCard } from "./testCard";
-import { CardAbilities } from "../core/services/abilities";
+import { describe, test, expect } from '@jest/globals';
+import { determineIfCardsPlayable } from '../core/services/sharedGameFunctions';
+import { PlayerSocket } from '../models/PlayerSocket';
+import { RoomSocket } from '../models/RoomSocket';
+import { testCard } from './testCard';
+import { CardAbilities } from '../core/services/abilities';
 
 describe('Are Cards Playable', () => {
 
-  const roomData: RoomSocket = {}
+  const roomData: RoomSocket = {};
 
   roomData.called = { ...testCard, suit: 'd' }; // Dimes are called
-  roomData.trump = 'h' // Hearts is trump
+  roomData.trump = 'h'; // Hearts is trump
 
   const player: PlayerSocket = {};
 
@@ -26,7 +26,7 @@ describe('Are Cards Playable', () => {
       { ...testCard, value: '5', suit: 'c' },
       { ...testCard, value: '6', suit: 's' },
       { ...testCard, value: '7', suit: 's' },
-    ]
+    ];
 
     player.cards = cards;
 
@@ -42,7 +42,7 @@ describe('Are Cards Playable', () => {
       { ...cards[3], playable: false },
       { ...cards[4], playable: false },
       { ...cards[5], playable: false },
-    ]
+    ];
 
     expect(cards).toMatchObject(expectedCards);
   });
@@ -59,7 +59,7 @@ describe('Are Cards Playable', () => {
       { ...testCard, value: '5', suit: 'c' },
       { ...testCard, value: '6', suit: 's' },
       { ...testCard, value: '7', suit: 'h' },
-    ]
+    ];
 
     player.cards = cards;
 
@@ -75,7 +75,7 @@ describe('Are Cards Playable', () => {
       { ...cards[3], playable: false },
       { ...cards[4], playable: false },
       { ...cards[5], playable: true },
-    ]
+    ];
 
     expect(cards).toMatchObject(expectedCards);
   });
@@ -91,7 +91,7 @@ describe('Are Cards Playable', () => {
       { ...testCard, value: '5', suit: 'c' },
       { ...testCard, value: '6', suit: 's' },
       { ...testCard, value: '7', suit: 'h' },
-    ]
+    ];
 
     player.cards = cards;
 
@@ -107,7 +107,7 @@ describe('Are Cards Playable', () => {
       { ...cards[3], playable: true },
       { ...cards[4], playable: true },
       { ...cards[5], playable: true },
-    ]
+    ];
 
     expect(cards).toMatchObject(expectedCards);
   });
@@ -123,7 +123,7 @@ describe('Are Cards Playable', () => {
       { ...testCard, value: '5', suit: 's' },
       { ...testCard, value: '6', suit: 's' },
       { ...testCard, value: '7', suit: 'h' },
-    ]
+    ];
 
     player.cards = cards;
 
@@ -139,7 +139,7 @@ describe('Are Cards Playable', () => {
       { ...cards[3], playable: true },
       { ...cards[4], playable: true },
       { ...cards[5], playable: true },
-    ]
+    ];
 
     expect(cards).toMatchObject(expectedCards);
   });
@@ -155,7 +155,7 @@ describe('Are Cards Playable', () => {
       { ...testCard, value: '5', suit: 's', power: 5 },
       { ...testCard, value: '6', suit: 'h', power: 6 },
       { ...testCard, value: 'J', suit: 'h', power: 11 },
-    ]
+    ];
 
     player.cards = cards;
 
@@ -171,7 +171,7 @@ describe('Are Cards Playable', () => {
       { ...cards[3], playable: false },
       { ...cards[4], playable: true },
       { ...cards[5], playable: true },
-    ]
+    ];
 
     expect(cards).toMatchObject(expectedCards);
   });
@@ -187,7 +187,7 @@ describe('Are Cards Playable', () => {
       { ...testCard, value: '5', suit: 's', power: 5 },
       { ...testCard, value: '6', suit: 'h', power: 6 },
       { ...testCard, value: 'J', suit: 'h', power: 11 },
-    ]
+    ];
 
     player.cards = cards;
 
@@ -203,7 +203,7 @@ describe('Are Cards Playable', () => {
       { ...cards[3], playable: false },
       { ...cards[4], playable: false },
       { ...cards[5], playable: true },
-    ]
+    ];
 
     expect(cards).toMatchObject(expectedCards);
   });
@@ -219,7 +219,7 @@ describe('Are Cards Playable', () => {
       { ...testCard, value: '5', suit: 's' },
       { ...testCard, value: '2', suit: 's', ability: CardAbilities.alwaysPlayable },
       { ...testCard, value: '7', suit: 'h' },
-    ]
+    ];
 
     player.cards = cards;
 
@@ -235,7 +235,7 @@ describe('Are Cards Playable', () => {
       { ...cards[3], playable: false },
       { ...cards[4], playable: true },
       { ...cards[5], playable: true },
-    ]
+    ];
 
     expect(cards).toMatchObject(expectedCards);
   });
@@ -250,7 +250,7 @@ describe('Are Cards Playable', () => {
       { ...testCard, value: '5', suit: 's' },
       { ...testCard, value: '2', suit: 's', ability: CardAbilities.alwaysPlayable },
       { ...testCard, value: '7', suit: 'h' },
-    ]
+    ];
 
     player.cards = cards;
 
@@ -266,7 +266,7 @@ describe('Are Cards Playable', () => {
       { ...cards[3], playable: false },
       { ...cards[4], playable: false },
       { ...cards[5], playable: true },
-    ]
+    ];
 
     expect(cards).toMatchObject(expectedCards);
   });
@@ -282,7 +282,7 @@ describe('Are Cards Playable', () => {
       { ...testCard, value: '5', suit: 's' },
       { ...testCard, value: '2', suit: 's', ability: CardAbilities.alwaysPlayable },
       { ...testCard, value: '7', suit: 'h' },
-    ]
+    ];
 
     player.cards = cards;
 
@@ -298,7 +298,7 @@ describe('Are Cards Playable', () => {
       { ...cards[3], playable: false },
       { ...cards[4], playable: false },
       { ...cards[5], playable: true },
-    ]
+    ];
 
     expect(cards).toMatchObject(expectedCards);
   });
@@ -314,7 +314,7 @@ describe('Are Cards Playable', () => {
       { ...testCard, value: '5', suit: 's' },
       { ...testCard, value: '6', suit: 'h' },
       { ...testCard, value: '7', suit: 'h' },
-    ]
+    ];
 
     player.cards = cards;
 
@@ -330,7 +330,7 @@ describe('Are Cards Playable', () => {
       { ...cards[3], playable: false },
       { ...cards[4], playable: false },
       { ...cards[5], playable: false },
-    ]
+    ];
 
     expect(cards).toMatchObject(expectedCards);
   });
@@ -345,7 +345,7 @@ describe('Are Cards Playable', () => {
       { ...testCard, value: '5', suit: 's' },
       { ...testCard, value: '6', suit: 'h' },
       { ...testCard, value: '7', suit: 'h' },
-    ]
+    ];
 
     player.cards = cards;
 
@@ -361,7 +361,7 @@ describe('Are Cards Playable', () => {
       { ...cards[3], playable: true },
       { ...cards[4], playable: false },
       { ...cards[5], playable: false },
-    ]
+    ];
 
     expect(cards).toMatchObject(expectedCards);
   });
@@ -375,7 +375,7 @@ describe('Are Cards Playable', () => {
       { ...testCard, value: '5', suit: 'h' },
       { ...testCard, value: '6', suit: 'h' },
       { ...testCard, value: '7', suit: 'h' },
-    ]
+    ];
 
     player.cards = cards;
 
@@ -391,7 +391,7 @@ describe('Are Cards Playable', () => {
       { ...cards[3], playable: true },
       { ...cards[4], playable: true },
       { ...cards[5], playable: true },
-    ]
+    ];
 
     expect(cards).toMatchObject(expectedCards);
   });
@@ -406,7 +406,7 @@ describe('Are Cards Playable', () => {
       { ...testCard, value: '5', suit: 'c' },
       { ...testCard, value: '6', suit: 'h' },
       { ...testCard, value: 'K', suit: 'h' },
-    ]
+    ];
 
     player.cards = cards;
 
@@ -422,7 +422,7 @@ describe('Are Cards Playable', () => {
       { ...cards[3], playable: false },
       { ...cards[4], playable: true },
       { ...cards[5], playable: false },
-    ]
+    ];
 
     expect(cards).toMatchObject(expectedCards);
   });
@@ -437,7 +437,7 @@ describe('Are Cards Playable', () => {
       { ...testCard, value: '5', suit: 'c' },
       { ...testCard, value: '6', suit: 'h' },
       { ...testCard, value: 'K', suit: 'h' },
-    ]
+    ];
 
     player.cards = cards;
 
@@ -453,7 +453,7 @@ describe('Are Cards Playable', () => {
       { ...cards[3], playable: false },
       { ...cards[4], playable: true },
       { ...cards[5], playable: false },
-    ]
+    ];
 
     expect(cards).toMatchObject(expectedCards);
   });
@@ -468,7 +468,7 @@ describe('Are Cards Playable', () => {
       { ...testCard, value: '5', suit: 'c' },
       { ...testCard, value: 'Q', suit: 'h' },
       { ...testCard, value: 'K', suit: 'h' },
-    ]
+    ];
 
     player.cards = cards;
 
@@ -484,7 +484,7 @@ describe('Are Cards Playable', () => {
       { ...cards[3], playable: false },
       { ...cards[4], playable: false },
       { ...cards[5], playable: false },
-    ]
+    ];
 
     expect(cards).toMatchObject(expectedCards);
   });
@@ -499,7 +499,7 @@ describe('Are Cards Playable', () => {
       { ...testCard, value: 'A', suit: 'c' },
       { ...testCard, value: 'J', suit: 'h' },
       { ...testCard, value: 'K', suit: 'h' },
-    ]
+    ];
 
     player.cards = cards;
 
@@ -515,7 +515,7 @@ describe('Are Cards Playable', () => {
       { ...cards[3], playable: false },
       { ...cards[4], playable: true },
       { ...cards[5], playable: true },
-    ]
+    ];
 
     expect(cards).toMatchObject(expectedCards);
   });
@@ -530,7 +530,7 @@ describe('Are Cards Playable', () => {
       { ...testCard, value: 'A', suit: 'c' },
       { ...testCard, value: 'J', suit: 'h' },
       { ...testCard, value: 'K', suit: 'h' },
-    ]
+    ];
 
     player.cards = cards;
 
@@ -546,7 +546,7 @@ describe('Are Cards Playable', () => {
       { ...cards[3], playable: true },
       { ...cards[4], playable: true },
       { ...cards[5], playable: true },
-    ]
+    ];
 
     expect(cards).toMatchObject(expectedCards);
   });
@@ -561,7 +561,7 @@ describe('Are Cards Playable', () => {
       { ...testCard, value: 'A', suit: 'c' },
       { ...testCard, value: 'J', suit: 's' },
       { ...testCard, value: 'K', suit: 'c' },
-    ]
+    ];
 
     player.cards = cards;
 
@@ -577,7 +577,7 @@ describe('Are Cards Playable', () => {
       { ...cards[3], playable: true },
       { ...cards[4], playable: true },
       { ...cards[5], playable: true },
-    ]
+    ];
 
     expect(cards).toMatchObject(expectedCards);
   });
@@ -592,7 +592,7 @@ describe('Are Cards Playable', () => {
       { ...testCard, value: '5', suit: 'c' },
       { ...testCard, value: '6', suit: 'h' },
       { ...testCard, value: 'K', suit: 'h' },
-    ]
+    ];
 
     player.cards = cards;
 
@@ -608,7 +608,7 @@ describe('Are Cards Playable', () => {
       { ...cards[3], playable: true },
       { ...cards[4], playable: true },
       { ...cards[5], playable: false },
-    ]
+    ];
 
     expect(cards).toMatchObject(expectedCards);
   });
@@ -624,7 +624,7 @@ describe('Are Cards Playable', () => {
       { ...testCard, value: '5', suit: 'c' },
       { ...testCard, value: '6', suit: 'h' },
       { ...testCard, value: 'K', suit: 'h' },
-    ]
+    ];
 
     player.cards = cards;
 
@@ -640,7 +640,7 @@ describe('Are Cards Playable', () => {
       { ...cards[3], playable: false },
       { ...cards[4], playable: true },
       { ...cards[5], playable: true },
-    ]
+    ];
 
     expect(cards).toMatchObject(expectedCards);
   });
@@ -654,7 +654,7 @@ describe('Are Cards Playable', () => {
       { ...testCard, value: '5', suit: 'c' },
       { ...testCard, value: '6', suit: 's' },
       { ...testCard, value: '7', suit: 'h' },
-    ]
+    ];
 
     player.cards = cards;
 
@@ -670,7 +670,7 @@ describe('Are Cards Playable', () => {
       { ...cards[3], playable: false },
       { ...cards[4], playable: false },
       { ...cards[5], playable: true },
-    ]
+    ];
 
     expect(cards).toMatchObject(expectedCards);
   });
@@ -684,7 +684,7 @@ describe('Are Cards Playable', () => {
       { ...testCard, value: '5', suit: 'c' },
       { ...testCard, value: '6', suit: 's' },
       { ...testCard, value: '7', suit: 'h' },
-    ]
+    ];
 
     player.cards = cards;
 
@@ -700,7 +700,7 @@ describe('Are Cards Playable', () => {
       { ...cards[3], playable: true },
       { ...cards[4], playable: true },
       { ...cards[5], playable: true },
-    ]
+    ];
 
     expect(cards).toMatchObject(expectedCards);
   });
@@ -714,7 +714,7 @@ describe('Are Cards Playable', () => {
       { ...testCard, value: 'K', suit: 'c' },
       { ...testCard, value: 'A', suit: 's' },
       { ...testCard, value: 'J', suit: 'h' },
-    ]
+    ];
 
     player.cards = cards;
 
@@ -730,7 +730,7 @@ describe('Are Cards Playable', () => {
       { ...cards[3], playable: true },
       { ...cards[4], playable: true },
       { ...cards[5], playable: true },
-    ]
+    ];
 
     expect(cards).toMatchObject(expectedCards);
   });
@@ -744,7 +744,7 @@ describe('Are Cards Playable', () => {
       { ...testCard, value: 'K', suit: 'h' },
       { ...testCard, value: 'A', suit: 'h' },
       { ...testCard, value: 'J', suit: 'h' },
-    ]
+    ];
 
     player.cards = cards;
 
@@ -760,7 +760,7 @@ describe('Are Cards Playable', () => {
       { ...cards[3], playable: true },
       { ...cards[4], playable: true },
       { ...cards[5], playable: true },
-    ]
+    ];
 
     expect(cards).toMatchObject(expectedCards);
   });

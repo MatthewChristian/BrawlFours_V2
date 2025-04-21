@@ -1,5 +1,5 @@
-import React, { ReactNode, useState } from 'react'
-import { Tooltip } from 'react-tooltip'
+import React, { ReactNode, useState } from 'react';
+import { Tooltip } from 'react-tooltip';
 import Button from '../Button';
 
 interface Props {
@@ -45,5 +45,5 @@ export default function Popconfirm({ children, message, shortcode, onConfirm }: 
         </div>
       </Tooltip>
     </div>
-  )
+  );
 }

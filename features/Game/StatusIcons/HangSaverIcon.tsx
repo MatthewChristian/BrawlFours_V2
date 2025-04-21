@@ -1,7 +1,7 @@
 import React from 'react';
 import StatusIcon from '../../../core/components/StatusIcon';
 import Image from 'next/image';
-import hangSaverSvg from "../../../public/images/statusIcons/hangSaver.svg";
+import hangSaverSvg from '../../../public/images/statusIcons/hangSaver.svg';
 
 
 interface Props {

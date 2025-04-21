@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useRef } from 'react'
+import React, { useEffect, useLayoutEffect, useRef } from 'react';
 import { useAppDispatch } from '../../../store/hooks';
 import { UnknownAction } from '@reduxjs/toolkit';
 import { MarkerPosition } from '../../../models/MarkerPosition';
@@ -22,7 +22,7 @@ export default function Marker({ dispatchFunction }: Props) {
     const centerPos = {
       x: pos.left + pos.width / 2,
       y: pos.y + pos.height / 2
-    }
+    };
 
     dispatch(dispatchFunction(centerPos));
   }, [windowSize]);
@@ -31,5 +31,5 @@ export default function Marker({ dispatchFunction }: Props) {
     <div ref={markerRef} className='absolute h-1 w-1'>
 
     </div>
-  )
+  );
 }

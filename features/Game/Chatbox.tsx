@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react';
 import { socket } from '../SocketClient';
 import { BasicRoomInput } from '../../models/BasicRoomInput';
 import { useAppSelector } from '../../store/hooks';
@@ -51,7 +51,7 @@ export default function Chatbox({ socketData, className, hideTeam }: Props) {
           { msg.mode && msg.mode != 'log' && !hideTeam ?
             <span className='mr-1' style={{ color: msg.modeColour }}>
               {
-                "[" + msg.mode?.toUpperCase() + "]"
+                '[' + msg.mode?.toUpperCase() + ']'
               }
             </span>
             : undefined
@@ -80,5 +80,5 @@ export default function Chatbox({ socketData, className, hideTeam }: Props) {
 
       </div>
     </div>
-  )
+  );
 }

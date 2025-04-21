@@ -21,6 +21,7 @@ import { TargetPlayerInput } from './models/TargetPlayerInput';
 import { SwapAllyCardInput } from './models/SwapAllyCardInput';
 import { TargetLiftInput } from './models/TargetLiftInput';
 import { KickPlayerInput } from './models/KickPlayerInput';
+import e from 'express';
 
 const app = express();
 const server = createServer(app);
@@ -184,7 +185,7 @@ function joinRoom(data: JoinRoomInput, gameSocket: Socket) {
         }
         else { // Otherwise update their data in the room
           roomUsers[data.roomId].users[userIndex].id = data.localId;
-          roomUsers[data.roomId].users[userIndex].socketId = gameSocket.id
+          roomUsers[data.roomId].users[userIndex].socketId = gameSocket.id;
         }
       }
 
@@ -257,7 +258,14 @@ function leaveRoom(data: BasicRoomInput, gameSocket: Socket) {
 
       sendSystemMessage({ io, message, roomId: data.roomId, colour: '#991b1b' });
 
-      roomUsers[data.roomId].users.splice(index, 1);
+      // If game has started
+      if (roomUsers[data.roomId]?.kicked) {
+        roomUsers[data.roomId].users[index].disconnected = true;
+      }
+      else {
+        roomUsers[data.roomId].users.splice(index, 1);
+      }
+
     }
 
     io.to(data.roomId).emit('playersInRoom', roomUsers[data.roomId].users);
@@ -384,7 +392,7 @@ function handleChatMessage(data: ChatInput) {
       }
       // Send message to teammates if chat mode was team
       else if (data.mode == 'team' && el.team == sender.team) {
-        message.modeColour = '#2563eb'
+        message.modeColour = '#2563eb';
         io.to(el.socketId).emit('chat', message);
       }
 
@@ -829,11 +837,11 @@ function begResponse(data: BegResponseInput, gameSocket: Socket) {
         message: begger.nickname + ' has begged!',
         shortcode: 'BEGGED'
       });
-      sendSystemMessage({io, message: begger.nickname + ' has begged!', roomId: data.roomId, colour: "#06b6d4"});
+      sendSystemMessage({io, message: begger.nickname + ' has begged!', roomId: data.roomId, colour: '#06b6d4'});
     }
     else if (data.response == 'stand') {
       roomUsers[data.roomId].beg = 'stand';
-      sendSystemMessage({io, message: begger.nickname + ' has stood!', roomId: data.roomId, colour: "#06b6d4"});
+      sendSystemMessage({io, message: begger.nickname + ' has stood!', roomId: data.roomId, colour: '#06b6d4'});
     }
     else if (data.response == 'give') {
       roomUsers[data.roomId].beg = 'give';
@@ -848,7 +856,7 @@ function begResponse(data: BegResponseInput, gameSocket: Socket) {
           shortcode: 'GIVE'
         });
 
-        sendSystemMessage({io, message: dealer.nickname + ' forced ' + begger.nickname + ' to stand without giving a point!', roomId: data.roomId, colour: "#06b6d4"});
+        sendSystemMessage({io, message: dealer.nickname + ' forced ' + begger.nickname + ' to stand without giving a point!', roomId: data.roomId, colour: '#06b6d4'});
       }
       else {
         if (beggerTeam == 1) {
@@ -879,7 +887,7 @@ function begResponse(data: BegResponseInput, gameSocket: Socket) {
           shortcode: 'GIVE'
         });
 
-        sendSystemMessage({io, message: dealer.nickname + ' gave a point!', roomId: data.roomId, colour: "#06b6d4"});
+        sendSystemMessage({io, message: dealer.nickname + ' gave a point!', roomId: data.roomId, colour: '#06b6d4'});
       }
     }
     else if (data.response == 'run') {
@@ -887,7 +895,7 @@ function begResponse(data: BegResponseInput, gameSocket: Socket) {
       runPack(data);
       playerCards(data, gameSocket);
       teammateCards(data, gameSocket);
-      sendSystemMessage({io, message: dealer.nickname + ' ran the pack!', roomId: data.roomId, colour: "#06b6d4"});
+      sendSystemMessage({io, message: dealer.nickname + ' ran the pack!', roomId: data.roomId, colour: '#06b6d4'});
     }
 
     io.to(data.roomId).emit('beg', roomUsers[data.roomId].beg);
@@ -984,11 +992,11 @@ async function playCard(data: PlayCardInput, gameSocket: Socket) {
     (!(cardData.ability == CardAbilities.alwaysPlayable && !roomUsers[data.roomId].activeAbilities.includes(CardAbilities.abilitiesDisabled)))
   ) { // If the card played's ability was not alwaysPlayable and abilities are not disabled
 
-      // Set revealedBare value
-      roomUsers[data.roomId].revealedBare[player.player] = true;
+    // Set revealedBare value
+    roomUsers[data.roomId].revealedBare[player.player] = true;
 
-      // Emit revealedBare status to player
-      io.to(player.socketId).emit('revealedBare', true);
+    // Emit revealedBare status to player
+    io.to(player.socketId).emit('revealedBare', true);
 
   }
 
@@ -1093,7 +1101,7 @@ async function liftScoring(data: BasicRoomInput) {
   roomUsers[data.roomId].playerStatus?.forEach((stat) => {
     const removedPlayerStatuses = stat.status?.filter(el => getAbilityData(el).duration != 'lift');
     stat.status = removedPlayerStatuses;
-  })
+  });
 
   // Reset pending turns
   roomUsers[data.roomId].tempPendingTurn = undefined;
@@ -1105,7 +1113,7 @@ async function liftScoring(data: BasicRoomInput) {
 
 
   if (highestHangerPlayer && jackOwnerPlayer && highestHangerPlayer.team != jackOwnerPlayer.team) { // Hang Jack
-    sendSystemMessage({ io, message: highestHangerPlayer.nickname + ' hung jack!!!', roomId: data.roomId, colour: '#f97316', showToast: true })
+    sendSystemMessage({ io, message: highestHangerPlayer.nickname + ' hung jack!!!', roomId: data.roomId, colour: '#f97316', showToast: true });
   }
   else if (roomUsers[data.roomId].jackSaved && highestHangerPlayer) { // Save Jack
     sendSystemMessage({ io, message: highestHangerPlayer.nickname + ' saved jack from being hung!!!', roomId: data.roomId, colour: '#db2777', showToast: true });
@@ -1265,10 +1273,10 @@ function roundScoring(data: BasicRoomInput) {
   // Send chat log for game winner
   roomUsers[data.roomId].users.forEach((el, i) => {
     if (el.team == gameWinnerTeam) {
-      sendSystemMessage({io, message: 'Your team won game!', roomId: el.socketId, colour: '#22c55e'})
+      sendSystemMessage({io, message: 'Your team won game!', roomId: el.socketId, colour: '#22c55e'});
     }
     else {
-      sendSystemMessage({io, message: 'The opposing team won game!', roomId: el.socketId, colour: '#22c55e'})
+      sendSystemMessage({io, message: 'The opposing team won game!', roomId: el.socketId, colour: '#22c55e'});
     }
   });
 
@@ -1641,7 +1649,7 @@ async function handleSwapHands(data: TargetPlayerInput, socket: Socket) {
       if (!(el.id == player.id || el.id == selectedPlayer.id)) {
         sendSystemMessage({ io, message: `${player.nickname} and ${selectedPlayer.nickname} swapped hands!`, roomId: el.socketId, colour: '#db2777' });
       }
-    })
+    });
 
     // Finalize
     await playCard({ ...data, card: data.playedCard }, socket);

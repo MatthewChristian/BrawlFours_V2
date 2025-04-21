@@ -1,7 +1,7 @@
 import React from 'react';
 import StatusIcon from '../../../core/components/StatusIcon';
 import Image from 'next/image';
-import doublePointsSvg from "../../../public/images/statusIcons/doublePoints.svg";
+import doublePointsSvg from '../../../public/images/statusIcons/doublePoints.svg';
 
 
 interface Props {

@@ -20,7 +20,7 @@ export default function StatusIcon({ icon, shortcode, tooltip, twBgColour, twTex
           <Tooltip anchorSelect={`.${shortcode}`} place="top" style={{ zIndex: 10000 }}>
             {tooltip}
           </Tooltip>
-        : undefined
+          : undefined
         }
 
         <div
@@ -30,6 +30,6 @@ export default function StatusIcon({ icon, shortcode, tooltip, twBgColour, twTex
           {icon}
         </div>
       </>
-    : <></>
+      : <></>
   );
 }

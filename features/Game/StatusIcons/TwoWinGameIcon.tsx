@@ -1,7 +1,7 @@
 import React from 'react';
 import StatusIcon from '../../../core/components/StatusIcon';
 import Image from 'next/image';
-import twoWinGameSvg from "../../../public/images/statusIcons/twoWinGame.svg";
+import twoWinGameSvg from '../../../public/images/statusIcons/twoWinGame.svg';
 
 
 interface Props {

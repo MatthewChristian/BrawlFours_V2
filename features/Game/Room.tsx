@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 import { socket } from '../SocketClient';
 import { ChoosePartnerInput } from '../../models/ChoosePartnerInput';
 import { BasicRoomInput } from '../../models/BasicRoomInput';
-import { IoExit, IoCheckmark, IoCopyOutline, IoLink } from "react-icons/io5";
+import { IoExit, IoCheckmark, IoCopyOutline, IoLink } from 'react-icons/io5';
 import RoundWinnersModal from './Modals/RoundWinnersModal';
 import MatchWinnersModal from './Modals/MatchWinnersModal';
 import { JoinRoomInput } from '../../models/JoinRoomInput';
@@ -57,11 +57,11 @@ export default function Room({ roomId }: Props) {
   // Data to send to socket
   const socketData = useMemo(() => {
     // Get ID stored in local storage, otherwise set it
-    let localId = typeof window !== 'undefined' ? localStorage.getItem("socketId") ?? undefined : undefined;
+    let localId = typeof window !== 'undefined' ? localStorage.getItem('socketId') ?? undefined : undefined;
 
     if (!localId && socket?.id) {
-      localStorage.setItem("socketId", socket.id);
-      localId = socket.id
+      localStorage.setItem('socketId', socket.id);
+      localId = socket.id;
     }
 
     return ({
@@ -72,14 +72,14 @@ export default function Room({ roomId }: Props) {
 
   function joinRoom(nick?: string) {
     // Get ID stored in local storage, otherwise set it
-    let localId = typeof window !== 'undefined' ? localStorage.getItem("socketId") ?? undefined : undefined;
+    let localId = typeof window !== 'undefined' ? localStorage.getItem('socketId') ?? undefined : undefined;
 
     if (!localId && socket?.id) {
-      localStorage.setItem("socketId", socket.id);
-      localId = socket.id
+      localStorage.setItem('socketId', socket.id);
+      localId = socket.id;
     }
 
-    localStorage.setItem("nickname", nick ?? String(nickname));
+    localStorage.setItem('nickname', nick ?? String(nickname));
 
     const data: JoinRoomInput = {
       roomId: String(roomId),
@@ -202,7 +202,7 @@ export default function Room({ roomId }: Props) {
 
   useEffect(() => {
     // Get nickname stored in local storage, otherwise set it
-    let localNick = typeof window !== 'undefined' ? localStorage.getItem("nickname") ?? undefined : undefined;
+    const localNick = typeof window !== 'undefined' ? localStorage.getItem('nickname') ?? undefined : undefined;
 
     if (localNick) {
       setNickname(localNick);
@@ -216,7 +216,7 @@ export default function Room({ roomId }: Props) {
   useEffect(() => {
     return () => {
       setIsLoading(false);
-    }
+    };
   }, []);
 
 
@@ -231,8 +231,8 @@ export default function Room({ roomId }: Props) {
 
         <div className="h-screen w-screen flex flex-col items-center justify-center">
 
-        <div className='bg-white rounded-lg border border-gray-400 p-10'>
-          <div className='text-3xl mb-5 text-center'>Brawl Fours</div>
+          <div className='bg-white rounded-lg border border-gray-400 p-10'>
+            <div className='text-3xl mb-5 text-center'>Brawl Fours</div>
             <div className="flex flex-col justify-center items-center">
 
               <div className="">Share this code with your friends:</div>
@@ -257,7 +257,7 @@ export default function Room({ roomId }: Props) {
                 <div className='text-sm text-gray-500'>Players waiting in Lobby</div>
                 { !players || players.length == 0 ?
                   <LoadingIcon />
-                :
+                  :
                   <div className='flex flex-col rounded-lg border border-gray-400'>
                     {
                       players?.map((el, i) =>
@@ -280,7 +280,7 @@ export default function Room({ roomId }: Props) {
                                     <button className={`right-3 w-3 relative text-red-500 hover:text-red-400 kick-${i}`} style={{ top: 2 }}>
                                       <FaRegTimesCircle className='cursor-pointer' />
                                     </button>
-                                </Popconfirm> :<div className='w-3'></div>
+                                  </Popconfirm> :<div className='w-3'></div>
                               }
                             </div>
                           </div>
@@ -310,22 +310,22 @@ export default function Room({ roomId }: Props) {
                   {
                     isLoading ?
                       <LoadingIcon />
-                    :
-                    <>
-                      <div className='w-full'>
-                        {
-                          players?.map((el, i) => i != 0 ? <div key={'partner_' + i}>
-                            <Button className='white-button mt-5 w-full text-center' onClick={() => el.id ? choosePartner(el.id) : undefined}>
-                              {el.nickname}
-                            </Button>
-                          </div> : undefined
-                          )}
-                      </div>
+                      :
+                      <>
+                        <div className='w-full'>
+                          {
+                            players?.map((el, i) => i != 0 ? <div key={'partner_' + i}>
+                              <Button className='white-button mt-5 w-full text-center' onClick={() => el.id ? choosePartner(el.id) : undefined}>
+                                {el.nickname}
+                              </Button>
+                            </div> : undefined
+                            )}
+                        </div>
 
-                      <Button className='blue-button mt-5' icon={<IoDice size={24} />} onClick={() => randomPartner()}>
+                        <Button className='blue-button mt-5' icon={<IoDice size={24} />} onClick={() => randomPartner()}>
                         Randomise Teams
-                      </Button>
-                    </>
+                        </Button>
+                      </>
                   }
                 </div>
               </Popup>
@@ -337,39 +337,39 @@ export default function Room({ roomId }: Props) {
               <Popup contentStyle={{ left: '0%', width: '25em'}} open={joinModalOpen} closeOnDocumentClick onClose={closeJoinModal}>
                 <div className="flex flex-col justify-center items-center">
                   <div className="">Enter nickname:</div>
-                    <Input
-                      placeholder="Enter nickname..."
-                      onChange={handleNickChange}
-                      defaultValue={nickname}
-                      maxLength={15}
-                    />
-                    {showNickWarning ? (
-                      <div className="text-red-500 mt-1">Must enter a nickname first!</div>
-                    ) :
-                      (null)
-                    }
+                  <Input
+                    placeholder="Enter nickname..."
+                    onChange={handleNickChange}
+                    defaultValue={nickname}
+                    maxLength={15}
+                  />
+                  {showNickWarning ? (
+                    <div className="text-red-500 mt-1">Must enter a nickname first!</div>
+                  ) :
+                    (null)
+                  }
 
-                    { errorMsg ?
-                      <div className='mt-5 text-red-500'>
-                        {errorMsg}
-                      </div>
-                      : undefined
-                    }
+                  { errorMsg ?
+                    <div className='mt-5 text-red-500'>
+                      {errorMsg}
+                    </div>
+                    : undefined
+                  }
 
-                    { isChangingNickname ?
-                      <Button className='blue-button mt-5' onClick={() => joinRoom()} icon={<IoPencil size={22} />}>
+                  { isChangingNickname ?
+                    <Button className='blue-button mt-5' onClick={() => joinRoom()} icon={<IoPencil size={22} />}>
                         Change Name
-                      </Button>
+                    </Button>
                     :
-                      <Button className='blue-button mt-5' onClick={() => joinRoom()} icon={<IoEnter size={22} />}>
+                    <Button className='blue-button mt-5' onClick={() => joinRoom()} icon={<IoEnter size={22} />}>
                         Join Room
-                      </Button>
-                    }
+                    </Button>
+                  }
                 </div>
               </Popup>
 
               <Tooltip
-                anchorSelect={`.copy-icon`}
+                anchorSelect={'.copy-icon'}
                 place="top"
                 noArrow
                 isOpen={codeCopied}

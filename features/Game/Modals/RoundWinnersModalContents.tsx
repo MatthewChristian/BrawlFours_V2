@@ -34,12 +34,12 @@ export default function RoundWinnersModalContents({ roundWinners, players, gameW
 
     if (roundWinners.twoWinGameWinnerTeam == 1) {
       return <div>
-        <span className='font-bold'>{t1Names[0]}</span> and <span className='font-bold'>{t1Names[1]}</span> won <span className='font-bold text-blue-500'>game</span> by playing the 2 of Clubs after all other 2's have been played!
+        <span className='font-bold'>{t1Names[0]}</span> and <span className='font-bold'>{t1Names[1]}</span> won <span className='font-bold text-blue-500'>game</span> by playing the 2 of Clubs after all other 2&apos;s have been played!
       </div>;
     }
     else if (roundWinners.twoWinGameWinnerTeam == 2) {
       return <div>
-        <span className='font-bold'>{t2Names[0]}</span> and <span className='font-bold'>{t2Names[1]}</span> won <span className='font-bold text-blue-500'>game</span> by playing the 2 of Clubs after all other 2's have been played!
+        <span className='font-bold'>{t2Names[0]}</span> and <span className='font-bold'>{t2Names[1]}</span> won <span className='font-bold text-blue-500'>game</span> by playing the 2 of Clubs after all other 2&apos;s have been played!
       </div>;
     }
     else if (score[0] > score[1]) {

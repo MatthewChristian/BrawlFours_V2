@@ -1,7 +1,7 @@
 import React from 'react';
 import StatusIcon from '../../../core/components/StatusIcon';
 import Image from 'next/image';
-import oppositePowerSvg from "../../../public/images/statusIcons/oppositePower.svg";
+import oppositePowerSvg from '../../../public/images/statusIcons/oppositePower.svg';
 
 
 interface Props {

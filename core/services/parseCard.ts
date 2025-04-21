@@ -17,16 +17,16 @@ export function getCardAnchorSelect(cardData?: DeckCard) {
 
 export function parseSuit(suit?: string) {
   if (suit == 'c') {
-    return 'Clubs'
+    return 'Clubs';
   }
   else if (suit == 'd') {
-    return 'Dimes'
+    return 'Dimes';
   }
   else if (suit == 's') {
-    return 'Spades'
+    return 'Spades';
   }
   else if (suit == 'h') {
-    return 'Hearts'
+    return 'Hearts';
   }
 }
 
@@ -39,32 +39,32 @@ export function getCardName(cardData?: DeckCard) {
   let parsedSuit;
 
   if (cardData.value.toUpperCase() == 'X') {
-    parsedVal = '10'
+    parsedVal = '10';
   }
   else if (cardData.value.toUpperCase() == 'J') {
-    parsedVal = 'Jack'
+    parsedVal = 'Jack';
   }
   else if (cardData.value.toUpperCase() == 'Q') {
-    parsedVal = 'Queen'
+    parsedVal = 'Queen';
   }
   else if (cardData.value.toUpperCase() == 'K') {
-    parsedVal = 'King'
+    parsedVal = 'King';
   }
   else if (cardData.value.toUpperCase() == 'A') {
-    parsedVal = 'Ace'
+    parsedVal = 'Ace';
   }
 
   if (cardData.suit == 'c') {
-    parsedSuit = 'Clubs'
+    parsedSuit = 'Clubs';
   }
   else if (cardData.suit == 'd') {
-    parsedSuit = 'Dimes'
+    parsedSuit = 'Dimes';
   }
   else if (cardData.suit == 's') {
-    parsedSuit = 'Spades'
+    parsedSuit = 'Spades';
   }
   else if (cardData.suit == 'h') {
-    parsedSuit = 'Hearts'
+    parsedSuit = 'Hearts';
   }
 
 

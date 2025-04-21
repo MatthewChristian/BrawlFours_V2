@@ -1,7 +1,7 @@
-import { AbilityData } from "../../models/AbilityData";
-import { AbilityInput } from "../../models/AbilityInput";
-import { DeckCard } from "../../models/DeckCard";
-import { determineIfCardsPlayable, emitPlayerCardData, orderCards, sendSystemMessage, shuffleDeck } from "./sharedGameFunctions";
+import { AbilityData } from '../../models/AbilityData';
+import { AbilityInput } from '../../models/AbilityInput';
+import { DeckCard } from '../../models/DeckCard';
+import { determineIfCardsPlayable, emitPlayerCardData, orderCards, sendSystemMessage, shuffleDeck } from './sharedGameFunctions';
 
 export const hangSaverPointsEarned = 3;
 export const pointsForSavedPointsEarned = 10;
@@ -174,7 +174,7 @@ function getRandomAbility() {
     randomIndex == CardAbilities.twoWinGame
   );
 
-  return randomIndex
+  return randomIndex;
 }
 
 export function getIsRandom(value: string, suit: string) {
@@ -241,72 +241,72 @@ const abilityData: Partial<AbilityData> = {
     duration: 'lift'
   },
   [CardAbilities.swapOppCard]: {
-    description: "Swap one of your cards with a random card from an opponent of your choosing",
+    description: 'Swap one of your cards with a random card from an opponent of your choosing',
     ability: (args: AbilityInput) => swapOppCardAbility(args),
   },
   [CardAbilities.allyReplay]: {
-    description: "Allow your ally to take back their card and play again",
+    description: 'Allow your ally to take back their card and play again',
     ability: (args: AbilityInput) => allyReplayAbility(args),
   },
   [CardAbilities.forceStand]: {
-    description: "If in your hand when dealing, can force opponent to stand without giving a point",
+    description: 'If in your hand when dealing, can force opponent to stand without giving a point',
     ability: (args: AbilityInput) => forceStandAbility(args),
   },
   [CardAbilities.ninePoints]: {
-    description: "Worth 9 points for game",
+    description: 'Worth 9 points for game',
     ability: (args: AbilityInput) => ninePointsAbility(args),
   },
   [CardAbilities.oppositePower]: {
-    description: "Card power is opposite this turn",
+    description: 'Card power is opposite this turn',
     ability: (args: AbilityInput) => oppositePowerAbility(args),
     duration: 'lift'
   },
   [CardAbilities.allyPlaysLast]: {
-    description: "Your ally plays their card last this turn",
+    description: 'Your ally plays their card last this turn',
     ability: (args: AbilityInput) => allyPlaysLastAbility(args),
     duration: 'lift'
   },
   [CardAbilities.drawOne]: {
-    description: "All players draw one card",
+    description: 'All players draw one card',
     ability: (args: AbilityInput) => drawOneAbility(args),
   },
   [CardAbilities.doublePoints]: {
-    description: "This lift will be worth double the points",
+    description: 'This lift will be worth double the points',
     ability: (args: AbilityInput) => doublePointsAbility(args),
     duration: 'lift'
   },
   [CardAbilities.chooseStarter]: {
-    description: "Choose a player to play first next turn",
+    description: 'Choose a player to play first next turn',
     ability: (args: AbilityInput) => chooseStarterAbility(args),
     duration: 'lift'
   },
   [CardAbilities.twoWinGame]: {
-    description: "If every other 2 has already been played this round, win game for that round",
+    description: 'If every other 2 has already been played this round, win game for that round',
     ability: (args: AbilityInput) => twoWinGameAbility(args),
     duration: 'round'
   },
   [CardAbilities.revealedBare]: {
-    description: "If you are revealed to have no trump then this card becomes trump",
+    description: 'If you are revealed to have no trump then this card becomes trump',
     ability: (args: AbilityInput) => revealedBareAbility(args),
   },
   [CardAbilities.nextCardTrump]: {
-    description: "The next card you play becomes trump",
+    description: 'The next card you play becomes trump',
     ability: (args: AbilityInput) => nextCardTrumpAbility(args),
   },
   [CardAbilities.swapAllyCard]: {
-    description: "Swap a card with your ally",
+    description: 'Swap a card with your ally',
     ability: (args: AbilityInput) => swapAllyCardAbility(args),
   },
   [CardAbilities.doubleLift]: {
-    description: "Leave the current lift on table and the winner of next lift takes both lifts",
+    description: 'Leave the current lift on table and the winner of next lift takes both lifts',
     ability: (args: AbilityInput) => doubleLiftAbility(args),
     duration: 'lift'
   },
   [CardAbilities.swapHands]: {
-    description: "Swap hands with any player",
+    description: 'Swap hands with any player',
     ability: (args: AbilityInput) => swapHandsAbility(args),
   },
-}
+};
 
 export function getAbilityData(ability: CardAbilities) {
   return abilityData[ability];
@@ -327,7 +327,7 @@ export function handleAbility(args: AbilityInput) {
 }
 
 function alwaysPlayableAbility(args: AbilityInput) {
-  console.log("alwaysPlayableAbility: Played");
+  console.log('alwaysPlayableAbility: Played');
 }
 
 function ninePowerfulAbility(args: AbilityInput) {
@@ -348,7 +348,7 @@ function trumpDisabledAbility(args: AbilityInput) {
 }
 
 function targetPowerlessAbility(args: AbilityInput) {
-  console.log("targetPowerlessAbility: Played");
+  console.log('targetPowerlessAbility: Played');
 }
 
 function noWinLiftAbility(args: AbilityInput) {
@@ -420,7 +420,7 @@ function royalsDisabledAbility(args: AbilityInput) {
 }
 
 function oppReplayAbility(args: AbilityInput) {
-  console.log("oppReplayAbility: Played");
+  console.log('oppReplayAbility: Played');
 }
 
 function hangSaverAbility(args: AbilityInput) {
@@ -438,15 +438,15 @@ function hangSaverAbility(args: AbilityInput) {
 }
 
 function twentyPointsAbility(args: AbilityInput) {
-  console.log("twentyPointsAbility: Played");
+  console.log('twentyPointsAbility: Played');
 }
 
 function pointsForSavedAbility(args: AbilityInput) {
-  console.log("pointsForSavedAbility: Played");
+  console.log('pointsForSavedAbility: Played');
 }
 
 function swapOppCardAbility(args: AbilityInput) {
-  console.log("swapOppCardAbility: Played");
+  console.log('swapOppCardAbility: Played');
 }
 
 function allyReplayAbility(args: AbilityInput) {
@@ -494,11 +494,11 @@ function allyReplayAbility(args: AbilityInput) {
 }
 
 function forceStandAbility(args: AbilityInput) {
-  console.log("forceStandAbility: Played");
+  console.log('forceStandAbility: Played');
 }
 
 function ninePointsAbility(args: AbilityInput) {
-  console.log("ninePointsAbility: Played");
+  console.log('ninePointsAbility: Played');
 }
 
 function oppositePowerAbility(args: AbilityInput) {
@@ -568,7 +568,7 @@ function allyPlaysLastAbility(args: AbilityInput) {
   args.roomData.playerStatus?.forEach((stat) => {
     const removedPlayerStatuses = stat.status?.filter(el => el != CardAbilities.allyPlaysLast);
     stat.status = removedPlayerStatuses;
-  })
+  });
 
   args.roomData.playerStatus[teammate.player].status.push(CardAbilities.allyPlaysLast);
 
@@ -593,7 +593,7 @@ function doublePointsAbility(args: AbilityInput) {
 }
 
 function chooseStarterAbility(args: AbilityInput) {
-  console.log("chooseStarterAbility: Played");
+  console.log('chooseStarterAbility: Played');
 }
 
 function twoWinGameAbility(args: AbilityInput) {
@@ -619,14 +619,14 @@ function twoWinGameAbility(args: AbilityInput) {
 
   sendSystemMessage({
     io: args.io,
-    message: player.nickname + "'s team will win game this round!",
+    message: player.nickname + '\'s team will win game this round!',
     roomId: args.roomId,
     colour: '#db2777'
   });
 }
 
 function revealedBareAbility(args: AbilityInput) {
-  console.log("revealedBareAbility: Played");
+  console.log('revealedBareAbility: Played');
 }
 
 function nextCardTrumpAbility(args: AbilityInput) {
@@ -652,7 +652,7 @@ function nextCardTrumpAbility(args: AbilityInput) {
 }
 
 function swapAllyCardAbility(args: AbilityInput) {
-  console.log("swapAllyCardAbility: Played");
+  console.log('swapAllyCardAbility: Played');
 }
 
 function doubleLiftAbility(args: AbilityInput) {
@@ -666,5 +666,5 @@ function doubleLiftAbility(args: AbilityInput) {
 }
 
 function swapHandsAbility(args: AbilityInput) {
-  console.log("swapHandsAbility: Played");
+  console.log('swapHandsAbility: Played');
 }
