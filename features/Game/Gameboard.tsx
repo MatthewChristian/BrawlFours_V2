@@ -628,7 +628,7 @@ export default function Gameboard({ roomId }: Props) {
                 {/* ------------------------ Player 3 Info  ------------------------*/}
                 <div className='h-[25vh] flex flex-col justify-between items-center'>
                   <div className='flex flex-col items-center justify-center p-2 player-info player-3-info w-1/2'>
-                    <div className='flex justify-center text-white'>
+                    <div className={`flex justify-center ${player3Data.disconnected ? 'text-gray-400 italic' : 'text-white'}`}>
                       {
                         player3Data.nickname
                       }
@@ -684,7 +684,7 @@ export default function Gameboard({ roomId }: Props) {
                 <div className='flex flex-row'>
                   {/* ------------------------ Player 4 Info  ------------------------*/}
                   <div className='flex flex-col justify-center items-center w-2/12 player-info player-4-info'>
-                    <div className='text-white'>
+                    <div className={`${player4Data.disconnected ? 'text-gray-400 italic' : 'text-white'}`}>
                       {
                         player4Data.nickname
                       }
@@ -802,7 +802,7 @@ export default function Gameboard({ roomId }: Props) {
                     <Marker dispatchFunction={setPlayer2HandPos} />
                   </div>
                   <div className='flex flex-col justify-center items-center w-2/12 player-info player-2-info'>
-                    <div className='text-white'>
+                    <div className={`${player2Data.disconnected ? 'text-gray-400 italic' : 'text-white'}`}>
                       {
                         player2Data.nickname
                       }

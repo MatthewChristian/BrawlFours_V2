@@ -358,11 +358,11 @@ export default function Room({ roomId }: Props) {
 
                   { isChangingNickname ?
                     <Button className='blue-button mt-5' onClick={() => joinRoom()} icon={<IoPencil size={22} />}>
-                        Change Name
+                      Change Name
                     </Button>
                     :
                     <Button className='blue-button mt-5' onClick={() => joinRoom()} icon={<IoEnter size={22} />}>
-                        Join Room
+                      Join Room
                     </Button>
                   }
                 </div>

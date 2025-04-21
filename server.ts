@@ -21,7 +21,6 @@ import { TargetPlayerInput } from './models/TargetPlayerInput';
 import { SwapAllyCardInput } from './models/SwapAllyCardInput';
 import { TargetLiftInput } from './models/TargetLiftInput';
 import { KickPlayerInput } from './models/KickPlayerInput';
-import e from 'express';
 
 const app = express();
 const server = createServer(app);
@@ -124,7 +123,7 @@ function joinRoom(data: JoinRoomInput, gameSocket: Socket) {
     const userIndex = roomUsers[data.roomId].users.findIndex(el => el.id == data.localId);
 
     // If room is not full or if user is already in room
-    if (io.of('/').adapter.rooms.get(data.roomId).size < 4 || userIndex >= 0) {
+    if (roomUsers[data.roomId].users.length < 4 || userIndex >= 0) {
 
       // Join the room
       gameSocket.join(data.roomId);
@@ -146,6 +145,15 @@ function joinRoom(data: JoinRoomInput, gameSocket: Socket) {
         else { // Otherwise update their data in the room
           roomUsers[data.roomId].users[userIndex].id = data.localId;
           roomUsers[data.roomId].users[userIndex].socketId = gameSocket.id;
+
+          if (roomUsers[data.roomId].users[userIndex].disconnected) {
+
+            roomUsers[data.roomId].users[userIndex].disconnected = false;
+            const message = data.nickname + ' has rejoined the room!';
+            sendSystemMessage({ io, message, roomId: data.roomId, colour: '#22c55e' });
+
+          }
+
 
           const oldNickname = roomUsers[data.roomId].users[userIndex].nickname;
 
@@ -221,6 +229,7 @@ function emitInitGameData(data: BasicRoomInput, gameSocket: Socket) {
   io.to(gameSocket.id).emit('twosPlayed', roomUsers[data.roomId].twosPlayed);
   io.to(gameSocket.id).emit('revealedBare', roomUsers[data.roomId].revealedBare);
   io.to(gameSocket.id).emit('doubleLiftCards', roomUsers[data.roomId].doubleLiftCards);
+  io.to(gameSocket.id).emit('gameStarted', roomUsers[data.roomId].gameStarted);
 
 }
 
@@ -261,14 +270,14 @@ function leaveRoom(data: BasicRoomInput, gameSocket: Socket) {
       // If game has started
       if (roomUsers[data.roomId]?.kicked) {
         roomUsers[data.roomId].users[index].disconnected = true;
+        playersInRoom(data);
       }
       else {
         roomUsers[data.roomId].users.splice(index, 1);
+        io.to(data.roomId).emit('playersInRoom', roomUsers[data.roomId].users);
       }
-
     }
 
-    io.to(data.roomId).emit('playersInRoom', roomUsers[data.roomId].users);
     gameSocket.emit('playerLeftRoom', true);
   }
 }

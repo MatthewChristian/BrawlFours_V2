@@ -31,14 +31,14 @@ export default function Popconfirm({ children, message, shortcode, onConfirm }: 
         opacity={1}
         clickable
       >
-        <div>
+        <div className='py-2'>
           {message}
           <div className='flex flex-row justify-end gap-2 mt-2'>
-            <Button className='blue-button text-xs rounded-xl' padding='px-2 py-1' onClick={() => { onConfirm(); setIsOpen(false); }}>
+            <Button className='blue-button text-xs rounded-md' padding='px-2 py-1' onClick={() => { onConfirm(); setIsOpen(false); }}>
               Yes
             </Button>
 
-            <Button className='red-button text-xs rounded-xl' padding='px-2 py-1' onClick={() => setIsOpen(false)}>
+            <Button className='red-button text-xs rounded-md' padding='px-2 py-1' onClick={() => setIsOpen(false)}>
               No
             </Button>
           </div>
