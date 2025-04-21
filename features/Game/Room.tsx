@@ -4,7 +4,7 @@ import { FaCrown, FaPencilAlt, FaRegTimesCircle } from 'react-icons/fa';
 import { IoDice, IoEnter, IoPencil } from 'react-icons/io5';
 import Popup from 'reactjs-popup';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { getErrorMsg, getGameStarted, getJoinModalOpen, getMatchWinner, getPlayerList, getRoundWinners, setJoinModalOpen } from '../../slices/game.slice';
+import { getErrorMsg, getGameIsTwo, getGameStarted, getJoinModalOpen, getMatchWinner, getPlayerList, getRoundWinners, setJoinModalOpen } from '../../slices/game.slice';
 import { useRouter } from 'next/navigation';
 import { socket } from '../SocketClient';
 import { ChoosePartnerInput } from '../../models/ChoosePartnerInput';
@@ -20,6 +20,8 @@ import { KickPlayerInput } from '../../models/KickPlayerInput';
 import Chatbox from './Chatbox';
 import Popconfirm from '../../core/components/Popconfirm';
 import LoadingIcon from './LoadingIcon';
+import Checkbox from '../../core/components/Checkbox';
+import { SetGameIsTwoInput } from '../../models/SetGameIsTwoInput';
 
 interface Props {
   roomId?: string;
@@ -53,6 +55,7 @@ export default function Room({ roomId }: Props) {
   const gameStarted = useAppSelector(getGameStarted);
   const matchWinner = useAppSelector(getMatchWinner);
   const roundWinners = useAppSelector(getRoundWinners);
+  const gameIsTwo = useAppSelector(getGameIsTwo);
 
   // Data to send to socket
   const socketData = useMemo(() => {
@@ -69,6 +72,10 @@ export default function Room({ roomId }: Props) {
       localId: localId
     });
   }, [roomId]);
+
+  const isRoomOwner = useMemo(() => {
+    return players && players[0] && players[0].id == socketData?.localId;
+  }, [players, socketData]);
 
   function joinRoom(nick?: string) {
     // Get ID stored in local storage, otherwise set it
@@ -97,6 +104,15 @@ export default function Room({ roomId }: Props) {
     };
 
     socket.emit('leaveRoom', data);
+  }
+
+  function setGameIsTwo(checked?: boolean) {
+    const data: SetGameIsTwoInput = {
+      ...socketData,
+      gameIsTwo: checked
+    };
+
+    socket.emit('setGameIsTwo', data);
   }
 
   function choosePartner(id: string) {
@@ -275,7 +291,7 @@ export default function Room({ roomId }: Props) {
                                 <div className='right-3 w-3 relative text-blue-500 hover:text-blue-400' style={{ bottom: 2 }}>
                                   <FaPencilAlt className='cursor-pointer' onClick={changeName} />
                                 </div>
-                                : players && players[0]?.id == socketData?.localId ?
+                                : isRoomOwner ?
                                   <Popconfirm shortcode={`kick-${i}`} message='Are you sure you want to kick this player?' onConfirm={() => kickPlayer(el)}>
                                     <button className={`right-3 w-3 relative text-red-500 hover:text-red-400 kick-${i}`} style={{ top: 2 }}>
                                       <FaRegTimesCircle className='cursor-pointer' />
@@ -291,7 +307,14 @@ export default function Room({ roomId }: Props) {
                 }
               </div>
 
-              <div className='flex flex-row gap-5 mt-5'>
+              {!players || players.length == 0 ?
+                <></> :
+                <div className='mt-3'>
+                  <Checkbox defaultChecked={gameIsTwo} label='Game is two' onChange={(val) => setGameIsTwo(val)} disabled={!isRoomOwner}/>
+                </div>
+              }
+
+              <div className='flex flex-row gap-5 mt-3'>
                 { players?.length > 0 && socketData.localId == players[0].id ?
                   <Button className='green-button' disabled={players.length < 4} onClick={() => setChooseModalOpen(true)} icon={<IoCheckmark size={22} />}>
                     Start Game

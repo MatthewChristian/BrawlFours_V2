@@ -10,12 +10,15 @@ import { CreateRoomInput } from '../../models/CreateRoomInput';
 import { JoinRoomInput } from '../../models/JoinRoomInput';
 import { IoAdd, IoEnter } from 'react-icons/io5';
 import { useRouter } from 'next/navigation';
+import LoadingIcon from './LoadingIcon';
 
 export default function Lobby() {
 
   const dispatch = useAppDispatch();
 
   const router = useRouter();
+
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // Store room ID of game that player created
   const roomId = useAppSelector(getRoomId);
@@ -40,6 +43,7 @@ export default function Lobby() {
       setShowNickWarning(true);
     }
     else {
+      setIsLoading(true);
       createRoom();
     }
   }
@@ -116,6 +120,7 @@ export default function Lobby() {
   }, []);
 
   useEffect(() => {
+    setIsLoading(false);
     if (roomId) {
       router.push(`/room?roomId=${String(roomId)}`);
     }
@@ -141,15 +146,19 @@ export default function Lobby() {
               (null)
             }
 
-            <div className='flex flex-row gap-5 mt-5'>
-              <Button className='blue-button' onClick={() => joinRoomPressed()} icon={<IoEnter size={22} />}>
-                  Join Room
-              </Button>
+            { isLoading ?
+              <LoadingIcon />
+              :
+              <div className='flex flex-row gap-5 mt-5'>
+                <Button className='blue-button' onClick={() => joinRoomPressed()} icon={<IoEnter size={22} />}>
+                Join Room
+                </Button>
 
-              <Button className="green-button" onClick={() => createRoomPressed()} icon={<IoAdd size={22} />}>
-                  Create Room
-              </Button>
-            </div>
+                <Button className="green-button" onClick={() => createRoomPressed()} icon={<IoAdd size={22} />}>
+                Create Room
+                </Button>
+              </div>
+            }
 
             <Popup contentStyle={{ left: '0%', width: '25em'}} open={joinModalOpen} closeOnDocumentClick onClose={closeJoinModal}>
               <div className="flex flex-col justify-center items-center">

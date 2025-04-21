@@ -1,4 +1,4 @@
-import { BasicRoomInput } from "./BasicRoomInput";
+import { BasicRoomInput } from './BasicRoomInput';
 
 export interface KickPlayerInput extends BasicRoomInput {
   kickedPlayerSocketId?: string;

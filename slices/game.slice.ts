@@ -43,6 +43,7 @@ interface GameSlice {
   revealedBare: boolean;
   doubleLiftCards: LiftCard[];
   doubleLiftModalVisible: boolean;
+  gameIsTwo?: boolean;
 }
 
 const initialState: GameSlice = {
@@ -62,7 +63,8 @@ const initialState: GameSlice = {
   twosPlayed: [],
   revealedBare: false,
   doubleLiftCards: [],
-  doubleLiftModalVisible: false
+  doubleLiftModalVisible: false,
+  gameIsTwo: false,
 };
 
 /**
@@ -177,6 +179,10 @@ export const gameSlice = createSlice({
       state.doubleLiftModalVisible = action.payload;
     },
 
+    setGameIsTwo: (state, action: PayloadAction<boolean>) => {
+      state.gameIsTwo = action.payload;
+    },
+
   }
 });
 
@@ -213,6 +219,7 @@ export const {
   setRevealedBare,
   setDoubleLiftCards,
   setDoubleLiftModalVisible,
+  setGameIsTwo
 } =  gameSlice.actions;
 
 // Selectors
@@ -268,3 +275,5 @@ export const getRevealedBare = (state: RootState): boolean => state.gameSlice.re
 export const getDoubleLiftCards = (state: RootState): LiftCard[] => state.gameSlice.doubleLiftCards;
 
 export const getDoubleLiftModalVisible = (state: RootState): boolean => state.gameSlice.doubleLiftModalVisible;
+
+export const getGameIsTwo = (state: RootState): boolean => state.gameSlice.gameIsTwo;

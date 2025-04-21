@@ -21,6 +21,7 @@ import { TargetPlayerInput } from './models/TargetPlayerInput';
 import { SwapAllyCardInput } from './models/SwapAllyCardInput';
 import { TargetLiftInput } from './models/TargetLiftInput';
 import { KickPlayerInput } from './models/KickPlayerInput';
+import { SetGameIsTwoInput } from './models/SetGameIsTwoInput';
 
 const app = express();
 const server = createServer(app);
@@ -49,7 +50,8 @@ io.on('connection', (socket) => {
   socket.on('createRoom', (data) => createRoom(data, socket));
   socket.on('joinRoom', (data) => joinRoom(data, socket));
   socket.on('leaveRoom', (data) => leaveRoom(data, socket));
-  socket.on('kickPlayer', (data) => kickPlayer(data, socket));
+  socket.on('kickPlayer', (data) => kickPlayer(data));
+  socket.on('setGameIsTwo', async (data) => setGameIsTwo(data));
   socket.on('setTeams', (data) => setTeams(data));
   socket.on('initialiseGame', (data) => initialiseGame(data));
   socket.on('playerCards', (data) => playerCards(data, socket));
@@ -230,6 +232,7 @@ function emitInitGameData(data: BasicRoomInput, gameSocket: Socket) {
   io.to(gameSocket.id).emit('revealedBare', roomUsers[data.roomId].revealedBare);
   io.to(gameSocket.id).emit('doubleLiftCards', roomUsers[data.roomId].doubleLiftCards);
   io.to(gameSocket.id).emit('gameStarted', roomUsers[data.roomId].gameStarted);
+  io.to(gameSocket.id).emit('gameIsTwo', roomUsers[data.roomId].gameIsTwo);
 
 }
 
@@ -282,7 +285,7 @@ function leaveRoom(data: BasicRoomInput, gameSocket: Socket) {
   }
 }
 
-function kickPlayer(data: KickPlayerInput, gameSocket: Socket) {
+function kickPlayer(data: KickPlayerInput) {
   // If the room exists...
   if (io.of('/').adapter.rooms.get(data.roomId)) {
 
@@ -299,6 +302,17 @@ function kickPlayer(data: KickPlayerInput, gameSocket: Socket) {
 
     const message = data.kickedPlayerNickname + ' has been kicked!';
     sendSystemMessage({ io, message, roomId: data.roomId, colour: '#991b1b' });
+  }
+}
+
+function setGameIsTwo(data: SetGameIsTwoInput) {
+  // If the room exists...
+  if (io.of('/').adapter.rooms.get(data.roomId)) {
+
+    roomUsers[data.roomId].gameIsTwo = data.gameIsTwo;
+
+    io.to(data.roomId).emit('gameIsTwo', roomUsers[data.roomId].gameIsTwo);
+
   }
 }
 
