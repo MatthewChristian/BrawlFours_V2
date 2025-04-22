@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Button from '../../core/components/Button';
 import { FaCrown, FaPencilAlt, FaRegTimesCircle } from 'react-icons/fa';
-import { IoDice, IoEnter, IoPencil } from 'react-icons/io5';
+import { IoDice, IoEnter, IoPencil, IoSettings } from 'react-icons/io5';
 import Popup from 'reactjs-popup';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { getErrorMsg, getGameIsTwo, getGameStarted, getJoinModalOpen, getMatchWinner, getPlayerList, getRoundWinners, setJoinModalOpen } from '../../slices/game.slice';
+import { getErrorMsg, getGameIsTwo, getGameStarted, getJoinModalOpen, getMatchWinner, getPlayerList, getRoundWinners, setJoinModalOpen, setSettingsModalVisible } from '../../slices/game.slice';
 import { useRouter } from 'next/navigation';
 import { socket } from '../SocketClient';
 import { ChoosePartnerInput } from '../../models/ChoosePartnerInput';
@@ -22,6 +22,7 @@ import Popconfirm from '../../core/components/Popconfirm';
 import LoadingIcon from './LoadingIcon';
 import Checkbox from '../../core/components/Checkbox';
 import { SetGameIsTwoInput } from '../../models/SetGameIsTwoInput';
+import SettingsModal from './Modals/SettingsModal';
 
 interface Props {
   roomId?: string;
@@ -238,6 +239,18 @@ export default function Room({ roomId }: Props) {
 
   return (
     <div className='h-screen w-screen lobby-bg'>
+      <SettingsModal />
+
+      <div className='flex flex-row gap-2 absolute top-3 right-3'>
+        <Button
+          className='dark-button'
+          iconClassName='relative '
+          icon={<IoSettings size={20} />}
+          tooltip='Settings'
+          tooltipAnchor='settings'
+          onClick={() => dispatch(setSettingsModalVisible(true))}
+        />
+      </div>
 
       <div className='flex flex-row'>
 
@@ -406,6 +419,7 @@ export default function Room({ roomId }: Props) {
           </div>
         </div>
       </div>
+
     </div>
   );
 }

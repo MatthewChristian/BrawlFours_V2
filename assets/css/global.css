@@ -68,6 +68,16 @@ body {
   background-color: #e2e8f0 !important;
 }
 
+.dark-button {
+  background-color: #111827 !important;
+  border: 0 !important;
+  color: white !important;
+}
+
+.dark-button:hover {
+  background-color: #1f2937 !important;
+}
+
 .disabled-button {
   background-color: #cbd5e1 !important;
   border: 0 !important;
@@ -147,6 +157,10 @@ body {
   left: 10%;
 }
 
+.centered-modal-content {
+  left: 0% !important;
+}
+
 .popup-overlay {
   background: rgba(0, 0, 0, 0.5);
 }
@@ -208,16 +222,10 @@ body {
   }
 }
 
-/* :root {
-  --suit-color: #22d3ee;
-  --tile-size: 240px;
-} */
+
+/***** CLASSES *****/
 
 .lobby-bg {
-  /* background-color: #0369a1;
-  background-image: url("data:image/svg+xml,%3Csvg width='480' height='480' viewBox='0 0 480 480' xmlns='http://www.w3.org/2000/svg'%3E%3Cstyle%3Etext{fill:%2322d3ee;font-size:96px;font-family:sans-serif;text-anchor:middle;dominant-baseline:middle;}%3C/style%3E%3Ctext x='120' y='120'%3E♠%3C/text%3E%3Ctext x='360' y='120'%3E♥%3C/text%3E%3Ctext x='120' y='360'%3E♦%3C/text%3E%3Ctext x='360' y='360'%3E♣%3C/text%3E%3C/svg%3E");
-  background-repeat: repeat;
-  background-size: var(--tile-size) var(--tile-size); */
   background: #7DD3FC;
   background: radial-gradient(circle, rgba(125, 211, 252, 1) 0%, rgba(14, 165, 233, 1) 50%, rgba(3, 105, 161, 1) 100%);
 }
