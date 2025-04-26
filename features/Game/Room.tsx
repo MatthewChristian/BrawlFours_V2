@@ -239,7 +239,7 @@ export default function Room({ roomId }: Props) {
 
   return (
     <div className='h-screen w-screen lobby-bg'>
-      <SettingsModal />
+      <SettingsModal roomId={roomId} lobby />
 
       <div className='flex flex-row gap-2 absolute top-3 right-3'>
         <Button

@@ -4,13 +4,14 @@ import 'reactjs-popup/dist/index.css';
 import Button from '../../core/components/Button';
 import Input from '../../core/components/Input';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { getErrorMsg, getJoinModalOpen, getRoomId, setJoinModalOpen } from '../../slices/game.slice';
+import { getErrorMsg, getJoinModalOpen, getRoomId, setJoinModalOpen, setSettingsModalVisible } from '../../slices/game.slice';
 import { socket } from '../SocketClient';
 import { CreateRoomInput } from '../../models/CreateRoomInput';
 import { JoinRoomInput } from '../../models/JoinRoomInput';
-import { IoAdd, IoEnter } from 'react-icons/io5';
+import { IoAdd, IoEnter, IoSettings } from 'react-icons/io5';
 import { useRouter } from 'next/navigation';
 import LoadingIcon from './LoadingIcon';
+import SettingsModal from './Modals/SettingsModal';
 
 export default function Lobby() {
 
@@ -23,7 +24,6 @@ export default function Lobby() {
   // Store room ID of game that player created
   const roomId = useAppSelector(getRoomId);
 
-  // Store room ID of game that player created
   const [showNickWarning, setShowNickWarning] = useState(false);
 
   // React ref to access text field values
@@ -53,6 +53,7 @@ export default function Lobby() {
       setShowNickWarning(true);
     }
     else {
+      setIsLoading(true);
       dispatch(setJoinModalOpen(true));
     }
   }
@@ -120,14 +121,27 @@ export default function Lobby() {
   }, []);
 
   useEffect(() => {
-    setIsLoading(false);
     if (roomId) {
+      setIsLoading(false);
       router.push(`/room?roomId=${String(roomId)}`);
     }
   }, [roomId]);
 
   return (
     <div className='lobby-bg h-screen flex flex-col justify-center items-center'>
+      <SettingsModal lobby />
+
+      <div className='flex flex-row gap-2 absolute top-3 right-3'>
+        <Button
+          className='dark-button'
+          iconClassName='relative '
+          icon={<IoSettings size={20} />}
+          tooltip='Settings'
+          tooltipAnchor='settings'
+          onClick={() => dispatch(setSettingsModalVisible(true))}
+        />
+      </div>
+
       <div className='bg-white rounded-lg border border-gray-400 p-10'>
         <div className='text-3xl mb-5 text-center'>Brawl Fours</div>
 
@@ -147,7 +161,9 @@ export default function Lobby() {
             }
 
             { isLoading ?
-              <LoadingIcon />
+              <div className='flex flex-row justify-center items-center mt-3'>
+                <LoadingIcon />
+              </div>
               :
               <div className='flex flex-row gap-5 mt-5'>
                 <Button className='blue-button' onClick={() => joinRoomPressed()} icon={<IoEnter size={22} />}>

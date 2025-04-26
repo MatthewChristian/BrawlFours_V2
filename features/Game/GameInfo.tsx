@@ -1,13 +1,14 @@
 import React, { useMemo, useState } from 'react';
 import PlayingCard from './PlayingCard';
-import { useAppSelector } from '../../store/hooks';
-import { getActiveAbilities, getGame, getKickedCards, getTeamScore } from '../../slices/game.slice';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { getGame, getKickedCards, getTeamScore, setSettingsModalVisible } from '../../slices/game.slice';
 import Chatbox from './Chatbox';
 import { BasicRoomInput } from '../../models/BasicRoomInput';
 import Button from '../../core/components/Button';
 import { IoExit, IoSettings } from 'react-icons/io5';
 import { socket } from '../SocketClient';
 import Popup from 'reactjs-popup';
+import SettingsModal from './Modals/SettingsModal';
 
 interface Props {
   playerTeam?: number;
@@ -16,6 +17,7 @@ interface Props {
 
 export default function GameInfo({ playerTeam, socketData } : Props) {
 
+  const dispatch = useAppDispatch();
 
   const kickedCards = useAppSelector(getKickedCards);
 
@@ -83,7 +85,7 @@ export default function GameInfo({ playerTeam, socketData } : Props) {
               icon={<IoSettings size={20} />}
               tooltip='Settings'
               tooltipAnchor='settings'
-            // onClick={() => setIsTeammateCardsVisible((prev) => !prev)}
+              onClick={() => dispatch(setSettingsModalVisible(true))}
             />
           </div>
         </div>
@@ -110,6 +112,8 @@ export default function GameInfo({ playerTeam, socketData } : Props) {
       </div>
 
       <Chatbox socketData={socketData} className='h-[68vh]'/>
+
+      <SettingsModal roomId={socketData.roomId} />
 
       <Popup contentStyle={{ left: '0%', width: '25em'}} open={leaveModalOpen} closeOnDocumentClick onClose={() => setLeaveModalOpen(false)}>
         <div className="flex flex-col justify-center items-center">

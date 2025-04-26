@@ -4,7 +4,7 @@ import { useAppDispatch } from '../../store/hooks';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
 import { socket } from '../SocketClient';
-import { addChatMessage } from '../../slices/chat.slice';
+import { addChatMessage, setChatMessages } from '../../slices/chat.slice';
 import { ChatMessage } from '../../models/ChatMessage';
 
 
@@ -56,12 +56,14 @@ export default function Layout({ children }: Props) {
     socket?.on('playerLeftRoom', data => {
       dispatch(setPlayerJoinedRoom(false));
       dispatch(setRoomId(undefined));
+      dispatch(setChatMessages([]));
       router.push('/');
     });
 
     socket?.on('playerKicked', data => {
       dispatch(setPlayerJoinedRoom(false));
       dispatch(setRoomId(undefined));
+      dispatch(setChatMessages([]));
       router.push('/');
       toast('You have been kicked from the room!', {
         type: 'error',
