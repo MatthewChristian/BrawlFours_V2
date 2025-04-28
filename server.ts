@@ -1130,6 +1130,11 @@ async function liftScoring(data: BasicRoomInput) {
   roomUsers[data.roomId].tempPendingTurn = undefined;
   roomUsers[data.roomId].pendingTurn = [];
 
+  // Reset spin variable on cards
+  roomUsers[data.roomId].users.forEach(user => {
+    user.cards.map(card => card.spin = false);
+  });
+
 
   // Set playable status of cards of player whose turn is next
   setCardsPlayability(data.roomId);
@@ -1640,8 +1645,8 @@ async function handleSwapHands(data: TargetPlayerInput, socket: Socket) {
     if (playerCards.length == selectedPlayer.cards.length) {
       const tempSelectedPlayerCards = [...selectedPlayer.cards];
 
-      player.cards = tempSelectedPlayerCards.concat([data.playedCard]);
-      selectedPlayer.cards = playerCards;
+      player.cards = tempSelectedPlayerCards.concat([data.playedCard]).map(el => { return { ...el, spin: true} ;});
+      selectedPlayer.cards = playerCards.map(el => { return { ...el, spin: true }; });
 
       // Send system messages to selected player
       sendSystemMessage({ io, message: `You swapped your hand with ${player.nickname}'s hand!`, roomId: selectedPlayer.socketId, showToast: true, colour: '#db2777' });
@@ -1657,8 +1662,8 @@ async function handleSwapHands(data: TargetPlayerInput, socket: Socket) {
 
       tempSelectedPlayerCards.splice(randomCardIndex, 1);
 
-      player.cards = tempSelectedPlayerCards.concat([data.playedCard]);
-      selectedPlayer.cards = playerCards.concat([randomCard]);
+      player.cards = tempSelectedPlayerCards.concat([data.playedCard]).map(el => { return { ...el, spin: true }; });
+      selectedPlayer.cards = playerCards.concat([randomCard]).map(el => { return { ...el, spin: true }; });
 
       // Send system messages to selected player
       sendSystemMessage({ io, message: `You and ${player.nickname} swapped hands and you kept your ${getCardName(randomCard)}!`, roomId: selectedPlayer.socketId, showToast: true, colour: '#db2777' });

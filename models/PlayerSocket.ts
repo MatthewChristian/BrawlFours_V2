@@ -10,4 +10,5 @@ export interface PlayerSocket {
   numCards?: number;
   player?: number;
   disconnected?: boolean;
+  spin?: number;
 }

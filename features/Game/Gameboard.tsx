@@ -657,6 +657,7 @@ export default function Gameboard({ roomId }: Props) {
                               glow={allySelectionModalVisible ? 'blue' : undefined}
                               onClickHandler={() => player3Cards.length == 0 ? undefined : allySelectionModalVisible ? handleSelectAllyCard(player3Cards[k]) : undefined}
                               flipped={!(isTeammateCardsVisible || allySelectionModalVisible)}
+                              spin={player3Cards[k]?.spin}
                             />
                           );
                         })
@@ -706,6 +707,7 @@ export default function Gameboard({ roomId }: Props) {
                           isDeckCard
                           className='rotate-90 p-0'
                           style={getTeam2CardMargins(player4Data?.numCards ?? 0)}
+                          spin={k < player4Data?.spin}
                         />
                       ))
                     }
@@ -795,6 +797,7 @@ export default function Gameboard({ roomId }: Props) {
                           isDeckCard
                           className='rotate-90 p-0'
                           style={getTeam2CardMargins(player2Data?.numCards ?? 0)}
+                          spin={k < player2Data?.spin}
                         />
                       ))
                     }
@@ -840,6 +843,7 @@ export default function Gameboard({ roomId }: Props) {
                             className='-mx-2'
                             spotlighted={selectionActive}
                             glow={selectionActive ? 'blue' : undefined}
+                            spin={player1Cards[k]?.spin}
                           />
                         );}
                       )

@@ -26,6 +26,7 @@ interface Props {
   spotlighted?: boolean;
   glow?: string;
   flipped?: boolean;
+  spin?: boolean;
 }
 
 export default function PlayingCard({
@@ -41,7 +42,8 @@ export default function PlayingCard({
   liftWinner,
   spotlighted,
   glow,
-  flipped
+  flipped,
+  spin,
 }: Props) {
 
   const cardRef = useRef<HTMLDivElement>(null);
@@ -193,7 +195,7 @@ export default function PlayingCard({
         >
           <motion.div
             className="card"
-            animate={{ rotateY: flipped ? 180 : 0 }} // Animates the flip
+            animate={{ rotateY: flipped ? 180 : 0, rotateZ: spin ? 360 : 0 }} // Animates the flip
             transition={{ duration: 0.5 }} // Controls the flip speed
             style={{
               width: '100%',
