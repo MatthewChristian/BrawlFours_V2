@@ -12,6 +12,8 @@ import { IoAdd, IoEnter, IoSettings } from 'react-icons/io5';
 import { useRouter } from 'next/navigation';
 import LoadingIcon from './LoadingIcon';
 import SettingsModal from './Modals/SettingsModal';
+import Image from 'next/image';
+import logoSvg from '../../public/images/logo/logo.svg';
 
 export default function Lobby() {
 
@@ -142,69 +144,77 @@ export default function Lobby() {
         />
       </div>
 
-      <div className='bg-white rounded-lg border border-gray-400 p-10'>
-        <div className='text-3xl mb-5 text-center'>Brawl Fours</div>
+      <div className='flex flex-col justify-between gap-12 items-center'>
+        <Image priority
+          src={logoSvg}
+          width={800}
+          alt="" />
 
-        <div className="">
+        <div className='bg-white rounded-lg border border-gray-400 p-10 w-1/2'>
           <div className="">
-            <Input
-              placeholder="Enter nickname..."
-              className='w-full'
-              onChange={handleNickChange}
-              defaultValue={nickname}
-              maxLength={15}
-            />
-            {showNickWarning ? (
-              <div className="text-red-500 mt-1">Must enter a nickname first!</div>
-            ) :
-              (null)
-            }
-
-            { isLoading ?
-              <div className='flex flex-row justify-center items-center mt-3'>
-                <LoadingIcon />
-              </div>
-              :
-              <div className='flex flex-row gap-5 mt-5'>
-                <Button className='blue-button' onClick={() => joinRoomPressed()} icon={<IoEnter size={22} />}>
-                Join Room
-                </Button>
-
-                <Button className="green-button" onClick={() => createRoomPressed()} icon={<IoAdd size={22} />}>
-                Create Room
-                </Button>
-              </div>
-            }
-
-            <Popup contentStyle={{ left: '0%', width: '25em'}} open={joinModalOpen} closeOnDocumentClick onClose={closeJoinModal}>
-              <div className="flex flex-col justify-center items-center">
-                <div className="">Enter room code:</div>
+            <div className="flex flex-col items-center">
+              <div>
                 <Input
-                  inputRef={joinRoomRef}
-                  placeholder=""
-                  maxLength={5}
-                  className='text-center'
+                  placeholder="Enter nickname..."
+                  className='w-full'
+                  onChange={handleNickChange}
+                  defaultValue={nickname}
+                  maxLength={15}
                 />
-
-                { errorMsg ?
-                  <div className='mt-5 text-red-500'>
-                    {errorMsg}
-                  </div>
-                  : undefined
+                {showNickWarning ? (
+                  <div className="text-red-500 mt-1">Must enter a nickname first!</div>
+                ) :
+                  (null)
                 }
-
-                <Button className='blue-button mt-5' onClick={() => joinRoom()} icon={<IoEnter size={22} />}>
-                    Join Room
-                </Button>
               </div>
-            </Popup>
+
+              <div>
+                { isLoading ?
+                  <div className='flex flex-row justify-center items-center mt-3'>
+                    <LoadingIcon />
+                  </div>
+                  :
+                  <div className='flex flex-row gap-5 mt-5'>
+                    <Button className='blue-button' onClick={() => joinRoomPressed()} icon={<IoEnter size={22} />}>
+                      Join Room
+                    </Button>
+
+                    <Button className="green-button" onClick={() => createRoomPressed()} icon={<IoAdd size={22} />}>
+                      Create Room
+                    </Button>
+                  </div>
+                }
+              </div>
+
+            </div>
 
           </div>
 
         </div>
-
       </div>
 
+      <Popup contentStyle={{ left: '0%', width: '25em' }} open={joinModalOpen} closeOnDocumentClick onClose={closeJoinModal}>
+        <div className="flex flex-col justify-center items-center">
+          <div className="">Enter room code:</div>
+          <Input
+            inputRef={joinRoomRef}
+            placeholder=""
+            maxLength={5}
+            className='text-center'
+          />
+
+          {errorMsg ?
+            <div className='mt-5 text-red-500'>
+              {errorMsg}
+            </div>
+            : undefined
+          }
+
+          <Button className='blue-button mt-5' onClick={() => joinRoom()} icon={<IoEnter size={22} />}>
+            Join Room
+          </Button>
+        </div>
+      </Popup>
 
     </div>
   );
