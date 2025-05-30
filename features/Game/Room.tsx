@@ -23,6 +23,8 @@ import LoadingIcon from './LoadingIcon';
 import Checkbox from '../../core/components/Checkbox';
 import { SetGameIsTwoInput } from '../../models/SetGameIsTwoInput';
 import SettingsModal from './Modals/SettingsModal';
+import Image from 'next/image';
+import logoSvg from '../../public/images/logo/logo.svg';
 
 interface Props {
   roomId?: string;
@@ -260,8 +262,14 @@ export default function Room({ roomId }: Props) {
 
         <div className="h-screen w-screen flex flex-col items-center justify-center">
 
+          <div className='relative bottom-10'>
+            <Image priority
+              src={logoSvg}
+              width={800}
+              alt="" />
+          </div>
+
           <div className='bg-white rounded-lg border border-gray-400 p-10'>
-            <div className='text-3xl mb-5 text-center'>Brawl Fours</div>
             <div className="flex flex-col justify-center items-center">
 
               <div className="">Share this code with your friends:</div>

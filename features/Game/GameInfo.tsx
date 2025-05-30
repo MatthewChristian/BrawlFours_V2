@@ -9,6 +9,8 @@ import { IoExit, IoSettings } from 'react-icons/io5';
 import { socket } from '../SocketClient';
 import Popup from 'reactjs-popup';
 import SettingsModal from './Modals/SettingsModal';
+import Image from 'next/image';
+import logoSvg from '../../public/images/logo/logo.svg';
 
 interface Props {
   playerTeam?: number;
@@ -60,13 +62,16 @@ export default function GameInfo({ playerTeam, socketData } : Props) {
 
 
   return (
-    <div className="bg-stone-200 p-2 h-screen w-1/5 z-[9999] min-w-min">
+    <div className="bg-neutral-700 p-2 h-screen w-1/5 z-[9999] min-w-min">
 
       <div className='h-[30vh]'>
 
         <div className='flex flex-row justify-between mb-2'>
-          <div>
-
+          <div className='flex justify-center items-center'>
+            <Image priority
+              src={logoSvg}
+              width={200}
+              alt="" />
           </div>
 
           <div className='flex flex-row gap-2'>
@@ -100,13 +105,13 @@ export default function GameInfo({ playerTeam, socketData } : Props) {
           </div>
         </div>
 
-        <div className='mt-2 mx-2 font-bold'>
+        <div className='mt-2 pt-2 mx-2 font-bold text-white'>
           <div>
-            <p>Score: <span className='text-blue-500'>{teamScoreOrdered[0]}</span> - <span className='text-red-500'>{teamScoreOrdered[1]}</span></p>
+            <p>Score <span className='text-blue-500'>{teamScoreOrdered[0]}</span> - <span className='text-red-500'>{teamScoreOrdered[1]}</span></p>
           </div>
 
           <div>
-            <p>Game: <span className='text-blue-500'>{gameOrdered[0]}</span> - <span className='text-red-500'>{gameOrdered[1]}</span></p>
+            <p>Game <span className='text-blue-500'>{gameOrdered[0]}</span> - <span className='text-red-500'>{gameOrdered[1]}</span></p>
           </div>
         </div>
       </div>
