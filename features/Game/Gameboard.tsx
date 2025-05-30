@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { DeckCard } from '../../models/DeckCard';
 import PlayingCard from './PlayingCard';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { getActiveAbilities, getBeg, getDealer, getDoubleLiftCards, getDoubleLiftModalVisible, getLift, getLiftWinner, getMatchWinner, getMessage, getPlayerCards, getPlayerJoinedRoom, getPlayerList, getPlayerStatus, getRoundWinners, getTeammateCards, getTurn, setDoubleLiftModalVisible, setMessage } from '../../slices/game.slice';
+import { getActiveAbilities, getBeg, getDealer, getDoubleLiftCards, getDoubleLiftModalVisible, getLift, getLiftWinner, getMatchWinner, getMessage, getMobileView, getPlayerCards, getPlayerJoinedRoom, getPlayerList, getPlayerStatus, getRoundWinners, getTeammateCards, getTurn, setDoubleLiftModalVisible, setMessage } from '../../slices/game.slice';
 import { PlayerSocket } from '../../models/PlayerSocket';
 import DealerIcon from './StatusIcons/DealerIcon';
 import TurnIcon from './StatusIcons/TurnIcon';
@@ -42,6 +42,7 @@ export default function Gameboard({ roomId }: Props) {
 
   const dispatch = useAppDispatch();
 
+  const mobileView = useAppSelector(getMobileView);
 
   const players = useAppSelector(getPlayerList);
 
@@ -616,7 +617,7 @@ export default function Gameboard({ roomId }: Props) {
 
         <GameInfo playerTeam={player1Data.team} socketData={socketData} />
 
-        <div className="h-screen w-4/5 board-bg">
+        <div className={`h-screen board-bg ${mobileView ? 'w-full' : 'w-4/5'}`}>
           {
             isLoading ?
               <div className='w-full h-full flex justify-center items-center'>

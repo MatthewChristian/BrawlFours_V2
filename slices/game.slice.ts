@@ -17,6 +17,7 @@ import { RoomSocket } from '../models/RoomSocket';
  * State Definition
  */
 interface GameSlice {
+  mobileView: boolean;
   playerList: PlayerSocket[];
   roomId?: string;
   joinModalOpen: boolean;
@@ -49,6 +50,7 @@ interface GameSlice {
 }
 
 const initialState: GameSlice = {
+  mobileView: false,
   playerList: [],
   joinModalOpen: false,
   deck: [],
@@ -78,6 +80,10 @@ export const gameSlice = createSlice({
   name: 'gameSlice',
   initialState,
   reducers: {
+
+    setMobileView: (state, action: PayloadAction<boolean>) => {
+      state.mobileView = action.payload;
+    },
 
     setPlayerList: (state, action: PayloadAction<PlayerSocket[]>) => {
       state.playerList = action.payload;
@@ -205,6 +211,7 @@ export const gameSlice = createSlice({
 export default gameSlice.reducer;
 // Actions
 export const {
+  setMobileView,
   setPlayerList,
   setRoomId,
   setErrorMsg,
@@ -237,6 +244,8 @@ export const {
 } =  gameSlice.actions;
 
 // Selectors
+
+export const getMobileView = (state: RootState): boolean => state.gameSlice.mobileView;
 
 export const getPlayerList = (state: RootState): PlayerSocket[] => state.gameSlice.playerList;
 

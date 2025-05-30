@@ -4,7 +4,7 @@ import 'reactjs-popup/dist/index.css';
 import Button from '../../core/components/Button';
 import Input from '../../core/components/Input';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { getErrorMsg, getJoinModalOpen, getJoinRoomLoading, getRoomId, setJoinModalOpen, setJoinRoomLoading, setSettingsModalVisible } from '../../slices/game.slice';
+import { getErrorMsg, getJoinModalOpen, getJoinRoomLoading, getMobileView, getRoomId, setJoinModalOpen, setJoinRoomLoading, setSettingsModalVisible } from '../../slices/game.slice';
 import { socket } from '../SocketClient';
 import { CreateRoomInput } from '../../models/CreateRoomInput';
 import { JoinRoomInput } from '../../models/JoinRoomInput';
@@ -20,6 +20,8 @@ export default function Lobby() {
   const dispatch = useAppDispatch();
 
   const router = useRouter();
+
+  const mobileView = useAppSelector(getMobileView);
 
   const joinRoomLoading = useAppSelector(getJoinRoomLoading);
 
@@ -144,18 +146,20 @@ export default function Lobby() {
       </div>
 
       <div className='flex flex-col justify-between gap-12 items-center'>
-        <Image priority
-          src={logoSvg}
-          width={800}
-          alt="" />
+        <div className='px-5'>
+          <Image priority
+            src={logoSvg}
+            width={800}
+            alt="" />
+        </div>
 
-        <div className='bg-white rounded-lg border border-gray-400 p-10 w-1/2'>
+        <div className={`bg-white rounded-lg border border-gray-400 p-10 ${mobileView ? 'w-3/4' : 'w-1/2'}`}>
           <div className="">
             <div className="flex flex-col items-center">
               <div>
                 <Input
                   placeholder="Enter nickname..."
-                  className='w-full'
+                  className='w-full text-center'
                   onChange={handleNickChange}
                   defaultValue={nickname}
                   maxLength={15}
@@ -173,7 +177,7 @@ export default function Lobby() {
                     <LoadingIcon />
                   </div>
                   :
-                  <div className='flex flex-row gap-5 mt-5'>
+                  <div className={`flex ${mobileView ? 'flex-col' : 'flex-row'} gap-5 mt-5`}>
                     <Button className='blue-button' onClick={() => joinRoomPressed()} icon={<IoEnter size={22} />}>
                       Join Room
                     </Button>

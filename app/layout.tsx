@@ -8,6 +8,7 @@ import React, {  } from 'react';
 import StoreProvider from '../store/StoreProvider';
 import Layout from '../features/Layout';
 import { ToastContainer } from 'react-toastify';
+import { MobileView } from '../features/Layout/MobileView';
 
 
 interface Props {
@@ -20,8 +21,10 @@ function MyApp({ children }: Props) {
     <html>
       <body>
         <StoreProvider>
-          <Layout>{children}</Layout>
-          <ToastContainer />
+          <MobileView>
+            <Layout>{children}</Layout>
+            <ToastContainer />
+          </MobileView>
         </StoreProvider>
       </body>
     </html>

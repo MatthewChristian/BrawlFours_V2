@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import PlayingCard from './PlayingCard';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { getGame, getKickedCards, getTeamScore, setSettingsModalVisible } from '../../slices/game.slice';
+import { getGame, getKickedCards, getMobileView, getTeamScore, setSettingsModalVisible } from '../../slices/game.slice';
 import Chatbox from './Chatbox';
 import { BasicRoomInput } from '../../models/BasicRoomInput';
 import Button from '../../core/components/Button';
@@ -20,6 +20,8 @@ interface Props {
 export default function GameInfo({ playerTeam, socketData } : Props) {
 
   const dispatch = useAppDispatch();
+
+  const mobileView = useAppSelector(getMobileView);
 
   const kickedCards = useAppSelector(getKickedCards);
 
@@ -62,7 +64,7 @@ export default function GameInfo({ playerTeam, socketData } : Props) {
 
 
   return (
-    <div className="info-bg p-2 h-screen w-1/5 z-[9999] min-w-min">
+    <div className={`info-bg p-2 h-screen z-[9999] min-w-min ${mobileView ? 'hidden' : 'w-1/5'}`}>
 
       <div className='h-[30vh]'>
 
