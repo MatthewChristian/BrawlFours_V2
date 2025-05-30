@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { setMobileView } from '../../slices/game.slice';
+import { getMobileView, setMobileView } from '../../slices/game.slice';
+import { useAppSelector } from '../../store/hooks';
+import LoadingScreen from './LoadingScreen';
 
 interface MobileViewProps {
   children: JSX.Element | JSX.Element[] | undefined;
@@ -8,6 +10,8 @@ interface MobileViewProps {
 
 export const MobileView = (props: MobileViewProps) => {
   const dispatch = useDispatch();
+
+  const mobileView = useAppSelector(getMobileView);
 
   function handleWindowSizeChange() {
     if (window.innerWidth <= 768) {
@@ -22,8 +26,12 @@ export const MobileView = (props: MobileViewProps) => {
 
   useEffect(() => {
     // Check if in mobile view
-    if (window.innerWidth <= 768) dispatch(setMobileView(true));
-    else dispatch(setMobileView(false));
+    if (window.innerWidth <= 768) {
+      dispatch(setMobileView(true));
+    }
+    else {
+      dispatch(setMobileView(false));
+    }
     // Listen to resize events
     window.addEventListener('resize', handleWindowSizeChange);
 
@@ -36,7 +44,9 @@ export const MobileView = (props: MobileViewProps) => {
   return (
     <>
       {
-        props.children
+        mobileView == null ? <LoadingScreen />
+          :
+          props.children
       }
     </>
   );
