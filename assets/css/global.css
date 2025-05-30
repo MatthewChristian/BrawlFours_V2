@@ -235,6 +235,11 @@ body {
     background: radial-gradient(circle, rgba(74, 222, 128, 1) 0%, rgba(22, 163, 74, 1) 50%, rgba(22, 101, 52, 1) 100%);
 }
 
+.info-bg {
+  background: #6e6e6e;
+    background: radial-gradient(circle, rgba(110, 110, 110, 1) 0%, rgba(107, 107, 107, 1) 17%, rgba(64, 64, 64, 1) 100%);
+}
+
 .player-info {
   border-width: 3px;
   border-style: solid;

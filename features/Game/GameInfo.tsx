@@ -62,7 +62,7 @@ export default function GameInfo({ playerTeam, socketData } : Props) {
 
 
   return (
-    <div className="bg-neutral-700 p-2 h-screen w-1/5 z-[9999] min-w-min">
+    <div className="info-bg p-2 h-screen w-1/5 z-[9999] min-w-min">
 
       <div className='h-[30vh]'>
 
