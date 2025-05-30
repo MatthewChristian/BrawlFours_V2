@@ -4,7 +4,7 @@ import 'reactjs-popup/dist/index.css';
 import Button from '../../core/components/Button';
 import Input from '../../core/components/Input';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { getErrorMsg, getJoinModalOpen, getRoomId, setJoinModalOpen, setSettingsModalVisible } from '../../slices/game.slice';
+import { getErrorMsg, getJoinModalOpen, getJoinRoomLoading, getRoomId, setJoinModalOpen, setJoinRoomLoading, setSettingsModalVisible } from '../../slices/game.slice';
 import { socket } from '../SocketClient';
 import { CreateRoomInput } from '../../models/CreateRoomInput';
 import { JoinRoomInput } from '../../models/JoinRoomInput';
@@ -21,7 +21,7 @@ export default function Lobby() {
 
   const router = useRouter();
 
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const joinRoomLoading = useAppSelector(getJoinRoomLoading);
 
   // Store room ID of game that player created
   const roomId = useAppSelector(getRoomId);
@@ -45,7 +45,7 @@ export default function Lobby() {
       setShowNickWarning(true);
     }
     else {
-      setIsLoading(true);
+      dispatch(setJoinRoomLoading(true));
       createRoom();
     }
   }
@@ -55,7 +55,6 @@ export default function Lobby() {
       setShowNickWarning(true);
     }
     else {
-      setIsLoading(true);
       dispatch(setJoinModalOpen(true));
     }
   }
@@ -83,6 +82,7 @@ export default function Lobby() {
 
   // Join a room
   function joinRoom() {
+    dispatch(setJoinRoomLoading(true));
     // Get ID stored in local storage, otherwise set it
     let localId = typeof window !== 'undefined' ? localStorage.getItem('socketId') ?? undefined : undefined;
 
@@ -124,7 +124,6 @@ export default function Lobby() {
 
   useEffect(() => {
     if (roomId) {
-      setIsLoading(false);
       router.push(`/room?roomId=${String(roomId)}`);
     }
   }, [roomId]);
@@ -169,7 +168,7 @@ export default function Lobby() {
               </div>
 
               <div>
-                { isLoading ?
+                { joinRoomLoading ?
                   <div className='flex flex-row justify-center items-center mt-3'>
                     <LoadingIcon />
                   </div>

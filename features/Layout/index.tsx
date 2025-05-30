@@ -1,5 +1,5 @@
 import React, {  Suspense, useEffect } from 'react';
-import { setActiveAbilities, setBeg, setDealer, setDeck, setDoubleLiftCards, setErrorMsg, setGame, setGameIsTwo, setGameStarted, setJoinModalOpen, setKickedCards, setLift, setLiftWinner, setMatchWinner, setMessage, setPlayerCards, setPlayerJoinedRoom, setPlayerList, setPlayerStatus, setRevealedBare, setRoomId, setRoundWinners, setTeammateCards, setTeamScore, setTurn, setTwosPlayed } from '../../slices/game.slice';
+import { setActiveAbilities, setBeg, setDealer, setDeck, setDoubleLiftCards, setErrorMsg, setGame, setGameIsTwo, setGameStarted, setJoinModalOpen, setJoinRoomLoading, setKickedCards, setLift, setLiftWinner, setMatchWinner, setMessage, setPlayerCards, setPlayerJoinedRoom, setPlayerList, setPlayerStatus, setRevealedBare, setRoomId, setRoundWinners, setTeammateCards, setTeamScore, setTurn, setTwosPlayed } from '../../slices/game.slice';
 import { useAppDispatch } from '../../store/hooks';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
@@ -33,6 +33,7 @@ export default function Layout({ children }: Props) {
 
     socket?.on('newRoomCreated', data => {
       dispatch(setRoomId(String(data.room_id)));
+      dispatch(setJoinRoomLoading(false));
       router.push(`/room?roomId=${String(data.room_id)}`);
     });
 
@@ -42,10 +43,12 @@ export default function Layout({ children }: Props) {
         dispatch(setJoinModalOpen(false));
         dispatch(setErrorMsg(undefined));
         dispatch(setPlayerJoinedRoom(true));
+        dispatch(setJoinRoomLoading(false));
       }
       else {
         console.log('Error Msg: ', data.errorMsg);
         router.push('/');
+        dispatch(setJoinRoomLoading(false));
         toast(data.errorMsg, {
           type: 'error',
           hideProgressBar: true
