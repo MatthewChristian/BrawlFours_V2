@@ -1,15 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Button from '../../core/components/Button';
 import { FaCrown, FaPencilAlt, FaRegTimesCircle } from 'react-icons/fa';
-import { IoDice, IoEnter, IoPencil, IoSettings } from 'react-icons/io5';
+import { IoDice, IoEnter, IoPencil, IoSettings, IoListOutline, IoExit, IoCheckmark, IoCopyOutline, IoLink } from 'react-icons/io5';
 import Popup from 'reactjs-popup';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { getErrorMsg, getGameIsTwo, getGameStarted, getJoinModalOpen, getMatchWinner, getPlayerList, getRoundWinners, setJoinModalOpen, setSettingsModalVisible } from '../../slices/game.slice';
+import { getErrorMsg, getGameIsTwo, getGameStarted, getJoinModalOpen, getMatchWinner, getMobileView, getPlayerList, getRoundWinners, setJoinModalOpen, setSettingsModalVisible } from '../../slices/game.slice';
 import { useRouter } from 'next/navigation';
 import { socket } from '../SocketClient';
 import { ChoosePartnerInput } from '../../models/ChoosePartnerInput';
 import { BasicRoomInput } from '../../models/BasicRoomInput';
-import { IoExit, IoCheckmark, IoCopyOutline, IoLink } from 'react-icons/io5';
 import RoundWinnersModal from './Modals/RoundWinnersModal';
 import MatchWinnersModal from './Modals/MatchWinnersModal';
 import { JoinRoomInput } from '../../models/JoinRoomInput';
@@ -34,6 +33,8 @@ export default function Room({ roomId }: Props) {
 
   const router = useRouter();
   const dispatch = useAppDispatch();
+
+  const mobileView = useAppSelector(getMobileView);
 
   const [chooseModalOpen, setChooseModalOpen] = useState<boolean>(false);
 
@@ -243,26 +244,52 @@ export default function Room({ roomId }: Props) {
     <div className='h-screen w-screen lobby-bg'>
       <SettingsModal roomId={roomId} lobby />
 
-      <div className='flex flex-row gap-2 absolute top-3 right-3'>
-        <Button
-          className='dark-button'
-          iconClassName='relative '
-          icon={<IoSettings size={20} />}
-          tooltip='Settings'
-          tooltipAnchor='settings'
-          onClick={() => dispatch(setSettingsModalVisible(true))}
-        />
+      <div className={`flex flex-row justify-between items-center w-full gap-2 pl-3 py-3 ${mobileView ? '' : 'absolute'}`}>
+        { mobileView ?
+          <div>
+            <Image priority
+              src={logoSvg}
+              width={300}
+              alt="" />
+          </div>
+          :
+          <div>
+          </div>
+        }
+
+        <div className='flex flex-row gap-2 px-2'>
+          <Button
+            className='dark-button'
+            iconClassName='relative'
+            icon={<IoListOutline size={20} />}
+            tooltip='Help'
+            tooltipAnchor='help'
+            onClick={() => dispatch(setSettingsModalVisible(true))}
+          />
+
+          <Button
+            className='dark-button'
+            iconClassName='relative '
+            icon={<IoSettings size={20} />}
+            tooltip='Settings'
+            tooltipAnchor='settings'
+            onClick={() => dispatch(setSettingsModalVisible(true))}
+          />
+        </div>
       </div>
 
-      <div className='flex flex-row'>
+      <div className={`flex flex-row ${mobileView ? 'h-[90%]' : ''}`}>
 
-        <div className='h-screen absolute flex items-center left-2 w-1/5'>
-          <Chatbox socketData={socketData} className='h-[98%]' hideTeam />
-        </div>
+        { mobileView ? <></>
+          :
+          <div className='h-screen absolute flex items-center left-2 w-1/5 py-3'>
+            <Chatbox socketData={socketData} hideTeam />
+          </div>
+        }
 
-        <div className="h-screen w-screen flex flex-col items-center justify-center">
+        <div className={`w-screen flex flex-col items-center ${mobileView ? 'justify-start' : 'justify-center h-screen'}`}>
 
-          <div className='relative bottom-10'>
+          <div className={mobileView ? 'hidden' : 'relative bottom-10'}>
             <Image priority
               src={logoSvg}
               width={800}
@@ -425,6 +452,14 @@ export default function Room({ roomId }: Props) {
 
             </div>
           </div>
+
+          { mobileView ?
+            <div className='h-full w-full px-5 mt-3'>
+              <Chatbox socketData={socketData} hideTeam />
+            </div>
+            : <></>
+          }
+
         </div>
       </div>
 
