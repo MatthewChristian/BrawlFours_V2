@@ -282,21 +282,21 @@ export default function Room({ roomId }: Props) {
 
         { mobileView ? <></>
           :
-          <div className='h-screen absolute flex items-center left-2 w-1/5 py-3'>
+          <div className='h-screen flex items-center mx-3 w-1/4 min-w-[280px] py-3'>
             <Chatbox socketData={socketData} hideTeam />
           </div>
         }
 
         <div className={`w-screen flex flex-col items-center ${mobileView ? 'justify-start' : 'justify-center h-screen'}`}>
 
-          <div className={mobileView ? 'hidden' : 'relative bottom-10'}>
+          <div className={mobileView ? 'hidden' : 'relative bottom-10 mx-5'}>
             <Image priority
               src={logoSvg}
               width={800}
               alt="" />
           </div>
 
-          <div className='bg-white rounded-lg border border-gray-400 p-10'>
+          <div className='bg-white rounded-lg border border-gray-400 p-10 mx-5'>
             <div className="flex flex-col justify-center items-center">
 
               <div className="">Share this code with your friends:</div>
@@ -362,7 +362,7 @@ export default function Room({ roomId }: Props) {
                 </div>
               }
 
-              <div className='flex flex-row gap-5 mt-3'>
+              <div className={`flex ${mobileView ? 'flex-col gap-2' : 'flex-row gap-5'} mt-3`}>
                 { players?.length > 0 && socketData.localId == players[0].id ?
                   <Button className='green-button' disabled={players.length < 4} onClick={() => setChooseModalOpen(true)} icon={<IoCheckmark size={22} />}>
                     Start Game
