@@ -141,6 +141,7 @@ export default function Lobby() {
           icon={<IoSettings size={20} />}
           tooltip='Settings'
           tooltipAnchor='settings'
+          tooltipPlacement='bottom'
           onClick={() => dispatch(setSettingsModalVisible(true))}
         />
       </div>

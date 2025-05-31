@@ -264,6 +264,7 @@ export default function Room({ roomId }: Props) {
             icon={<IoListOutline size={20} />}
             tooltip='Help'
             tooltipAnchor='help'
+            tooltipPlacement='bottom'
             onClick={() => dispatch(setSettingsModalVisible(true))}
           />
 
@@ -273,6 +274,7 @@ export default function Room({ roomId }: Props) {
             icon={<IoSettings size={20} />}
             tooltip='Settings'
             tooltipAnchor='settings'
+            tooltipPlacement='bottom'
             onClick={() => dispatch(setSettingsModalVisible(true))}
           />
         </div>
