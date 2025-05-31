@@ -285,7 +285,7 @@ export default function Room({ roomId }: Props) {
         { mobileView ? <></>
           :
           <div className='h-screen flex items-center mx-3 w-1/4 min-w-[280px] py-3'>
-            <Chatbox socketData={socketData} hideTeam />
+            <Chatbox socketData={socketData} hideTeam className='h-[95vh]' />
           </div>
         }
 
