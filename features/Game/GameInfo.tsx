@@ -64,7 +64,7 @@ export default function GameInfo({ playerTeam, socketData } : Props) {
 
 
   return (
-    <div className={`info-bg p-2 h-screen z-[9999] min-w-min ${mobileView ? 'hidden' : 'w-1/5'}`}>
+    <div className={'info-bg p-2 h-screen z-[9999] min-w-min'}>
 
       <div className='h-[30vh]'>
 
@@ -92,6 +92,7 @@ export default function GameInfo({ playerTeam, socketData } : Props) {
               icon={<IoSettings size={20} />}
               tooltip='Settings'
               tooltipAnchor='settings'
+              tooltipPlacement='bottom'
               onClick={() => dispatch(setSettingsModalVisible(true))}
             />
           </div>

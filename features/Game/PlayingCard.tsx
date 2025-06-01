@@ -7,7 +7,7 @@ import { useAppSelector } from '../../store/hooks';
 import { delay } from '../../core/services/delay';
 import { getPlayer1HandPos, getPlayer2HandPos, getPlayer3HandPos, getPlayer4HandPos } from '../../slices/position.slice';
 import CardInfoTooltip from './CardInfoTooltip';
-import { getTwosPlayed } from '../../slices/game.slice';
+import { getMobileView, getTwosPlayed } from '../../slices/game.slice';
 import { CardAbilities } from '../../core/services/abilities';
 
 
@@ -45,6 +45,11 @@ export default function PlayingCard({
   flipped,
   spin,
 }: Props) {
+
+  const mobileView = useAppSelector(getMobileView);
+
+  const cardHeight = mobileView ? '12vh' : '15vh';
+  const aspectRatio = '3/5';
 
   const cardRef = useRef<HTMLDivElement>(null);
 
@@ -188,8 +193,8 @@ export default function PlayingCard({
         <motion.div
           className="card-container"
           style={{
-            aspectRatio: '3/5',
-            height: '15vh',
+            aspectRatio: aspectRatio,
+            height: cardHeight,
             perspective: '1000px', // Adds depth for 3D animation
           }}
         >
@@ -226,7 +231,7 @@ export default function PlayingCard({
                     initial={liftCard == 1 ? { y: 20 } : liftCard == 2 ? { x: 20 } : liftCard == 3 ? { y: -20 } : liftCard == 4 ? { x: -20 } : undefined}
                   >
                     <div
-                      style={{ position: 'relative', height: '15vh', aspectRatio: '3/5' }}
+                      style={{ position: 'relative', height: cardHeight, aspectRatio: aspectRatio }}
                       onMouseOver={() => (cardData?.playable && !isNotPlayable) || glow == 'blue' ? setFocused(true) : undefined}
                       onMouseLeave={() => setFocused(false)}
                     >
@@ -241,7 +246,7 @@ export default function PlayingCard({
                     </div>
                   </motion.div>
                   : isOutline ?
-                    <div style={{ position: 'relative', height: '15vh', aspectRatio: '3/5' }}>
+                    <div style={{ position: 'relative', height: cardHeight, aspectRatio: aspectRatio }}>
                       <Image
                         src={'/images/card-outline.png'}
                         fill
@@ -254,7 +259,7 @@ export default function PlayingCard({
               )
                 :
                 (
-                  <div style={{ position: 'relative', height: '15vh', aspectRatio: '3/5' }}>
+                  <div style={{ position: 'relative', height: cardHeight, aspectRatio: aspectRatio }}>
                     <Image
                       src={'/images/red_back.png'}
                       fill
@@ -281,7 +286,7 @@ export default function PlayingCard({
                 alignItems: 'center',
               }}
             >
-              <div style={{ position: 'relative', height: '15vh', aspectRatio: '3/5' }}>
+              <div style={{ position: 'relative', height: cardHeight, aspectRatio: aspectRatio }}>
                 <Image
                   src={'/images/red_back.png'}
                   fill
@@ -308,7 +313,7 @@ export default function PlayingCard({
               initial={liftCard == 1 ? { y: 20 } : liftCard == 2 ? { x: 20 } : liftCard == 3 ? { y: -20 } : liftCard == 4 ? { x: -20 } : undefined}
             >
               <div
-                style={{position: 'relative',  height: '15vh', aspectRatio: '3/5'}}
+                style={{position: 'relative',  height: cardHeight, aspectRatio: aspectRatio}}
                 onMouseOver={() => (cardData?.playable && !isNotPlayable) || glow == 'blue' ? setFocused(true) : undefined}
                 onMouseLeave={() => setFocused(false)}
               >
@@ -323,7 +328,7 @@ export default function PlayingCard({
               </div>
             </motion.div>
             : isOutline ?
-              <div style={{ position: 'relative', height: '15vh', aspectRatio: '3/5' }}>
+              <div style={{ position: 'relative', height: cardHeight, aspectRatio: aspectRatio }}>
                 <Image
                   src={'/images/card-outline.png'}
                   fill
@@ -336,7 +341,7 @@ export default function PlayingCard({
         )
           :
           (
-            <div style={{ position: 'relative', height: '15vh', aspectRatio: '3/5' }}>
+            <div style={{ position: 'relative', height: cardHeight, aspectRatio: aspectRatio }}>
               <Image
                 src={'/images/red_back.png'}
                 fill

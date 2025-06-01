@@ -29,6 +29,8 @@ import PlayerStatusIcons from './PlayerStatusIcons';
 import { IoMdEye, IoMdSwap } from 'react-icons/io';
 import DoubleLift2Icon from './StatusIcons/DoubleLift2Icon';
 import LoadingIcon from './LoadingIcon';
+import ActiveAbilities from './ActiveAbilities';
+import Chatbox from './Chatbox';
 
 
 interface Props {
@@ -613,11 +615,13 @@ export default function Gameboard({ roomId }: Props) {
   return (
     <div className="h-screen w-screen">
 
-      <div className='flex flex-row'>
+      <div className={`flex ${mobileView ? 'flex-col' : 'flex-row'}`}>
 
-        <GameInfo playerTeam={player1Data.team} socketData={socketData} />
+        <div className={`${mobileView ? 'hidden' : 'w-1/5'}`}>
+          <GameInfo playerTeam={player1Data.team} socketData={socketData} />
+        </div>
 
-        <div className={`h-screen board-bg ${mobileView ? 'w-full' : 'w-4/5'}`}>
+        <div className={`board-bg flex flex-col justify-between  ${mobileView ? 'h-screen w-full' : 'h-screen w-4/5'}`}>
           {
             isLoading ?
               <div className='w-full h-full flex justify-center items-center'>
@@ -627,8 +631,8 @@ export default function Gameboard({ roomId }: Props) {
               <>
 
                 {/* ------------------------ Player 3 Info  ------------------------*/}
-                <div className='h-[25vh] flex flex-col justify-between items-center'>
-                  <div className='flex flex-col items-center justify-center p-2 player-info player-3-info w-1/2'>
+                <div className='h-1/4 flex flex-col justify-between items-center'>
+                  <div className={`flex flex-col items-center justify-center p-2 player-info player-3-info ${mobileView ? 'w-3/4' : 'w-1/2'}`}>
                     <div className={`flex justify-center ${player3Data.disconnected ? 'text-gray-400 italic' : 'text-white'}`}>
                       {
                         player3Data.nickname
@@ -645,23 +649,23 @@ export default function Gameboard({ roomId }: Props) {
                   <div className='w-full flex flex-row justify-center items-center relative'>
                     <div className={`flex flex-row justify-center items-center relative ${player3Cards?.length > 0 ? 'left-5' : ''}`} ref={player3Hand}>
                       {
-
-                        Array.from({ length: player3Data?.numCards ?? 0 }, (_, k) => {
-                          return (
-                            <PlayingCard
-                              key={'3' + k}
-                              player={3}
-                              cardData={player3Cards[k]}
-                              isNotPlayable={!allySelectionModalVisible}
-                              className='-mx-2 p-0'
-                              spotlighted={allySelectionModalVisible}
-                              glow={allySelectionModalVisible ? 'blue' : undefined}
-                              onClickHandler={() => player3Cards.length == 0 ? undefined : allySelectionModalVisible ? handleSelectAllyCard(player3Cards[k]) : undefined}
-                              flipped={!(isTeammateCardsVisible || allySelectionModalVisible)}
-                              spin={player3Cards[k]?.spin}
-                            />
-                          );
-                        })
+                        mobileView ? <></> :
+                          Array.from({ length: player3Data?.numCards ?? 0 }, (_, k) => {
+                            return (
+                              <PlayingCard
+                                key={'3' + k}
+                                player={3}
+                                cardData={player3Cards[k]}
+                                isNotPlayable={!allySelectionModalVisible}
+                                className='-mx-2 p-0'
+                                spotlighted={allySelectionModalVisible}
+                                glow={allySelectionModalVisible ? 'blue' : undefined}
+                                onClickHandler={() => player3Cards.length == 0 ? undefined : allySelectionModalVisible ? handleSelectAllyCard(player3Cards[k]) : undefined}
+                                flipped={!(isTeammateCardsVisible || allySelectionModalVisible)}
+                                spin={player3Cards[k]?.spin}
+                              />
+                            );
+                          })
                       }
                       <Marker dispatchFunction={setPlayer3HandPos} />
                     </div>
@@ -685,22 +689,23 @@ export default function Gameboard({ roomId }: Props) {
 
                 <div className='flex flex-row'>
                   {/* ------------------------ Player 4 Info  ------------------------*/}
-                  <div className='flex flex-col justify-center items-center w-2/12 player-info player-4-info'>
-                    <div className={`${player4Data.disconnected ? 'text-gray-400 italic' : 'text-white'}`}>
+                  <div className={`flex flex-col justify-center items-center ${mobileView ? 'w-1/3' : 'w-2/12'} player-info player-4-info`}>
+                    <div className={`break-all px-2 text-center ${player4Data.disconnected ? 'text-gray-400 italic' : 'text-white'}`}>
                       {
                         player4Data.nickname
                       }
+                      wwwwwwwwwwwwww
                     </div>
 
-                    <div className='flex flex-row flex-wrap gap-2 px-2'>
+                    <div className='flex flex-row flex-wrap justify-center gap-2 px-2'>
                       <DealerIcon active={dealerData && player4Data.id == dealerData.id} />
                       <TurnIcon active={turnPlayerData && player4Data.id == turnPlayerData.id} />
                       <PlayerStatusIcons playerStatus={player4Status} />
                     </div>
                   </div>
 
-                  <div className="w-1/6 h-[50vh] flex flex-col items-center justify-center gap-0" ref={player4Hand}>
-                    {
+                  <div className="w-1/6 flex flex-col items-center justify-center gap-0" ref={player4Hand}>
+                    { mobileView ? <></> :
                       Array.from({ length: player4Data?.numCards ?? 0 }, (_, k) => (
                         <PlayingCard
                           key={'4' + k}
@@ -745,19 +750,12 @@ export default function Gameboard({ roomId }: Props) {
                         spotlighted={isTargettingLift || isTargettingOppLift}
                       />
 
-                      <div className='w-32 px-2 flex flex-wrap justify-center items-center gap-2'>
-
-                        <AbilitiesDisabledIcon active={activeAbilities?.includes(CardAbilities.abilitiesDisabled)} />
-                        <RoyalsDisabledIcon active={activeAbilities?.includes(CardAbilities.royalsDisabled)} />
-                        <TrumpDisabledIcon active={activeAbilities?.includes(CardAbilities.trumpDisabled)} />
-                        <NoWinLiftIcon active={activeAbilities?.includes(CardAbilities.noWinLift)} />
-                        <OppositePowerIcon active={activeAbilities?.includes(CardAbilities.oppositePower)} />
-                        <DoubleLiftIcon active={activeAbilities?.includes(CardAbilities.doubleLift)} />
-                        <DoubleLift2Icon active={doubleLiftCards?.length > 0} />
-                        <DoublePointsIcon active={activeAbilities?.includes(CardAbilities.doublePoints)} />
-                        <NinePowerfulIcon active={activeAbilities?.includes(CardAbilities.ninePowerful)} />
-
-                      </div>
+                      {
+                        mobileView ? <div className='w-5'></div>:
+                          <div className='w-32 px-2 flex flex-wrap justify-center items-center gap-2'>
+                            <ActiveAbilities />
+                          </div>
+                      }
 
                       <PlayingCard
                         cardData={player2CardPlayed}
@@ -789,8 +787,8 @@ export default function Gameboard({ roomId }: Props) {
 
 
                   {/* ------------------------ Player 2 Info  ------------------------*/}
-                  <div className="w-1/6 h-[50vh] flex flex-col items-center justify-center gap-0" ref={player2Hand}>
-                    {
+                  <div className="w-1/6 flex flex-col items-center justify-center gap-0" ref={player2Hand}>
+                    { mobileView ? <></> :
                       Array.from({ length: player2Data?.numCards ?? 0 }, (_, k) => (
                         <PlayingCard
                           key={'2' + k}
@@ -805,14 +803,15 @@ export default function Gameboard({ roomId }: Props) {
 
                     <Marker dispatchFunction={setPlayer2HandPos} />
                   </div>
-                  <div className='flex flex-col justify-center items-center w-2/12 player-info player-2-info'>
-                    <div className={`${player2Data.disconnected ? 'text-gray-400 italic' : 'text-white'}`}>
+                  <div className={`flex flex-col justify-center items-center ${mobileView ? 'w-1/3' : 'w-2/12'} player-info player-2-info`}>
+                    <div className={`break-all px-2 text-center ${player2Data.disconnected ? 'text-gray-400 italic' : 'text-white'} px-2`}>
                       {
                         player2Data.nickname
                       }
+                      wwwwwwwwwwwwww
                     </div>
 
-                    <div className='flex flex-row flex-wrap gap-2'>
+                    <div className='flex flex-row justify-center flex-wrap gap-2'>
                       <DealerIcon active={dealerData && player2Data.id == dealerData.id} />
                       <TurnIcon active={turnPlayerData && player2Data.id == turnPlayerData.id} />
                       <PlayerStatusIcons playerStatus={player2Status} />
@@ -827,7 +826,7 @@ export default function Gameboard({ roomId }: Props) {
 
 
                 {/* ------------------------ Player 1 Info  ------------------------*/}
-                <div className='h-[25vh]  flex flex-col justify-between items-center'>
+                <div className='h-1/4 flex flex-col justify-end gap-2 items-center'>
 
                   <div className="w-full flex flex-row justify-center items-center" ref={player1Hand}>
                     {
@@ -853,7 +852,7 @@ export default function Gameboard({ roomId }: Props) {
                     <Marker dispatchFunction={setPlayer1HandPos} />
                   </div>
 
-                  <div className='flex flex-col items-center justify-center p-2 player-info player-1-info w-1/2'>
+                  <div className={`flex flex-col items-center justify-center p-2 player-info player-1-info ${mobileView ? 'w-3/4' : 'w-1/2'}`}>
                     <div className='text-white'>
                       {
                         player1Data.nickname
@@ -872,6 +871,8 @@ export default function Gameboard({ roomId }: Props) {
               </>
           }
         </div>
+
+        {/* <Chatbox socketData={socketData} /> */}
 
 
       </div>

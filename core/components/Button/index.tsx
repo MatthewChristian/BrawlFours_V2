@@ -22,11 +22,12 @@ export default function Button({ children, onClick, className, iconClassName, di
 
   const settingsModalVisible = useAppSelector(getSettingsModalVisible);
 
-  useEffect(() => {
-    if (!settingsModalVisible) {
-      tooltipRef?.current?.close();
-    }
-  }, [settingsModalVisible]);
+  // useEffect(() => {
+  //   if (!settingsModalVisible && tooltip == 'Settings') {
+  //     console.log('Closed');
+  //     tooltipRef?.current?.close();
+  //   }
+  // }, [settingsModalVisible, tooltip]);
 
   return (
     <>
