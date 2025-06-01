@@ -31,6 +31,7 @@ import DoubleLift2Icon from './StatusIcons/DoubleLift2Icon';
 import LoadingIcon from './LoadingIcon';
 import ActiveAbilities from './ActiveAbilities';
 import Chatbox from './Chatbox';
+import MobileGameInfo from './MobileGameInfo';
 
 
 interface Props {
@@ -617,11 +618,16 @@ export default function Gameboard({ roomId }: Props) {
 
       <div className={`flex ${mobileView ? 'flex-col' : 'flex-row'}`}>
 
-        <div className={`${mobileView ? 'hidden' : 'w-1/5'}`}>
-          <GameInfo playerTeam={player1Data.team} socketData={socketData} />
-        </div>
+        {mobileView ?
+          <div className='h-[15vh]'>
+            <MobileGameInfo playerTeam={player1Data.team} socketData={socketData} />
+          </div> :
+          <div className='w-1/5'>
+            <GameInfo playerTeam={player1Data.team} socketData={socketData} />
+          </div>
+        }
 
-        <div className={`board-bg flex flex-col justify-between  ${mobileView ? 'h-screen w-full' : 'h-screen w-4/5'}`}>
+        <div className={`board-bg flex flex-col justify-between  ${mobileView ? 'h-[70vh] w-full' : 'h-screen w-4/5'}`}>
           {
             isLoading ?
               <div className='w-full h-full flex justify-center items-center'>
@@ -631,7 +637,7 @@ export default function Gameboard({ roomId }: Props) {
               <>
 
                 {/* ------------------------ Player 3 Info  ------------------------*/}
-                <div className='h-1/4 flex flex-col justify-between items-center'>
+                <div className={`${mobileView ? 'h-1/5' : 'h-1/4'} flex flex-col justify-between items-center`}>
                   <div className={`flex flex-col items-center justify-center p-2 player-info player-3-info ${mobileView ? 'w-3/4' : 'w-1/2'}`}>
                     <div className={`flex justify-center ${player3Data.disconnected ? 'text-gray-400 italic' : 'text-white'}`}>
                       {
@@ -826,7 +832,7 @@ export default function Gameboard({ roomId }: Props) {
 
 
                 {/* ------------------------ Player 1 Info  ------------------------*/}
-                <div className='h-1/4 flex flex-col justify-end gap-2 items-center'>
+                <div className={`${mobileView ? 'h-1/2' : 'h-1/4'} gap-3 flex flex-col justify-end items-center`}>
 
                   <div className="w-full flex flex-row justify-center items-center" ref={player1Hand}>
                     {
@@ -872,7 +878,10 @@ export default function Gameboard({ roomId }: Props) {
           }
         </div>
 
-        {/* <Chatbox socketData={socketData} /> */}
+        { mobileView ?
+          <Chatbox socketData={socketData} />
+          : <></>
+        }
 
 
       </div>

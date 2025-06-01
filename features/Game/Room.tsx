@@ -270,7 +270,7 @@ export default function Room({ roomId }: Props) {
 
           <Button
             className='dark-button'
-            iconClassName='relative '
+            iconClassName='relative'
             icon={<IoSettings size={20} />}
             tooltip='Settings'
             tooltipAnchor='settings'

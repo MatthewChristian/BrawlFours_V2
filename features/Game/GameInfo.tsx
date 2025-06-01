@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import PlayingCard from './PlayingCard';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { getGame, getKickedCards, getMobileView, getTeamScore, setSettingsModalVisible } from '../../slices/game.slice';
+import { getGame, getKickedCards, getTeamScore, setLeaveModalVisible, setSettingsModalVisible } from '../../slices/game.slice';
 import Chatbox from './Chatbox';
 import { BasicRoomInput } from '../../models/BasicRoomInput';
 import Button from '../../core/components/Button';
@@ -11,6 +11,7 @@ import Popup from 'reactjs-popup';
 import SettingsModal from './Modals/SettingsModal';
 import Image from 'next/image';
 import logoSvg from '../../public/images/logo/logo.svg';
+import LeaveConfirmModal from './Modals/LeaveConfirmModal';
 
 interface Props {
   playerTeam?: number;
@@ -21,16 +22,11 @@ export default function GameInfo({ playerTeam, socketData } : Props) {
 
   const dispatch = useAppDispatch();
 
-  const mobileView = useAppSelector(getMobileView);
-
   const kickedCards = useAppSelector(getKickedCards);
 
   const teamScore = useAppSelector(getTeamScore);
 
   const game = useAppSelector(getGame);
-
-  const [leaveModalOpen, setLeaveModalOpen] = useState<boolean>(false);
-
 
   const teamScoreOrdered = useMemo(() => {
     return orderScore(teamScore);
@@ -83,7 +79,7 @@ export default function GameInfo({ playerTeam, socketData } : Props) {
               icon={<IoExit size={20} />}
               tooltip='Leave Room'
               tooltipAnchor='leave'
-              onClick={() => setLeaveModalOpen(true)}
+              onClick={() => dispatch(setLeaveModalVisible(true))}
             />
 
             <Button
@@ -123,21 +119,7 @@ export default function GameInfo({ playerTeam, socketData } : Props) {
 
       <SettingsModal roomId={socketData.roomId} />
 
-      <Popup contentStyle={{ left: '0%', width: '25em'}} open={leaveModalOpen} closeOnDocumentClick onClose={() => setLeaveModalOpen(false)}>
-        <div className="flex flex-col justify-center items-center">
-          <div className="">Are you sure you want to leave this room?</div>
-
-          <div className='flex flex-row gap-5'>
-            <Button className='blue-button mt-5' onClick={() => leaveRoom()}>
-              Yes
-            </Button>
-
-            <Button className='red-button mt-5' onClick={() => setLeaveModalOpen(false)}>
-              No
-            </Button>
-          </div>
-        </div>
-      </Popup>
+      <LeaveConfirmModal socketData={socketData} />
 
     </div>
   );
