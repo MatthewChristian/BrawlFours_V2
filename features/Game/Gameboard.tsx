@@ -17,21 +17,13 @@ import { socket } from '../SocketClient';
 import { CardAbilities } from '../../core/services/abilities';
 import Marker from './PositionMarkers/Marker';
 import { setPlayer1HandPos, setPlayer2HandPos, setPlayer3HandPos, setPlayer4HandPos } from '../../slices/position.slice';
-import AbilitiesDisabledIcon from './StatusIcons/AbilitiesDisabledIcon';
-import DoubleLiftIcon from './StatusIcons/DoubleLiftIcon';
-import DoublePointsIcon from './StatusIcons/DoublePointsIcon';
-import NinePowerfulIcon from './StatusIcons/NinePowerfulIcon';
-import NoWinLiftIcon from './StatusIcons/NoWinLiftIcon';
-import OppositePowerIcon from './StatusIcons/OppositePowerIcon';
-import RoyalsDisabledIcon from './StatusIcons/RoyalsDisabledIcon';
-import TrumpDisabledIcon from './StatusIcons/TrumpDisabledIcon';
 import PlayerStatusIcons from './PlayerStatusIcons';
 import { IoMdEye, IoMdSwap } from 'react-icons/io';
-import DoubleLift2Icon from './StatusIcons/DoubleLift2Icon';
 import LoadingIcon from './LoadingIcon';
 import ActiveAbilities from './ActiveAbilities';
 import Chatbox from './Chatbox';
 import MobileGameInfo from './MobileGameInfo';
+import { IoChatbox, IoEye } from 'react-icons/io5';
 
 
 interface Props {
@@ -638,17 +630,33 @@ export default function Gameboard({ roomId }: Props) {
 
                 {/* ------------------------ Player 3 Info  ------------------------*/}
                 <div className={`${mobileView ? 'h-1/5' : 'h-1/4'} flex flex-col justify-between items-center`}>
-                  <div className={`flex flex-col items-center justify-center p-2 player-info player-3-info ${mobileView ? 'w-3/4' : 'w-1/2'}`}>
-                    <div className={`flex justify-center ${player3Data.disconnected ? 'text-gray-400 italic' : 'text-white'}`}>
+                  <div className='flex flex-row w-full justify-center gap-5 items-center'>
+
+                    <div className='mx-2'>
                       {
-                        player3Data.nickname
+                        mobileView &&
+                          <Button
+                            disabled={!player3Cards.length || player3Cards?.length <= 0}
+                            className='blue-button'
+                            iconClassName='relative'
+                            icon={<IoEye size={20} />}
+                            onClick={() => console.log('Clicked')}
+                          />
                       }
                     </div>
 
-                    <div className='flex flex-row gap-2'>
-                      <DealerIcon active={dealerData && player3Data.id == dealerData.id} />
-                      <TurnIcon active={turnPlayerData && player3Data.id == turnPlayerData.id} />
-                      <PlayerStatusIcons playerStatus={player3Status} />
+                    <div className={`flex flex-col items-center justify-center p-2 player-info player-3-info ${mobileView ? 'w-3/4' : 'w-1/2'}`}>
+                      <div className={`flex justify-center ${player3Data.disconnected ? 'text-gray-400 italic' : 'text-white'}`}>
+                        {
+                          player3Data.nickname
+                        }
+                      </div>
+
+                      <div className='flex flex-row gap-2'>
+                        <DealerIcon active={dealerData && player3Data.id == dealerData.id} />
+                        <TurnIcon active={turnPlayerData && player3Data.id == turnPlayerData.id} />
+                        <PlayerStatusIcons playerStatus={player3Status} />
+                      </div>
                     </div>
                   </div>
 
@@ -676,7 +684,7 @@ export default function Gameboard({ roomId }: Props) {
                       <Marker dispatchFunction={setPlayer3HandPos} />
                     </div>
 
-                    { player3Cards?.length > 0 &&
+                    { player3Cards?.length > 0 && !mobileView &&
                       <div className='flex justify-center items-center relative left-10'>
                         <Button
                           className='blue-button blue-outline'
@@ -693,9 +701,9 @@ export default function Gameboard({ roomId }: Props) {
 
 
 
-                <div className='flex flex-row'>
+                <div className='flex flex-row items-center'>
                   {/* ------------------------ Player 4 Info  ------------------------*/}
-                  <div className={`flex flex-col justify-center items-center ${mobileView ? 'w-1/3' : 'w-2/12'} player-info player-4-info`}>
+                  <div className={`flex flex-col justify-center items-center ${mobileView ? 'w-1/3 h-3/4' : 'w-2/12'} player-info player-4-info`}>
                     <div className={`break-all px-2 text-center ${player4Data.disconnected ? 'text-gray-400 italic' : 'text-white'}`}>
                       {
                         player4Data.nickname
@@ -809,7 +817,7 @@ export default function Gameboard({ roomId }: Props) {
 
                     <Marker dispatchFunction={setPlayer2HandPos} />
                   </div>
-                  <div className={`flex flex-col justify-center items-center ${mobileView ? 'w-1/3' : 'w-2/12'} player-info player-2-info`}>
+                  <div className={`flex flex-col justify-center items-center ${mobileView ? 'w-1/3 h-3/4' : 'w-2/12'} player-info player-2-info`}>
                     <div className={`break-all px-2 text-center ${player2Data.disconnected ? 'text-gray-400 italic' : 'text-white'} px-2`}>
                       {
                         player2Data.nickname
@@ -858,18 +866,38 @@ export default function Gameboard({ roomId }: Props) {
                     <Marker dispatchFunction={setPlayer1HandPos} />
                   </div>
 
-                  <div className={`flex flex-col items-center justify-center p-2 player-info player-1-info ${mobileView ? 'w-3/4' : 'w-1/2'}`}>
-                    <div className='text-white'>
+                  <div className='flex flex-row w-full justify-center gap-5 items-center'>
+                    <div className='mx-2'>
                       {
-                        player1Data.nickname
+                        mobileView ?
+                          <Button
+                            className='blue-button'
+                            iconClassName='relative '
+                            icon={<IoChatbox size={20} />}
+                            tooltip='Chat'
+                            tooltipAnchor='chat'
+                            onClick={() => console.log('Clicked')}
+                          /> : undefined
                       }
                     </div>
 
-                    <div className='flex flex-row gap-2'>
-                      <DealerIcon active={dealerData && player1Data.id == dealerData.id}/>
-                      <TurnIcon active={turnPlayerData && player1Data.id == turnPlayerData.id} />
-                      <PlayerStatusIcons playerStatus={player1Status} />
+                    <div className={`flex flex-col items-center justify-center p-2 player-info player-1-info ${mobileView ? 'w-3/4' : 'w-1/2'}`}>
+
+                      <div className='text-white'>
+                        {
+                          player1Data.nickname
+                        }
+                      </div>
+
+
+                      <div className='flex flex-row gap-2'>
+                        <DealerIcon active={dealerData && player1Data.id == dealerData.id}/>
+                        <TurnIcon active={turnPlayerData && player1Data.id == turnPlayerData.id} />
+                        <PlayerStatusIcons playerStatus={player1Status} />
+                      </div>
+
                     </div>
+
 
                   </div>
                 </div>
@@ -879,7 +907,9 @@ export default function Gameboard({ roomId }: Props) {
         </div>
 
         { mobileView ?
-          <Chatbox socketData={socketData} />
+          <div className='h-[15vh] p-1 info-bg'>
+            <Chatbox socketData={socketData} hideInput/>
+          </div>
           : <></>
         }
 

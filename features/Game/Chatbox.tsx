@@ -10,9 +10,10 @@ interface Props {
   socketData?: BasicRoomInput;
   className?: string
   hideTeam?: boolean;
+  hideInput?: boolean;
 }
 
-export default function Chatbox({ socketData, className, hideTeam }: Props) {
+export default function Chatbox({ socketData, className, hideTeam, hideInput }: Props) {
 
   const mobileView = useAppSelector(getMobileView);
 
@@ -71,17 +72,20 @@ export default function Chatbox({ socketData, className, hideTeam }: Props) {
         </div>)}
       </div>
 
-      <div>
-        <ChatInput
-          inputRef={chatInputRef}
-          placeholder=""
-          className='w-full'
-          onSend={handleChatSend}
-          charLimit={50}
-          hideTeam={hideTeam}
-        />
-
-      </div>
+      { hideInput ?
+        <></>
+        :
+        <div>
+          <ChatInput
+            inputRef={chatInputRef}
+            placeholder=""
+            className='w-full'
+            onSend={handleChatSend}
+            charLimit={50}
+            hideTeam={hideTeam}
+          />
+        </div>
+      }
     </div>
   );
 }
