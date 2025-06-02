@@ -242,8 +242,8 @@ body {
 }
 
 .info-bg {
-  background: #6e6e6e;
-    background: radial-gradient(circle, rgba(110, 110, 110, 1) 0%, rgba(107, 107, 107, 1) 17%, rgba(64, 64, 64, 1) 100%);
+  background: #5c5c5c;
+    background: radial-gradient(circle, rgba(92, 92, 92, 1) 0%, rgba(79, 79, 79, 1) 19%, rgba(64, 64, 64, 1) 100%);
 }
 
 .player-info {
