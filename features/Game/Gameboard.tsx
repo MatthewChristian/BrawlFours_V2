@@ -703,7 +703,7 @@ export default function Gameboard({ roomId }: Props) {
 
                 <div className='flex flex-row items-center'>
                   {/* ------------------------ Player 4 Info  ------------------------*/}
-                  <div className={`flex flex-col justify-center items-center ${mobileView ? 'w-1/3 h-3/4' : 'w-2/12'} player-info player-4-info`}>
+                  <div className={`flex flex-col justify-center items-center ${mobileView ? 'w-1/3 h-3/4' : 'w-2/12 h-full'} player-info player-4-info`}>
                     <div className={`break-all px-2 text-center ${player4Data.disconnected ? 'text-gray-400 italic' : 'text-white'}`}>
                       {
                         player4Data.nickname
@@ -817,7 +817,7 @@ export default function Gameboard({ roomId }: Props) {
 
                     <Marker dispatchFunction={setPlayer2HandPos} />
                   </div>
-                  <div className={`flex flex-col justify-center items-center ${mobileView ? 'w-1/3 h-3/4' : 'w-2/12'} player-info player-2-info`}>
+                  <div className={`flex flex-col justify-center items-center ${mobileView ? 'w-1/3 h-3/4' : 'w-2/12 h-full'} player-info player-2-info`}>
                     <div className={`break-all px-2 text-center ${player2Data.disconnected ? 'text-gray-400 italic' : 'text-white'} px-2`}>
                       {
                         player2Data.nickname
