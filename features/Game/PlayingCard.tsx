@@ -27,6 +27,7 @@ interface Props {
   glow?: string;
   flipped?: boolean;
   spin?: boolean;
+  isKickedCard?: boolean;
 }
 
 export default function PlayingCard({
@@ -44,11 +45,12 @@ export default function PlayingCard({
   glow,
   flipped,
   spin,
+  isKickedCard
 }: Props) {
 
   const mobileView = useAppSelector(getMobileView);
 
-  const cardHeight = mobileView ? '12vh' : '15vh';
+  const cardHeight = mobileView ? (isKickedCard ? '10vh' : '12vh') : '15vh';
   const aspectRatio = '3/5';
 
   const cardRef = useRef<HTMLDivElement>(null);

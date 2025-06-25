@@ -1,11 +1,12 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { BasicRoomInput } from '../../models/BasicRoomInput';
 import PlayingCard from './PlayingCard';
 import { getKickedCards, getTeamScore, getGame, setSettingsModalVisible, setLeaveModalVisible } from '../../slices/game.slice';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { socket } from '../SocketClient';
 import Button from '../../core/components/Button';
 import { IoExit, IoSettings } from 'react-icons/io5';
+import { FaCrown } from 'react-icons/fa';
+import { CgCardDiamonds } from 'react-icons/cg';
 import ActiveAbilities from './ActiveAbilities';
 import Image from 'next/image';
 import logoSvg from '../../public/images/logo/logo.svg';
@@ -51,14 +52,31 @@ export default function MobileGameInfo({ playerTeam, socketData }: Props) {
   return (
     <div className='info-bg h-full flex flex-row items-center justify-between'>
 
-      <div className='flex flex-col justify-start h-full py-3 gap-2 mx-2 w-1/3'>
-        <div className='h-1/4 pl-2'>
+      <div>
+        <div className='h-[22%] pl-2'>
           <Image priority
             src={logoSvg}
             width={200}
             alt="" />
         </div>
 
+        <div className='flex flex-row mx-2 mt-2 w-1/3 items-center justify-start'>
+          <div className='flex flex-row mx-5'>
+            <PlayingCard cardData={kickedCards ? kickedCards[0] : undefined} className="kicked-1" isKickedCard style={{ marginRight: -35 }}></PlayingCard>
+            <PlayingCard cardData={kickedCards ? kickedCards[1] : undefined} className="kicked-2" isKickedCard style={{ marginRight: -35 }}></PlayingCard>
+            <PlayingCard cardData={kickedCards ? kickedCards[2] : undefined} className="kicked-3" isKickedCard style={{ marginRight: -35 }}></PlayingCard>
+            <PlayingCard cardData={kickedCards ? kickedCards[3] : undefined} className="kicked-4" isKickedCard style={{ marginRight: -35 }}></PlayingCard>
+          </div>
+        </div>
+      </div>
+
+      <div className='w-1/3 flex flex-col gap-2 bg-white rounded-lg bg-opacity-10'>
+        <div className='w-32 py-2 flex flex-wrap justify-center items-center gap-2 h-3/4'>
+          <ActiveAbilities />
+        </div>
+      </div>
+
+      <div className='flex flex-col justify-start h-full py-3 gap-2 mx-2 w-1/3'>
         <div className='flex flex-row gap-2 px-2'>
           <Button
             className='red-button'
@@ -79,30 +97,20 @@ export default function MobileGameInfo({ playerTeam, socketData }: Props) {
           />
         </div>
 
-        <div className='font-bold text-sm text-white px-2'>
-          <div>
-            <p>Score <span className='text-blue-500'>{teamScoreOrdered[0]}</span> - <span className='text-red-500'>{teamScoreOrdered[1]}</span></p>
+        <div className='font-bold text-sm text-white px-2 h-full flex flex-col justify-center gap-2'>
+          <div className='flex flex-row items-center gap-2'>
+            <div className='relative bottom-1'>
+              <FaCrown color='white' size={20} />
+            </div>
+            <div><span className='text-blue-500'>{teamScoreOrdered[0]}</span> - <span className='text-red-500'>{teamScoreOrdered[1]}</span></div>
           </div>
 
-          <div>
-            <p>Game <span className='text-blue-500'>{gameOrdered[0]}</span> - <span className='text-red-500'>{gameOrdered[1]}</span></p>
+          <div className='flex flex-row items-center gap-2'>
+            <div className='relative bottom-1'>
+              <CgCardDiamonds color='white' size={20}/>
+            </div>
+            <div><span className='text-blue-500'>{gameOrdered[0]}</span> - <span className='text-red-500'>{gameOrdered[1]}</span></div>
           </div>
-        </div>
-      </div>
-
-      <div className='w-1/3 flex flex-col gap-2'>
-        <div className='w-32 px-2 flex flex-wrap justify-center items-center gap-2 h-3/4'>
-          <ActiveAbilities />
-        </div>
-      </div>
-
-
-      <div className='flex flex-row mx-2 w-1/3 items-center justify-start'>
-        <div className='flex flex-row mx-5'>
-          <PlayingCard cardData={kickedCards ? kickedCards[0] : undefined} className="kicked-1" style={{ marginRight: -55 }}></PlayingCard>
-          <PlayingCard cardData={kickedCards ? kickedCards[1] : undefined} className="kicked-2" style={{ marginRight: -55 }}></PlayingCard>
-          <PlayingCard cardData={kickedCards ? kickedCards[2] : undefined} className="kicked-3" style={{ marginRight: -55 }}></PlayingCard>
-          <PlayingCard cardData={kickedCards ? kickedCards[3] : undefined} className="kicked-4" style={{ marginRight: -55 }}></PlayingCard>
         </div>
       </div>
 

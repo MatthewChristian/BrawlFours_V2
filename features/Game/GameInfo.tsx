@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import PlayingCard from './PlayingCard';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { getGame, getKickedCards, getTeamScore, setLeaveModalVisible, setSettingsModalVisible } from '../../slices/game.slice';
@@ -7,11 +7,12 @@ import { BasicRoomInput } from '../../models/BasicRoomInput';
 import Button from '../../core/components/Button';
 import { IoExit, IoSettings } from 'react-icons/io5';
 import { socket } from '../SocketClient';
-import Popup from 'reactjs-popup';
 import SettingsModal from './Modals/SettingsModal';
 import Image from 'next/image';
 import logoSvg from '../../public/images/logo/logo.svg';
 import LeaveConfirmModal from './Modals/LeaveConfirmModal';
+import { FaCrown } from 'react-icons/fa';
+import { CgCardDiamonds } from 'react-icons/cg';
 
 interface Props {
   playerTeam?: number;
@@ -105,12 +106,34 @@ export default function GameInfo({ playerTeam, socketData } : Props) {
         </div>
 
         <div className='mt-2 pt-2 mx-2 font-bold text-white'>
-          <div>
-            <p>Score <span className='text-blue-500'>{teamScoreOrdered[0]}</span> - <span className='text-red-500'>{teamScoreOrdered[1]}</span></p>
+          <div className='flex flex-row items-center gap-2 mb-1'>
+            <div className='relative bottom-[2px]'>
+              <FaCrown color='white' size={20} />
+            </div>
+            <div>
+              <div className='flex flex-row'>
+                <div className='w-16'>Score</div>
+                <div>
+                  <span className='text-blue-500'>{teamScoreOrdered[0]}</span> - <span className='text-red-500'>{teamScoreOrdered[1]}</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div>
-            <p>Game <span className='text-blue-500'>{gameOrdered[0]}</span> - <span className='text-red-500'>{gameOrdered[1]}</span></p>
+            <div className='flex flex-row items-center gap-2'>
+              <div className='relative bottom-[2px]'>
+                <CgCardDiamonds color='white' size={20}/>
+              </div>
+              <div>
+                <div className='flex flex-row'>
+                  <div className='w-16'>Game</div>
+                  <div>
+                    <span className='text-blue-500'>{gameOrdered[0]}</span> - <span className='text-red-500'>{gameOrdered[1]}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
