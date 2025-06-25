@@ -5,15 +5,20 @@ import { useAppSelector } from '../../store/hooks';
 import { getChatMessages, getChatMode } from '../../slices/chat.slice';
 import ChatInput from '../../core/components/ChatInput';
 import { getMobileView } from '../../slices/game.slice';
+import { motion } from 'framer-motion';
+import { IoCloseOutline } from 'react-icons/io5';
 
 interface Props {
   socketData?: BasicRoomInput;
   className?: string
   hideTeam?: boolean;
   hideInput?: boolean;
+  expand?: boolean;
+  setExpand?: (val: boolean) => void;
+  isMobileChat?: boolean;
 }
 
-export default function Chatbox({ socketData, className, hideTeam, hideInput }: Props) {
+export default function Chatbox({ socketData, className, hideTeam, hideInput, expand, setExpand, isMobileChat }: Props) {
 
   const mobileView = useAppSelector(getMobileView);
 
@@ -49,8 +54,27 @@ export default function Chatbox({ socketData, className, hideTeam, hideInput }: 
   }, [chatMessages]);
 
   return (
-    <div className={`flex flex-col justify-between w-full ${mobileView ? 'h-full' : ''} bg-white rounded-lg px-2 pt-2 shadow ${className}`}>
-      <div ref={chatBoxRef} className={'flex flex-col gap-2 w-full overflow-y-scroll pr-1'}>
+    <motion.div
+      animate={isMobileChat ? {
+        height: expand ? '80vh' : '13vh',
+        position: 'absolute',
+        width: '95%',
+        bottom: 8,
+        left: 8,
+        zIndex: 90,
+      } : undefined}
+      className={`flex flex-col justify-between w-full ${mobileView ? 'h-full' : ''} bg-white rounded-lg px-2 pt-2 shadow ${className}`}
+    >
+
+      {expand &&
+        <div className='flex flex-row justify-end' onClick={() => setExpand(false)}>
+          <IoCloseOutline size={32} color='#6b7280' />
+        </div>
+      }
+
+      <div ref={chatBoxRef} className={'flex flex-col gap-2 w-full h-full overflow-y-scroll pr-1'}>
+
+
         {chatMessages?.map((msg, i)=> <div key={msg + '_' + i} className='flex-none text-balance whitespace-normal break-words'>
           { msg.mode && msg.mode != 'log' && !hideTeam ?
             <span className='mr-1' style={{ color: msg.modeColour }}>
@@ -72,7 +96,7 @@ export default function Chatbox({ socketData, className, hideTeam, hideInput }: 
         </div>)}
       </div>
 
-      { hideInput ?
+      { hideInput && !expand ?
         <></>
         :
         <div>
@@ -86,6 +110,6 @@ export default function Chatbox({ socketData, className, hideTeam, hideInput }: 
           />
         </div>
       }
-    </div>
+    </motion.div>
   );
 }

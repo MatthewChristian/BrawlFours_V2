@@ -110,6 +110,9 @@ export default function Gameboard({ roomId }: Props) {
   // If looking at teammate's cards face up
   const [isTeammateCardsVisible, setIsTeammateCardsVisible] = useState<boolean>(false);
 
+  // When chat icon is clicked in mobile view
+  const [isChatboxExpand, setIsChatboxExpand] = useState<boolean>(false);
+
 
 
   // React refs for player hand div
@@ -876,7 +879,7 @@ export default function Gameboard({ roomId }: Props) {
                             icon={<IoChatbox size={20} />}
                             tooltip='Chat'
                             tooltipAnchor='chat'
-                            onClick={() => console.log('Clicked')}
+                            onClick={() => setIsChatboxExpand(true)}
                           /> : undefined
                       }
                     </div>
@@ -907,8 +910,8 @@ export default function Gameboard({ roomId }: Props) {
         </div>
 
         { mobileView ?
-          <div className='h-[15vh] p-1 info-bg'>
-            <Chatbox socketData={socketData} hideInput/>
+          <div className='h-[15vh] info-bg'>
+            <Chatbox socketData={socketData} hideInput expand={isChatboxExpand} setExpand={setIsChatboxExpand} isMobileChat/>
           </div>
           : <></>
         }
