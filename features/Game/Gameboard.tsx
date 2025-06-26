@@ -24,6 +24,9 @@ import ActiveAbilities from './ActiveAbilities';
 import Chatbox from './Chatbox';
 import MobileGameInfo from './MobileGameInfo';
 import { IoChatbox, IoEye } from 'react-icons/io5';
+import SettingsModal from './Modals/SettingsModal';
+import LeaveConfirmModal from './Modals/LeaveConfirmModal';
+import AllyCardsModal from './Modals/AllyCardsModal';
 
 
 interface Props {
@@ -638,12 +641,9 @@ export default function Gameboard({ roomId }: Props) {
                     <div className='mx-2'>
                       {
                         mobileView &&
-                          <Button
+                          <AllyCardsModal
                             disabled={!player3Cards.length || player3Cards?.length <= 0}
-                            className='blue-button'
-                            iconClassName='relative'
-                            icon={<IoEye size={20} />}
-                            onClick={() => console.log('Clicked')}
+                            socketData={socketData}
                           />
                       }
                     </div>
@@ -921,6 +921,10 @@ export default function Gameboard({ roomId }: Props) {
 
 
       {/* ------------------------ Modals ------------------------*/}
+      <SettingsModal roomId={socketData.roomId} />
+
+      <LeaveConfirmModal socketData={socketData} />
+
       <RoundWinnersModal isVisible={roundWinnersModalVisible} setIsVisible={setRoundWinnersModalVisible} players={players} roundWinners={roundWinnersStored} />
 
       {/* ----- Beggar Beg Modal -----*/}

@@ -140,10 +140,6 @@ export default function GameInfo({ playerTeam, socketData } : Props) {
 
       <Chatbox socketData={socketData} className='h-[68vh]'/>
 
-      <SettingsModal roomId={socketData.roomId} />
-
-      <LeaveConfirmModal socketData={socketData} />
-
     </div>
   );
 }
