@@ -2,7 +2,7 @@ import React from 'react';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { getAllyCardsViewExpanded, toggleAllyCardsViewExpanded } from '../../../slices/game.slice';
 import Button from '../../../core/components/Button';
-import { IoEye } from 'react-icons/io5';
+import { IoEye, IoEyeOff } from 'react-icons/io5';
 import { motion } from 'framer-motion';
 import { DeckCard } from '../../../models/DeckCard';
 import PlayingCard from '../PlayingCard';
@@ -28,7 +28,7 @@ export default function AllyCardsModal({ disabled, name, cards, allySelectionMod
           disabled={disabled}
           className='blue-button'
           iconClassName='relative'
-          icon={<IoEye size={20} />}
+          icon={isExpanded ? <IoEyeOff size={20} /> : <IoEye size={20} />}
           onClick={() => dispatch(toggleAllyCardsViewExpanded())}
         />
       </div>
@@ -50,12 +50,13 @@ export default function AllyCardsModal({ disabled, name, cards, allySelectionMod
             initial={{ opacity: 0, scale: 0 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0 }}
+
           >
             <div className='mt-2 flex flex-row justify-center font-bold text-lg'>
               {name}&apos;s hand
             </div>
 
-            <div className='flex flex-row justify-center'>
+            <div className='flex flex-row justify-center mt-4'>
               {
                 cards.map((card, i) =>
                   <PlayingCard
