@@ -213,6 +213,10 @@ export const gameSlice = createSlice({
       state.allyCardsViewExpanded = action.payload;
     },
 
+    toggleAllyCardsViewExpanded: (state) => {
+      state.allyCardsViewExpanded = !state.allyCardsViewExpanded;
+    },
+
   }
 });
 
@@ -255,6 +259,7 @@ export const {
   setJoinRoomLoading,
   setLeaveModalVisible,
   setAllyCardsViewExpanded,
+  toggleAllyCardsViewExpanded,
 } =  gameSlice.actions;
 
 // Selectors

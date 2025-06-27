@@ -643,7 +643,10 @@ export default function Gameboard({ roomId }: Props) {
                         mobileView &&
                           <AllyCardsModal
                             disabled={!player3Cards.length || player3Cards?.length <= 0}
-                            socketData={socketData}
+                            handleSelectAllyCard={handleSelectAllyCard}
+                            name={player3Data.nickname}
+                            cards={player3Cards}
+                            allySelectionModalVisible={allySelectionModalVisible}
                           />
                       }
                     </div>
