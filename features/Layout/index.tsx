@@ -22,6 +22,10 @@ export default function Layout({ children }: Props) {
   const supportsTouch = typeof window !== 'undefined' ? 'ontouchstart' in window || navigator.maxTouchPoints : false;
 
   useEffect(() => {
+    console.log('ST: ', supportsTouch);
+  }, [supportsTouch]);
+
+  useEffect(() => {
 
     if (!socket) {
       return;

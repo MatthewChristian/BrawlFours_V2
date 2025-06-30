@@ -60,7 +60,7 @@ export default function Chatbox({ socketData, className, hideTeam, hideInput, ex
         position: 'absolute',
         width: '95%',
         bottom: 8,
-        left: 8,
+        left: '2.5%',
         zIndex: 90,
       } : undefined}
       className={`flex flex-col justify-between w-full ${mobileView ? 'h-full' : ''} bg-white rounded-lg px-2 pt-2 shadow ${className}`}

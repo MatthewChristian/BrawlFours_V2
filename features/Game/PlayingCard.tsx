@@ -3,11 +3,11 @@ import Image from 'next/image';
 import { DeckCard } from '../../models/DeckCard';
 import { getCardAnchorSelect, getCardShortcode } from '../../core/services/parseCard';
 import { motion } from 'framer-motion';
-import { useAppSelector } from '../../store/hooks';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { delay } from '../../core/services/delay';
 import { getPlayer1HandPos, getPlayer2HandPos, getPlayer3HandPos, getPlayer4HandPos } from '../../slices/position.slice';
 import CardInfoTooltip from './CardInfoTooltip';
-import { getMobileView, getTwosPlayed } from '../../slices/game.slice';
+import { getFocusedCard, getMobileView, getTwosPlayed, setFocusedCard } from '../../slices/game.slice';
 import { CardAbilities } from '../../core/services/abilities';
 
 
@@ -50,6 +50,8 @@ export default function PlayingCard({
 
   const mobileView = useAppSelector(getMobileView);
 
+  const dispatch = useAppDispatch();
+
   const cardHeight = mobileView ? (isKickedCard ? '10vh' : '12vh') : '15vh';
   const aspectRatio = '3/5';
 
@@ -58,7 +60,10 @@ export default function PlayingCard({
   const [y, setY] = useState(0);
   const [x, setX] = useState(0);
 
+  const [isTouchInside, setIsTouchInside] = useState<boolean>(false); // On mobile, manage if still touching card
   const [focused, setFocused] = useState<boolean>(false);
+
+  const focusedCard = useAppSelector(getFocusedCard);
 
   const twosPlayed = useAppSelector(getTwosPlayed);
 
@@ -76,6 +81,7 @@ export default function PlayingCard({
   }, [cardData]);
 
   const tooltipEnabled = useMemo(() => {
+    console.log('CARD: ', card, ': ', (!isDeckCard && card ? 'true' : 'false'));
     return (!isDeckCard && card) ? true : false;
   }, [card, isDeckCard]);
 
@@ -163,6 +169,48 @@ export default function PlayingCard({
     return '';
   }
 
+  function handleMobileClick() {
+    console.log('CARD: ', card);
+    if (!isNotPlayable) {
+      dispatch(setFocusedCard(card));
+    }
+  }
+
+  function handleTouchMove(event: React.TouchEvent<HTMLDivElement>) {
+    const touch = event.touches[0];
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = touch.clientX;
+    const y = touch.clientY;
+
+    if (
+      x >= rect.left &&
+      x <= rect.right &&
+      y >= rect.top &&
+      y <= rect.bottom
+    ) {
+      if (!isTouchInside) {
+        console.log('User dragged back inside the element');
+      }
+      setIsTouchInside(true);
+    } else {
+      if (isTouchInside) {
+        console.log('User dragged outside the element');
+      }
+      setIsTouchInside(false);
+    }
+  }
+
+  // useEffect(() => {
+  //   if (!focused || (mobileView && !isTouchInside)) {
+  //     setY(0);
+  //   }
+  //   else {
+  //     if ((mobileView && isTouchInside) || !mobileView) {
+  //       setY(-20);
+  //     }
+  //   }
+  // }, [focused, isTouchInside, mobileView]);
+
   useEffect(() => {
     if (!focused) {
       setY(0);
@@ -171,6 +219,23 @@ export default function PlayingCard({
       setY(-20);
     }
   }, [focused]);
+
+
+  useEffect(() => {
+    console.log('FC: ', focusedCard);
+    if (!mobileView) {
+      return;
+    }
+
+    if (focusedCard == card) {
+      setY(-20);
+    }
+    else {
+      setY(0);
+    }
+  }, [focusedCard, mobileView]);
+
+
 
   useEffect(() => {
     if (!liftWinner || !liftCard) {
@@ -189,7 +254,11 @@ export default function PlayingCard({
       <div
         ref={cardRef}
         className={`${className} ${anchorSelect}`}
-        onClick={() => {handleClick(); console.log('Click');}}
+        onClick={() => { mobileView ? handleMobileClick() : handleClick();}}
+        onTouchStart={() => console.log('Start')}
+        onTouchCancel={() => console.log('Cancel')}
+        onTouchEnd={() => mobileView ? console.log('End') : undefined }
+        // onTouchMove={(e) => handleTouchMove(e)}
         style={{ zIndex: spotlighted ? 9999 : liftCard ? 10 : undefined, ...style }}
       >
         <motion.div
@@ -234,8 +303,10 @@ export default function PlayingCard({
                   >
                     <div
                       style={{ position: 'relative', height: cardHeight, aspectRatio: aspectRatio }}
-                      onMouseOver={() => (cardData?.playable && !isNotPlayable) || glow == 'blue' ? setFocused(true) : undefined}
-                      onMouseLeave={() => setFocused(false)}
+                      onMouseOver={mobileView ? undefined : () => (cardData?.playable && !isNotPlayable) || glow == 'blue' ? setFocused(true) : undefined}
+                      onMouseLeave={mobileView ? undefined : () => setFocused(false)}
+                      // onTouchStart={mobileView ? () => ((cardData?.playable && !isNotPlayable) || glow == 'blue' ? setFocused(true) : undefined) : undefined}
+                      // onTouchEnd={mobileView ? () => setFocused(false) : undefined}
                     >
                       <Image
                         src={`/images/${card}.png`}
@@ -301,59 +372,6 @@ export default function PlayingCard({
           </motion.div>
         </motion.div>
       </div>
-
-      {/* <div
-        ref={cardRef}
-        className={`${className} ${anchorSelect}`}
-        onClick={handleClick}
-        style={{ zIndex: spotlighted ? 9999 : liftCard ? 10 : undefined, ...style}}>
-        { !isDeckCard ? (
-          card ?
-            <motion.div
-              animate={{ x, y }}
-              transition={{ type: liftWinner ? "tween" : "spring" }}
-              initial={liftCard == 1 ? { y: 20 } : liftCard == 2 ? { x: 20 } : liftCard == 3 ? { y: -20 } : liftCard == 4 ? { x: -20 } : undefined}
-            >
-              <div
-                style={{position: 'relative',  height: cardHeight, aspectRatio: aspectRatio}}
-                onMouseOver={() => (cardData?.playable && !isNotPlayable) || glow == 'blue' ? setFocused(true) : undefined}
-                onMouseLeave={() => setFocused(false)}
-              >
-                <Image
-                  src={`/images/${card}.png`}
-                  fill
-                  sizes="10vw"
-                  style={{ objectFit: 'fill' }}
-                  alt='card'
-                  className={getGlowClassName()}
-                />
-              </div>
-            </motion.div>
-            : isOutline ?
-              <div style={{ position: 'relative', height: cardHeight, aspectRatio: aspectRatio }}>
-                <Image
-                  src={'/images/card-outline.png'}
-                  fill
-                  style={{ objectFit: 'fill' }}
-                  sizes="10vw"
-                  alt='card'
-                />
-              </div>
-              : null
-        )
-          :
-          (
-            <div style={{ position: 'relative', height: cardHeight, aspectRatio: aspectRatio }}>
-              <Image
-                src={'/images/red_back.png'}
-                fill
-                style={{ objectFit: 'fill' }}
-                sizes="10vw"
-                alt='card'
-              />
-            </div>
-          ) }
-      </div> */}
     </>
   );
 }

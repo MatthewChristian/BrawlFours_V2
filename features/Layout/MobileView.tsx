@@ -14,7 +14,7 @@ export const MobileView = (props: MobileViewProps) => {
   const mobileView = useAppSelector(getMobileView);
 
   function handleWindowSizeChange() {
-    if (window.innerWidth <= 768) {
+    if (window.innerWidth <= 1400) {
       console.log('Mobile');
       dispatch(setMobileView(true));
     }
@@ -26,7 +26,7 @@ export const MobileView = (props: MobileViewProps) => {
 
   useEffect(() => {
     // Check if in mobile view
-    if (window.innerWidth <= 768) {
+    if (window.innerWidth <= 1400) {
       dispatch(setMobileView(true));
     }
     else {

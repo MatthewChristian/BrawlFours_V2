@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { DeckCard } from '../../models/DeckCard';
 import PlayingCard from './PlayingCard';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { getActiveAbilities, getBeg, getDealer, getDoubleLiftCards, getDoubleLiftModalVisible, getLift, getLiftWinner, getMatchWinner, getMessage, getMobileView, getPlayerCards, getPlayerJoinedRoom, getPlayerList, getPlayerStatus, getRoundWinners, getTeammateCards, getTurn, setDoubleLiftModalVisible, setMessage } from '../../slices/game.slice';
+import { getActiveAbilities, getBeg, getDealer, getDoubleLiftCards, getDoubleLiftModalVisible, getLift, getLiftWinner, getMatchWinner, getMessage, getMobileView, getPlayerCards, getPlayerJoinedRoom, getPlayerList, getPlayerStatus, getRoundWinners, getTeammateCards, getTurn, setDoubleLiftModalVisible, setFocusedCard, setMessage } from '../../slices/game.slice';
 import { PlayerSocket } from '../../models/PlayerSocket';
 import DealerIcon from './StatusIcons/DealerIcon';
 import TurnIcon from './StatusIcons/TurnIcon';
@@ -612,7 +612,7 @@ export default function Gameboard({ roomId }: Props) {
   }, [matchWinner, roomId]);
 
   return (
-    <div className="h-screen w-screen">
+    <div className="h-screen w-screen" onClick={mobileView ? () => { dispatch(setFocusedCard(undefined)); console.log('Click');} : undefined}>
 
       <div className={`flex ${mobileView ? 'flex-col' : 'flex-row'}`}>
 

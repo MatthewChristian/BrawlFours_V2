@@ -7,7 +7,7 @@ import { CardAbilities, getAbilityData } from '../../core/services/abilities';
 import powerSvg from '../../public/images/power.svg';
 import powerZeroSvg from '../../public/images/powerZero.svg';
 import { useAppSelector } from '../../store/hooks';
-import { getActiveAbilities, getTwosPlayed } from '../../slices/game.slice';
+import { getActiveAbilities, getMobileView, getTwosPlayed } from '../../slices/game.slice';
 import { oppositePowerMap } from '../../core/services/sharedGameFunctions';
 
 interface Props {
@@ -20,6 +20,7 @@ export default function CardInfoTooltip({ card, active, offsetY }: Props) {
 
   const activeAbilities = useAppSelector(getActiveAbilities);
   const twosPlayed = useAppSelector(getTwosPlayed);
+  const mobileView = useAppSelector(getMobileView);
 
   const isDisabled = useMemo(() => {
     if (activeAbilities?.includes(CardAbilities.abilitiesDisabled)) {
@@ -90,11 +91,12 @@ export default function CardInfoTooltip({ card, active, offsetY }: Props) {
     active ?
       <Tooltip
         anchorSelect={`.${anchorSelect}`}
-        place="top"
-        delayShow={550}
-        delayHide={150}
+        place={mobileView ? 'bottom-start' : 'top'}
+        delayShow={mobileView ? 0 : 550}
+        delayHide={mobileView ? 0 : 150}
         offset={(offsetY ?? 0) + 10}
         style={{ zIndex: 10000, width: 200 }}
+        openOnClick={mobileView}
       >
         <div className='flex flex-col gap-2'>
           <div className='flex flex-row gap-1 items-baseline'>

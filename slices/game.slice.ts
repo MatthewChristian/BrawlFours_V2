@@ -49,6 +49,7 @@ interface GameSlice {
   joinRoomLoading: boolean;
   leaveModalVisible: boolean;
   allyCardsViewExpanded: boolean;
+  focusedCard?: string;
 }
 
 const initialState: GameSlice = {
@@ -217,6 +218,10 @@ export const gameSlice = createSlice({
       state.allyCardsViewExpanded = !state.allyCardsViewExpanded;
     },
 
+    setFocusedCard: (state, action: PayloadAction<string>) => {
+      state.focusedCard = action.payload;
+    },
+
   }
 });
 
@@ -260,6 +265,7 @@ export const {
   setLeaveModalVisible,
   setAllyCardsViewExpanded,
   toggleAllyCardsViewExpanded,
+  setFocusedCard,
 } =  gameSlice.actions;
 
 // Selectors
@@ -327,3 +333,5 @@ export const getJoinRoomLoading = (state: RootState): boolean => state.gameSlice
 export const getLeaveModalVisible = (state: RootState): boolean => state.gameSlice.leaveModalVisible;
 
 export const getAllyCardsViewExpanded = (state: RootState): boolean => state.gameSlice.allyCardsViewExpanded;
+
+export const getFocusedCard = (state: RootState): string => state.gameSlice.focusedCard;
