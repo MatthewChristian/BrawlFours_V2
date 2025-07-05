@@ -96,7 +96,7 @@ export default function SettingsModal({ roomId, lobby, settingsTooltipRef }: Pro
     // Get volume stored in local storage
     const localVolume = typeof window !== 'undefined' ? localStorage.getItem('volume') ?? undefined : undefined;
 
-    setDefaultVolume(Number(localVolume));
+    setDefaultVolume(Number(localVolume ?? 50));
   }, []);
 
 
