@@ -83,17 +83,12 @@ export default function MobileGameInfo({ playerTeam, socketData }: Props) {
               className='red-button'
               iconClassName='relative '
               icon={<IoExit size={20} />}
-              tooltip='Leave Room'
-              tooltipAnchor='leave'
               onClick={() => dispatch(setLeaveModalVisible(true))}
             />
             <Button
               className='blue-button'
               iconClassName='relative '
               icon={<IoSettings size={20} />}
-              tooltip='Settings'
-              tooltipAnchor='settings'
-              tooltipPlacement='bottom'
               onClick={() => dispatch(setSettingsModalVisible(true))}
             />
           </div>

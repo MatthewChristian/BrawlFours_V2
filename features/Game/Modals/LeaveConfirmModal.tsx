@@ -29,7 +29,7 @@ export default function LeaveConfirmModal({ socketData }: Props) {
   return (
     <Modal open={leaveModalOpen} closeOnDocumentClick={true} onClose={() => dispatch(setLeaveModalVisible(false))} centered>
       <div className="flex flex-col justify-center items-center">
-        <div className="">Are you sure you want to leave this room?</div>
+        <div className="text-center">Are you sure you want to leave this room?</div>
 
         <div className='flex flex-row gap-5'>
           <Button className='blue-button mt-5' onClick={() => leaveRoom()}>

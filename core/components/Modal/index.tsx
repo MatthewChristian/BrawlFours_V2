@@ -14,7 +14,11 @@ export default function Modal({ children, centered, ...props }: Props) {
   const mobileView = useAppSelector(getMobileView);
 
   return (
-    <Popup modal {...props} className={`${props.className} ${centered || mobileView ? 'centered-modal' : ''}`} contentStyle={props.contentStyle ?? { width: mobileView ? '80vw' : '25em' }}>
+    <Popup
+      modal {...props}
+      className={`${props.className} ${centered || mobileView ? 'centered-modal' : ''}`}
+      contentStyle={props.contentStyle ?? { width: mobileView ? '80vw' : '25em', paddingLeft: '20px', paddingRight: '20px', }}
+    >
       {children}
     </Popup>
   );
