@@ -937,7 +937,7 @@ export default function Gameboard({ roomId }: Props) {
       {/* ----- Beggar Beg Modal -----*/}
       <Modal open={begModalVisible && !roundWinnersModalVisible} closeOnDocumentClick={false} onClose={() => setBegModalVisible(false)}>
         <div className="flex flex-col justify-center items-center mx-5">
-          <div className="">Do you want to beg or stand?</div>
+          <div className="text-center">Do you want to beg or stand?</div>
           <div className='w-full flex flex-row justify-center gap-5'>
             <Button className='blue-button mt-5' onClick={() => socket?.emit('begResponse', { ...socketData, response: 'begged' })}>
               Beg
@@ -953,7 +953,7 @@ export default function Gameboard({ roomId }: Props) {
       {/* ----- Dealer Beg Modal -----*/}
       <Modal open={begResponseModalVisible} closeOnDocumentClick={false} onClose={() => setBegResponseModalVisible(false)} contentStyle={isForceStandCardInHand ? { width: '30em' } : undefined}>
         <div className="flex flex-col justify-center items-center mx-5">
-          <div className="">{turnPlayerData?.nickname} has begged!</div>
+          <div className="text-center">{turnPlayerData?.nickname} has begged!</div>
           <div className='w-full flex flex-row justify-center gap-5'>
             <Button className='blue-button mt-5' onClick={() => socket?.emit('begResponse', { ...socketData, response: 'give' })}>
               {
@@ -976,14 +976,14 @@ export default function Gameboard({ roomId }: Props) {
       {/* ----- Waiting Beg Modal -----*/}
       <Modal open={waitingBegResponseModalVisible} closeOnDocumentClick={false} onClose={() => setWaitingBegResponseModalVisible(false)}>
         <div className="flex flex-col justify-center items-center mx-5">
-          <div className="">Waiting for response from {dealerData?.nickname}...</div>
+          <div className="text-center">Waiting for response from {dealerData?.nickname}...</div>
         </div>
       </Modal>
 
       {/* ----- Buss Pack Modal -----*/}
       <Modal open={redealModalVisible} closeOnDocumentClick={false} onClose={() => setBegResponseModalVisible(false)}>
         <div className="flex flex-col justify-center items-center mx-5">
-          <div className="">The deck has run out of cards and must be redealt!</div>
+          <div className="text-center">The deck has run out of cards and must be redealt!</div>
           <div className='w-full flex flex-row justify-center gap-5'>
             <Button className='blue-button mt-5' onClick={() => socket?.emit('redeal', socketData)}>
               Redeal
@@ -994,7 +994,7 @@ export default function Gameboard({ roomId }: Props) {
 
       {/* ----- targetPowerless Modal -----*/}
       <Modal className='top-modal' contentStyle={{ width: 'fit-content' }} open={isTargettingLift} closeOnDocumentClick={false}>
-        <div className="px-12">Choose a card in the lift to be powerless and worth 0 points</div>
+        <div className="px-12 text-center">Choose a card in the lift to be powerless and worth 0 points</div>
         <div className='flex flex-row justify-center'>
           <Button className='red-button mt-5' onClick={() => { setIsTargettingLift(false); setPlayedCard(undefined); } }>
             Cancel
@@ -1004,7 +1004,7 @@ export default function Gameboard({ roomId }: Props) {
 
       {/* ----- oppReplay Modal -----*/}
       <Modal className='top-modal' contentStyle={{ width: 'fit-content' }} open={isTargettingOppLift} closeOnDocumentClick={false}>
-        <div className="px-12">Choose a card in the lift for the opponent to take back</div>
+        <div className="px-12 text-center">Choose a card in the lift for the opponent to take back</div>
         <div className='flex flex-row justify-center'>
           <Button className='red-button mt-5' onClick={() => { setIsTargettingOppLift(false); setPlayedCard(undefined); }}>
             Cancel
@@ -1013,20 +1013,20 @@ export default function Gameboard({ roomId }: Props) {
       </Modal>
 
       {/* ----- swapOppCard Modal -----*/}
-      <Modal contentStyle={{ width: 'fit-content' }} open={oppSelectionModalVisible} closeOnDocumentClick={false}>
-        <div className="px-12">Choose a card an an opponent to swap the card with</div>
+      <Modal contentStyle={{ width: mobileView ? '80vw' : 'fit-content' }} open={oppSelectionModalVisible} closeOnDocumentClick={false}>
+        <div className="px-12 text-center">Choose a card an an opponent to swap the card with</div>
 
-        <div className='flex flex-row gap-5 justify-center mt-3'>
+        <div className='flex flex-col gap-5 justify-center items-center mt-3 w-full px-5'>
           { player2Data.numCards != 0 &&
-          <Button className={selectedOpp?.id == player2Data?.id ? 'blue-button' : 'white-button'} onClick={() => setSelectedOpp(player2Data)}>
-            {player2Data.nickname}
-          </Button>
+            <Button className={(selectedOpp?.id == player2Data?.id ? 'blue-button' : 'white-button') + ' w-full justify-center' } onClick={() => setSelectedOpp(player2Data)}>
+              {player2Data.nickname}
+            </Button>
           }
 
           { player4Data.numCards != 0 &&
-          <Button className={selectedOpp?.id == player4Data?.id ? 'blue-button' : 'white-button'} onClick={() => setSelectedOpp(player4Data)}>
-            {player4Data.nickname}
-          </Button>
+            <Button className={(selectedOpp?.id == player4Data?.id ? 'blue-button' : 'white-button') + ' w-full justify-center'} onClick={() => setSelectedOpp(player4Data)}>
+              {player4Data.nickname}
+            </Button>
           }
         </div>
 
@@ -1105,7 +1105,7 @@ export default function Gameboard({ roomId }: Props) {
 
       {/* ----- chooseStarter Modal -----*/}
       <Modal contentStyle={{ width: 'fit-content' }} open={chooseStarterModalVisible} closeOnDocumentClick={false}>
-        <div className="px-12">Choose who will play first next lift</div>
+        <div className="px-12 text-center">Choose who will play first next lift</div>
 
         <div className='flex flex-col gap-5 justify-center items-center mt-3 mx-5'>
           <Button className={(selectedOpp?.id == player1Data?.id ? 'blue-button' : 'white-button') + ' w-full justify-center'} onClick={() => setSelectedOpp(player1Data)}>
@@ -1139,8 +1139,8 @@ export default function Gameboard({ roomId }: Props) {
 
 
       {/* ----- doubleLift Modal -----*/}
-      <Modal contentStyle={{ width: 'fit-content' }} open={doubleLiftModalVisible} onClose={() => dispatch(setDoubleLiftModalVisible(false))} closeOnDocumentClick={true}>
-        <div className="px-12">Cards that the winner of this lift will also win</div>
+      <Modal contentStyle={{ width: mobileView ? '90vw' : 'fit-content' }} open={doubleLiftModalVisible} onClose={() => dispatch(setDoubleLiftModalVisible(false))} closeOnDocumentClick={true}>
+        <div className="px-12 text-center">Cards that the winner of this lift will also win</div>
 
         <div className='grid grid-cols-4 gap-5 justify-center items-center mt-3 mx-5'>
           {
@@ -1166,7 +1166,7 @@ export default function Gameboard({ roomId }: Props) {
 
       {/* ----- swapHands Modal -----*/}
       <Modal contentStyle={{ width: 'fit-content' }} open={swapHandsModalVisible} closeOnDocumentClick={false}>
-        <div className="px-12">Choose the player you want to swap hands with</div>
+        <div className="px-12 text-center">Choose the player you want to swap hands with</div>
 
         <div className='flex flex-col gap-5 justify-center items-center mt-3 mx-5'>
 

@@ -230,6 +230,7 @@ export default function PlayingCard({
     function handleClickOutside(event) {
       if (cardRef.current && !cardRef.current.contains(event.target)) {
         dispatch(setFocusedCard(undefined));
+        tooltipRef.current?.close();
       }
     }
 
