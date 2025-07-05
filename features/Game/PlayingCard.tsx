@@ -9,6 +9,7 @@ import { getPlayer1HandPos, getPlayer2HandPos, getPlayer3HandPos, getPlayer4Hand
 import CardInfoTooltip from './CardInfoTooltip';
 import { getFocusedCard, getIsMobile, getMobileView, getTwosPlayed, setFocusedCard } from '../../slices/game.slice';
 import { CardAbilities } from '../../core/services/abilities';
+import { TooltipRefProps } from 'react-tooltip';
 
 
 
@@ -51,6 +52,8 @@ export default function PlayingCard({
   const mobileView = useAppSelector(getMobileView);
   const isMobile = useAppSelector(getIsMobile);
 
+  const tooltipRef = useRef<TooltipRefProps>(null);
+
   const dispatch = useAppDispatch();
 
   const cardHeight = mobileView ? (isKickedCard ? '10vh' : '12vh') : '15vh';
@@ -58,8 +61,8 @@ export default function PlayingCard({
 
   const cardRef = useRef<HTMLDivElement>(null);
 
-  const [y, setY] = useState(0);
-  const [x, setX] = useState(0);
+  const [y, setY] = useState<number>(0);
+  const [x, setX] = useState<number>(0);
 
   const [focused, setFocused] = useState<boolean>(false);
 
@@ -81,7 +84,6 @@ export default function PlayingCard({
   }, [cardData]);
 
   const tooltipEnabled = useMemo(() => {
-    console.log('CARD: ', card, ': ', (!isDeckCard && card ? 'true' : 'false'));
     return (!isDeckCard && card) ? true : false;
   }, [card, isDeckCard]);
 
@@ -177,12 +179,16 @@ export default function PlayingCard({
 
   function handleMobileTouchEnd(e: React.TouchEvent<HTMLDivElement>) {
 
-    if (cardRef.current &&
-      cardRef.current.contains(e.target)
-      && card == focusedCard
-    ) {
-      console.log('Fire');
+    const touch = e.changedTouches[0]; // Get the touch that ended
+    const endTarget = document.elementFromPoint(touch.clientX, touch.clientY);
+
+    if (cardRef.current && cardRef.current.contains(endTarget) && card == focusedCard) {
+      handleClick();
     }
+
+    dispatch(setFocusedCard(undefined));
+    tooltipRef.current?.close();
+
   }
 
   useEffect(() => {
@@ -200,7 +206,7 @@ export default function PlayingCard({
       return;
     }
 
-    if (focusedCard == card) {
+    if (focusedCard && focusedCard == card) {
       setY(-20);
     }
     else {
@@ -238,16 +244,18 @@ export default function PlayingCard({
 
   return (
     <>
-      <CardInfoTooltip card={cardData} active={tooltipEnabled} offsetY={-y}/>
+      <CardInfoTooltip
+        tooltipRef={tooltipRef}
+        card={cardData}
+        active={tooltipEnabled}
+        offsetY={isMobile ? y : -y}
+      />
 
       <div
         ref={cardRef}
         className={`${className} ${anchorSelect}`}
         onClick={() => { isMobile ? handleMobileClick() : handleClick();}}
-        onTouchStart={() => console.log('Start')}
-        onTouchCancel={() => console.log('Cancel')}
         onTouchEnd={(e) => isMobile ? handleMobileTouchEnd(e) : undefined }
-        // onTouchMove={(e) => handleTouchMove(e)}
         style={{ zIndex: spotlighted ? 9999 : liftCard ? 10 : undefined, ...style }}
       >
         <motion.div
@@ -294,8 +302,6 @@ export default function PlayingCard({
                       style={{ position: 'relative', height: cardHeight, aspectRatio: aspectRatio }}
                       onMouseOver={isMobile ? undefined : () => (cardData?.playable && !isNotPlayable) || glow == 'blue' ? setFocused(true) : undefined}
                       onMouseLeave={isMobile ? undefined : () => setFocused(false)}
-                      // onTouchStart={mobileView ? () => ((cardData?.playable && !isNotPlayable) || glow == 'blue' ? setFocused(true) : undefined) : undefined}
-                      // onTouchEnd={mobileView ? () => setFocused(false) : undefined}
                     >
                       <Image
                         src={`/images/${card}.png`}

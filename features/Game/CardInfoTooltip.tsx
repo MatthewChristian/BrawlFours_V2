@@ -1,6 +1,6 @@
-import React, { useMemo } from 'react';
+import React, { RefObject, useMemo } from 'react';
 import Image from 'next/image';
-import { Tooltip } from 'react-tooltip';
+import { Tooltip, TooltipRefProps } from 'react-tooltip';
 import { DeckCard } from '../../models/DeckCard';
 import { getCardAnchorSelect, parseSuit } from '../../core/services/parseCard';
 import { CardAbilities, getAbilityData } from '../../core/services/abilities';
@@ -11,12 +11,13 @@ import { getActiveAbilities, getMobileView, getTwosPlayed } from '../../slices/g
 import { oppositePowerMap } from '../../core/services/sharedGameFunctions';
 
 interface Props {
+  tooltipRef: RefObject<TooltipRefProps>;
   card: DeckCard;
   active?: boolean;
   offsetY?: number;
 }
 
-export default function CardInfoTooltip({ card, active, offsetY }: Props) {
+export default function CardInfoTooltip({ tooltipRef, card, active, offsetY }: Props) {
 
   const activeAbilities = useAppSelector(getActiveAbilities);
   const twosPlayed = useAppSelector(getTwosPlayed);
@@ -90,6 +91,7 @@ export default function CardInfoTooltip({ card, active, offsetY }: Props) {
   return (
     active ?
       <Tooltip
+        ref={tooltipRef}
         anchorSelect={`.${anchorSelect}`}
         place={mobileView ? 'bottom-start' : 'top'}
         delayShow={mobileView ? 0 : 550}
