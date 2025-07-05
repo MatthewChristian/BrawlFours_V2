@@ -612,7 +612,7 @@ export default function Gameboard({ roomId }: Props) {
   }, [matchWinner, roomId]);
 
   return (
-    <div className="h-screen w-screen" onClick={mobileView ? () => { dispatch(setFocusedCard(undefined)); console.log('Click');} : undefined}>
+    <div className="h-screen w-screen">
 
       <div className={`flex ${mobileView ? 'flex-col' : 'flex-row'}`}>
 

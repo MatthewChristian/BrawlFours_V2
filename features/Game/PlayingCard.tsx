@@ -7,7 +7,7 @@ import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { delay } from '../../core/services/delay';
 import { getPlayer1HandPos, getPlayer2HandPos, getPlayer3HandPos, getPlayer4HandPos } from '../../slices/position.slice';
 import CardInfoTooltip from './CardInfoTooltip';
-import { getFocusedCard, getMobileView, getTwosPlayed, setFocusedCard } from '../../slices/game.slice';
+import { getFocusedCard, getIsMobile, getMobileView, getTwosPlayed, setFocusedCard } from '../../slices/game.slice';
 import { CardAbilities } from '../../core/services/abilities';
 
 
@@ -49,6 +49,7 @@ export default function PlayingCard({
 }: Props) {
 
   const mobileView = useAppSelector(getMobileView);
+  const isMobile = useAppSelector(getIsMobile);
 
   const dispatch = useAppDispatch();
 
@@ -60,7 +61,6 @@ export default function PlayingCard({
   const [y, setY] = useState(0);
   const [x, setX] = useState(0);
 
-  const [isTouchInside, setIsTouchInside] = useState<boolean>(false); // On mobile, manage if still touching card
   const [focused, setFocused] = useState<boolean>(false);
 
   const focusedCard = useAppSelector(getFocusedCard);
@@ -170,46 +170,20 @@ export default function PlayingCard({
   }
 
   function handleMobileClick() {
-    console.log('CARD: ', card);
-    if (!isNotPlayable) {
+    if (cardData?.playable) {
       dispatch(setFocusedCard(card));
     }
   }
 
-  function handleTouchMove(event: React.TouchEvent<HTMLDivElement>) {
-    const touch = event.touches[0];
-    const rect = cardRef.current.getBoundingClientRect();
-    const x = touch.clientX;
-    const y = touch.clientY;
+  function handleMobileTouchEnd(e: React.TouchEvent<HTMLDivElement>) {
 
-    if (
-      x >= rect.left &&
-      x <= rect.right &&
-      y >= rect.top &&
-      y <= rect.bottom
+    if (cardRef.current &&
+      cardRef.current.contains(e.target)
+      && card == focusedCard
     ) {
-      if (!isTouchInside) {
-        console.log('User dragged back inside the element');
-      }
-      setIsTouchInside(true);
-    } else {
-      if (isTouchInside) {
-        console.log('User dragged outside the element');
-      }
-      setIsTouchInside(false);
+      console.log('Fire');
     }
   }
-
-  // useEffect(() => {
-  //   if (!focused || (mobileView && !isTouchInside)) {
-  //     setY(0);
-  //   }
-  //   else {
-  //     if ((mobileView && isTouchInside) || !mobileView) {
-  //       setY(-20);
-  //     }
-  //   }
-  // }, [focused, isTouchInside, mobileView]);
 
   useEffect(() => {
     if (!focused) {
@@ -222,8 +196,7 @@ export default function PlayingCard({
 
 
   useEffect(() => {
-    console.log('FC: ', focusedCard);
-    if (!mobileView) {
+    if (!isMobile) {
       return;
     }
 
@@ -233,7 +206,7 @@ export default function PlayingCard({
     else {
       setY(0);
     }
-  }, [focusedCard, mobileView]);
+  }, [focusedCard, isMobile]);
 
 
 
@@ -247,6 +220,22 @@ export default function PlayingCard({
     handleLiftWinner();
   }, [liftWinner, liftCard]);
 
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (cardRef.current && !cardRef.current.contains(event.target)) {
+        dispatch(setFocusedCard(undefined));
+      }
+    }
+
+    if (isMobile) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isMobile]);
+
   return (
     <>
       <CardInfoTooltip card={cardData} active={tooltipEnabled} offsetY={-y}/>
@@ -254,10 +243,10 @@ export default function PlayingCard({
       <div
         ref={cardRef}
         className={`${className} ${anchorSelect}`}
-        onClick={() => { mobileView ? handleMobileClick() : handleClick();}}
+        onClick={() => { isMobile ? handleMobileClick() : handleClick();}}
         onTouchStart={() => console.log('Start')}
         onTouchCancel={() => console.log('Cancel')}
-        onTouchEnd={() => mobileView ? console.log('End') : undefined }
+        onTouchEnd={(e) => isMobile ? handleMobileTouchEnd(e) : undefined }
         // onTouchMove={(e) => handleTouchMove(e)}
         style={{ zIndex: spotlighted ? 9999 : liftCard ? 10 : undefined, ...style }}
       >
@@ -303,8 +292,8 @@ export default function PlayingCard({
                   >
                     <div
                       style={{ position: 'relative', height: cardHeight, aspectRatio: aspectRatio }}
-                      onMouseOver={mobileView ? undefined : () => (cardData?.playable && !isNotPlayable) || glow == 'blue' ? setFocused(true) : undefined}
-                      onMouseLeave={mobileView ? undefined : () => setFocused(false)}
+                      onMouseOver={isMobile ? undefined : () => (cardData?.playable && !isNotPlayable) || glow == 'blue' ? setFocused(true) : undefined}
+                      onMouseLeave={isMobile ? undefined : () => setFocused(false)}
                       // onTouchStart={mobileView ? () => ((cardData?.playable && !isNotPlayable) || glow == 'blue' ? setFocused(true) : undefined) : undefined}
                       // onTouchEnd={mobileView ? () => setFocused(false) : undefined}
                     >

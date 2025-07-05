@@ -1,5 +1,5 @@
 import React, {  Suspense, useEffect } from 'react';
-import { setActiveAbilities, setBeg, setDealer, setDeck, setDoubleLiftCards, setErrorMsg, setGame, setGameIsTwo, setGameStarted, setJoinModalOpen, setJoinRoomLoading, setKickedCards, setLift, setLiftWinner, setMatchWinner, setMessage, setMobileView, setPlayerCards, setPlayerJoinedRoom, setPlayerList, setPlayerStatus, setRevealedBare, setRoomId, setRoundWinners, setTeammateCards, setTeamScore, setTurn, setTwosPlayed } from '../../slices/game.slice';
+import { setActiveAbilities, setBeg, setDealer, setDeck, setDoubleLiftCards, setErrorMsg, setGame, setGameIsTwo, setGameStarted, setIsMobile, setJoinModalOpen, setJoinRoomLoading, setKickedCards, setLift, setLiftWinner, setMatchWinner, setMessage, setMobileView, setPlayerCards, setPlayerJoinedRoom, setPlayerList, setPlayerStatus, setRevealedBare, setRoomId, setRoundWinners, setTeammateCards, setTeamScore, setTurn, setTwosPlayed } from '../../slices/game.slice';
 import { useAppDispatch } from '../../store/hooks';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
@@ -19,11 +19,11 @@ export default function Layout({ children }: Props) {
 
   const dispatch = useAppDispatch();
 
-  const supportsTouch = typeof window !== 'undefined' ? 'ontouchstart' in window || navigator.maxTouchPoints : false;
+  const isMobile = /Mobi|Android|Tablet|iPad/i.test(navigator.userAgent);
 
   useEffect(() => {
-    console.log('ST: ', supportsTouch);
-  }, [supportsTouch]);
+    dispatch(setIsMobile(isMobile));
+  }, [isMobile]);
 
   useEffect(() => {
 

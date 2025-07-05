@@ -17,7 +17,8 @@ import { RoomSocket } from '../models/RoomSocket';
  * State Definition
  */
 interface GameSlice {
-  mobileView: boolean | null;
+  mobileView: boolean | null; // If screen width is less than a certain amount of pixels
+  isMobile: boolean; // If device user is using is a phone or tablet
   playerList: PlayerSocket[];
   roomId?: string;
   joinModalOpen: boolean;
@@ -54,6 +55,7 @@ interface GameSlice {
 
 const initialState: GameSlice = {
   mobileView: null,
+  isMobile: false,
   playerList: [],
   joinModalOpen: false,
   deck: [],
@@ -88,6 +90,10 @@ export const gameSlice = createSlice({
 
     setMobileView: (state, action: PayloadAction<boolean | null>) => {
       state.mobileView = action.payload;
+    },
+
+    setIsMobile: (state, action: PayloadAction<boolean>) => {
+      state.isMobile = action.payload;
     },
 
     setPlayerList: (state, action: PayloadAction<PlayerSocket[]>) => {
@@ -233,6 +239,7 @@ export default gameSlice.reducer;
 // Actions
 export const {
   setMobileView,
+  setIsMobile,
   setPlayerList,
   setRoomId,
   setErrorMsg,
@@ -271,6 +278,8 @@ export const {
 // Selectors
 
 export const getMobileView = (state: RootState): boolean | null => state.gameSlice.mobileView;
+
+export const getIsMobile = (state: RootState): boolean => state.gameSlice.isMobile;
 
 export const getPlayerList = (state: RootState): PlayerSocket[] => state.gameSlice.playerList;
 
