@@ -27,7 +27,7 @@ export default function Slider({ onChange, label, defaultValue }: Props ) {
   return (
     <div className='flex flex-row gap-2'>
       <div>{label}</div>
-      <input className='relative bottom-[1px]' type="range" min="0" max="100" step={5} defaultValue={sliderValue} onChange={(e) => handleChange(Number(e.currentTarget.value))}></input>
+      <input className='relative bottom-[1px]' type="range" min="0" max="100" style={{ accentColor: '#3b82f6'}} step={5} defaultValue={sliderValue} onChange={(e) => handleChange(Number(e.currentTarget.value))}></input>
       <div className='w-5'>{sliderValue}</div>
     </div>
   );
