@@ -72,7 +72,7 @@ export default function MobileGameInfo({ playerTeam, socketData }: Props) {
         </div>
 
         <div className='w-1/3 flex flex-col items-center gap-2 ml-5'>
-          <div className='w-32 py-2 flex flex-wrap justify-center items-center gap-2 h-3/4 bg-white rounded-lg bg-opacity-10'>
+          <div className='w-32 h-[120px] py-2 flex flex-wrap justify-center items-center gap-2 bg-white rounded-lg bg-opacity-10'>
             <ActiveAbilities />
           </div>
         </div>
