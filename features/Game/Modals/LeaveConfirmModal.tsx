@@ -1,17 +1,18 @@
-import React from 'react';
-import Popup from 'reactjs-popup';
+import React, { RefObject } from 'react';
 import Button from '../../../core/components/Button';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { getLeaveModalVisible, setLeaveModalVisible } from '../../../slices/game.slice';
 import { BasicRoomInput } from '../../../models/BasicRoomInput';
 import { socket } from '../../SocketClient';
 import Modal from '../../../core/components/Modal';
+import { TooltipRefProps } from 'react-tooltip';
 
 interface Props {
   socketData?: BasicRoomInput;
+  leaveTooltipRef: RefObject<TooltipRefProps>;
 }
 
-export default function LeaveConfirmModal({ socketData }: Props) {
+export default function LeaveConfirmModal({ socketData, leaveTooltipRef }: Props) {
 
   const dispatch = useAppDispatch();
 
@@ -23,11 +24,16 @@ export default function LeaveConfirmModal({ socketData }: Props) {
     };
 
     socket.emit('leaveRoom', data);
+    handleCancel();
   }
 
+  function handleCancel() {
+    dispatch(setLeaveModalVisible(false));
+    leaveTooltipRef.current?.close();
+  }
 
   return (
-    <Modal open={leaveModalOpen} closeOnDocumentClick={true} onClose={() => dispatch(setLeaveModalVisible(false))} centered>
+    <Modal open={leaveModalOpen} closeOnDocumentClick={true} onClose={handleCancel} centered>
       <div className="flex flex-col justify-center items-center">
         <div className="text-center">Are you sure you want to leave this room?</div>
 
@@ -36,7 +42,7 @@ export default function LeaveConfirmModal({ socketData }: Props) {
             Yes
           </Button>
 
-          <Button className='red-button mt-5' onClick={() => dispatch(setLeaveModalVisible(false))}>
+          <Button className='red-button mt-5' onClick={handleCancel}>
             No
           </Button>
         </div>

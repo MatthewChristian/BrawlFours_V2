@@ -72,6 +72,7 @@ export default function Gameboard({ roomId }: Props) {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const settingsTooltipRef = useRef<TooltipRefProps>(null);
+  const leaveTooltipRef = useRef<TooltipRefProps>(null);
 
   // Cards in the hand of the client player
   const playerCards = useAppSelector(getPlayerCards);
@@ -624,7 +625,7 @@ export default function Gameboard({ roomId }: Props) {
             <MobileGameInfo playerTeam={player1Data.team} socketData={socketData} />
           </div> :
           <div className='w-1/5'>
-            <GameInfo playerTeam={player1Data.team} socketData={socketData} settingsTooltipRef={settingsTooltipRef} />
+            <GameInfo playerTeam={player1Data.team} socketData={socketData} settingsTooltipRef={settingsTooltipRef} leaveTooltipRef={leaveTooltipRef} />
           </div>
         }
 
@@ -929,7 +930,7 @@ export default function Gameboard({ roomId }: Props) {
       {/* ------------------------ Modals ------------------------*/}
       <SettingsModal roomId={socketData.roomId} settingsTooltipRef={settingsTooltipRef} />
 
-      <LeaveConfirmModal socketData={socketData} />
+      <LeaveConfirmModal socketData={socketData} leaveTooltipRef={leaveTooltipRef} />
 
       <RoundWinnersModal isVisible={roundWinnersModalVisible} setIsVisible={setRoundWinnersModalVisible} players={players} roundWinners={roundWinnersStored} />
 

@@ -16,9 +16,10 @@ interface Props {
   playerTeam?: number;
   socketData?: BasicRoomInput;
   settingsTooltipRef: RefObject<TooltipRefProps>;
+  leaveTooltipRef: RefObject<TooltipRefProps>;
 }
 
-export default function GameInfo({ playerTeam, socketData, settingsTooltipRef } : Props) {
+export default function GameInfo({ playerTeam, socketData, settingsTooltipRef, leaveTooltipRef } : Props) {
 
   const dispatch = useAppDispatch();
 
@@ -70,6 +71,7 @@ export default function GameInfo({ playerTeam, socketData, settingsTooltipRef } 
               icon={<IoExit size={20} />}
               tooltip='Leave Room'
               tooltipAnchor='leave'
+              externalTooltipRef={leaveTooltipRef}
               onClick={() => dispatch(setLeaveModalVisible(true))}
               tooltipClassname='border border-white'
               tooltipArrowClassname='border border-white border-t-0 border-l-0'
