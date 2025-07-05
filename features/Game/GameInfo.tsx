@@ -6,7 +6,6 @@ import Chatbox from './Chatbox';
 import { BasicRoomInput } from '../../models/BasicRoomInput';
 import Button from '../../core/components/Button';
 import { IoExit, IoSettings } from 'react-icons/io5';
-import { socket } from '../SocketClient';
 import Image from 'next/image';
 import logoSvg from '../../public/images/logo/logo.svg';
 import { FaCrown } from 'react-icons/fa';
@@ -51,15 +50,6 @@ export default function GameInfo({ playerTeam, socketData, settingsTooltipRef } 
     }
   }
 
-  function leaveRoom() {
-    const data: BasicRoomInput = {
-      ...socketData
-    };
-
-    socket.emit('leaveRoom', data);
-  }
-
-
   return (
     <div className={'info-bg p-2 h-screen z-[9999] min-w-min'}>
 
@@ -81,6 +71,8 @@ export default function GameInfo({ playerTeam, socketData, settingsTooltipRef } 
               tooltip='Leave Room'
               tooltipAnchor='leave'
               onClick={() => dispatch(setLeaveModalVisible(true))}
+              tooltipClassname='border border-white'
+              tooltipArrowClassname='border border-white border-t-0 border-l-0'
             />
 
             <Button
@@ -92,6 +84,8 @@ export default function GameInfo({ playerTeam, socketData, settingsTooltipRef } 
               tooltipPlacement='bottom'
               externalTooltipRef={settingsTooltipRef}
               onClick={() => dispatch(setSettingsModalVisible(true))}
+              tooltipClassname='border border-white'
+              tooltipArrowClassname='border border-white border-t-0 border-l-0'
             />
           </div>
         </div>

@@ -12,9 +12,11 @@ interface Props {
   tooltip?: string;
   tooltipAnchor?: string;
   tooltipPlacement?: PlacesType;
+  tooltipClassname?: string;
+  tooltipArrowClassname?: string;
 }
 
-export default function Button({ externalTooltipRef, children, onClick, className, iconClassName, disabled, icon, padding, tooltip, tooltipAnchor, tooltipPlacement }: Props) {
+export default function Button({ externalTooltipRef, children, onClick, className, iconClassName, disabled, icon, padding, tooltip, tooltipAnchor, tooltipPlacement, tooltipArrowClassname, tooltipClassname }: Props) {
 
   const tooltipRef = useRef<TooltipRefProps>(null);
 
@@ -40,6 +42,8 @@ export default function Button({ externalTooltipRef, children, onClick, classNam
           ref={externalTooltipRef ?? tooltipRef}
           anchorSelect={`.${tooltipAnchor}`}
           place={tooltipPlacement ?? 'top'}
+          className={tooltipClassname}
+          classNameArrow={tooltipArrowClassname}
         >
           <div>
             {tooltip}
