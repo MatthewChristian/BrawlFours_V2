@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { RefObject, useMemo } from 'react';
 import PlayingCard from './PlayingCard';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { getGame, getKickedCards, getTeamScore, setLeaveModalVisible, setSettingsModalVisible } from '../../slices/game.slice';
@@ -7,19 +7,19 @@ import { BasicRoomInput } from '../../models/BasicRoomInput';
 import Button from '../../core/components/Button';
 import { IoExit, IoSettings } from 'react-icons/io5';
 import { socket } from '../SocketClient';
-import SettingsModal from './Modals/SettingsModal';
 import Image from 'next/image';
 import logoSvg from '../../public/images/logo/logo.svg';
-import LeaveConfirmModal from './Modals/LeaveConfirmModal';
 import { FaCrown } from 'react-icons/fa';
 import { CgCardDiamonds } from 'react-icons/cg';
+import { TooltipRefProps } from 'react-tooltip';
 
 interface Props {
   playerTeam?: number;
   socketData?: BasicRoomInput;
+  settingsTooltipRef: RefObject<TooltipRefProps>;
 }
 
-export default function GameInfo({ playerTeam, socketData } : Props) {
+export default function GameInfo({ playerTeam, socketData, settingsTooltipRef } : Props) {
 
   const dispatch = useAppDispatch();
 
@@ -90,6 +90,7 @@ export default function GameInfo({ playerTeam, socketData } : Props) {
               tooltip='Settings'
               tooltipAnchor='settings'
               tooltipPlacement='bottom'
+              externalTooltipRef={settingsTooltipRef}
               onClick={() => dispatch(setSettingsModalVisible(true))}
             />
           </div>

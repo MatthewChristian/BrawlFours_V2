@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { RefObject, useEffect, useMemo, useState } from 'react';
 import Modal from '../../../core/components/Modal';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { getSettingsModalVisible, setSettingsModalVisible } from '../../../slices/game.slice';
@@ -8,13 +8,15 @@ import { IoClose, IoSave } from 'react-icons/io5';
 import Input from '../../../core/components/Input';
 import { JoinRoomInput } from '../../../models/JoinRoomInput';
 import { socket } from '../../SocketClient';
+import { TooltipRefProps } from 'react-tooltip';
 
 interface Props {
   roomId?: string;
   lobby?: boolean;
+  settingsTooltipRef: RefObject<TooltipRefProps>;
 }
 
-export default function SettingsModal({ roomId, lobby }: Props) {
+export default function SettingsModal({ roomId, lobby, settingsTooltipRef }: Props) {
 
   const dispatch = useAppDispatch();
 
@@ -61,6 +63,7 @@ export default function SettingsModal({ roomId, lobby }: Props) {
 
   function handleCancel() {
     dispatch(setSettingsModalVisible(false));
+    settingsTooltipRef.current?.close();
   }
 
   function handleSave() {

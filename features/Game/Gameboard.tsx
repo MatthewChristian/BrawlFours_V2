@@ -23,10 +23,11 @@ import LoadingIcon from './LoadingIcon';
 import ActiveAbilities from './ActiveAbilities';
 import Chatbox from './Chatbox';
 import MobileGameInfo from './MobileGameInfo';
-import { IoChatbox, IoEye } from 'react-icons/io5';
+import { IoChatbox } from 'react-icons/io5';
 import SettingsModal from './Modals/SettingsModal';
 import LeaveConfirmModal from './Modals/LeaveConfirmModal';
 import AllyCardsModal from './Modals/AllyCardsModal';
+import { TooltipRefProps } from 'react-tooltip';
 
 
 interface Props {
@@ -69,6 +70,8 @@ export default function Gameboard({ roomId }: Props) {
   const doubleLiftCards = useAppSelector(getDoubleLiftCards);
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  const settingsTooltipRef = useRef<TooltipRefProps>(null);
 
   // Cards in the hand of the client player
   const playerCards = useAppSelector(getPlayerCards);
@@ -621,7 +624,7 @@ export default function Gameboard({ roomId }: Props) {
             <MobileGameInfo playerTeam={player1Data.team} socketData={socketData} />
           </div> :
           <div className='w-1/5'>
-            <GameInfo playerTeam={player1Data.team} socketData={socketData} />
+            <GameInfo playerTeam={player1Data.team} socketData={socketData} settingsTooltipRef={settingsTooltipRef} />
           </div>
         }
 
@@ -924,7 +927,7 @@ export default function Gameboard({ roomId }: Props) {
 
 
       {/* ------------------------ Modals ------------------------*/}
-      <SettingsModal roomId={socketData.roomId} />
+      <SettingsModal roomId={socketData.roomId} settingsTooltipRef={settingsTooltipRef} />
 
       <LeaveConfirmModal socketData={socketData} />
 

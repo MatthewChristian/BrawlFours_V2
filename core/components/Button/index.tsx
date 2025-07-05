@@ -1,9 +1,7 @@
-import React, { useEffect, useRef } from 'react';
+import React, { RefObject, useRef } from 'react';
 import { PlacesType, Tooltip, TooltipRefProps } from 'react-tooltip';
-import { useAppSelector } from '../../../store/hooks';
-import { getSettingsModalVisible } from '../../../slices/game.slice';
-
 interface Props {
+  externalTooltipRef?: RefObject<TooltipRefProps>;
   children?: JSX.Element | string;
   onClick?: () => void;
   className?: string;
@@ -16,24 +14,15 @@ interface Props {
   tooltipPlacement?: PlacesType;
 }
 
-export default function Button({ children, onClick, className, iconClassName, disabled, icon, padding, tooltip, tooltipAnchor, tooltipPlacement }: Props) {
+export default function Button({ externalTooltipRef, children, onClick, className, iconClassName, disabled, icon, padding, tooltip, tooltipAnchor, tooltipPlacement }: Props) {
 
   const tooltipRef = useRef<TooltipRefProps>(null);
-
-  const settingsModalVisible = useAppSelector(getSettingsModalVisible);
-
-  // useEffect(() => {
-  //   if (!settingsModalVisible && tooltip == 'Settings') {
-  //     console.log('Closed');
-  //     tooltipRef?.current?.close();
-  //   }
-  // }, [settingsModalVisible, tooltip]);
 
   return (
     <>
       <button
         className={`rounded-lg ${padding ?? 'p-2'} flex flex-row items-center justify-center transition-colors ${disabled ? 'disabled-button' : 'cursor-pointer'} ${tooltipAnchor} ${className}`}
-        onClick={onClick && !disabled ? (e) => { tooltipRef?.current?.close(); onClick(); } : undefined}
+        onClick={onClick && !disabled ? (e) => { (externalTooltipRef ?? tooltipRef)?.current?.close(); onClick(); } : undefined}
       >
         {
           icon ?
@@ -48,7 +37,7 @@ export default function Button({ children, onClick, className, iconClassName, di
 
       {tooltip && tooltipAnchor &&
         <Tooltip
-          ref={tooltipRef}
+          ref={externalTooltipRef ?? tooltipRef}
           anchorSelect={`.${tooltipAnchor}`}
           place={tooltipPlacement ?? 'top'}
         >
