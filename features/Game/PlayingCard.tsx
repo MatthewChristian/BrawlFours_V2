@@ -257,7 +257,7 @@ export default function PlayingCard({
         className={`${className} ${anchorSelect}`}
         onClick={() => { isMobile ? handleMobileClick() : handleClick();}}
         onTouchEnd={(e) => isMobile ? handleMobileTouchEnd(e) : undefined }
-        style={{ zIndex: spotlighted ? 9999 : liftCard ? 10 : undefined, ...style }}
+        style={{ zIndex: spotlighted ? 9999 : liftCard ? 10 : 20, ...style }}
       >
         <motion.div
           className="card-container"
