@@ -36,7 +36,7 @@ export default function AllyCardsModal({ disabled, name, cards, allySelectionMod
       <motion.div
         animate={{
           display: isExpanded ? undefined : 'none',
-          height: isExpanded ? '20vh' : '0vh',
+          height: isExpanded ? '22dvh' : '0dvh',
           width: isExpanded ? '91vw' : '0vw',
           position: 'absolute',
           top: '16%',

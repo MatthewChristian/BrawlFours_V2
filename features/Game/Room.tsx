@@ -243,7 +243,7 @@ export default function Room({ roomId }: Props) {
 
 
   return (
-    <div className='h-screen w-screen lobby-bg'>
+    <div className='h-[100dvh] w-screen lobby-bg'>
       <SettingsModal roomId={roomId} lobby settingsTooltipRef={settingsTooltipRef} />
 
       <div className={`flex flex-row justify-between items-center w-full gap-2 pl-3 py-3 ${mobileView ? '' : 'absolute'}`}>
@@ -287,12 +287,12 @@ export default function Room({ roomId }: Props) {
 
         { mobileView ? <></>
           :
-          <div className='h-screen flex items-center mx-3 w-1/4 min-w-[280px] py-3'>
-            <Chatbox socketData={socketData} hideTeam className='h-[95vh]' />
+          <div className='h-[100dvh] flex items-center mx-3 w-1/4 min-w-[280px] py-3'>
+            <Chatbox socketData={socketData} hideTeam className='h-[95dvh]' />
           </div>
         }
 
-        <div className={`w-screen flex flex-col items-center ${mobileView ? 'justify-start' : 'justify-center h-screen'}`}>
+        <div className={`w-screen flex flex-col items-center ${mobileView ? 'justify-start' : 'justify-center h-[100dvh]'}`}>
 
           <div className={mobileView ? 'hidden' : 'relative bottom-10 mx-5'}>
             <Image priority

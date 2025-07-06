@@ -5,7 +5,7 @@ import logoSvg from '../../public/images/logo/logo.svg';
 
 export default function LoadingScreen() {
   return (
-    <div className='h-screen w-screen lobby-bg flex flex-col justify-center items-center'>
+    <div className='h-[100dvh] w-screen lobby-bg flex flex-col justify-center items-center'>
 
       <div className='px-5'>
         <Image priority

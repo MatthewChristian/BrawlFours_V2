@@ -58,7 +58,7 @@ export default function PlayingCard({
 
   const dispatch = useAppDispatch();
 
-  const cardHeight = mobileView ? (isKickedCard ? '10vh' : '12vh') : '15vh';
+  const cardHeight = mobileView ? (isKickedCard ? '10dvh' : '12dvh') : '15dvh';
   const aspectRatio = '3/5';
 
   const cardRef = useRef<HTMLDivElement>(null);

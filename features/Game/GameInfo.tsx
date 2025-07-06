@@ -52,9 +52,9 @@ export default function GameInfo({ playerTeam, socketData, settingsTooltipRef, l
   }
 
   return (
-    <div className={'info-bg p-2 h-screen z-[9999] min-w-min'}>
+    <div className={'info-bg p-2 h-[100dvh] z-[9999] min-w-min'}>
 
-      <div className='h-[30vh]'>
+      <div className='h-[30dvh]'>
 
         <div className='flex flex-row justify-between mb-2'>
           <div className='flex justify-center items-center'>
@@ -144,7 +144,7 @@ export default function GameInfo({ playerTeam, socketData, settingsTooltipRef, l
         </div>
       </div>
 
-      <Chatbox socketData={socketData} className='h-[68vh]'/>
+      <Chatbox socketData={socketData} className='h-[68dvh]'/>
 
     </div>
   );

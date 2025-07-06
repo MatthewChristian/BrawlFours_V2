@@ -616,12 +616,12 @@ export default function Gameboard({ roomId }: Props) {
   }, [matchWinner, roomId]);
 
   return (
-    <div className="h-screen w-screen">
+    <div className="h-full w-screen">
 
       <div className={`flex ${mobileView ? 'flex-col' : 'flex-row'}`}>
 
         {mobileView ?
-          <div className='h-[15vh]'>
+          <div className='h-[15dvh]'>
             <MobileGameInfo playerTeam={player1Data.team} socketData={socketData} />
           </div> :
           <div className='w-1/5'>
@@ -629,7 +629,7 @@ export default function Gameboard({ roomId }: Props) {
           </div>
         }
 
-        <div className={`board-bg flex flex-col justify-between  ${mobileView ? 'h-[70vh] w-full' : 'h-screen w-4/5'}`}>
+        <div className={`board-bg flex flex-col justify-between  ${mobileView ? 'h-[70dvh] w-full' : 'h-[100dvh] w-4/5'}`}>
           {
             isLoading ?
               <div className='w-full h-full flex justify-center items-center'>
@@ -914,7 +914,7 @@ export default function Gameboard({ roomId }: Props) {
         </div>
 
         { mobileView ?
-          <div className='h-[15vh] info-bg'>
+          <div className='h-[15dvh] info-bg'>
             <Chatbox socketData={socketData} hideInput expand={isChatboxExpand} setExpand={setIsChatboxExpand} isMobileChat/>
           </div>
           : <></>
@@ -1101,7 +1101,7 @@ export default function Gameboard({ roomId }: Props) {
 
 
       {/* ----- swapAllyCard Modal (Mobile) -----*/}
-      <Modal contentStyle={{ width: '90vw', height: '80vh' }} open={allySelectionModalVisible && mobileView} closeOnDocumentClick={false}>
+      <Modal contentStyle={{ width: '90vw', height: '80%' }} open={allySelectionModalVisible && mobileView} closeOnDocumentClick={false}>
 
 
 

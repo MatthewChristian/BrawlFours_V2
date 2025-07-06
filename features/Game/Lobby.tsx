@@ -134,7 +134,7 @@ export default function Lobby() {
   }, [roomId]);
 
   return (
-    <div className='lobby-bg h-screen flex flex-col justify-center items-center'>
+    <div className='lobby-bg h-[100dvh] flex flex-col justify-center items-center'>
       <SettingsModal lobby settingsTooltipRef={settingsTooltipRef} />
 
       <div className='flex flex-row gap-2 absolute top-3 right-3'>

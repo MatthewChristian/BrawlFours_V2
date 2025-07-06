@@ -62,7 +62,7 @@ export default function Chatbox({ socketData, className, hideTeam, hideInput, ex
   return (
     <motion.div
       animate={isMobileChat ? {
-        height: expand ? '80vh' : '13vh',
+        height: expand ? '80dvh' : '13dvh',
         position: 'absolute',
         width: '95%',
         bottom: 8,
