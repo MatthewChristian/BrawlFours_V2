@@ -7,7 +7,7 @@ import { CardAbilities, getAbilityData } from '../../core/services/abilities';
 import powerSvg from '../../public/images/power.svg';
 import powerZeroSvg from '../../public/images/powerZero.svg';
 import { useAppSelector } from '../../store/hooks';
-import { getActiveAbilities, getMobileView, getTwosPlayed } from '../../slices/game.slice';
+import { getActiveAbilities, getIsMobile, getMobileView, getTwosPlayed } from '../../slices/game.slice';
 import { oppositePowerMap } from '../../core/services/sharedGameFunctions';
 
 interface Props {
@@ -15,13 +15,15 @@ interface Props {
   card: DeckCard;
   active?: boolean;
   offsetY?: number;
+  ignoreMobileClick?: boolean;
 }
 
-export default function CardInfoTooltip({ tooltipRef, card, active, offsetY }: Props) {
+export default function CardInfoTooltip({ tooltipRef, card, active, offsetY, ignoreMobileClick }: Props) {
 
   const activeAbilities = useAppSelector(getActiveAbilities);
   const twosPlayed = useAppSelector(getTwosPlayed);
   const mobileView = useAppSelector(getMobileView);
+  const isMobile = useAppSelector(getIsMobile) && !ignoreMobileClick;
 
   const isDisabled = useMemo(() => {
     if (activeAbilities?.includes(CardAbilities.abilitiesDisabled)) {
@@ -98,7 +100,7 @@ export default function CardInfoTooltip({ tooltipRef, card, active, offsetY }: P
         delayHide={mobileView ? 0 : 150}
         offset={(offsetY ?? 0) + 10}
         style={{ zIndex: 10000, width: 200 }}
-        openOnClick={mobileView}
+        openOnClick={isMobile}
         className={'border border-white'}
         classNameArrow={'border border-white border-t-0 border-l-0'}
       >

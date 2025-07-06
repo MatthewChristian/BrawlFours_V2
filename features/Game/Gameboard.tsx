@@ -398,7 +398,7 @@ export default function Gameboard({ roomId }: Props) {
   }
 
   function handleSelectCard(card: DeckCard) {
-    if (card.suit == playedCard.suit && card.value == playedCard.value) {
+    if (card.suit == playedCard?.suit && card.value == playedCard?.value) {
       return;
     }
 
@@ -647,10 +647,8 @@ export default function Gameboard({ roomId }: Props) {
                         mobileView &&
                           <AllyCardsModal
                             disabled={!player3Cards.length || player3Cards?.length <= 0}
-                            handleSelectAllyCard={handleSelectAllyCard}
                             name={player3Data.nickname}
                             cards={player3Cards}
-                            allySelectionModalVisible={allySelectionModalVisible}
                           />
                       }
                     </div>
@@ -855,7 +853,7 @@ export default function Gameboard({ roomId }: Props) {
                     {
                       Array.from({ length: player1Cards.length == 0 ? player1Data?.numCards ?? 0 : player1Cards.length}, (_, k) => {
 
-                        const selectionActive = ((oppSelectionModalVisible || allySelectionModalVisible) && (!(player1Cards[k].suit == playedCard?.suit && player1Cards[k].value == playedCard?.value)));
+                        const selectionActive = ((oppSelectionModalVisible || (allySelectionModalVisible && !mobileView)) && (!(player1Cards[k]?.suit == playedCard?.suit && player1Cards[k]?.value == playedCard?.value)));
                         return (
                           <PlayingCard
                             key={'1' + k}
@@ -1058,15 +1056,15 @@ export default function Gameboard({ roomId }: Props) {
       </Modal>
 
 
-      {/* ----- swapAllyCard Modal -----*/}
-      <Modal contentStyle={{ width: 'fit-content' }} open={allySelectionModalVisible} closeOnDocumentClick={false}>
+      {/* ----- swapAllyCard Modal (Desktop) -----*/}
+      <Modal contentStyle={{ width: 'fit-content' }} open={allySelectionModalVisible && !mobileView} closeOnDocumentClick={false}>
 
 
 
         <div className='px-5'>
           <div className='flex flex-row justify-center items-center mt-3 gap-5'>
             <PlayingCard
-              key={'swap-card'}
+              key={'swap-card-1'}
               cardData={selectedCard}
               isDeckCard={false}
               isOutline={!selectedCard}
@@ -1076,7 +1074,7 @@ export default function Gameboard({ roomId }: Props) {
             <IoMdSwap size={32}/>
 
             <PlayingCard
-              key={'swap-card'}
+              key={'swap-card-2'}
               cardData={selectedAllyCard}
               isDeckCard={false}
               isOutline={!selectedAllyCard}
@@ -1099,6 +1097,102 @@ export default function Gameboard({ roomId }: Props) {
             Cancel
           </Button>
         </div>
+      </Modal>
+
+
+      {/* ----- swapAllyCard Modal (Mobile) -----*/}
+      <Modal contentStyle={{ width: '90vw', height: '80vh' }} open={allySelectionModalVisible && mobileView} closeOnDocumentClick={false}>
+
+
+
+        <div className='px-5 flex flex-col justify-center items-center gap-5 h-full'>
+
+          <div>
+            <div className='flex flex-row justify-center'>
+              {
+                Array.from({ length: player3Data?.numCards ?? 0 }, (_, k) => {
+                  return (
+                    <PlayingCard
+                      key={'3_swap_' + k}
+                      player={3}
+                      cardData={player3Cards[k]}
+                      className='-mx-2 p-0'
+                      onClickHandler={() => player3Cards.length == 0 ? undefined :  handleSelectAllyCard(player3Cards[k])}
+                      glow={'blue'}
+                      ignoreMobileClick
+                    />
+                  );
+                })
+              }
+            </div>
+
+            <div className='text-center font-bold mt-2'>{player3Data?.nickname}&apos;s hand</div>
+          </div>
+
+          <div className='flex flex-row justify-center items-center mt-3 gap-5'>
+            <PlayingCard
+              key={'swap-card-1'}
+              cardData={selectedCard}
+              isDeckCard={false}
+              isOutline={!selectedCard}
+              isNotPlayable
+            />
+
+            <IoMdSwap size={32} />
+
+            <PlayingCard
+              key={'swap-card-2'}
+              cardData={selectedAllyCard}
+              isDeckCard={false}
+              isOutline={!selectedAllyCard}
+              isNotPlayable
+            />
+
+          </div>
+
+          <div className='text-bold text-center text-lg text-blue-500'>Swapping these two cards</div>
+
+          <div className='mt-5'>
+            <div className='flex flex-row justify-center'>
+              {
+                player1Cards.filter(card => !(card.suit == playedCard?.suit && card.value == playedCard?.value)).map((card, k) => {
+
+                  return (
+                    <PlayingCard
+                      key={'1_swap_' + k}
+                      player={1}
+                      cardData={card}
+                      isDeckCard={player1Cards.length == 0 ? true : false}
+                      onClickHandler={() => player1Cards.length == 0 ? undefined : handleSelectCard(card)}
+                      ignoreMobileClick
+                      className='-mx-2'
+                      glow='blue'
+                    />
+                  );
+                }
+                )
+              }
+            </div>
+
+            <div className='text-center font-bold mt-2'>Your hand</div>
+          </div>
+
+
+
+          <div className='flex flex-row gap-5 justify-center'>
+            <Button disabled={!(selectedCard && selectedAllyCard)} className='green-button' onClick={() => { handleAllySelectionConfirm(); }}>
+              Confirm
+            </Button>
+
+            <Button className='red-button' onClick={() => { handleAllySelectionClose(); }}>
+              Cancel
+            </Button>
+          </div>
+
+        </div>
+
+
+
       </Modal>
 
 

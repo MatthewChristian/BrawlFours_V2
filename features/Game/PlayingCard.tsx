@@ -29,6 +29,7 @@ interface Props {
   flipped?: boolean;
   spin?: boolean;
   isKickedCard?: boolean;
+  ignoreMobileClick?: boolean;
 }
 
 export default function PlayingCard({
@@ -46,11 +47,12 @@ export default function PlayingCard({
   glow,
   flipped,
   spin,
-  isKickedCard
+  isKickedCard,
+  ignoreMobileClick
 }: Props) {
 
   const mobileView = useAppSelector(getMobileView);
-  const isMobile = useAppSelector(getIsMobile);
+  const isMobileState = useAppSelector(getIsMobile);
 
   const tooltipRef = useRef<TooltipRefProps>(null);
 
@@ -82,6 +84,10 @@ export default function PlayingCard({
   const anchorSelect = useMemo(() => {
     return getCardAnchorSelect(cardData);
   }, [cardData]);
+
+  const isMobile = useMemo(() => {
+    return isMobileState && !ignoreMobileClick;
+  }, [isMobileState, ignoreMobileClick]);
 
   const tooltipEnabled = useMemo(() => {
     return (!isDeckCard && cardData) ? true : false;
@@ -172,7 +178,7 @@ export default function PlayingCard({
   }
 
   function handleMobileClick() {
-    if (cardData?.playable) {
+    if (cardData?.playable && !isNotPlayable) {
       dispatch(setFocusedCard(card));
     }
   }
@@ -250,6 +256,7 @@ export default function PlayingCard({
         card={cardData}
         active={tooltipEnabled}
         offsetY={isMobile ? y : -y}
+        ignoreMobileClick={ignoreMobileClick}
       />
 
       <div
@@ -301,8 +308,8 @@ export default function PlayingCard({
                   >
                     <div
                       style={{ position: 'relative', height: cardHeight, aspectRatio: aspectRatio }}
-                      onMouseOver={isMobile ? undefined : () => (cardData?.playable && !isNotPlayable) || glow == 'blue' ? setFocused(true) : undefined}
-                      onMouseLeave={isMobile ? undefined : () => setFocused(false)}
+                      onMouseOver={isMobileState ? undefined : () => (cardData?.playable && !isNotPlayable) || glow == 'blue' ? setFocused(true) : undefined}
+                      onMouseLeave={isMobileState ? undefined : () => setFocused(false)}
                     >
                       <Image
                         src={`/images/${card}.png`}
