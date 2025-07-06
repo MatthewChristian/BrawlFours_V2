@@ -31,6 +31,12 @@ export default function Chatbox({ socketData, className, hideTeam, hideInput, ex
 
   const chatMode = useAppSelector(getChatMode);
 
+  function handleScrollToBottom() {
+    const lastMessage = chatBoxRef?.current?.lastElementChild;
+
+    lastMessage?.scrollIntoView({ behavior: 'instant', block: 'end' });
+  }
+
   function handleChatSend() {
     const message = chatInputRef?.current?.value;
 
@@ -63,6 +69,7 @@ export default function Chatbox({ socketData, className, hideTeam, hideInput, ex
         left: '2.5%',
         zIndex: 90,
       } : undefined}
+      onAnimationComplete={handleScrollToBottom}
       className={`flex flex-col justify-between w-full ${mobileView ? 'h-full' : ''} bg-white rounded-lg px-2 pt-2 shadow ${className}`}
     >
 
