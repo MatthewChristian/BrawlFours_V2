@@ -14,10 +14,13 @@ import LoadingIcon from './LoadingIcon';
 import SettingsModal from './Modals/SettingsModal';
 import Image from 'next/image';
 import logoSvg from '../../public/images/logo/logo.svg';
+import { TooltipRefProps } from 'react-tooltip';
 
 export default function Lobby() {
 
   const dispatch = useAppDispatch();
+
+  const settingsTooltipRef = useRef<TooltipRefProps>(null);
 
   const router = useRouter();
 
@@ -132,7 +135,7 @@ export default function Lobby() {
 
   return (
     <div className='lobby-bg h-screen flex flex-col justify-center items-center'>
-      <SettingsModal lobby />
+      <SettingsModal lobby settingsTooltipRef={settingsTooltipRef} />
 
       <div className='flex flex-row gap-2 absolute top-3 right-3'>
         <Button
@@ -142,6 +145,7 @@ export default function Lobby() {
           tooltip='Settings'
           tooltipAnchor='settings'
           tooltipPlacement='bottom'
+          externalTooltipRef={settingsTooltipRef}
           onClick={() => dispatch(setSettingsModalVisible(true))}
         />
       </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import Button from '../../core/components/Button';
 import { FaCrown, FaPencilAlt, FaRegTimesCircle } from 'react-icons/fa';
 import { IoDice, IoEnter, IoPencil, IoSettings, IoListOutline, IoExit, IoCheckmark, IoCopyOutline, IoLink } from 'react-icons/io5';
@@ -13,7 +13,7 @@ import RoundWinnersModal from './Modals/RoundWinnersModal';
 import MatchWinnersModal from './Modals/MatchWinnersModal';
 import { JoinRoomInput } from '../../models/JoinRoomInput';
 import Input from '../../core/components/Input';
-import { Tooltip } from 'react-tooltip';
+import { Tooltip, TooltipRefProps } from 'react-tooltip';
 import { PlayerSocket } from '../../models/PlayerSocket';
 import { KickPlayerInput } from '../../models/KickPlayerInput';
 import Chatbox from './Chatbox';
@@ -33,6 +33,8 @@ export default function Room({ roomId }: Props) {
 
   const router = useRouter();
   const dispatch = useAppDispatch();
+
+  const settingsTooltipRef = useRef<TooltipRefProps>(null);
 
   const mobileView = useAppSelector(getMobileView);
 
@@ -242,7 +244,7 @@ export default function Room({ roomId }: Props) {
 
   return (
     <div className='h-screen w-screen lobby-bg'>
-      <SettingsModal roomId={roomId} lobby />
+      <SettingsModal roomId={roomId} lobby settingsTooltipRef={settingsTooltipRef} />
 
       <div className={`flex flex-row justify-between items-center w-full gap-2 pl-3 py-3 ${mobileView ? '' : 'absolute'}`}>
         { mobileView ?
@@ -275,6 +277,7 @@ export default function Room({ roomId }: Props) {
             tooltip='Settings'
             tooltipAnchor='settings'
             tooltipPlacement='bottom'
+            externalTooltipRef={settingsTooltipRef}
             onClick={() => dispatch(setSettingsModalVisible(true))}
           />
         </div>
