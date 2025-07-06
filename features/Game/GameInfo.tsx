@@ -95,10 +95,19 @@ export default function GameInfo({ playerTeam, socketData, settingsTooltipRef, l
         <div className='flex flex-row'>
           <PlayingCard isDeckCard className="deck"></PlayingCard>
           <div className='flex flex-row'>
-            <PlayingCard cardData={kickedCards ? kickedCards[0] : undefined} className="kicked-1" style={{ marginRight: -60 }}></PlayingCard>
-            <PlayingCard cardData={kickedCards ? kickedCards[1] : undefined} className="kicked-2" style={{ marginRight: -60 }}></PlayingCard>
-            <PlayingCard cardData={kickedCards ? kickedCards[2] : undefined} className="kicked-3" style={{ marginRight: -60 }}></PlayingCard>
-            <PlayingCard cardData={kickedCards ? kickedCards[3] : undefined} className="kicked-4" style={{ marginRight: -60 }}></PlayingCard>
+            <PlayingCard cardData={kickedCards ? kickedCards[0] : undefined} className='mr-[-60px]'></PlayingCard>
+            {
+              kickedCards[1] &&
+                <PlayingCard cardData={kickedCards[1]} className='mr-[-60px]'></PlayingCard>
+            }
+            {
+              kickedCards[2] &&
+              <PlayingCard cardData={kickedCards[2]} className='mr-[-60px]'></PlayingCard>
+            }
+            {
+              kickedCards[3] &&
+              <PlayingCard cardData={kickedCards[3]} className='mr-[-60px]'></PlayingCard>
+            }
           </div>
         </div>
 
