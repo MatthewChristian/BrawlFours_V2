@@ -99,6 +99,8 @@ export default function CardInfoTooltip({ tooltipRef, card, active, offsetY }: P
         offset={(offsetY ?? 0) + 10}
         style={{ zIndex: 10000, width: 200 }}
         openOnClick={mobileView}
+        className={'border border-white'}
+        classNameArrow={'border border-white border-t-0 border-l-0'}
       >
         <div className='flex flex-col gap-2'>
           <div className='flex flex-row gap-1 items-baseline'>

@@ -42,8 +42,8 @@ export default function Button({ externalTooltipRef, children, onClick, classNam
           ref={externalTooltipRef ?? tooltipRef}
           anchorSelect={`.${tooltipAnchor}`}
           place={tooltipPlacement ?? 'top'}
-          className={tooltipClassname}
-          classNameArrow={tooltipArrowClassname}
+          className={tooltipClassname ?? 'border border-white'}
+          classNameArrow={tooltipArrowClassname ?? 'border border-white border-t-0 border-l-0'}
         >
           <div>
             {tooltip}
