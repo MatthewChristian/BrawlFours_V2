@@ -675,7 +675,7 @@ export default function Gameboard({ roomId }: Props) {
                           Array.from({ length: player3Data?.numCards ?? 0 }, (_, k) => {
                             return (
                               <PlayingCard
-                                key={'3' + k}
+                                key={player3Cards[k]?.suit ? ('3_' + (player3Cards[k]?.suit + player3Cards[k]?.value)) : '3_' + k?.toString()}
                                 player={3}
                                 cardData={player3Cards[k]}
                                 isNotPlayable={!allySelectionModalVisible}
@@ -856,7 +856,7 @@ export default function Gameboard({ roomId }: Props) {
                         const selectionActive = ((oppSelectionModalVisible || (allySelectionModalVisible && !mobileView)) && (!(player1Cards[k]?.suit == playedCard?.suit && player1Cards[k]?.value == playedCard?.value)));
                         return (
                           <PlayingCard
-                            key={'1' + k}
+                            key={player1Cards[k]?.suit ? ('1_' + (player1Cards[k]?.suit + player1Cards[k]?.value)) : '1_' + k?.toString()}
                             player={1}
                             cardData={player1Cards[k]}
                             isDeckCard={player1Cards.length == 0 ? true : false}
