@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useAppDispatch } from '../../../store/hooks';
 import { UnknownAction } from '@reduxjs/toolkit';
 import { MarkerPosition } from '../../../models/MarkerPosition';
