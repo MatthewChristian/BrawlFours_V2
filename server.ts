@@ -1130,11 +1130,6 @@ async function liftScoring(data: BasicRoomInput) {
   roomUsers[data.roomId].tempPendingTurn = undefined;
   roomUsers[data.roomId].pendingTurn = [];
 
-  // Reset spin variable on cards
-  roomUsers[data.roomId].users.forEach(user => {
-    user.cards.map(card => card.spin = false);
-  });
-
 
   // Set playable status of cards of player whose turn is next
   setCardsPlayability(data.roomId);
