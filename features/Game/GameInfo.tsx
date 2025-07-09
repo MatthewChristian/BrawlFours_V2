@@ -1,15 +1,27 @@
-import React, { useMemo, useState } from 'react';
+import React, { RefObject, useMemo } from 'react';
 import PlayingCard from './PlayingCard';
-import { useAppSelector } from '../../store/hooks';
-import { getGame, getKickedCards, getTeamScore } from '../../slices/game.slice';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { getGame, getKickedCards, getTeamScore, setLeaveModalVisible, setSettingsModalVisible } from '../../slices/game.slice';
+import Chatbox from './Chatbox';
+import { BasicRoomInput } from '../../models/BasicRoomInput';
+import Button from '../../core/components/Button';
+import { IoExit, IoSettings } from 'react-icons/io5';
+import Image from 'next/image';
+import logoSvg from '../../public/images/logo/logo.svg';
+import { FaCrown } from 'react-icons/fa';
+import { CgCardDiamonds } from 'react-icons/cg';
+import { TooltipRefProps } from 'react-tooltip';
 
 interface Props {
-  playerTurn?: number;
   playerTeam?: number;
+  socketData?: BasicRoomInput;
+  settingsTooltipRef: RefObject<TooltipRefProps>;
+  leaveTooltipRef: RefObject<TooltipRefProps>;
 }
 
-export default function GameInfo({ playerTurn, playerTeam } : Props) {
+export default function GameInfo({ playerTeam, socketData, settingsTooltipRef, leaveTooltipRef } : Props) {
 
+  const dispatch = useAppDispatch();
 
   const kickedCards = useAppSelector(getKickedCards);
 
@@ -26,57 +38,6 @@ export default function GameInfo({ playerTurn, playerTeam } : Props) {
   }, [game, playerTeam]);
 
 
-  // --------------------------------
-
-  // Manage team scores
-  const [score, setScore] = useState<number[]>([0, 0]);
-
-  // Manage which suit is trump
-  const [trump, setTrump] = useState<string>();
-
-  // Manage cards in a lift
-  const [lift, setLift] = useState<number[]>([-200, 0, 0, 0, 0]);
-
-  // Indicate if round ended
-  const [liftEnded, setLiftEnded] = useState<number>(0);
-
-  // Indicate which team won a lift
-  const [liftWinner, setLiftWinner] = useState<number>(0);
-
-  // Manage how many players have played in a round
-  const [count, setCount] = useState<number>(1);
-
-  // Manage each team's total score
-  const [t1Score, setT1Score] = useState<number>(0);
-  const [t2Score, setT2Score] = useState<number>(0);
-
-  // Manage values for high, low, game and jack
-  const [high, setHigh] = useState<number>(0);
-  const [low, setLow] = useState<number>(15);
-  const [jack, setJack] = useState<number>(1);
-
-  // Indicate which team played jack
-  const [jackPlayer, setJackPlayer] = useState<number>(0);
-
-  // Indicate if jack is in the current lift
-  const [jackInPlay, setJackInPlay] = useState<boolean>(false);
-
-  // Indicate which team hung jack
-  const [jackHangerTeam, setJackHangerTeam] = useState<number>(0);
-
-  // Indicate the power of the card which hung jack
-  const [jackHangerValue, setJackHangerValue] = useState<number>(0);
-
-  // Manage which team won what point
-  const [gameWinner, setGameWinner] = useState<number>(0);
-  const [highWinner, setHighWinner] = useState<number>(0);
-  const [lowWinner, setLowWinner] = useState<number>(0);
-  const [jackWinner, setJackWinner] = useState<number>(0);
-
-
-  // Indicate whether or not to show which team won what
-  const [show, setShow] = useState<boolean>(false);
-
   function orderScore(score?: number[]) {
     if (!score) {
       return [0, 0];
@@ -90,79 +51,101 @@ export default function GameInfo({ playerTurn, playerTeam } : Props) {
     }
   }
 
-
   return (
-    <div className="bg-red-100 p-2 h-screen w-1/5">
+    <div className={'info-bg p-2 h-[100dvh] z-[9999] min-w-min'}>
 
-      <div className='flex flex-row'>
-        <PlayingCard isDeckCard className="deck"></PlayingCard>
+      <div className='h-[30dvh]'>
+
+        <div className='flex flex-row justify-between mb-2'>
+          <div className='flex justify-center items-center'>
+            <Image priority
+              src={logoSvg}
+              width={200}
+              alt="" />
+          </div>
+
+          <div className='flex flex-row gap-2'>
+            <Button
+              className='red-button'
+              iconClassName='relative '
+              icon={<IoExit size={20} />}
+              tooltip='Leave Room'
+              tooltipAnchor='leave'
+              externalTooltipRef={leaveTooltipRef}
+              onClick={() => dispatch(setLeaveModalVisible(true))}
+              tooltipClassname='border border-white'
+              tooltipArrowClassname='border border-white border-t-0 border-l-0'
+            />
+
+            <Button
+              className='blue-button'
+              iconClassName='relative '
+              icon={<IoSettings size={20} />}
+              tooltip='Settings'
+              tooltipAnchor='settings'
+              tooltipPlacement='bottom'
+              externalTooltipRef={settingsTooltipRef}
+              onClick={() => dispatch(setSettingsModalVisible(true))}
+              tooltipClassname='border border-white'
+              tooltipArrowClassname='border border-white border-t-0 border-l-0'
+            />
+          </div>
+        </div>
+
         <div className='flex flex-row'>
-          <PlayingCard cardData={kickedCards ? kickedCards[0] : undefined} className="kicked-1" style={{ marginRight: -60 }}></PlayingCard>
-          <PlayingCard cardData={kickedCards ? kickedCards[1] : undefined} className="kicked-2" style={{ marginRight: -60 }}></PlayingCard>
-          <PlayingCard cardData={kickedCards ? kickedCards[2] : undefined} className="kicked-3" style={{ marginRight: -60 }}></PlayingCard>
-          <PlayingCard cardData={kickedCards ? kickedCards[3] : undefined} className="kicked-4" style={{ marginRight: -60 }}></PlayingCard>
+          <PlayingCard isDeckCard className="deck"></PlayingCard>
+          <div className='flex flex-row'>
+            <PlayingCard cardData={kickedCards ? kickedCards[0] : undefined} className='mr-[-60px]'></PlayingCard>
+            {
+              kickedCards && kickedCards[1] &&
+                <PlayingCard cardData={kickedCards[1]} className='mr-[-60px]'></PlayingCard>
+            }
+            {
+              kickedCards && kickedCards[2] &&
+              <PlayingCard cardData={kickedCards[2]} className='mr-[-60px]'></PlayingCard>
+            }
+            {
+              kickedCards && kickedCards[3] &&
+              <PlayingCard cardData={kickedCards[3]} className='mr-[-60px]'></PlayingCard>
+            }
+          </div>
+        </div>
+
+        <div className='mt-2 pt-2 mx-2 font-bold text-white'>
+          <div className='flex flex-row items-center gap-2 mb-1'>
+            <div className='relative bottom-[2px]'>
+              <FaCrown color='white' size={20} />
+            </div>
+            <div>
+              <div className='flex flex-row'>
+                <div className='w-16'>Score</div>
+                <div>
+                  <span className='text-blue-500'>{teamScoreOrdered[0]}</span> - <span className='text-red-500'>{teamScoreOrdered[1]}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div className='flex flex-row items-center gap-2'>
+              <div className='relative bottom-[2px]'>
+                <CgCardDiamonds color='white' size={20}/>
+              </div>
+              <div>
+                <div className='flex flex-row'>
+                  <div className='w-16'>Game</div>
+                  <div>
+                    <span className='text-blue-500'>{gameOrdered[0]}</span> - <span className='text-red-500'>{gameOrdered[1]}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div>
-        <div>
-          <p>Score: {teamScoreOrdered[0]} - {teamScoreOrdered[1]}</p>
-        </div>
-        <div>
-          <p>It is player {playerTurn}&apos;s turn</p>
-        </div>
-      </div>
-      <div>
-        <p>Game: {gameOrdered[0]} - {gameOrdered[1]}</p>
-      </div>
-      <div>
-        {show ?
-          (
-            <p>Team {highWinner} won high with {high}</p>
-          ) : (null)
-        }
-      </div>
-      <div>
-        {show ?
-          (
-            <p>Team {lowWinner} won low with {low}</p>
-          ) : (null)
-        }
-      </div>
-      <div>
-        {show && jackWinner > 0 ?
-          (
-            <p>Team {jackWinner} won jack</p>
-          ) : (null)
-        }
-      </div>
-      <div>
-        {show && jackWinner != jackPlayer ?
-          (
-            <p>Team {jackWinner} hung jack!</p>
-          ) : (null)
-        }
-      </div>
-      <div>
-        {show ?
-          (
-            <p>Team {lowWinner} won game {teamScoreOrdered[0]} - {teamScoreOrdered[1]}</p>
-          ) : (null)
-        }
-      </div>
-      <div>
-        {liftWinner > 0 ?
-          (
-            <p>Player {liftWinner} won the lift</p>
-          ) : (null)
-        }
-      </div>
-      <div>
-        <div>
-          <p> Kicked: </p>
+      <Chatbox socketData={socketData} className='h-[68dvh]'/>
 
-        </div>
-      </div>
     </div>
   );
 }

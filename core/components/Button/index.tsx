@@ -1,23 +1,55 @@
-import React from 'react';
-
+import React, { RefObject, useRef } from 'react';
+import { PlacesType, Tooltip, TooltipRefProps } from 'react-tooltip';
 interface Props {
+  externalTooltipRef?: RefObject<TooltipRefProps>;
   children?: JSX.Element | string;
   onClick?: () => void;
   className?: string;
+  iconClassName?: string;
   disabled?: boolean;
   icon?: JSX.Element;
+  padding?: string;
+  tooltip?: string;
+  tooltipAnchor?: string;
+  tooltipPlacement?: PlacesType;
+  tooltipClassname?: string;
+  tooltipArrowClassname?: string;
 }
 
-export default function Button({ children, onClick, className, disabled, icon }: Props) {
+export default function Button({ externalTooltipRef, children, onClick, className, iconClassName, disabled, icon, padding, tooltip, tooltipAnchor, tooltipPlacement, tooltipArrowClassname, tooltipClassname }: Props) {
+
+  const tooltipRef = useRef<TooltipRefProps>(null);
+
   return (
-    <div className={`rounded-lg p-2 w-fit flex flex-row items-center transition-colors ${disabled ? 'disabled-button' : 'cursor-pointer'} ${className}`} onClick={() => onClick && !disabled ? onClick() : undefined}>
-      {
-        icon ?
-          <div className='mr-2'>
-            {icon}
-          </div> : undefined
+    <>
+      <button
+        className={`rounded-lg ${padding ?? 'p-2'} flex flex-row items-center justify-center transition-colors ${disabled ? 'disabled-button' : 'cursor-pointer'} ${tooltipAnchor} ${className}`}
+        onClick={onClick && !disabled ? (e) => { (externalTooltipRef ?? tooltipRef)?.current?.close(); onClick(); } : undefined}
+      >
+        {
+          icon ?
+            <div className={iconClassName ?? 'mr-2'}>
+              {icon}
+            </div> : undefined
+        }
+        <div className='relative top-[2px]'>
+          {children}
+        </div>
+      </button>
+
+      {tooltip && tooltipAnchor &&
+        <Tooltip
+          ref={externalTooltipRef ?? tooltipRef}
+          anchorSelect={`.${tooltipAnchor}`}
+          place={tooltipPlacement ?? 'top'}
+          className={tooltipClassname ?? 'border border-white'}
+          classNameArrow={tooltipArrowClassname ?? 'border border-white border-t-0 border-l-0'}
+        >
+          <div>
+            {tooltip}
+          </div>
+        </Tooltip>
       }
-      {children}
-    </div>
+    </>
   );
 }

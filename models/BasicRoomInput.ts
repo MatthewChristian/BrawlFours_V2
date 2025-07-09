@@ -1,3 +1,4 @@
 export interface BasicRoomInput {
-  roomId: string;
+  roomId?: string;
+  localId?: string;
 }

@@ -9,7 +9,7 @@ import PlayingCard from '../PlayingCard';
 interface Props {
   isVisible: boolean;
   setIsVisible: (val: boolean) => void;
-  matchWinners: MatchWinner;
+  matchWinners?: MatchWinner;
 }
 
 

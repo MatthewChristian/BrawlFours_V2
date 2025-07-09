@@ -1,10 +1,26 @@
+@import url('https://fonts.googleapis.com/css?family=Epilogue');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+
 *:focus {
   outline: none;
 }
+
+body {
+  background-color: #f7f7f7 !important;
+  font-family: 'Epilogue' !important;
+}
+
+html,
+body {
+  height: 100%;
+  width: 100%;
+}
+
+/***** BUTTONS *****/
 
 .blue-button {
   background-color: #0ea5e9;
@@ -58,6 +74,16 @@
   background-color: #e2e8f0 !important;
 }
 
+.dark-button {
+  background-color: #111827 !important;
+  border: 0 !important;
+  color: white !important;
+}
+
+.dark-button:hover {
+  background-color: #1f2937 !important;
+}
+
 .disabled-button {
   background-color: #cbd5e1 !important;
   border: 0 !important;
@@ -66,4 +92,200 @@
 
 .disabled-button:hover {
   background-color: #cbd5e1 !important;
+}
+
+/***** OUTLINES *****/
+.white-outline {
+  border-width: 2px !important;
+  border-style: solid;
+  border-color: white !important;
+}
+
+.blue-outline {
+  border-width: 2px !important;
+  border-style: solid;
+  border-color: #0284c7 !important;
+}
+
+/***** GLOWS *****/
+
+.blue-glow {
+  -webkit-filter: drop-shadow(5px 5px 5px rgba(0, 132, 255, 0.9));
+  filter: drop-shadow(0px 0px 4px rgba(0, 132, 255, 0.9));
+}
+
+.gold-glow {
+  -webkit-filter: drop-shadow(5px 5px 5px rgba(242, 190, 0, 0.9));
+  filter: drop-shadow(0px 0px 4px rgba(242, 190, 0, 0.9));
+}
+
+.red-glow {
+  -webkit-filter: drop-shadow(5px 5px 5px rgba(255, 0, 0, 0.9));
+  filter: drop-shadow(0px 0px 4px rgba(255, 0, 0, 0.9));
+}
+
+.purple-glow {
+  -webkit-filter: drop-shadow(5px 5px 5px rgba(208, 0, 255, 0.9));
+  filter: drop-shadow(0px 0px 4px rgba(208, 0, 255, 0.9));
+}
+
+/***** SCROLLBAR *****/
+/* width */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 200px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 200px;
+  position: relative;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/***** MODAL *****/
+.popup-content {
+  border-radius: 30px;
+  padding-top: 30px !important;
+  padding-bottom: 30px !important;
+  background-color: white !important;
+  left: 10%;
+}
+
+.centered-modal-content {
+  left: 0% !important;
+}
+
+.popup-overlay {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.copy-tooltip {
+  background: #0ea5e9 !important;
+  border-radius: 20px !important;
+}
+
+.popconfirm-tooltip {
+  background: #f3f4f6 !important;
+  border-radius: 20px !important;
+  color: black !important;
+}
+
+.top-modal-content {
+  bottom: 40% !important;
+}
+
+
+/***** LOADING *****/
+
+.loading-icon {
+  font-size: 2rem;
+  animation: loader 2s infinite;
+}
+
+@keyframes animate {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(720deg);
+  }
+}
+
+@keyframes loader {
+  0% {
+    rotate: 0deg;
+  }
+
+  25% {
+    rotate: y 90deg;
+    scale: 0.5;
+  }
+
+  50% {
+    rotate: 180deg;
+  }
+
+  75% {
+    rotate: x 270deg;
+    border-radius: 50%;
+  }
+
+  100% {
+    rotate: 360deg;
+  }
+}
+
+
+/***** CLASSES *****/
+
+.lobby-bg {
+  background: #7DD3FC;
+  background: radial-gradient(circle, rgba(125, 211, 252, 1) 0%, rgba(14, 165, 233, 1) 50%, rgba(3, 105, 161, 1) 100%);
+}
+
+.board-bg {
+  background: #4ADE80;
+    background: radial-gradient(circle, rgba(74, 222, 128, 1) 0%, rgba(22, 163, 74, 1) 50%, rgba(22, 101, 52, 1) 100%);
+}
+
+.info-bg {
+ background:
+ repeating-linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.05) 0px,
+    rgba(255, 255, 255, 0.05) 10px,
+    transparent 10px,
+    transparent 20px
+  ),
+  radial-gradient(
+    circle at 50% 50%,  /* Forces true center */
+    rgba(59, 59, 59, 1) 0%,
+    rgba(51, 51, 51, 1) 30%,
+    rgba(23, 23, 23, 1) 100%
+  );
+}
+
+.player-info {
+  border-width: 3px;
+  border-style: solid;
+  border-color: white;
+background: #c73c1a;
+  background: radial-gradient(circle, rgba(199, 60, 26, 1) 0%, rgba(161, 44, 14, 1) 50%, rgba(137, 34, 1, 1) 100%);
+}
+
+.player-1-info {
+  border-top-left-radius: 25px;
+  border-top-right-radius: 25px;
+  border-bottom: 0;
+}
+
+.player-2-info {
+  border-top-left-radius: 25px;
+  border-bottom-left-radius: 25px;
+  border-right: 0;
+}
+
+.player-3-info {
+  border-bottom-right-radius: 25px;
+  border-bottom-left-radius: 25px;
+  border-top: 0;
+}
+
+.player-4-info {
+  border-top-right-radius: 25px;
+  border-bottom-right-radius: 25px;
+  border-left: 0;
 }

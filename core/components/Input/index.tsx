@@ -6,9 +6,10 @@ interface Props {
   placeholder?: string;
   onChange?: (val: string) => void;
   defaultValue?: string;
+  maxLength?: number;
 }
 
-export default function Input({ inputRef, className, placeholder, onChange, defaultValue  }: Props) {
+export default function Input({ inputRef, className, placeholder, onChange, defaultValue, maxLength }: Props) {
   return (
     <input
       type="text"
@@ -17,6 +18,7 @@ export default function Input({ inputRef, className, placeholder, onChange, defa
       placeholder={placeholder ?? 'Enter input...'}
       onChange={(val) => onChange ? onChange(val.target.value) : undefined}
       defaultValue={defaultValue}
+      maxLength={maxLength}
     />
   );
 }

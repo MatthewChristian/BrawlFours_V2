@@ -24,11 +24,12 @@
       {
         "name": "next"
       }
-    ]
+    ],
   },
   "include": [
-    "./server.ts",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    "**/*.ts",
+    "**/*.tsx"
   ],
   "exclude": [
     "node_modules"

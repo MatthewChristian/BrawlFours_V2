@@ -7,6 +7,9 @@ import { LiftCard } from '../models/LiftCard';
 import { RoundWinners } from '../models/RoundWinners';
 import { BegResponseInput } from '../models/BegResponseInput';
 import { MatchWinner } from '../models/MatchWinner';
+import { CardAbilities } from '../core/services/abilities';
+import { PlayerStatus } from '../models/PlayerStatus';
+import { RoomSocket } from '../models/RoomSocket';
 
 
 
@@ -14,6 +17,8 @@ import { MatchWinner } from '../models/MatchWinner';
  * State Definition
  */
 interface GameSlice {
+  mobileView: boolean | null; // If screen width is less than a certain amount of pixels
+  isMobile: boolean; // If device user is using is a phone or tablet
   playerList: PlayerSocket[];
   roomId?: string;
   joinModalOpen: boolean;
@@ -21,6 +26,7 @@ interface GameSlice {
   deck: DeckCard[];
   kickedCards: DeckCard[];
   playerCards: DeckCard[];
+  teammateCards: DeckCard[];
   dealer?: number;
   turn?: number;
   beg?: BegResponseInput['response'];
@@ -30,18 +36,48 @@ interface GameSlice {
   game: number[];
   roundWinners?: RoundWinners;
   matchWinner?: MatchWinner;
+  liftWinner?: number;
   gameStarted: boolean;
+  playerJoinedRoom: boolean;
+  activeAbilities: CardAbilities[];
+  playerStatus: PlayerStatus[];
+  twosPlayed: RoomSocket['twosPlayed'];
+  revealedBare: boolean;
+  doubleLiftCards: LiftCard[];
+  doubleLiftModalVisible: boolean;
+  gameIsTwo: boolean;
+  settingsModalVisible: boolean;
+  joinRoomLoading: boolean;
+  leaveModalVisible: boolean;
+  allyCardsViewExpanded: boolean;
+  focusedCard?: string;
 }
+
 const initialState: GameSlice = {
+  mobileView: null,
+  isMobile: false,
   playerList: [],
   joinModalOpen: false,
   deck: [],
   kickedCards: [],
   playerCards: [],
+  teammateCards: [],
   teamScore: [0, 0],
   lift: [],
   game: [0, 0],
-  gameStarted: false
+  gameStarted: false,
+  playerJoinedRoom: false,
+  activeAbilities: [],
+  playerStatus: [],
+  twosPlayed: [],
+  revealedBare: false,
+  doubleLiftCards: [],
+  doubleLiftModalVisible: false,
+  gameIsTwo: false,
+  settingsModalVisible: false,
+  joinRoomLoading: false,
+  leaveModalVisible: false,
+  allyCardsViewExpanded: false,
 };
 
 /**
@@ -51,6 +87,14 @@ export const gameSlice = createSlice({
   name: 'gameSlice',
   initialState,
   reducers: {
+
+    setMobileView: (state, action: PayloadAction<boolean | null>) => {
+      state.mobileView = action.payload;
+    },
+
+    setIsMobile: (state, action: PayloadAction<boolean>) => {
+      state.isMobile = action.payload;
+    },
 
     setPlayerList: (state, action: PayloadAction<PlayerSocket[]>) => {
       state.playerList = action.payload;
@@ -78,6 +122,10 @@ export const gameSlice = createSlice({
 
     setPlayerCards: (state, action: PayloadAction<DeckCard[]>) => {
       state.playerCards = action.payload;
+    },
+
+    setTeammateCards: (state, action: PayloadAction<DeckCard[]>) => {
+      state.teammateCards = action.payload;
     },
 
     setDealer: (state, action: PayloadAction<number>) => {
@@ -116,8 +164,68 @@ export const gameSlice = createSlice({
       state.matchWinner = action.payload;
     },
 
+    setLiftWinner: (state, action: PayloadAction<number | undefined>) => {
+      state.liftWinner = action.payload;
+    },
+
     setGameStarted: (state, action: PayloadAction<boolean>) => {
       state.gameStarted = action.payload;
+    },
+
+    setPlayerJoinedRoom: (state, action: PayloadAction<boolean>) => {
+      state.playerJoinedRoom = action.payload;
+    },
+
+    setActiveAbilities: (state, action: PayloadAction<CardAbilities[]>) => {
+      state.activeAbilities = action.payload;
+    },
+
+    setPlayerStatus: (state, action: PayloadAction<PlayerStatus[]>) => {
+      state.playerStatus = action.payload;
+    },
+
+    setTwosPlayed: (state, action: PayloadAction<RoomSocket['twosPlayed']>) => {
+      state.twosPlayed = action.payload;
+    },
+
+    setRevealedBare: (state, action: PayloadAction<boolean>) => {
+      state.revealedBare = action.payload;
+    },
+
+    setDoubleLiftCards: (state, action: PayloadAction<LiftCard[]>) => {
+      state.doubleLiftCards = action.payload;
+    },
+
+    setDoubleLiftModalVisible: (state, action: PayloadAction<boolean>) => {
+      state.doubleLiftModalVisible = action.payload;
+    },
+
+    setGameIsTwo: (state, action: PayloadAction<boolean>) => {
+      state.gameIsTwo = action.payload;
+    },
+
+    setSettingsModalVisible: (state, action: PayloadAction<boolean>) => {
+      state.settingsModalVisible = action.payload;
+    },
+
+    setJoinRoomLoading: (state, action: PayloadAction<boolean>) => {
+      state.joinRoomLoading = action.payload;
+    },
+
+    setLeaveModalVisible: (state, action: PayloadAction<boolean>) => {
+      state.leaveModalVisible = action.payload;
+    },
+
+    setAllyCardsViewExpanded: (state, action: PayloadAction<boolean>) => {
+      state.allyCardsViewExpanded = action.payload;
+    },
+
+    toggleAllyCardsViewExpanded: (state) => {
+      state.allyCardsViewExpanded = !state.allyCardsViewExpanded;
+    },
+
+    setFocusedCard: (state, action: PayloadAction<string>) => {
+      state.focusedCard = action.payload;
     },
 
   }
@@ -130,6 +238,8 @@ export const gameSlice = createSlice({
 export default gameSlice.reducer;
 // Actions
 export const {
+  setMobileView,
+  setIsMobile,
   setPlayerList,
   setRoomId,
   setErrorMsg,
@@ -137,6 +247,7 @@ export const {
   setDeck,
   setKickedCards,
   setPlayerCards,
+  setTeammateCards,
   setBeg,
   setDealer,
   setTurn,
@@ -146,10 +257,29 @@ export const {
   setGame,
   setRoundWinners,
   setMatchWinner,
-  setGameStarted
+  setGameStarted,
+  setLiftWinner,
+  setPlayerJoinedRoom,
+  setActiveAbilities,
+  setPlayerStatus,
+  setTwosPlayed,
+  setRevealedBare,
+  setDoubleLiftCards,
+  setDoubleLiftModalVisible,
+  setGameIsTwo,
+  setSettingsModalVisible,
+  setJoinRoomLoading,
+  setLeaveModalVisible,
+  setAllyCardsViewExpanded,
+  toggleAllyCardsViewExpanded,
+  setFocusedCard,
 } =  gameSlice.actions;
 
 // Selectors
+
+export const getMobileView = (state: RootState): boolean | null => state.gameSlice.mobileView;
+
+export const getIsMobile = (state: RootState): boolean => state.gameSlice.isMobile;
 
 export const getPlayerList = (state: RootState): PlayerSocket[] => state.gameSlice.playerList;
 
@@ -165,13 +295,15 @@ export const getKickedCards = (state: RootState): DeckCard[] => state.gameSlice.
 
 export const getPlayerCards = (state: RootState): DeckCard[] => state.gameSlice.playerCards;
 
-export const getDealer = (state: RootState): number => state.gameSlice.dealer;
+export const getTeammateCards = (state: RootState): DeckCard[] => state.gameSlice.teammateCards;
 
-export const getTurn = (state: RootState): number => state.gameSlice.turn;
+export const getDealer = (state: RootState): number | undefined => state.gameSlice.dealer;
 
-export const getBeg = (state: RootState): BegResponseInput['response'] => state.gameSlice.beg;
+export const getTurn = (state: RootState): number | undefined => state.gameSlice.turn;
 
-export const getTeamScore = (state: RootState): number[] => state.gameSlice.teamScore;
+export const getBeg = (state: RootState): BegResponseInput['response'] | undefined => state.gameSlice.beg;
+
+export const getTeamScore = (state: RootState): number[] | undefined => state.gameSlice.teamScore;
 
 export const getMessage = (state: RootState): ServerMessage | undefined => state.gameSlice.message;
 
@@ -181,6 +313,34 @@ export const getGame = (state: RootState): number[] => state.gameSlice.game;
 
 export const getRoundWinners = (state: RootState): RoundWinners | undefined => state.gameSlice.roundWinners;
 
-export const getMatchWinner = (state: RootState): MatchWinner => state.gameSlice.matchWinner;
+export const getMatchWinner = (state: RootState): MatchWinner | undefined => state.gameSlice.matchWinner;
+
+export const getLiftWinner = (state: RootState): number | undefined => state.gameSlice.liftWinner;
 
 export const getGameStarted = (state: RootState): boolean => state.gameSlice.gameStarted;
+
+export const getPlayerJoinedRoom = (state: RootState): boolean => state.gameSlice.playerJoinedRoom;
+
+export const getActiveAbilities = (state: RootState): CardAbilities[] => state.gameSlice.activeAbilities;
+
+export const getPlayerStatus = (state: RootState): PlayerStatus[] => state.gameSlice.playerStatus;
+
+export const getTwosPlayed = (state: RootState): RoomSocket['twosPlayed'] => state.gameSlice.twosPlayed;
+
+export const getRevealedBare = (state: RootState): boolean => state.gameSlice.revealedBare;
+
+export const getDoubleLiftCards = (state: RootState): LiftCard[] => state.gameSlice.doubleLiftCards;
+
+export const getDoubleLiftModalVisible = (state: RootState): boolean => state.gameSlice.doubleLiftModalVisible;
+
+export const getGameIsTwo = (state: RootState): boolean => state.gameSlice.gameIsTwo;
+
+export const getSettingsModalVisible = (state: RootState): boolean => state.gameSlice.settingsModalVisible;
+
+export const getJoinRoomLoading = (state: RootState): boolean => state.gameSlice.joinRoomLoading;
+
+export const getLeaveModalVisible = (state: RootState): boolean => state.gameSlice.leaveModalVisible;
+
+export const getAllyCardsViewExpanded = (state: RootState): boolean => state.gameSlice.allyCardsViewExpanded;
+
+export const getFocusedCard = (state: RootState): string => state.gameSlice.focusedCard;

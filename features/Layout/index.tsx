@@ -1,9 +1,11 @@
 import React, {  Suspense, useEffect } from 'react';
-import { setBeg, setDealer, setDeck, setErrorMsg, setGame, setGameStarted, setJoinModalOpen, setKickedCards, setLift, setMatchWinner, setMessage, setPlayerCards, setPlayerList, setRoomId, setRoundWinners, setTeamScore, setTurn } from '../../slices/game.slice';
+import { setActiveAbilities, setBeg, setDealer, setDeck, setDoubleLiftCards, setErrorMsg, setGame, setGameIsTwo, setGameStarted, setIsMobile, setJoinModalOpen, setJoinRoomLoading, setKickedCards, setLift, setLiftWinner, setMatchWinner, setMessage, setMobileView, setPlayerCards, setPlayerJoinedRoom, setPlayerList, setPlayerStatus, setRevealedBare, setRoomId, setRoundWinners, setTeammateCards, setTeamScore, setTurn, setTwosPlayed } from '../../slices/game.slice';
 import { useAppDispatch } from '../../store/hooks';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
 import { socket } from '../SocketClient';
+import { addChatMessage, setChatMessages } from '../../slices/chat.slice';
+import { ChatMessage } from '../../models/ChatMessage';
 
 
 interface Props {
@@ -12,10 +14,16 @@ interface Props {
 
 
 export default function Layout({ children }: Props) {
-  // Manage socket.io websocket
+
   const router = useRouter();
 
   const dispatch = useAppDispatch();
+
+  const isMobile = /Mobi|Android|Tablet|iPad/i.test(navigator.userAgent);
+
+  useEffect(() => {
+    dispatch(setIsMobile(isMobile));
+  }, [isMobile]);
 
   useEffect(() => {
 
@@ -29,6 +37,8 @@ export default function Layout({ children }: Props) {
 
     socket?.on('newRoomCreated', data => {
       dispatch(setRoomId(String(data.room_id)));
+      dispatch(setJoinRoomLoading(false));
+      router.push(`/room?roomId=${String(data.room_id)}`);
     });
 
     socket?.on('playerJoinedRoom', data => {
@@ -36,15 +46,40 @@ export default function Layout({ children }: Props) {
         dispatch(setRoomId(String(data.room_id)));
         dispatch(setJoinModalOpen(false));
         dispatch(setErrorMsg(undefined));
+        dispatch(setPlayerJoinedRoom(true));
+        dispatch(setJoinRoomLoading(false));
       }
       else {
         console.log('Error Msg: ', data.errorMsg);
         router.push('/');
+        dispatch(setJoinRoomLoading(false));
         toast(data.errorMsg, {
           type: 'error',
           hideProgressBar: true
         });
       }
+    });
+
+    socket?.on('playerLeftRoom', data => {
+      dispatch(setPlayerJoinedRoom(false));
+      dispatch(setRoomId(undefined));
+      dispatch(setChatMessages([]));
+      router.push('/');
+    });
+
+    socket?.on('playerKicked', data => {
+      dispatch(setPlayerJoinedRoom(false));
+      dispatch(setRoomId(undefined));
+      dispatch(setChatMessages([]));
+      router.push('/');
+      toast('You have been kicked from the room!', {
+        type: 'error',
+        hideProgressBar: true
+      });
+    });
+
+    socket?.on('gameIsTwo', data => {
+      dispatch(setGameIsTwo(data));
     });
 
     socket.on('deck', (deck) => {
@@ -57,6 +92,10 @@ export default function Layout({ children }: Props) {
 
     socket.on('playerCards', (cards) => {
       dispatch(setPlayerCards(cards));
+    });
+
+    socket.on('teammateCards', (cards) => {
+      dispatch(setTeammateCards(cards));
     });
 
     socket.on('dealer', (state) => {
@@ -88,27 +127,60 @@ export default function Layout({ children }: Props) {
     });
 
     socket.on('roundWinners', (state) => {
-      console.log('RW: ', state);
       dispatch(setRoundWinners(state));
     });
 
     socket.on('matchWinner', (state) => {
-      console.log('MW: ', state);
       dispatch(setMatchWinner(state));
+    });
+
+    socket.on('liftWinner', (state) => {
+      dispatch(setLiftWinner(state));
     });
 
     socket.on('gameStarted', (state) => {
       dispatch(setGameStarted(state));
     });
 
+    socket.on('activeAbilities', (state) => {
+      dispatch(setActiveAbilities(state));
+    });
+
+    socket.on('chat', (state: ChatMessage) => {
+      if (state.showToast) {
+        toast(state.message, {
+          type: 'default',
+          hideProgressBar: true,
+          position: 'top-center'
+        });
+      }
+
+      dispatch(addChatMessage(state));
+    });
+
+    socket.on('playerStatus', (state) => {
+      dispatch(setPlayerStatus(state ?? []));
+    });
+
+    socket.on('twosPlayed', (state) => {
+      dispatch(setTwosPlayed(state ?? []));
+    });
+
+    socket.on('revealedBare', (state) => {
+      dispatch(setRevealedBare(state));
+    });
+
+    socket.on('doubleLiftCards', (state) => {
+      dispatch(setDoubleLiftCards(state));
+    });
+
   }, [socket]);
 
   return (
     <>
-      <Suspense >
+      <Suspense>
         {children}
       </Suspense>
-      {/* <Component {...pageProps} socket={socket} /> */}
     </>
   );
 }
