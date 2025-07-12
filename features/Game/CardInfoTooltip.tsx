@@ -99,7 +99,7 @@ export default function CardInfoTooltip({ tooltipRef, card, active, offsetY, ign
         delayShow={mobileView ? 0 : 550}
         delayHide={mobileView ? 0 : 150}
         offset={(offsetY ?? 0) + 10}
-        style={{ zIndex: 10000, width: 200 }}
+        style={{ zIndex: 20000, minWidth: 200, maxWidth: mobileView ? '80dvw' : 200 }}
         openOnClick={isMobile}
         className={'border border-white'}
         classNameArrow={'border border-white border-t-0 border-l-0'}

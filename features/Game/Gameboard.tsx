@@ -28,6 +28,7 @@ import SettingsModal from './Modals/SettingsModal';
 import LeaveConfirmModal from './Modals/LeaveConfirmModal';
 import AllyCardsModal from './Modals/AllyCardsModal';
 import { TooltipRefProps } from 'react-tooltip';
+import { AnimatePresence, motion } from 'framer-motion';
 
 
 interface Props {
@@ -289,6 +290,24 @@ export default function Gameboard({ roomId }: Props) {
 
     return forceStand;
   }, [player1Cards]);
+
+  const cardWidth = useMemo(() => {
+    // Used for mobile view card margins
+    return (7.2 * window.innerHeight)/100; // 7.2 is used because width is 3/5 of height which is 12 * window.innerHeight
+  }, []);
+
+  const handWidth = useMemo(() => {
+    // Used for mobile view card margins
+    return (90 * window.innerWidth) / 100;
+  }, []);
+
+  const player1CardsOverlapMargins =  useMemo(() => {
+    return mobileView ? -((handWidth / cardWidth) * (player1Cards.length / 3.5)) : undefined;
+  }, [mobileView, handWidth, cardWidth, player1Cards]);
+
+  const player3CardsOverlapMargins = useMemo(() => {
+    return mobileView ? -((handWidth / cardWidth) * (player3Cards.length / 3.5)) : undefined;
+  }, [mobileView, handWidth, cardWidth, player3Cards]);
 
   function getPlayerStatuses(playerData: PlayerSocket) {
     if (!playerStatus) {
@@ -649,6 +668,7 @@ export default function Gameboard({ roomId }: Props) {
                             disabled={!player3Cards.length || player3Cards?.length <= 0}
                             name={player3Data.nickname}
                             cards={player3Cards}
+                            player3CardsOverlapMargins={player3CardsOverlapMargins}
                           />
                       }
                     </div>
@@ -684,7 +704,7 @@ export default function Gameboard({ roomId }: Props) {
                                 glow={allySelectionModalVisible ? 'blue' : undefined}
                                 onClickHandler={() => player3Cards.length == 0 ? undefined : allySelectionModalVisible ? handleSelectAllyCard(player3Cards[k]) : undefined}
                                 flipped={!(isTeammateCardsVisible || allySelectionModalVisible)}
-                                spin={player3Cards[k]?.spin}
+                                spin={true}
                               />
                             );
                           })
@@ -849,29 +869,37 @@ export default function Gameboard({ roomId }: Props) {
                 {/* ------------------------ Player 1 Info  ------------------------*/}
                 <div className={`${mobileView ? 'h-1/2' : 'h-1/4'} gap-1 flex flex-col justify-end items-center`}>
 
-                  <div className="w-full flex flex-row justify-center items-center" ref={player1Hand}>
-                    {
-                      Array.from({ length: player1Cards.length == 0 ? player1Data?.numCards ?? 0 : player1Cards.length}, (_, k) => {
+                  <motion.div className="w-full flex flex-row justify-center items-center" ref={player1Hand}>
+                    <AnimatePresence>
+                      {
+                        Array.from({ length: player1Cards.length == 0 ? player1Data?.numCards ?? 0 : player1Cards?.length}, (_, k) => {
 
-                        const selectionActive = ((oppSelectionModalVisible || (allySelectionModalVisible && !mobileView)) && (!(player1Cards[k]?.suit == playedCard?.suit && player1Cards[k]?.value == playedCard?.value)));
-                        return (
-                          <PlayingCard
-                            key={player1Cards[k]?.suit ? ('1_' + (player1Cards[k]?.suit + player1Cards[k]?.value)) : '1_' + k?.toString()}
-                            player={1}
-                            cardData={player1Cards[k]}
-                            isDeckCard={player1Cards.length == 0 ? true : false}
-                            onClickHandler={() => player1Cards.length == 0 ? undefined : selectionActive ? handleSelectCard(player1Cards[k]) : playCard(player1Cards[k])}
-                            className='-mx-2'
-                            spotlighted={selectionActive}
-                            glow={selectionActive ? 'blue' : undefined}
-                            spin={player1Cards[k]?.spin}
-                          />
-                        );}
-                      )
-                    }
+                          const selectionActive = ((oppSelectionModalVisible || (allySelectionModalVisible && !mobileView)) && (!(player1Cards[k]?.suit == playedCard?.suit && player1Cards[k]?.value == playedCard?.value)));
 
+                          return (
+                            <motion.div
+                              key={player1Cards[k]?.suit ? ('1_' + (player1Cards[k]?.suit + player1Cards[k]?.value)) : '1_' + k?.toString()}
+                              layout
+                              transition={{ type: 'spring', duration: 0.5 }}
+                              exit={{ }}
+                            >
+                              <PlayingCard
+                                player={1}
+                                cardData={player1Cards[k]}
+                                isDeckCard={player1Cards.length == 0 ? true : false}
+                                onClickHandler={() => player1Cards.length == 0 ? undefined : selectionActive ? handleSelectCard(player1Cards[k]) : playCard(player1Cards[k])}
+                                style={{ marginRight: mobileView ? player1CardsOverlapMargins : '-8px', marginLeft: mobileView ? player1CardsOverlapMargins : '-8px' }}
+                                spotlighted={selectionActive}
+                                glow={selectionActive ? 'blue' : undefined}
+                                spin={true}
+                              />
+                            </motion.div>
+                          );}
+                        )
+                      }
+                    </AnimatePresence>
                     <Marker dispatchFunction={setPlayer1HandPos} />
-                  </div>
+                  </motion.div>
 
                   <div className='flex flex-row w-full justify-center gap-5 items-center'>
                     <div className='mx-2'>
@@ -1058,8 +1086,6 @@ export default function Gameboard({ roomId }: Props) {
 
       {/* ----- swapAllyCard Modal (Desktop) -----*/}
       <Modal contentStyle={{ width: 'fit-content' }} open={allySelectionModalVisible && !mobileView} closeOnDocumentClick={false}>
-
-
 
         <div className='px-5'>
           <div className='flex flex-row justify-center items-center mt-3 gap-5'>

@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import { DeckCard } from '../../models/DeckCard';
 import { getCardAnchorSelect, getCardShortcode } from '../../core/services/parseCard';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { delay } from '../../core/services/delay';
 import { getPlayer1HandPos, getPlayer2HandPos, getPlayer3HandPos, getPlayer4HandPos } from '../../slices/position.slice';
@@ -250,7 +250,7 @@ export default function PlayingCard({
   }, [isMobile]);
 
   return (
-    <>
+    <div>
       <CardInfoTooltip
         tooltipRef={tooltipRef}
         card={cardData}
@@ -264,7 +264,7 @@ export default function PlayingCard({
         className={`${className} ${anchorSelect}`}
         onClick={() => { isMobile ? handleMobileClick() : handleClick();}}
         onTouchEnd={(e) => isMobile ? handleMobileTouchEnd(e) : undefined }
-        style={{ zIndex: spotlighted ? 9999 : liftCard ? 10 : 20, ...style }}
+        style={{ zIndex: spotlighted ? 99999 : liftCard ? 10 : 20, ...style }}
       >
         <motion.div
           className="card-container"
@@ -274,107 +274,109 @@ export default function PlayingCard({
             perspective: '1000px', // Adds depth for 3D animation
           }}
         >
-          <motion.div
-            className="card"
-            animate={{ rotateY: flipped ? 180 : 0, rotateZ: spin ? 360 : 0 }} // Animates the flip
-            transition={{ duration: 0.5 }} // Controls the flip speed
-            style={{
-              width: '100%',
-              height: '100%',
-              position: 'relative',
-              transformStyle: 'preserve-3d', // Enables 3D effect
-            }}
-          >
-            {/* Front Side */}
+          <AnimatePresence>
             <motion.div
-              className="card-front"
+              className="card"
+              animate={{ rotateY: flipped ? 180 : 0, rotateZ: spin ? 360 : 0 }} // Animates the flip
+              transition={{ duration: 0.5 }} // Controls the flip speed
               style={{
-                position: 'absolute',
-                backfaceVisibility: 'hidden', // Ensures only one side is visible
                 width: '100%',
                 height: '100%',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
+                position: 'relative',
+                transformStyle: 'preserve-3d', // Enables 3D effect
               }}
             >
+              {/* Front Side */}
+              <motion.div
+                className="card-front"
+                style={{
+                  position: 'absolute',
+                  backfaceVisibility: 'hidden', // Ensures only one side is visible
+                  width: '100%',
+                  height: '100%',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+              >
 
-              {!isDeckCard ? (
-                card ?
-                  <motion.div
-                    animate={{ x, y }}
-                    transition={{ type: liftWinner ? 'tween' : 'spring' }}
-                    initial={liftCard == 1 ? { y: 20 } : liftCard == 2 ? { x: 20 } : liftCard == 3 ? { y: -20 } : liftCard == 4 ? { x: -20 } : undefined}
-                  >
-                    <div
-                      style={{ position: 'relative', height: cardHeight, aspectRatio: aspectRatio }}
-                      onMouseOver={isMobileState ? undefined : () => (cardData?.playable && !isNotPlayable) || glow == 'blue' ? setFocused(true) : undefined}
-                      onMouseLeave={isMobileState ? undefined : () => setFocused(false)}
+                {!isDeckCard ? (
+                  card ?
+                    <motion.div
+                      animate={{ x, y }}
+                      transition={{ type: liftWinner ? 'tween' : 'spring' }}
+                      initial={liftCard == 1 ? { y: 20 } : liftCard == 2 ? { x: 20 } : liftCard == 3 ? { y: -20 } : liftCard == 4 ? { x: -20 } : undefined}
                     >
-                      <Image
-                        src={`/images/${card}.png`}
-                        fill
-                        sizes="10vw"
-                        style={{ objectFit: 'fill' }}
-                        alt='card'
-                        className={getGlowClassName()}
-                      />
-                    </div>
-                  </motion.div>
-                  : isOutline ?
+                      <div
+                        style={{ position: 'relative', height: cardHeight, aspectRatio: aspectRatio }}
+                        onMouseOver={isMobileState ? undefined : () => (cardData?.playable && !isNotPlayable) || glow == 'blue' ? setFocused(true) : undefined}
+                        onMouseLeave={isMobileState ? undefined : () => setFocused(false)}
+                      >
+                        <Image
+                          src={`/images/${card}.png`}
+                          fill
+                          sizes="10vw"
+                          style={{ objectFit: 'fill' }}
+                          alt='card'
+                          className={getGlowClassName()}
+                        />
+                      </div>
+                    </motion.div>
+                    : isOutline ?
+                      <div style={{ position: 'relative', height: cardHeight, aspectRatio: aspectRatio }}>
+                        <Image
+                          src={'/images/card-outline.png'}
+                          fill
+                          style={{ objectFit: 'fill' }}
+                          sizes="10vw"
+                          alt='card'
+                        />
+                      </div>
+                      : null
+                )
+                  :
+                  (
                     <div style={{ position: 'relative', height: cardHeight, aspectRatio: aspectRatio }}>
                       <Image
-                        src={'/images/card-outline.png'}
+                        src={'/images/red_back.png'}
                         fill
                         style={{ objectFit: 'fill' }}
                         sizes="10vw"
                         alt='card'
                       />
                     </div>
-                    : null
-              )
-                :
-                (
-                  <div style={{ position: 'relative', height: cardHeight, aspectRatio: aspectRatio }}>
-                    <Image
-                      src={'/images/red_back.png'}
-                      fill
-                      style={{ objectFit: 'fill' }}
-                      sizes="10vw"
-                      alt='card'
-                    />
-                  </div>
-                )}
+                  )}
 
-            </motion.div>
+              </motion.div>
 
-            {/* Back Side */}
-            <motion.div
-              className="card-back"
-              style={{
-                position: 'absolute',
-                backfaceVisibility: 'hidden',
-                transform: 'rotateY(180deg)', // Flips the back face
-                width: '100%',
-                height: '100%',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}
-            >
-              <div style={{ position: 'relative', height: cardHeight, aspectRatio: aspectRatio }}>
-                <Image
-                  src={'/images/red_back.png'}
-                  fill
-                  style={{ objectFit: 'fill' }}
-                  sizes="10vw"
-                  alt='card'
-                />
-              </div>
+              {/* Back Side */}
+              <motion.div
+                className="card-back"
+                style={{
+                  position: 'absolute',
+                  backfaceVisibility: 'hidden',
+                  transform: 'rotateY(180deg)', // Flips the back face
+                  width: '100%',
+                  height: '100%',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+              >
+                <div style={{ position: 'relative', height: cardHeight, aspectRatio: aspectRatio }}>
+                  <Image
+                    src={'/images/red_back.png'}
+                    fill
+                    style={{ objectFit: 'fill' }}
+                    sizes="10vw"
+                    alt='card'
+                  />
+                </div>
+              </motion.div>
             </motion.div>
-          </motion.div>
+          </AnimatePresence>
         </motion.div>
       </div>
-    </>
+    </div>
   );
 }
