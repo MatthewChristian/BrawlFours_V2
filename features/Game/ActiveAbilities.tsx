@@ -20,15 +20,15 @@ export default function ActiveAbilities() {
 
   return (
     <React.Fragment>
-      <AbilitiesDisabledIcon active={!activeAbilities?.includes(CardAbilities.abilitiesDisabled)} />
-      <RoyalsDisabledIcon active={!activeAbilities?.includes(CardAbilities.royalsDisabled)} />
-      <TrumpDisabledIcon active={!activeAbilities?.includes(CardAbilities.trumpDisabled)} />
-      <NoWinLiftIcon active={!activeAbilities?.includes(CardAbilities.noWinLift)} />
-      <OppositePowerIcon active={!activeAbilities?.includes(CardAbilities.oppositePower)} />
-      <DoubleLiftIcon active={!activeAbilities?.includes(CardAbilities.doubleLift)} />
-      <DoubleLift2Icon active={!(doubleLiftCards?.length > 0)} />
-      <DoublePointsIcon active={!activeAbilities?.includes(CardAbilities.doublePoints)} />
-      <NinePowerfulIcon active={!activeAbilities?.includes(CardAbilities.ninePowerful)} />
+      <AbilitiesDisabledIcon active={activeAbilities?.includes(CardAbilities.abilitiesDisabled)} />
+      <RoyalsDisabledIcon active={activeAbilities?.includes(CardAbilities.royalsDisabled)} />
+      <TrumpDisabledIcon active={activeAbilities?.includes(CardAbilities.trumpDisabled)} />
+      <NoWinLiftIcon active={activeAbilities?.includes(CardAbilities.noWinLift)} />
+      <OppositePowerIcon active={activeAbilities?.includes(CardAbilities.oppositePower)} />
+      <DoubleLiftIcon active={activeAbilities?.includes(CardAbilities.doubleLift)} />
+      <DoubleLift2Icon active={(doubleLiftCards?.length > 0)} />
+      <DoublePointsIcon active={activeAbilities?.includes(CardAbilities.doublePoints)} />
+      <NinePowerfulIcon active={activeAbilities?.includes(CardAbilities.ninePowerful)} />
     </React.Fragment>
   );
 }

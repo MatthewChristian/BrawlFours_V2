@@ -13,11 +13,11 @@ interface Props {
 export default function PlayerStatusIcons({ playerStatus }: Props) {
   return (
     <React.Fragment>
-      <TwoWinGameIcon active={!playerStatus.includes(CardAbilities.twoWinGame)} />
-      <NextCardTrumpIcon active={!playerStatus.includes(CardAbilities.nextCardTrump)} />
-      <HangSaverIcon active={!playerStatus.includes(CardAbilities.hangSaver)} />
-      <ChooseStarterIcon active={!playerStatus.includes(CardAbilities.chooseStarter)} />
-      <AllyPlaysLastIcon active={!playerStatus.includes(CardAbilities.allyPlaysLast)} />
+      <TwoWinGameIcon active={playerStatus.includes(CardAbilities.twoWinGame)} />
+      <NextCardTrumpIcon active={playerStatus.includes(CardAbilities.nextCardTrump)} />
+      <HangSaverIcon active={playerStatus.includes(CardAbilities.hangSaver)} />
+      <ChooseStarterIcon active={playerStatus.includes(CardAbilities.chooseStarter)} />
+      <AllyPlaysLastIcon active={playerStatus.includes(CardAbilities.allyPlaysLast)} />
     </React.Fragment>
   );
 }
