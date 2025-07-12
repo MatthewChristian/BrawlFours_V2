@@ -1694,7 +1694,7 @@ nextApp.prepare()
     });
 
     server.listen(port, () => {
-      console.log(`> Ready on http://localhost:${port}`);
+      console.log(`> Ready on http://localhost:${port} on ${process.env.NODE_ENV}`);
     });
   })
   .catch((ex) => {
