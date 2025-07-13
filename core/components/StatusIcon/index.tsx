@@ -43,7 +43,7 @@ export default function StatusIcon({ icon, shortcode, tooltip, twBgColour, twTex
               : undefined
             }
           </motion.div>
-          : <></>
+          : null
       }
     </AnimatePresence>
   );

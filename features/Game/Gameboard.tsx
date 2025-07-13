@@ -694,25 +694,33 @@ export default function Gameboard({ roomId }: Props) {
 
                   <div className='w-full flex flex-row justify-center items-center relative'>
                     <div className={`flex flex-row justify-center items-center relative ${player3Cards?.length > 0 ? 'left-5' : ''} ${allySelectionModalVisible ? 'z-[9999]' : ''}`} ref={player3Hand}>
-                      {
-                        mobileView ? <></> :
-                          Array.from({ length: player3Data?.numCards ?? 0 }, (_, k) => {
-                            return (
-                              <PlayingCard
-                                key={player3Cards[k]?.suit ? ('3_' + (player3Cards[k]?.suit + player3Cards[k]?.value)) : '3_' + k?.toString()}
-                                player={3}
-                                cardData={player3Cards[k]}
-                                isNotPlayable={!allySelectionModalVisible}
-                                className='-mx-2 p-0'
-                                spotlighted={allySelectionModalVisible}
-                                glow={allySelectionModalVisible ? 'blue' : undefined}
-                                onClickHandler={() => player3Cards.length == 0 ? undefined : allySelectionModalVisible ? handleSelectAllyCard(player3Cards[k]) : undefined}
-                                flipped={!(isTeammateCardsVisible || allySelectionModalVisible)}
-                                spin={true}
-                              />
-                            );
-                          })
-                      }
+                      <AnimatePresence>
+                        {
+                          mobileView ? <></> :
+                            Array.from({ length: player3Data?.numCards ?? 0 }, (_, k) => {
+                              return (
+                                <motion.div
+                                  key={player3Cards[k]?.suit ? ('3_' + (player3Cards[k]?.suit + player3Cards[k]?.value)) : '3_' + k?.toString()}
+                                  layout
+                                  transition={{ type: 'spring', duration: 0.5 }}
+                                  exit={{ }}
+                                >
+                                  <PlayingCard
+                                    player={3}
+                                    cardData={player3Cards[k]}
+                                    isNotPlayable={!allySelectionModalVisible}
+                                    className='-mx-2 p-0'
+                                    spotlighted={allySelectionModalVisible}
+                                    glow={allySelectionModalVisible ? 'blue' : undefined}
+                                    onClickHandler={() => player3Cards.length == 0 ? undefined : allySelectionModalVisible ? handleSelectAllyCard(player3Cards[k]) : undefined}
+                                    flipped={!(isTeammateCardsVisible || allySelectionModalVisible)}
+                                    spin={true}
+                                  />
+                                </motion.div>
+                              );
+                            })
+                        }
+                      </AnimatePresence>
                       <Marker dispatchFunction={setPlayer3HandPos} />
                     </div>
 
@@ -753,18 +761,27 @@ export default function Gameboard({ roomId }: Props) {
 
                   </div>
                   <div className="w-1/6 flex flex-col items-center justify-center gap-0" ref={player4Hand}>
-                    {mobileView ? <></> :
-                      Array.from({ length: player4Data?.numCards ?? 0 }, (_, k) => (
-                        <PlayingCard
-                          key={'4' + k}
-                          player={4}
-                          isDeckCard
-                          className='rotate-90 p-0'
-                          style={getTeam2CardMargins(player4Data?.numCards ?? 0)}
-                          spin={k < player4Data?.spin}
-                        />
-                      ))
-                    }
+                    <AnimatePresence>
+                      {mobileView ? <></> :
+
+                        Array.from({ length: player4Data?.numCards ?? 0 }, (_, k) => (
+                          <motion.div
+                            key={'4' + k}
+                            layout
+                            transition={{ type: 'spring', duration: 0.5 }}
+                            exit={{ }}
+                          >
+                            <PlayingCard
+                              player={4}
+                              isDeckCard
+                              className='rotate-90 p-0'
+                              style={getTeam2CardMargins(player4Data?.numCards ?? 0)}
+                              spin={k < player4Data?.spin}
+                            />
+                          </motion.div>
+                        ))
+                      }
+                    </AnimatePresence>
 
                     <Marker dispatchFunction={setPlayer4HandPos} />
                   </div>
@@ -836,18 +853,29 @@ export default function Gameboard({ roomId }: Props) {
 
                   {/* ------------------------ Player 2 Info  ------------------------*/}
                   <div className="w-1/6 flex flex-col items-center justify-center gap-0" ref={player2Hand}>
-                    { mobileView ? <></> :
-                      Array.from({ length: player2Data?.numCards ?? 0 }, (_, k) => (
-                        <PlayingCard
-                          key={'2' + k}
-                          player={2}
-                          isDeckCard
-                          className='rotate-90 p-0'
-                          style={getTeam2CardMargins(player2Data?.numCards ?? 0)}
-                          spin={k < player2Data?.spin}
-                        />
-                      ))
-                    }
+                    <AnimatePresence>
+                      { mobileView ? <></> :
+                        Array.from({ length: player2Data?.numCards ?? 0 }, (_, k) => (
+                          <motion.div
+                            key={'2' + k}
+                            layout
+                            transition={{ type: 'spring', duration: 0.5 }}
+                            exit={{ }}
+                          >
+                            <PlayingCard
+                              key={'2' + k}
+                              player={2}
+                              isDeckCard
+                              className='rotate-90 p-0'
+                              style={getTeam2CardMargins(player2Data?.numCards ?? 0)}
+                              spin={k < player2Data?.spin}
+                            />
+                          </motion.div>
+                        ))
+
+                      }
+
+                    </AnimatePresence>
 
                     <Marker dispatchFunction={setPlayer2HandPos} />
                   </div>
