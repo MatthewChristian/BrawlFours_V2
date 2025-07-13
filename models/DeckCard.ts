@@ -11,5 +11,4 @@ export interface DeckCard {
   isRandom: boolean;
   trump: boolean;
   disabled?: boolean;
-  spin?: boolean;
 }

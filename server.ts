@@ -1640,8 +1640,8 @@ async function handleSwapHands(data: TargetPlayerInput, socket: Socket) {
     if (playerCards.length == selectedPlayer.cards.length) {
       const tempSelectedPlayerCards = [...selectedPlayer.cards];
 
-      player.cards = tempSelectedPlayerCards.concat([data.playedCard]).map(el => { return { ...el, spin: true} ;});
-      selectedPlayer.cards = playerCards.map(el => { return { ...el, spin: true }; });
+      player.cards = tempSelectedPlayerCards.concat([data.playedCard]);
+      selectedPlayer.cards = playerCards;
 
       // Send system messages to selected player
       sendSystemMessage({ io, message: `You swapped your hand with ${player.nickname}'s hand!`, roomId: selectedPlayer.socketId, showToast: true, colour: '#db2777' });
@@ -1657,8 +1657,8 @@ async function handleSwapHands(data: TargetPlayerInput, socket: Socket) {
 
       tempSelectedPlayerCards.splice(randomCardIndex, 1);
 
-      player.cards = tempSelectedPlayerCards.concat([data.playedCard]).map(el => { return { ...el, spin: true }; });
-      selectedPlayer.cards = playerCards.concat([randomCard]).map(el => { return { ...el, spin: true }; });
+      player.cards = tempSelectedPlayerCards.concat([data.playedCard]);
+      selectedPlayer.cards = playerCards.concat([randomCard]);
 
       // Send system messages to selected player
       sendSystemMessage({ io, message: `You and ${player.nickname} swapped hands and you kept your ${getCardName(randomCard)}!`, roomId: selectedPlayer.socketId, showToast: true, colour: '#db2777' });
