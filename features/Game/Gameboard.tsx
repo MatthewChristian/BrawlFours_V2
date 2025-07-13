@@ -680,11 +680,15 @@ export default function Gameboard({ roomId }: Props) {
                         }
                       </div>
 
-                      <div className='flex flex-row gap-2 min-h-7'>
-                        <DealerIcon active={dealerData && player3Data.id == dealerData.id} />
-                        <TurnIcon active={turnPlayerData && player3Data.id == turnPlayerData.id} />
-                        <PlayerStatusIcons playerStatus={player3Status} />
-                      </div>
+
+                      <PlayerStatusIcons
+                        className='flex flex-row gap-2 min-h-7'
+                        playerStatus={player3Status}
+                        dealerData={dealerData}
+                        turnPlayerData={turnPlayerData}
+                        playerData={player3Data}
+                      />
+
                     </div>
                   </div>
 
@@ -738,11 +742,15 @@ export default function Gameboard({ roomId }: Props) {
                       }
                     </div>
 
-                    <div className='flex flex-row justify-center flex-wrap gap-2'>
-                      <DealerIcon active={dealerData && player4Data.id == dealerData.id} />
-                      <TurnIcon active={turnPlayerData && player4Data.id == turnPlayerData.id} />
-                      <PlayerStatusIcons playerStatus={player4Status} />
-                    </div>
+
+                    <PlayerStatusIcons
+                      className='flex flex-row justify-center flex-wrap gap-2'
+                      playerStatus={player4Status}
+                      dealerData={dealerData}
+                      turnPlayerData={turnPlayerData}
+                      playerData={player4Data}
+                    />
+
                   </div>
                   <div className="w-1/6 flex flex-col items-center justify-center gap-0" ref={player4Hand}>
                     {mobileView ? <></> :
@@ -850,11 +858,14 @@ export default function Gameboard({ roomId }: Props) {
                       }
                     </div>
 
-                    <div className='flex flex-row justify-center flex-wrap gap-2'>
-                      <DealerIcon active={dealerData && player2Data.id == dealerData.id} />
-                      <TurnIcon active={turnPlayerData && player2Data.id == turnPlayerData.id} />
-                      <PlayerStatusIcons playerStatus={player2Status} />
-                    </div>
+                    <PlayerStatusIcons
+                      className='flex flex-row justify-center flex-wrap gap-2'
+                      playerStatus={player2Status}
+                      dealerData={dealerData}
+                      turnPlayerData={turnPlayerData}
+                      playerData={player2Data}
+                    />
+
                   </div>
                   {/* -----------------------------------------------------------------*/}
                 </div>
@@ -923,12 +934,13 @@ export default function Gameboard({ roomId }: Props) {
                         }
                       </div>
 
-
-                      <div className='flex flex-row gap-2 min-h-7'>
-                        <DealerIcon active={dealerData && player1Data.id == dealerData.id}/>
-                        <TurnIcon active={turnPlayerData && player1Data.id == turnPlayerData.id} />
-                        <PlayerStatusIcons playerStatus={player1Status} />
-                      </div>
+                      <PlayerStatusIcons
+                        className='flex flex-row gap-2 min-h-7'
+                        playerStatus={player1Status}
+                        dealerData={dealerData}
+                        turnPlayerData={turnPlayerData}
+                        playerData={player1Data}
+                      />
 
                     </div>
 
