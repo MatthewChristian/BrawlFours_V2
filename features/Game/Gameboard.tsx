@@ -680,7 +680,7 @@ export default function Gameboard({ roomId }: Props) {
                         }
                       </div>
 
-                      <div className='flex flex-row gap-2'>
+                      <div className='flex flex-row gap-2 min-h-7'>
                         <DealerIcon active={dealerData && player3Data.id == dealerData.id} />
                         <TurnIcon active={turnPlayerData && player3Data.id == turnPlayerData.id} />
                         <PlayerStatusIcons playerStatus={player3Status} />
@@ -736,7 +736,6 @@ export default function Gameboard({ roomId }: Props) {
                       {
                         player4Data.nickname
                       }
-                      wwwwwwwwwwwwww
                     </div>
 
                     <div className='flex flex-row justify-center flex-wrap gap-2'>
@@ -849,7 +848,6 @@ export default function Gameboard({ roomId }: Props) {
                       {
                         player2Data.nickname
                       }
-                      wwwwwwwwwwwwww
                     </div>
 
                     <div className='flex flex-row justify-center flex-wrap gap-2'>
@@ -926,7 +924,7 @@ export default function Gameboard({ roomId }: Props) {
                       </div>
 
 
-                      <div className='flex flex-row gap-2'>
+                      <div className='flex flex-row gap-2 min-h-7'>
                         <DealerIcon active={dealerData && player1Data.id == dealerData.id}/>
                         <TurnIcon active={turnPlayerData && player1Data.id == turnPlayerData.id} />
                         <PlayerStatusIcons playerStatus={player1Status} />
