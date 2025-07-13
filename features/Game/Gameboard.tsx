@@ -643,7 +643,7 @@ export default function Gameboard({ roomId }: Props) {
           <div className='h-[15dvh]'>
             <MobileGameInfo playerTeam={player1Data.team} socketData={socketData} />
           </div> :
-          <div className='w-1/5'>
+          <div className='w-1/5 z-[9999]'>
             <GameInfo playerTeam={player1Data.team} socketData={socketData} settingsTooltipRef={settingsTooltipRef} leaveTooltipRef={leaveTooltipRef} />
           </div>
         }
@@ -689,7 +689,7 @@ export default function Gameboard({ roomId }: Props) {
                   </div>
 
                   <div className='w-full flex flex-row justify-center items-center relative'>
-                    <div className={`flex flex-row justify-center items-center relative ${player3Cards?.length > 0 ? 'left-5' : ''}`} ref={player3Hand}>
+                    <div className={`flex flex-row justify-center items-center relative ${player3Cards?.length > 0 ? 'left-5' : ''} ${allySelectionModalVisible ? 'z-[9999]' : ''}`} ref={player3Hand}>
                       {
                         mobileView ? <></> :
                           Array.from({ length: player3Data?.numCards ?? 0 }, (_, k) => {
@@ -882,6 +882,7 @@ export default function Gameboard({ roomId }: Props) {
                               layout
                               transition={{ type: 'spring', duration: 0.5 }}
                               exit={{ }}
+                              style={{ zIndex: selectionActive ? 9999 : 20 }}
                             >
                               <PlayingCard
                                 player={1}

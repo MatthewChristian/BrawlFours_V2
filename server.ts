@@ -952,7 +952,7 @@ async function playCard(data: PlayCardInput, gameSocket: Socket) {
   const playerCards = player.cards;
 
   // Find card data using data from roomUsers object to prevent user from sending false information
-  const cardIndex = playerCards.findIndex(el => (el.suit == data.card.suit) && (el.value == data.card.value));
+  const cardIndex = playerCards.findIndex(el => (el.suit == data?.card?.suit) && (el.value == data?.card?.value));
 
   if (cardIndex == -1) {
     return;
