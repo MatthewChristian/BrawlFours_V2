@@ -4,8 +4,6 @@ import PlayingCard from './PlayingCard';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { getActiveAbilities, getBeg, getDealer, getDoubleLiftCards, getDoubleLiftModalVisible, getLift, getLiftWinner, getMatchWinner, getMessage, getMobileView, getPlayerCards, getPlayerJoinedRoom, getPlayerList, getPlayerStatus, getRoundWinners, getTeammateCards, getTurn, setDoubleLiftModalVisible, setFocusedCard, setMessage } from '../../slices/game.slice';
 import { PlayerSocket } from '../../models/PlayerSocket';
-import DealerIcon from './StatusIcons/DealerIcon';
-import TurnIcon from './StatusIcons/TurnIcon';
 import Modal from '../../core/components/Modal';
 import Button from '../../core/components/Button';
 import { toast } from 'react-toastify';
@@ -641,7 +639,7 @@ export default function Gameboard({ roomId }: Props) {
 
         {mobileView ?
           <div className='h-[15dvh]'>
-            <MobileGameInfo playerTeam={player1Data.team} socketData={socketData} />
+            <MobileGameInfo playerTeam={player1Data.team} />
           </div> :
           <div className='w-1/5 z-[9999]'>
             <GameInfo playerTeam={player1Data.team} socketData={socketData} settingsTooltipRef={settingsTooltipRef} leaveTooltipRef={leaveTooltipRef} />

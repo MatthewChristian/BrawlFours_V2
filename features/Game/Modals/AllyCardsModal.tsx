@@ -1,4 +1,3 @@
-import React, { useMemo } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { getAllyCardsViewExpanded, toggleAllyCardsViewExpanded } from '../../../slices/game.slice';
 import Button from '../../../core/components/Button';
