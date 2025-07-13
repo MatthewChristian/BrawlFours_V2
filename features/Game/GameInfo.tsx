@@ -52,7 +52,7 @@ export default function GameInfo({ playerTeam, socketData, settingsTooltipRef, l
   }
 
   return (
-    <div className={'info-bg p-2 h-[100dvh] z-[9999] min-w-min'}>
+    <div className={'info-bg p-2 h-[100dvh] min-w-min'}>
 
       <div className='h-[30dvh]'>
 

@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import { BasicRoomInput } from '../../models/BasicRoomInput';
 import PlayingCard from './PlayingCard';
 import { getKickedCards, getTeamScore, getGame, setSettingsModalVisible, setLeaveModalVisible } from '../../slices/game.slice';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
@@ -10,14 +9,12 @@ import { CgCardDiamonds } from 'react-icons/cg';
 import ActiveAbilities from './ActiveAbilities';
 import Image from 'next/image';
 import logoSvg from '../../public/images/logo/logo.svg';
-import LeaveConfirmModal from './Modals/LeaveConfirmModal';
 
 interface Props {
   playerTeam?: number;
-  socketData?: BasicRoomInput;
 }
 
-export default function MobileGameInfo({ playerTeam, socketData }: Props) {
+export default function MobileGameInfo({ playerTeam }: Props) {
 
   const dispatch = useAppDispatch();
 

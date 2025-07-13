@@ -4,8 +4,6 @@ import PlayingCard from './PlayingCard';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { getActiveAbilities, getBeg, getDealer, getDoubleLiftCards, getDoubleLiftModalVisible, getLift, getLiftWinner, getMatchWinner, getMessage, getMobileView, getPlayerCards, getPlayerJoinedRoom, getPlayerList, getPlayerStatus, getRoundWinners, getTeammateCards, getTurn, setDoubleLiftModalVisible, setFocusedCard, setMessage } from '../../slices/game.slice';
 import { PlayerSocket } from '../../models/PlayerSocket';
-import DealerIcon from './StatusIcons/DealerIcon';
-import TurnIcon from './StatusIcons/TurnIcon';
 import Modal from '../../core/components/Modal';
 import Button from '../../core/components/Button';
 import { toast } from 'react-toastify';
@@ -28,6 +26,7 @@ import SettingsModal from './Modals/SettingsModal';
 import LeaveConfirmModal from './Modals/LeaveConfirmModal';
 import AllyCardsModal from './Modals/AllyCardsModal';
 import { TooltipRefProps } from 'react-tooltip';
+import { AnimatePresence, motion } from 'framer-motion';
 
 
 interface Props {
@@ -289,6 +288,24 @@ export default function Gameboard({ roomId }: Props) {
 
     return forceStand;
   }, [player1Cards]);
+
+  const cardWidth = useMemo(() => {
+    // Used for mobile view card margins
+    return (7.2 * window.innerHeight)/100; // 7.2 is used because width is 3/5 of height which is 12 * window.innerHeight
+  }, []);
+
+  const handWidth = useMemo(() => {
+    // Used for mobile view card margins
+    return (90 * window.innerWidth) / 100;
+  }, []);
+
+  const player1CardsOverlapMargins =  useMemo(() => {
+    return mobileView ? -((handWidth / cardWidth) * (player1Cards.length / 3.5)) : undefined;
+  }, [mobileView, handWidth, cardWidth, player1Cards]);
+
+  const player3CardsOverlapMargins = useMemo(() => {
+    return mobileView ? -((handWidth / cardWidth) * (player3Cards.length / 3.5)) : undefined;
+  }, [mobileView, handWidth, cardWidth, player3Cards]);
 
   function getPlayerStatuses(playerData: PlayerSocket) {
     if (!playerStatus) {
@@ -622,9 +639,9 @@ export default function Gameboard({ roomId }: Props) {
 
         {mobileView ?
           <div className='h-[15dvh]'>
-            <MobileGameInfo playerTeam={player1Data.team} socketData={socketData} />
+            <MobileGameInfo playerTeam={player1Data.team} />
           </div> :
-          <div className='w-1/5'>
+          <div className='w-1/5 z-[9999]'>
             <GameInfo playerTeam={player1Data.team} socketData={socketData} settingsTooltipRef={settingsTooltipRef} leaveTooltipRef={leaveTooltipRef} />
           </div>
         }
@@ -649,6 +666,7 @@ export default function Gameboard({ roomId }: Props) {
                             disabled={!player3Cards.length || player3Cards?.length <= 0}
                             name={player3Data.nickname}
                             cards={player3Cards}
+                            player3CardsOverlapMargins={player3CardsOverlapMargins}
                           />
                       }
                     </div>
@@ -660,35 +678,47 @@ export default function Gameboard({ roomId }: Props) {
                         }
                       </div>
 
-                      <div className='flex flex-row gap-2'>
-                        <DealerIcon active={dealerData && player3Data.id == dealerData.id} />
-                        <TurnIcon active={turnPlayerData && player3Data.id == turnPlayerData.id} />
-                        <PlayerStatusIcons playerStatus={player3Status} />
-                      </div>
+
+                      <PlayerStatusIcons
+                        className='flex flex-row gap-2 min-h-7'
+                        playerStatus={player3Status}
+                        dealerData={dealerData}
+                        turnPlayerData={turnPlayerData}
+                        playerData={player3Data}
+                      />
+
                     </div>
                   </div>
 
                   <div className='w-full flex flex-row justify-center items-center relative'>
-                    <div className={`flex flex-row justify-center items-center relative ${player3Cards?.length > 0 ? 'left-5' : ''}`} ref={player3Hand}>
-                      {
-                        mobileView ? <></> :
-                          Array.from({ length: player3Data?.numCards ?? 0 }, (_, k) => {
-                            return (
-                              <PlayingCard
-                                key={player3Cards[k]?.suit ? ('3_' + (player3Cards[k]?.suit + player3Cards[k]?.value)) : '3_' + k?.toString()}
-                                player={3}
-                                cardData={player3Cards[k]}
-                                isNotPlayable={!allySelectionModalVisible}
-                                className='-mx-2 p-0'
-                                spotlighted={allySelectionModalVisible}
-                                glow={allySelectionModalVisible ? 'blue' : undefined}
-                                onClickHandler={() => player3Cards.length == 0 ? undefined : allySelectionModalVisible ? handleSelectAllyCard(player3Cards[k]) : undefined}
-                                flipped={!(isTeammateCardsVisible || allySelectionModalVisible)}
-                                spin={player3Cards[k]?.spin}
-                              />
-                            );
-                          })
-                      }
+                    <div className={`flex flex-row justify-center items-center relative ${player3Cards?.length > 0 ? 'left-5' : ''} ${allySelectionModalVisible ? 'z-[9999]' : ''}`} ref={player3Hand}>
+                      <AnimatePresence>
+                        {
+                          mobileView ? <></> :
+                            Array.from({ length: player3Data?.numCards ?? 0 }, (_, k) => {
+                              return (
+                                <motion.div
+                                  key={player3Cards[k]?.suit ? ('3_' + (player3Cards[k]?.suit + player3Cards[k]?.value)) : '3_' + k?.toString()}
+                                  layout
+                                  transition={{ type: 'spring', duration: 0.5 }}
+                                  exit={{ }}
+                                >
+                                  <PlayingCard
+                                    player={3}
+                                    cardData={player3Cards[k]}
+                                    isNotPlayable={!allySelectionModalVisible}
+                                    className='-mx-2 p-0'
+                                    spotlighted={allySelectionModalVisible}
+                                    glow={allySelectionModalVisible ? 'blue' : undefined}
+                                    onClickHandler={() => player3Cards.length == 0 ? undefined : allySelectionModalVisible ? handleSelectAllyCard(player3Cards[k]) : undefined}
+                                    flipped={!(isTeammateCardsVisible || allySelectionModalVisible)}
+                                    spin={true}
+                                  />
+                                </motion.div>
+                              );
+                            })
+                        }
+                      </AnimatePresence>
                       <Marker dispatchFunction={setPlayer3HandPos} />
                     </div>
 
@@ -716,28 +746,40 @@ export default function Gameboard({ roomId }: Props) {
                       {
                         player4Data.nickname
                       }
-                      wwwwwwwwwwwwww
                     </div>
 
-                    <div className='flex flex-row justify-center flex-wrap gap-2'>
-                      <DealerIcon active={dealerData && player4Data.id == dealerData.id} />
-                      <TurnIcon active={turnPlayerData && player4Data.id == turnPlayerData.id} />
-                      <PlayerStatusIcons playerStatus={player4Status} />
-                    </div>
+
+                    <PlayerStatusIcons
+                      className='flex flex-row justify-center flex-wrap gap-2'
+                      playerStatus={player4Status}
+                      dealerData={dealerData}
+                      turnPlayerData={turnPlayerData}
+                      playerData={player4Data}
+                    />
+
                   </div>
                   <div className="w-1/6 flex flex-col items-center justify-center gap-0" ref={player4Hand}>
-                    {mobileView ? <></> :
-                      Array.from({ length: player4Data?.numCards ?? 0 }, (_, k) => (
-                        <PlayingCard
-                          key={'4' + k}
-                          player={4}
-                          isDeckCard
-                          className='rotate-90 p-0'
-                          style={getTeam2CardMargins(player4Data?.numCards ?? 0)}
-                          spin={k < player4Data?.spin}
-                        />
-                      ))
-                    }
+                    <AnimatePresence>
+                      {mobileView ? <></> :
+
+                        Array.from({ length: player4Data?.numCards ?? 0 }, (_, k) => (
+                          <motion.div
+                            key={'4' + k}
+                            layout
+                            transition={{ type: 'spring', duration: 0.5 }}
+                            exit={{ }}
+                          >
+                            <PlayingCard
+                              player={4}
+                              isDeckCard
+                              className='rotate-90 p-0'
+                              style={getTeam2CardMargins(player4Data?.numCards ?? 0)}
+                              spin={k < player4Data?.spin}
+                            />
+                          </motion.div>
+                        ))
+                      }
+                    </AnimatePresence>
 
                     <Marker dispatchFunction={setPlayer4HandPos} />
                   </div>
@@ -809,18 +851,29 @@ export default function Gameboard({ roomId }: Props) {
 
                   {/* ------------------------ Player 2 Info  ------------------------*/}
                   <div className="w-1/6 flex flex-col items-center justify-center gap-0" ref={player2Hand}>
-                    { mobileView ? <></> :
-                      Array.from({ length: player2Data?.numCards ?? 0 }, (_, k) => (
-                        <PlayingCard
-                          key={'2' + k}
-                          player={2}
-                          isDeckCard
-                          className='rotate-90 p-0'
-                          style={getTeam2CardMargins(player2Data?.numCards ?? 0)}
-                          spin={k < player2Data?.spin}
-                        />
-                      ))
-                    }
+                    <AnimatePresence>
+                      { mobileView ? <></> :
+                        Array.from({ length: player2Data?.numCards ?? 0 }, (_, k) => (
+                          <motion.div
+                            key={'2' + k}
+                            layout
+                            transition={{ type: 'spring', duration: 0.5 }}
+                            exit={{ }}
+                          >
+                            <PlayingCard
+                              key={'2' + k}
+                              player={2}
+                              isDeckCard
+                              className='rotate-90 p-0'
+                              style={getTeam2CardMargins(player2Data?.numCards ?? 0)}
+                              spin={k < player2Data?.spin}
+                            />
+                          </motion.div>
+                        ))
+
+                      }
+
+                    </AnimatePresence>
 
                     <Marker dispatchFunction={setPlayer2HandPos} />
                   </div>
@@ -829,14 +882,16 @@ export default function Gameboard({ roomId }: Props) {
                       {
                         player2Data.nickname
                       }
-                      wwwwwwwwwwwwww
                     </div>
 
-                    <div className='flex flex-row justify-center flex-wrap gap-2'>
-                      <DealerIcon active={dealerData && player2Data.id == dealerData.id} />
-                      <TurnIcon active={turnPlayerData && player2Data.id == turnPlayerData.id} />
-                      <PlayerStatusIcons playerStatus={player2Status} />
-                    </div>
+                    <PlayerStatusIcons
+                      className='flex flex-row justify-center flex-wrap gap-2'
+                      playerStatus={player2Status}
+                      dealerData={dealerData}
+                      turnPlayerData={turnPlayerData}
+                      playerData={player2Data}
+                    />
+
                   </div>
                   {/* -----------------------------------------------------------------*/}
                 </div>
@@ -849,29 +904,38 @@ export default function Gameboard({ roomId }: Props) {
                 {/* ------------------------ Player 1 Info  ------------------------*/}
                 <div className={`${mobileView ? 'h-1/2' : 'h-1/4'} gap-1 flex flex-col justify-end items-center`}>
 
-                  <div className="w-full flex flex-row justify-center items-center" ref={player1Hand}>
-                    {
-                      Array.from({ length: player1Cards.length == 0 ? player1Data?.numCards ?? 0 : player1Cards.length}, (_, k) => {
+                  <motion.div className="w-full flex flex-row justify-center items-center" ref={player1Hand}>
+                    <AnimatePresence>
+                      {
+                        Array.from({ length: player1Cards.length == 0 ? player1Data?.numCards ?? 0 : player1Cards?.length}, (_, k) => {
 
-                        const selectionActive = ((oppSelectionModalVisible || (allySelectionModalVisible && !mobileView)) && (!(player1Cards[k]?.suit == playedCard?.suit && player1Cards[k]?.value == playedCard?.value)));
-                        return (
-                          <PlayingCard
-                            key={player1Cards[k]?.suit ? ('1_' + (player1Cards[k]?.suit + player1Cards[k]?.value)) : '1_' + k?.toString()}
-                            player={1}
-                            cardData={player1Cards[k]}
-                            isDeckCard={player1Cards.length == 0 ? true : false}
-                            onClickHandler={() => player1Cards.length == 0 ? undefined : selectionActive ? handleSelectCard(player1Cards[k]) : playCard(player1Cards[k])}
-                            className='-mx-2'
-                            spotlighted={selectionActive}
-                            glow={selectionActive ? 'blue' : undefined}
-                            spin={player1Cards[k]?.spin}
-                          />
-                        );}
-                      )
-                    }
+                          const selectionActive = ((oppSelectionModalVisible || (allySelectionModalVisible && !mobileView)) && (!(player1Cards[k]?.suit == playedCard?.suit && player1Cards[k]?.value == playedCard?.value)));
 
+                          return (
+                            <motion.div
+                              key={player1Cards[k]?.suit ? ('1_' + (player1Cards[k]?.suit + player1Cards[k]?.value)) : '1_' + k?.toString()}
+                              layout
+                              transition={{ type: 'spring', duration: 0.5 }}
+                              exit={{ }}
+                              style={{ zIndex: selectionActive ? 9999 : 20 }}
+                            >
+                              <PlayingCard
+                                player={1}
+                                cardData={player1Cards[k]}
+                                isDeckCard={player1Cards.length == 0 ? true : false}
+                                onClickHandler={() => player1Cards.length == 0 ? undefined : selectionActive ? handleSelectCard(player1Cards[k]) : playCard(player1Cards[k])}
+                                style={{ marginRight: mobileView ? player1CardsOverlapMargins : '-8px', marginLeft: mobileView ? player1CardsOverlapMargins : '-8px' }}
+                                spotlighted={selectionActive}
+                                glow={selectionActive ? 'blue' : undefined}
+                                spin={true}
+                              />
+                            </motion.div>
+                          );}
+                        )
+                      }
+                    </AnimatePresence>
                     <Marker dispatchFunction={setPlayer1HandPos} />
-                  </div>
+                  </motion.div>
 
                   <div className='flex flex-row w-full justify-center gap-5 items-center'>
                     <div className='mx-2'>
@@ -896,12 +960,13 @@ export default function Gameboard({ roomId }: Props) {
                         }
                       </div>
 
-
-                      <div className='flex flex-row gap-2'>
-                        <DealerIcon active={dealerData && player1Data.id == dealerData.id}/>
-                        <TurnIcon active={turnPlayerData && player1Data.id == turnPlayerData.id} />
-                        <PlayerStatusIcons playerStatus={player1Status} />
-                      </div>
+                      <PlayerStatusIcons
+                        className='flex flex-row gap-2 min-h-7'
+                        playerStatus={player1Status}
+                        dealerData={dealerData}
+                        turnPlayerData={turnPlayerData}
+                        playerData={player1Data}
+                      />
 
                     </div>
 
@@ -1058,8 +1123,6 @@ export default function Gameboard({ roomId }: Props) {
 
       {/* ----- swapAllyCard Modal (Desktop) -----*/}
       <Modal contentStyle={{ width: 'fit-content' }} open={allySelectionModalVisible && !mobileView} closeOnDocumentClick={false}>
-
-
 
         <div className='px-5'>
           <div className='flex flex-row justify-center items-center mt-3 gap-5'>

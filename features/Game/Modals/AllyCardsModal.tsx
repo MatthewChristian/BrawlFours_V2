@@ -1,4 +1,3 @@
-import React from 'react';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { getAllyCardsViewExpanded, toggleAllyCardsViewExpanded } from '../../../slices/game.slice';
 import Button from '../../../core/components/Button';
@@ -13,9 +12,10 @@ interface Props {
   cards?: DeckCard[];
   allySelectionModalVisible?: boolean;
   handleSelectAllyCard?: (card: DeckCard) => void;
+  player3CardsOverlapMargins?: number;
 }
 
-export default function AllyCardsModal({ disabled, name, cards, allySelectionModalVisible, handleSelectAllyCard }: Props) {
+export default function AllyCardsModal({ disabled, name, cards, allySelectionModalVisible, handleSelectAllyCard, player3CardsOverlapMargins }: Props) {
 
   const dispatch = useAppDispatch();
 
@@ -64,7 +64,8 @@ export default function AllyCardsModal({ disabled, name, cards, allySelectionMod
                     player={3}
                     cardData={card}
                     isNotPlayable={!allySelectionModalVisible}
-                    className='-mx-2 p-0'
+                    className='p-0'
+                    style={{ marginRight: player3CardsOverlapMargins, marginLeft: player3CardsOverlapMargins }}
                     spotlighted={allySelectionModalVisible}
                     glow={allySelectionModalVisible ? 'blue' : undefined}
                     onClickHandler={() => cards.length == 0 ? undefined : allySelectionModalVisible ? handleSelectAllyCard(card) : undefined}

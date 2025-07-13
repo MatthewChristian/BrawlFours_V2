@@ -149,9 +149,6 @@ export function determineIfCardsPlayable(roomData: RoomSocket, player: PlayerSoc
 
   player.cards.forEach((el) => {
 
-    // Reset spin values
-    el.spin = false;
-
     // Determine which cards are trump
     // If nextCardTrump ability is active for player
     if (nextCardTrumpActive) {
