@@ -6,50 +6,42 @@ import { determineIfCardsPlayable, emitPlayerCardData, orderCards, sendSystemMes
 export const hangSaverPointsEarned = 3;
 export const pointsForSavedPointsEarned = 10;
 
-// Need Animations :
-// shuffleHand
-// swapOppCard
-// drawOne
-// swapAllyCard
-// swapHands
-// Maybe an animation whne toggling visibility
-
 export enum CardAbilities {
   // Spades
-  alwaysPlayable,     // 2  TESTED
-  ninePowerful,       // 9  TESTED
-  trumpDisabled,      // 10 TESTEDq
-  targetPowerless,    // J  TESTEDq
-  noWinLift,          // Q  TESTEDq
-  shuffleHand,        // K  TESTEDq - Need to implement animations
-  oppReplay,          // A  TESTEDq
+  alwaysPlayable,     // 2
+  ninePowerful,       // 9
+  trumpDisabled,      // 10
+  targetPowerless,    // J
+  noWinLift,          // Q
+  shuffleHand,        // K
+  oppReplay,          // A
 
   // Hearts
-  royalsDisabled,     // 2  TESTEDq
-  hangSaver,          // 9  TESTED
-  twentyPoints,       // 10 TESTED
-  pointsForSaved,     // J  TESTED
-  abilitiesDisabled,  // Q  TESTEDq
-  swapOppCard,        // K  TESTEDq
-  allyReplay,         // A  TESTEDq
+  royalsDisabled,     // 2
+  hangSaver,          // 9
+  twentyPoints,       // 10
+  pointsForSaved,     // J
+  abilitiesDisabled,  // Q
+  swapOppCard,        // K
+  allyReplay,         // A
 
   // Dimes
-  forceStand,         // 2  TESTING IN PROGRESS- Need to test 9 of clubs
-  ninePoints,         // 9  TESTED
-  oppositePower,      // 10 TESTEDq
-  allyPlaysLast,      // J  TESTEDq
-  drawOne,            // Q  TESTED
-  doublePoints,       // K  TESTEDq
-  chooseStarter,      // A  TESTED
+  forceStand,         // 2
+  ninePoints,         // 9
+  oppositePower,      // 10
+  allyPlaysLast,      // J
+  drawOne,            // Q
+  doublePoints,       // K
+  chooseStarter,      // A
 
   // Clubs
-  twoWinGame,         // 2  TESTEDq
+  twoWinGame,         // 2
   randomAbility,      // 9
-  revealedBare,       // 10 TESTED
-  nextCardTrump,      // J  TESTEDq
-  swapAllyCard,       // Q  TESTEDq
-  doubleLift,         // K  TESTEDq
-  swapHands,          // A  TESTED
+  revealedBare,       // 10
+  nextCardTrump,      // J
+  swapAllyCard,       // Q
+  doubleLift,         // K
+  swapHands,          // A
 
 }
 
