@@ -22,6 +22,10 @@ export default function Layout({ children }: Props) {
   const isMobile = /Mobi|Android|Tablet|iPad/i.test(navigator.userAgent);
 
   useEffect(() => {
+    document.title = 'Brawl Fours';
+  }, []);
+
+  useEffect(() => {
     dispatch(setIsMobile(isMobile));
   }, [isMobile]);
 
