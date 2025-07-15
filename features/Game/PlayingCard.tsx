@@ -250,7 +250,7 @@ export default function PlayingCard({
   }, [isMobile]);
 
   return (
-    <div>
+    <>
       <CardInfoTooltip
         tooltipRef={tooltipRef}
         card={cardData}
@@ -380,6 +380,6 @@ export default function PlayingCard({
           </AnimatePresence>
         </motion.div>
       </div>
-    </div>
+    </>
   );
 }
