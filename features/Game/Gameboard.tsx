@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { DeckCard } from '../../models/DeckCard';
 import PlayingCard from './PlayingCard';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { getActiveAbilities, getBeg, getDealer, getDoubleLiftCards, getDoubleLiftModalVisible, getLift, getLiftWinner, getMatchWinner, getMessage, getMobileView, getPlayerCards, getPlayerJoinedRoom, getPlayerList, getPlayerStatus, getRoundWinners, getTeammateCards, getTurn, setDoubleLiftModalVisible, setFocusedCard, setMessage } from '../../slices/game.slice';
+import { getActiveAbilities, getBeg, getDealer, getDoubleLiftCards, getDoubleLiftModalVisible, getGameVolume, getLift, getLiftWinner, getMatchWinner, getMessage, getMobileView, getPlayerCards, getPlayerJoinedRoom, getPlayerList, getPlayerStatus, getRoundWinners, getTeammateCards, getTurn, setDoubleLiftModalVisible, setFocusedCard, setMessage } from '../../slices/game.slice';
 import { PlayerSocket } from '../../models/PlayerSocket';
 import Modal from '../../core/components/Modal';
 import Button from '../../core/components/Button';
@@ -68,6 +68,8 @@ export default function Gameboard({ roomId }: Props) {
 
   const doubleLiftCards = useAppSelector(getDoubleLiftCards);
 
+  const gameVolume = useAppSelector(getGameVolume);
+
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const settingsTooltipRef = useRef<TooltipRefProps>(null);
@@ -121,6 +123,8 @@ export default function Gameboard({ roomId }: Props) {
 
 
 
+
+
   // React refs for player hand div
   const player1Hand = useRef<HTMLDivElement>(null);
   const player2Hand = useRef<HTMLDivElement>(null);
@@ -135,6 +139,9 @@ export default function Gameboard({ roomId }: Props) {
   const [player2Data, setPlayer2Data] = useState<PlayerSocket>({});
   const [player3Data, setPlayer3Data] = useState<PlayerSocket>({});
   const [player4Data, setPlayer4Data] = useState<PlayerSocket>({});
+
+  // Sound effects
+  const cardSwipeSfx = useRef<HTMLAudioElement>(null);
 
   // Data to send to socket
   const socketData = useMemo(() => {
@@ -632,8 +639,32 @@ export default function Gameboard({ roomId }: Props) {
     }
   }, [matchWinner, roomId]);
 
+  useEffect(() => {
+    if (!cardSwipeSfx?.current) {
+      return;
+    }
+
+    console.log('Vol: ', gameVolume);
+
+    const volume = gameVolume ?? 0.5;
+
+    cardSwipeSfx.current.volume = volume;
+  }, [gameVolume]);
+
+  useEffect(() => {
+    if (player1CardPlayed || player2CardPlayed || player3CardPlayed || player4CardPlayed) {
+      cardSwipeSfx?.current?.play();
+    }
+  }, [player1CardPlayed, player2CardPlayed, player3CardPlayed, player4CardPlayed]);
+
+
+
+
+
   return (
     <div className="h-full w-screen">
+
+      <audio ref={cardSwipeSfx} src="/sounds/card_swipe.ogg"></audio>
 
       <div className={`flex ${mobileView ? 'flex-col' : 'flex-row'}`}>
 

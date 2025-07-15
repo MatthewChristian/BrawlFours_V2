@@ -1,7 +1,7 @@
 import React, { RefObject, useEffect, useMemo, useState } from 'react';
 import Modal from '../../../core/components/Modal';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
-import { getSettingsModalVisible, setSettingsModalVisible } from '../../../slices/game.slice';
+import { getSettingsModalVisible, setGameVolume, setSettingsModalVisible } from '../../../slices/game.slice';
 import Slider from '../../../core/components/Slider';
 import Button from '../../../core/components/Button';
 import { IoClose, IoSave } from 'react-icons/io5';
@@ -68,6 +68,7 @@ export default function SettingsModal({ roomId, lobby, settingsTooltipRef }: Pro
 
   function handleSave() {
     localStorage.setItem('volume', String(volume ?? 50));
+    dispatch(setGameVolume(volume/100));
     setDefaultVolume(volume);
 
     if (nickname && nickname != defaultNickname) {
@@ -96,7 +97,13 @@ export default function SettingsModal({ roomId, lobby, settingsTooltipRef }: Pro
     // Get volume stored in local storage
     const localVolume = typeof window !== 'undefined' ? localStorage.getItem('volume') ?? undefined : undefined;
 
-    setDefaultVolume(Number(localVolume ?? 50));
+    const volValue = Number(localVolume ?? 50);
+
+    setDefaultVolume(volValue);
+
+    console.log('VV: ', volValue / 100);
+
+    dispatch(setGameVolume(volValue/100));
   }, []);
 
 

@@ -34,7 +34,8 @@
     "socket.io": "^4.7.5",
     "socket.io-client": "^4.7.5",
     "ts-node": "^10.9.2",
-    "url-loader": "^4.1.1"
+    "url-loader": "^4.1.1",
+    "use-sound": "^5.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.1",
