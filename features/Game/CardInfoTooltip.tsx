@@ -26,6 +26,8 @@ export default function CardInfoTooltip({ tooltipRef, card, active, offsetY, ign
   const mobileView = useAppSelector(getMobileView);
   const isMobile = useAppSelector(getIsMobile) && !ignoreMobileClick;
 
+  const infoClass = 'text-xs text-gray-400 italic';
+
   const isDisabled = useMemo(() => {
     if (activeAbilities?.includes(CardAbilities.abilitiesDisabled)) {
       return true;
@@ -100,7 +102,7 @@ export default function CardInfoTooltip({ tooltipRef, card, active, offsetY, ign
         delayShow={mobileView ? 0 : 550}
         delayHide={mobileView ? 0 : 150}
         offset={(offsetY ?? 0) + 10}
-        style={{ zIndex: 20000, minWidth: 250, maxWidth: mobileView ? '80dvw' : 250 }}
+        style={{ zIndex: 20000, minWidth: 200, maxWidth: mobileView ? '80dvw' : 250 }}
         openOnClick={isMobile}
         className={'border border-white'}
         classNameArrow={'border border-white border-t-0 border-l-0'}
@@ -147,28 +149,28 @@ export default function CardInfoTooltip({ tooltipRef, card, active, offsetY, ign
 
           {
             card?.ability == CardAbilities.twoWinGame ?
-              <div className='text-xs text-gray-400 italic'>
+              <div className={infoClass}>
                 Twos Played: {formatTwosPlayed()}
               </div> : null
           }
 
           {
             card?.ability == CardAbilities.swapHands ?
-              <div className='text-xs text-gray-400 italic'>
+              <div className={infoClass}>
                 If the chosen player has more cards, then one random card in their hand will not be swapped
               </div> : null
           }
 
           {
             card?.ability == CardAbilities.oppositePower ?
-              <div className='text-xs text-gray-400 italic'>
+              <div className={infoClass}>
                 Trump still beats non-Trump
               </div> : null
           }
 
           {
             card?.isRandom ?
-              <div className='text-xs text-gray-400 italic'>
+              <div className={infoClass}>
                 This card&apos;s ability is random every game
               </div>
               :

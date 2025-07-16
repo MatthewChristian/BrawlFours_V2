@@ -680,7 +680,8 @@ function initialiseGameCards(data: BasicRoomInput) {
   roomUsers[data.roomId].users.forEach((el, i) => {
 
     // Determine which cards are playable for the player whose turn it is
-    if (el.player == roomUsers[data.roomId].turn) {
+    // Also run code for dealer so that cards will be properly marked as trump
+    if (el.player == roomUsers[data.roomId].turn || el.player == roomUsers[data.roomId].dealer) {
       determineIfCardsPlayable(roomUsers[data.roomId], el);
     }
 

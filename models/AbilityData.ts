@@ -5,6 +5,6 @@ export type AbilityData = {
   [key in CardAbilities]: {
     description: string;
     ability: (args: AbilityInput) => void;
-    duration?: 'lift' | 'round';
+    duration?: 'lift' | 'round' | 'game';
   };
 };

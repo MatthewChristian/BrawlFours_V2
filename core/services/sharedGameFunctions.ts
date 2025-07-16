@@ -421,6 +421,8 @@ export function scoreLift(roomData: RoomSocket): ScoreLiftOutput {
         roomData.jackWinner = roomData.doubleLiftJack ? liftWinnerPlayer : highestHangerPlayer;
         roomData.hangJack = true;
 
+        roomData.playerStatus[jackOwnerPlayer.player].status.push(CardAbilities.jackHanged);
+
         if (roomData.doubleLiftJack) {
           highestHangerPlayer = liftWinnerPlayer;
         }

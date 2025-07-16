@@ -9,6 +9,7 @@ import DealerIcon from './StatusIcons/DealerIcon';
 import TurnIcon from './StatusIcons/TurnIcon';
 import { PlayerSocket } from '../../models/PlayerSocket';
 import { AnimatePresence } from 'framer-motion';
+import JackHangedIcon from './StatusIcons/JackHangedIcon';
 
 interface Props {
   playerStatus: CardAbilities[];
@@ -29,6 +30,7 @@ export default function PlayerStatusIcons({ playerStatus, dealerData, turnPlayer
       <HangSaverIcon key='hs' active={playerStatus.includes(CardAbilities.hangSaver)} />,
       <ChooseStarterIcon key='cs' active={playerStatus.includes(CardAbilities.chooseStarter)} />,
       <AllyPlaysLastIcon key='apl' active={playerStatus.includes(CardAbilities.allyPlaysLast)} />,
+      <JackHangedIcon key='jh' active={playerStatus.includes(CardAbilities.jackHanged)} />,
     ];
   }, [playerStatus, dealerData, turnPlayerData, playerData]);
 

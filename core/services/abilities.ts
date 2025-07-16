@@ -43,6 +43,8 @@ export enum CardAbilities {
   doubleLift,         // K
   swapHands,          // A
 
+  // Misc
+  jackHanged
 }
 
 export function mapAbility(value: string, suit: string) {
@@ -163,7 +165,8 @@ function getRandomAbility() {
     // Redo if function got these abilities
     randomIndex == CardAbilities.randomAbility ||
     randomIndex == CardAbilities.pointsForSaved ||
-    randomIndex == CardAbilities.twoWinGame
+    randomIndex == CardAbilities.twoWinGame ||
+    randomIndex == CardAbilities.jackHanged
   );
 
   return randomIndex;
@@ -297,6 +300,11 @@ const abilityData: Partial<AbilityData> = {
   [CardAbilities.swapHands]: {
     description: 'Swap hands with any player',
     ability: (args: AbilityInput) => swapHandsAbility(args),
+  },
+  [CardAbilities.jackHanged]: {
+    description: '',
+    duration: 'game',
+    ability: (args: AbilityInput) => console.log(''),
   },
 };
 
