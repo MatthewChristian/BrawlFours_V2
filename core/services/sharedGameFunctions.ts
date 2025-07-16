@@ -170,7 +170,6 @@ export function determineIfCardsPlayable(roomData: RoomSocket, player: PlayerSoc
       el.trump = false;
     }
 
-
     if (!el.disabled) {
       // Determine if a player does not have a card in the suit of the card that was called
       if (roomData.called && (el.suit == roomData.called.suit)) {
@@ -196,8 +195,12 @@ export function determineIfCardsPlayable(roomData: RoomSocket, player: PlayerSoc
   player.cards.forEach((card) => {
     const undertrumped = didUndertrump(roomData, card);
 
+    // If it is not player's turn
+    if (roomData?.turn != player.player) {
+      card.playable = false;
+    }
     // If card was removed from lift because of oppReplay
-    if (card.disabled) {
+    else if (card.disabled) {
       card.playable = false;
       card.disabled = false;
     }
@@ -421,7 +424,7 @@ export function scoreLift(roomData: RoomSocket): ScoreLiftOutput {
         roomData.jackWinner = roomData.doubleLiftJack ? liftWinnerPlayer : highestHangerPlayer;
         roomData.hangJack = true;
 
-        roomData.playerStatus[jackOwnerPlayer.player].status.push(CardAbilities.jackHanged);
+        pushPlayerStatus(roomData, jackOwnerPlayer, CardAbilities.jackHanged);
 
         if (roomData.doubleLiftJack) {
           highestHangerPlayer = liftWinnerPlayer;
@@ -436,6 +439,10 @@ export function scoreLift(roomData: RoomSocket): ScoreLiftOutput {
       // If jack was saved from hanging, grant 10 points for game if the card had the ability
       // If in this part of this if statement, it means that Jack was not hung
       // and if both values in the teamsWithGreaterPowerThanJack array are true, then it means that the opposing team played a card that could hang Jack
+
+      console.log('RJA: ', roundJack.ability);
+      console.log('TWGPTJ: ', teamsWithGreaterPowerThanJack);
+
       if (
         (roundJack.ability == CardAbilities.pointsForSaved) &&
       (
@@ -463,4 +470,16 @@ export function scoreLift(roomData: RoomSocket): ScoreLiftOutput {
     highestHangerPlayer: highestHangerPlayer,
     jackOwnerPlayer: jackOwnerPlayer
   });
+}
+
+export function pushPlayerStatus(roomData: RoomSocket, player: PlayerSocket, ability: CardAbilities) {
+  if (!roomData.playerStatus) {
+    roomData.playerStatus = [];
+  }
+
+  if (!roomData.playerStatus[player.player]) {
+    roomData.playerStatus[player.player] = { player: { ...player, cards: null }, status: [] };
+  }
+
+  roomData.playerStatus[player.player].status.push(ability);
 }

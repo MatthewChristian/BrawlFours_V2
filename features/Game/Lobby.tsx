@@ -15,7 +15,6 @@ import SettingsModal from './Modals/SettingsModal';
 import Image from 'next/image';
 import logoSvg from '../../public/images/logo/logo.svg';
 import { TooltipRefProps } from 'react-tooltip';
-import JackHangedIcon from './StatusIcons/JackHangedIcon';
 
 export default function Lobby() {
 

@@ -1,7 +1,7 @@
 import { AbilityData } from '../../models/AbilityData';
 import { AbilityInput } from '../../models/AbilityInput';
 import { DeckCard } from '../../models/DeckCard';
-import { determineIfCardsPlayable, emitPlayerCardData, orderCards, sendSystemMessage, shuffleDeck } from './sharedGameFunctions';
+import { determineIfCardsPlayable, emitPlayerCardData, orderCards, pushPlayerStatus, sendSystemMessage, shuffleDeck } from './sharedGameFunctions';
 
 export const hangSaverPointsEarned = 3;
 export const pointsForSavedPointsEarned = 10;
@@ -426,15 +426,7 @@ function oppReplayAbility(args: AbilityInput) {
 function hangSaverAbility(args: AbilityInput) {
   const player = args.roomData.users.find(el => el.id == args.id);
 
-  if (!args.roomData.playerStatus) {
-    args.roomData.playerStatus = [];
-  }
-
-  if (!args.roomData.playerStatus[player.player]) {
-    args.roomData.playerStatus[player.player] = { player: { ...player, cards: null }, status: [] };
-  }
-
-  args.roomData.playerStatus[player.player].status.push(CardAbilities.hangSaver);
+  pushPlayerStatus(args.roomData, player, CardAbilities.hangSaver);
 }
 
 function twentyPointsAbility(args: AbilityInput) {
@@ -556,21 +548,13 @@ function allyPlaysLastAbility(args: AbilityInput) {
 
   const teammate = args.roomData.users.find(el => el.team == player.team && el.id != player.id);
 
-  if (!args.roomData.playerStatus) {
-    args.roomData.playerStatus = [];
-  }
-
-  if (!args.roomData.playerStatus[teammate.player]) {
-    args.roomData.playerStatus[teammate.player] = { player: { ...teammate, cards: null }, status: [] };
-  }
-
   // Remove allyPlaysLast status from other players
   args.roomData.playerStatus?.forEach((stat) => {
     const removedPlayerStatuses = stat.status?.filter(el => el != CardAbilities.allyPlaysLast);
     stat.status = removedPlayerStatuses;
   });
 
-  args.roomData.playerStatus[teammate.player].status.push(CardAbilities.allyPlaysLast);
+  pushPlayerStatus(args.roomData, teammate, CardAbilities.allyPlaysLast);
 
   args.roomData.allyPlaysLastPlayer = teammate.player;
 
@@ -607,15 +591,7 @@ function twoWinGameAbility(args: AbilityInput) {
   // Add player status
   const player = args.roomData.users.find(el => el.id == args.id);
 
-  if (!args.roomData.playerStatus) {
-    args.roomData.playerStatus = [];
-  }
-
-  if (!args.roomData.playerStatus[player.player]) {
-    args.roomData.playerStatus[player.player] = { player: { ...player, cards: null }, status: [] };
-  }
-
-  args.roomData.playerStatus[player.player].status.push(CardAbilities.twoWinGame);
+  pushPlayerStatus(args.roomData, player, CardAbilities.twoWinGame);
 
   sendSystemMessage({
     io: args.io,
@@ -633,15 +609,7 @@ function nextCardTrumpAbility(args: AbilityInput) {
   // Add player status
   const player = args.roomData.users.find(el => el.id == args.id);
 
-  if (!args.roomData.playerStatus) {
-    args.roomData.playerStatus = [];
-  }
-
-  if (!args.roomData.playerStatus[player.player]) {
-    args.roomData.playerStatus[player.player] = { player: { ...player, cards: null }, status: [] };
-  }
-
-  args.roomData.playerStatus[player.player].status.push(CardAbilities.nextCardTrump);
+  pushPlayerStatus(args.roomData, player, CardAbilities.nextCardTrump);
 
   sendSystemMessage({
     io: args.io,
