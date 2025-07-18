@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { socket } from '../SocketClient';
 import { BasicRoomInput } from '../../models/BasicRoomInput';
 import { useAppSelector } from '../../store/hooks';
@@ -30,6 +30,30 @@ export default function Chatbox({ socketData, className, hideTeam, hideInput, ex
   const [prevScrollHeight, setPrevScrollHeight] = useState<number>(0);
 
   const chatMode = useAppSelector(getChatMode);
+
+  const chatElements = useMemo(() => {
+    return(
+      chatMessages?.map((msg, i) => <div key={msg + '_' + i} className='flex-none text-balance whitespace-normal break-words'>
+        {msg.mode && msg.mode != 'log' && !hideTeam ?
+          <span className='mr-1' style={{ color: msg.modeColour }}>
+            {
+              '[' + msg.mode?.toUpperCase() + ']'
+            }
+          </span>
+          : undefined
+        }
+
+        <span style={{ color: msg.senderColour }}>
+          {msg.sender}
+          <span className={msg.mode != 'log' ? 'mr-1' : ''}>{msg.mode == 'log' ? '' : ':'}</span>
+        </span >
+
+        <span style={{ color: msg.messageColour }}>
+          {msg.message}
+        </span >
+      </div>)
+    );
+  }, [chatMessages]);
 
   function handleScrollToBottom() {
     const lastMessage = chatBoxRef?.current?.lastElementChild;
@@ -80,27 +104,7 @@ export default function Chatbox({ socketData, className, hideTeam, hideInput, ex
       }
 
       <div ref={chatBoxRef} className={'flex flex-col gap-2 w-full h-full overflow-y-scroll pr-1'}>
-
-
-        {chatMessages?.map((msg, i)=> <div key={msg + '_' + i} className='flex-none text-balance whitespace-normal break-words'>
-          { msg.mode && msg.mode != 'log' && !hideTeam ?
-            <span className='mr-1' style={{ color: msg.modeColour }}>
-              {
-                '[' + msg.mode?.toUpperCase() + ']'
-              }
-            </span>
-            : undefined
-          }
-
-          <span style={{ color: msg.senderColour }}>
-            {msg.sender}
-            <span className={msg.mode != 'log' ? 'mr-1' : ''}>{msg.mode == 'log' ? '' : ':'}</span>
-          </span >
-
-          <span style={{ color: msg.messageColour }}>
-            {msg.message}
-          </span >
-        </div>)}
+        {chatElements}
       </div>
 
       { hideInput && !expand ?

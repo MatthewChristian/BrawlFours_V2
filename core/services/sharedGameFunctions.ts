@@ -439,10 +439,6 @@ export function scoreLift(roomData: RoomSocket): ScoreLiftOutput {
       // If jack was saved from hanging, grant 10 points for game if the card had the ability
       // If in this part of this if statement, it means that Jack was not hung
       // and if both values in the teamsWithGreaterPowerThanJack array are true, then it means that the opposing team played a card that could hang Jack
-
-      console.log('RJA: ', roundJack.ability);
-      console.log('TWGPTJ: ', teamsWithGreaterPowerThanJack);
-
       if (
         (roundJack.ability == CardAbilities.pointsForSaved) &&
       (

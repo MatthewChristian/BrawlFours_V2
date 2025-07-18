@@ -2,13 +2,15 @@ import { configureStore } from '@reduxjs/toolkit';
 import gameSlice from '../slices/game.slice';
 import chatSlice from '../slices/chat.slice';
 import positionSlice from '../slices/position.slice';
+import modalsSlice from '../slices/modals.slice';
 
 export const makeStore = () => {
   return configureStore({
     reducer: {
       gameSlice,
       chatSlice,
-      positionSlice
+      positionSlice,
+      modalsSlice
     }
   });
 };

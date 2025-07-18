@@ -3,18 +3,22 @@ import Modal from '../../../core/components/Modal';
 import { RoundWinners } from '../../../models/RoundWinners';
 import { PlayerSocket } from '../../../models/PlayerSocket';
 import RoundWinnersModalContents from './RoundWinnersModalContents';
+import { useAppDispatch, useAppSelector } from '../../../store/hooks';
+import { getIsRoundWinnersModalVisible, setIsRoundWinnersModalVisible } from '../../../slices/modals.slice';
 
 interface Props {
-  isVisible: boolean;
-  setIsVisible: (val: boolean) => void;
   roundWinners?: RoundWinners;
   players?: PlayerSocket[]
 }
 
-export default function RoundWinnersModal({ isVisible, setIsVisible, roundWinners, players }: Props) {
+export default function RoundWinnersModal({ roundWinners, players }: Props) {
+
+  const dispatch = useAppDispatch();
+
+  const isVisible = useAppSelector(getIsRoundWinnersModalVisible);
 
   return (
-    <Modal open={isVisible} closeOnDocumentClick={true} onClose={() => setIsVisible(false)}>
+    <Modal open={isVisible} closeOnDocumentClick={true} onClose={() => dispatch(setIsRoundWinnersModalVisible(false))}>
       <RoundWinnersModalContents players={players} roundWinners={roundWinners} />
     </Modal>
   );
