@@ -409,6 +409,30 @@ describe('Score Lift', () => {
   });
 
 
+  test('Card with pointsForSaved ability is saved from being hung via hangSaver', () => {
+    const lift: LiftCard[] = [
+      { ...getCard('J', 'h'), player: 1 },
+      { ...getCard('K', 'h'), player: 2 },
+      { ...getCard('9', 'h'), player: 3 },
+      { ...getCard('5', 'd'), player: 4 },
+    ];
+
+    const tempRoomData: RoomSocket = { ...roomData, lift: lift };
+
+    const resp = scoreLift(tempRoomData);
+
+    const expectedResp: ScoreLiftOutput = {
+      liftWinnerPlayer: player2,
+      jackOwnerPlayer: player1,
+      highestHangerPlayer: player3
+    };
+
+    expect(resp).toMatchObject(expectedResp as any);
+    expect(tempRoomData.hangJack).toBeFalsy();
+    expect(tempRoomData.game).toEqual([18, 0]);
+  });
+
+
   test('Card with pointsForSaved ability is hung', () => {
     const lift: LiftCard[] = [
       { ...getCard('J', 'h'), player: 1 },
