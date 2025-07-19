@@ -292,7 +292,7 @@ export default function Room({ roomId }: Props) {
           </div>
         }
 
-        <div className={`w-screen flex flex-col items-center ${mobileView ? 'justify-start' : 'justify-center h-[100dvh]'}`}>
+        <div className={`w-screen flex flex-col mx-5 items-center ${mobileView ? 'justify-start' : 'justify-center h-[100dvh]'}`}>
 
           <div className={mobileView ? 'hidden' : 'relative bottom-10 mx-5'}>
             <Image priority
@@ -301,10 +301,10 @@ export default function Room({ roomId }: Props) {
               alt="" />
           </div>
 
-          <div className='bg-white rounded-lg border border-gray-400 p-10 mx-5'>
+          <div className='bg-white rounded-lg border border-gray-400 p-10'>
             <div className="flex flex-col justify-center items-center">
 
-              <div className="">Share this code with your friends:</div>
+              <div className="text-center">Share this code with your friends:</div>
 
               <div className='flex flex-row items-center gap-2'>
                 <p className="text-5xl font-semibold mt-2">{roomId}</p>
@@ -406,7 +406,7 @@ export default function Room({ roomId }: Props) {
                 </div>
               </Popup>
 
-              <RoundWinnersModal isVisible={roundWinnersModalVisible} setIsVisible={setRoundWinnersModalVisible} players={players} roundWinners={roundWinners} />
+              <RoundWinnersModal isMatchWinnersModalVisible={matchWinnerModalVisible} players={players} roundWinners={roundWinners} />
 
               <MatchWinnersModal isVisible={matchWinnerModalVisible} setIsVisible={setMatchWinnerModalVisible} matchWinners={matchWinner} />
 
@@ -459,9 +459,7 @@ export default function Room({ roomId }: Props) {
           </div>
 
           { mobileView ?
-            <div className='h-full w-full px-5 mt-3'>
-              <Chatbox socketData={socketData} hideTeam />
-            </div>
+            <Chatbox socketData={socketData} hideTeam />
             : <></>
           }
 

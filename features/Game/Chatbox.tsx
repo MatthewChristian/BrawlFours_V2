@@ -94,7 +94,7 @@ export default function Chatbox({ socketData, className, hideTeam, hideInput, ex
         zIndex: 90,
       } : undefined}
       onAnimationComplete={handleScrollToBottom}
-      className={`flex flex-col justify-between w-full ${mobileView ? 'h-full' : ''} bg-white rounded-lg px-2 pt-2 shadow ${className}`}
+      className={`flex flex-col justify-between w-full ${mobileView ? (isMobileChat ? '' : 'overflow-y-hidden flex flex-1 mt-3') : ''} bg-white rounded-lg px-2 pt-2 shadow ${className}`}
     >
 
       {expand &&

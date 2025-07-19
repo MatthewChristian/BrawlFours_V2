@@ -8,17 +8,18 @@ import { getIsRoundWinnersModalVisible, setIsRoundWinnersModalVisible } from '..
 
 interface Props {
   roundWinners?: RoundWinners;
-  players?: PlayerSocket[]
+  players?: PlayerSocket[];
+  isMatchWinnersModalVisible?: boolean;
 }
 
-export default function RoundWinnersModal({ roundWinners, players }: Props) {
+export default function RoundWinnersModal({ roundWinners, players, isMatchWinnersModalVisible }: Props) {
 
   const dispatch = useAppDispatch();
 
   const isVisible = useAppSelector(getIsRoundWinnersModalVisible);
 
   return (
-    <Modal open={isVisible} closeOnDocumentClick={true} onClose={() => dispatch(setIsRoundWinnersModalVisible(false))}>
+    <Modal open={isVisible && !isMatchWinnersModalVisible} closeOnDocumentClick={true} onClose={() => dispatch(setIsRoundWinnersModalVisible(false))}>
       <RoundWinnersModalContents players={players} roundWinners={roundWinners} />
     </Modal>
   );

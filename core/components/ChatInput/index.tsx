@@ -1,4 +1,4 @@
-import React, { RefObject, useEffect, useState } from 'react';
+import React, { RefObject, useState } from 'react';
 import { IoSend } from 'react-icons/io5';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { getChatMode, setChatMode } from '../../../slices/chat.slice';
