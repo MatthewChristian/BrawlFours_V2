@@ -14,6 +14,7 @@ import { TooltipRefProps } from 'react-tooltip';
 
 
 interface Props {
+  cardKey?: string;
   player?: number;
   cardData?: DeckCard;
   onClickHandler?: (val?: DeckCard, player?: number) => void;
@@ -33,6 +34,7 @@ interface Props {
 }
 
 export default function PlayingCard({
+  cardKey,
   className,
   style,
   onClickHandler,
@@ -250,20 +252,16 @@ export default function PlayingCard({
   }, [isMobile]);
 
   return (
-    <>
-      <CardInfoTooltip
-        tooltipRef={tooltipRef}
-        card={cardData}
-        active={tooltipEnabled}
-        offsetY={isMobile ? y : -y}
-        ignoreMobileClick={ignoreMobileClick}
-      />
-
-      <div
+    <React.Fragment>
+      <motion.div
+        key={cardKey}
         ref={cardRef}
         className={`${className} ${anchorSelect}`}
         onClick={() => { isMobile ? handleMobileClick() : handleClick();}}
         onTouchEnd={(e) => isMobile ? handleMobileTouchEnd(e) : undefined }
+        layout
+        transition={{ type: 'spring', duration: 0.5 }}
+        exit={{ }}
         style={{ zIndex: spotlighted ? 99999 : liftCard ? 10 : 20, ...style }}
       >
         <motion.div
@@ -379,7 +377,15 @@ export default function PlayingCard({
             </motion.div>
           </AnimatePresence>
         </motion.div>
-      </div>
-    </>
+      </motion.div>
+
+      <CardInfoTooltip
+        tooltipRef={tooltipRef}
+        card={cardData}
+        active={tooltipEnabled}
+        offsetY={isMobile ? y : -y}
+        ignoreMobileClick={ignoreMobileClick}
+      />
+    </React.Fragment>
   );
 }

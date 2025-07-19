@@ -327,25 +327,21 @@ export default function Gameboard({ roomId }: Props) {
 
             const selectionActive = ((oppSelectionModalVisible || (allySelectionModalVisible && !mobileView)) && (!(player1Cards[k]?.suit == playedCard?.suit && player1Cards[k]?.value == playedCard?.value)));
 
+            const key = player1Cards[k]?.suit ? ('1_' + (player1Cards[k]?.suit + player1Cards[k]?.value)) : '1_' + k?.toString();
+
             return (
-              <motion.div
-                key={player1Cards[k]?.suit ? ('1_' + (player1Cards[k]?.suit + player1Cards[k]?.value)) : '1_' + k?.toString()}
-                layout
-                transition={{ type: 'spring', duration: 0.5 }}
-                exit={{}}
-                style={{ zIndex: selectionActive ? 9999 : 20 }}
-              >
-                <PlayingCard
-                  player={1}
-                  cardData={player1Cards[k]}
-                  isDeckCard={player1Cards.length == 0 ? true : false}
-                  onClickHandler={() => player1Cards.length == 0 ? undefined : selectionActive ? handleSelectCard(player1Cards[k]) : playCard(player1Cards[k])}
-                  style={{ marginRight: mobileView ? player1CardsOverlapMargins : '-8px', marginLeft: mobileView ? player1CardsOverlapMargins : '-8px' }}
-                  spotlighted={selectionActive}
-                  glow={selectionActive ? 'blue' : undefined}
-                  spin={true}
-                />
-              </motion.div>
+              <PlayingCard
+                key={key}
+                cardKey={'card_' + key}
+                player={1}
+                cardData={player1Cards[k]}
+                isDeckCard={player1Cards.length == 0 ? true : false}
+                onClickHandler={() => player1Cards.length == 0 ? undefined : selectionActive ? handleSelectCard(player1Cards[k]) : playCard(player1Cards[k])}
+                style={{ marginRight: mobileView ? player1CardsOverlapMargins : '-8px', marginLeft: mobileView ? player1CardsOverlapMargins : '-8px' }}
+                spotlighted={selectionActive}
+                glow={selectionActive ? 'blue' : undefined}
+                spin={true}
+              />
             );
           }
           )
@@ -358,25 +354,16 @@ export default function Gameboard({ roomId }: Props) {
     return (<AnimatePresence>
       {mobileView ? <></> :
         Array.from({ length: player2Data?.numCards ?? 0 }, (_, k) => (
-          <motion.div
-            key={'2' + k}
-            layout
-            transition={{ type: 'spring', duration: 0.5 }}
-            exit={{}}
-          >
-            <PlayingCard
-              key={'2' + k}
-              player={2}
-              isDeckCard
-              className='rotate-90 p-0'
-              style={getTeam2CardMargins(player2Data?.numCards ?? 0)}
-              spin={k < player2Data?.spin}
-            />
-          </motion.div>
+          <PlayingCard
+            key={'2_' + k}
+            cardKey={'card_2_' + k}
+            player={2}
+            isDeckCard
+            className='rotate-90 p-0'
+            style={getTeam2CardMargins(player2Data?.numCards ?? 0)}
+          />
         ))
-
       }
-
     </AnimatePresence>);
   }, [mobileView, player2Data]);
 
@@ -387,25 +374,23 @@ export default function Gameboard({ roomId }: Props) {
         {
           mobileView ? <></> :
             Array.from({ length: player3Data?.numCards ?? 0 }, (_, k) => {
+
+              const key = player3Cards[k]?.suit ? ('3_' + (player3Cards[k]?.suit + player3Cards[k]?.value)) : '3_' + k?.toString();
+
               return (
-                <motion.div
-                  key={player3Cards[k]?.suit ? ('3_' + (player3Cards[k]?.suit + player3Cards[k]?.value)) : '3_' + k?.toString()}
-                  layout
-                  transition={{ type: 'spring', duration: 0.5 }}
-                  exit={{}}
-                >
-                  <PlayingCard
-                    player={3}
-                    cardData={player3Cards[k]}
-                    isNotPlayable={!allySelectionModalVisible}
-                    className='-mx-2 p-0'
-                    spotlighted={allySelectionModalVisible}
-                    glow={allySelectionModalVisible ? 'blue' : undefined}
-                    onClickHandler={() => player3Cards.length == 0 ? undefined : allySelectionModalVisible ? handleSelectAllyCard(player3Cards[k]) : undefined}
-                    flipped={!(isTeammateCardsVisible || allySelectionModalVisible)}
-                    spin={true}
-                  />
-                </motion.div>
+                <PlayingCard
+                  key={key}
+                  cardKey={'card_' + key}
+                  player={3}
+                  cardData={player3Cards[k]}
+                  isNotPlayable={!allySelectionModalVisible}
+                  className='-mx-2 p-0'
+                  spotlighted={allySelectionModalVisible}
+                  glow={allySelectionModalVisible ? 'blue' : undefined}
+                  onClickHandler={() => player3Cards.length == 0 ? undefined : allySelectionModalVisible ? handleSelectAllyCard(player3Cards[k]) : undefined}
+                  flipped={!(isTeammateCardsVisible || allySelectionModalVisible)}
+                  spin={true}
+                />
               );
             })
         }
@@ -417,22 +402,17 @@ export default function Gameboard({ roomId }: Props) {
     return (<AnimatePresence>
       {mobileView ? <></> :
 
-        Array.from({ length: player4Data?.numCards ?? 0 }, (_, k) => (
-          <motion.div
-            key={'4' + k}
-            layout
-            transition={{ type: 'spring', duration: 0.5 }}
-            exit={{}}
-          >
+        Array.from({ length: player4Data?.numCards ?? 0 }, (_, k) => {
+          return (
             <PlayingCard
+              key={'4_' + k}
+              cardKey={'card_4_' + k}
               player={4}
               isDeckCard
               className='rotate-90 p-0'
               style={getTeam2CardMargins(player4Data?.numCards ?? 0)}
-              spin={k < player4Data?.spin}
             />
-          </motion.div>
-        ))
+          );})
       }
     </AnimatePresence>);
   }, [mobileView, player4Data]);

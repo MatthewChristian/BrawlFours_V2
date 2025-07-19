@@ -32,7 +32,6 @@ export default function SwapAllyCardMobileModal({ selectedAllyCard, selectedCard
     return (<div className='flex flex-row justify-center'>
       {
         player3Cards.map((card, k) => {
-          console.log('Rerender sacm');
           return (
             <PlayingCard
               key={'3_swap_' + k}
