@@ -13,20 +13,20 @@ export const MobileView = (props: MobileViewProps) => {
 
   const mobileView = useAppSelector(getMobileView);
 
+  const mobileLimit = 768;
+
   function handleWindowSizeChange() {
-    if (window.innerWidth <= 1050) {
-      console.log('Mobile');
+    if (window.innerWidth <= mobileLimit) {
       dispatch(setMobileView(true));
     }
     else {
-      console.log('Desktop');
       dispatch(setMobileView(false));
     }
   }
 
   useEffect(() => {
     // Check if in mobile view
-    if (window.innerWidth <= 1400) {
+    if (window.innerWidth <= mobileLimit) {
       dispatch(setMobileView(true));
     }
     else {
