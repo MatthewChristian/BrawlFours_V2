@@ -217,6 +217,10 @@ function emitInitGameData(data: BasicRoomInput, gameSocket: Socket) {
 
   playersInRoom(data);
 
+  if (!roomUsers[data.roomId].gameStarted) {
+    return;
+  }
+
   playerCards(data, gameSocket);
   teammateCards(data, gameSocket);
 
