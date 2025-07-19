@@ -52,6 +52,10 @@ export default function CardInfoTooltip({ tooltipRef, card, active, offsetY, ign
     return getAbilityData(card?.ability)?.description;
   }, [card]);
 
+  const abilityExtra = useMemo(() => {
+    return getAbilityData(card?.ability)?.extra;
+  }, [card]);
+
   const cardPoints = useMemo(() => {
     if (card?.abilityPoints && !isDisabled) {
       return card.abilityPoints;
@@ -154,17 +158,11 @@ export default function CardInfoTooltip({ tooltipRef, card, active, offsetY, ign
               </div> : null
           }
 
-          {
-            card?.ability == CardAbilities.swapHands ?
-              <div className={infoClass}>
-                If the chosen player has more cards, then one random card in their hand will not be swapped
-              </div> : null
-          }
 
           {
-            card?.ability == CardAbilities.oppositePower ?
+            abilityExtra ?
               <div className={infoClass}>
-                Trump still beats non-Trump
+                {abilityExtra}
               </div> : null
           }
 

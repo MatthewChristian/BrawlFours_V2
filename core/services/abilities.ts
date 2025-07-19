@@ -233,7 +233,8 @@ const abilityData: Partial<AbilityData> = {
   [CardAbilities.abilitiesDisabled]: {
     description: 'All other abilities are disabled for this turn',
     ability: (args: AbilityInput) => abilitiesDisabledAbility(args),
-    duration: 'lift'
+    duration: 'lift',
+    extra: 'Does not affect abilities that have already activated'
   },
   [CardAbilities.swapOppCard]: {
     description: 'Swap one of your cards with a random card from an opponent of your choosing',
@@ -254,7 +255,8 @@ const abilityData: Partial<AbilityData> = {
   [CardAbilities.oppositePower]: {
     description: 'Card power is opposite this turn',
     ability: (args: AbilityInput) => oppositePowerAbility(args),
-    duration: 'lift'
+    duration: 'lift',
+    extra: 'Trump still beats non-Trump'
   },
   [CardAbilities.allyPlaysLast]: {
     description: 'Your ally plays their card last this turn',
@@ -300,6 +302,7 @@ const abilityData: Partial<AbilityData> = {
   [CardAbilities.swapHands]: {
     description: 'Swap hands with any player',
     ability: (args: AbilityInput) => swapHandsAbility(args),
+    extra: 'If the chosen player has more cards, then one random card in their hand will not be swapped'
   },
   [CardAbilities.jackHanged]: {
     description: '',

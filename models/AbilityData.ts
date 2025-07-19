@@ -6,5 +6,6 @@ export type AbilityData = {
     description: string;
     ability: (args: AbilityInput) => void;
     duration?: 'lift' | 'round' | 'game';
+    extra?: string;
   };
 };
