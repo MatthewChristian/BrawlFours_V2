@@ -18,7 +18,7 @@ export default function DoubleLiftModal() {
   const doubleLiftCardElements = useMemo(() => {
     return (<div className='grid grid-cols-4 gap-5 justify-center items-center mt-3 mx-5'>
       {
-        doubleLiftCards.map((card, k) => (
+        doubleLiftCards?.map((card, k) => (
           <PlayingCard
             key={'dl' + k}
             cardData={card}

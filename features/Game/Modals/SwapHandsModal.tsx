@@ -15,7 +15,7 @@ interface Props {
   setSelectedOpp: (val: PlayerSocket) => void;
 }
 
-export default function SwapHandsModal({   player2Data, player3Data, player4Data, selectedOpp, setSelectedOpp, handleSwapHandsClose, handleSwapHandsConfirm }: Props) {
+export default function SwapHandsModal({  player2Data, player3Data, player4Data, selectedOpp, setSelectedOpp, handleSwapHandsClose, handleSwapHandsConfirm }: Props) {
 
   const isSwapHandsModalVisible = useAppSelector(getIsSwapHandsModalVisible);
 

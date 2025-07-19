@@ -352,7 +352,7 @@ export default function Gameboard({ roomId }: Props) {
         }
       </AnimatePresence>
     );
-  }, [player1Cards, oppSelectionModalVisible, allySelectionModalVisible, mobileView, playedCard, player1CardsOverlapMargins, player1Data]);
+  }, [player1Cards, oppSelectionModalVisible, allySelectionModalVisible, mobileView, playedCard, player1CardsOverlapMargins, player1Data, activeAbilities, isPlayer1Turn]);
 
   const player2CardElements = useMemo(() => {
     return (<AnimatePresence>
@@ -468,6 +468,10 @@ export default function Gameboard({ roomId }: Props) {
 
 
   function playCard(card: DeckCard) {
+
+    console.log('Play card');
+
+    console.log('Turn: ', isPlayer1Turn);
 
     if (!isPlayer1Turn) {
       return;
