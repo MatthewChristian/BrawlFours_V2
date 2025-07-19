@@ -36,6 +36,10 @@ import TargetPowerlessModal from './Modals/TargetPowerlessModal';
 import OppReplayModal from './Modals/OppReplayModal';
 import SwapOppCardModal from './Modals/SwapOppCardModal';
 import SwapAllyCardModal from './Modals/SwapAllyCardModal';
+import SwapAllyCardMobileModal from './Modals/SwapAllyCardMobileModal';
+import ChooseStarterModal from './Modals/ChooseStarterModal';
+import DoubleLiftModal from './Modals/DoubleLiftModal';
+import SwapHandsModal from './Modals/SwapHandsModal';
 
 
 interface Props {
@@ -1087,193 +1091,47 @@ export default function Gameboard({ roomId }: Props) {
 
 
       {/* ----- swapAllyCard Modal (Mobile) -----*/}
-      <Modal contentStyle={{ width: '90vw', height: '80%' }} open={allySelectionModalVisible && mobileView} closeOnDocumentClick={false}>
-
-
-
-        <div className='px-5 flex flex-col justify-center items-center gap-5 h-full'>
-
-          <div>
-            <div className='flex flex-row justify-center'>
-              {
-                Array.from({ length: player3Data?.numCards ?? 0 }, (_, k) => {
-                  // console.log('Rerender sacm');
-                  return (
-                    <PlayingCard
-                      key={'3_swap_' + k}
-                      player={3}
-                      cardData={player3Cards[k]}
-                      className='-mx-2 p-0'
-                      onClickHandler={() => player3Cards.length == 0 ? undefined :  handleSelectAllyCard(player3Cards[k])}
-                      glow={'blue'}
-                      ignoreMobileClick
-                    />
-                  );
-                })
-              }
-            </div>
-
-            <div className='text-center font-bold mt-2'>{player3Data?.nickname}&apos;s hand</div>
-          </div>
-
-          <div className='flex flex-row justify-center items-center mt-3 gap-5'>
-            <PlayingCard
-              key={'swap-card-1'}
-              cardData={selectedCard}
-              isDeckCard={false}
-              isOutline={!selectedCard}
-              isNotPlayable
-            />
-
-            <IoMdSwap size={32} />
-
-            <PlayingCard
-              key={'swap-card-2'}
-              cardData={selectedAllyCard}
-              isDeckCard={false}
-              isOutline={!selectedAllyCard}
-              isNotPlayable
-            />
-
-          </div>
-
-          <div className='text-bold text-center text-lg text-blue-500'>Swapping these two cards</div>
-
-          <div className='mt-5'>
-            <div className='flex flex-row justify-center'>
-              {
-                player1Cards.filter(card => !(card.suit == playedCard?.suit && card.value == playedCard?.value)).map((card, k) => {
-
-                  return (
-                    <PlayingCard
-                      key={'1_swap_' + k}
-                      player={1}
-                      cardData={card}
-                      isDeckCard={player1Cards.length == 0 ? true : false}
-                      onClickHandler={() => player1Cards.length == 0 ? undefined : handleSelectCard(card)}
-                      ignoreMobileClick
-                      className='-mx-2'
-                      glow='blue'
-                    />
-                  );
-                }
-                )
-              }
-            </div>
-
-            <div className='text-center font-bold mt-2'>Your hand</div>
-          </div>
-
-
-
-          <div className='flex flex-row gap-5 justify-center'>
-            <Button disabled={!(selectedCard && selectedAllyCard)} className='green-button' onClick={() => { handleAllySelectionConfirm(); }}>
-              Confirm
-            </Button>
-
-            <Button className='red-button' onClick={() => { handleAllySelectionClose(); }}>
-              Cancel
-            </Button>
-          </div>
-
-        </div>
-
-
-
-      </Modal>
+      <SwapAllyCardMobileModal
+        handleAllySelectionClose={handleAllySelectionClose}
+        handleAllySelectionConfirm={handleAllySelectionConfirm}
+        selectedAllyCard={selectedAllyCard}
+        selectedCard={selectedCard}
+        handleSelectAllyCard={handleSelectAllyCard}
+        handleSelectCard={handleSelectCard}
+        playedCard={playedCard}
+        player1Cards={player1Cards}
+        player3Cards={player3Cards}
+        player3Data={player3Data}
+      />
 
 
       {/* ----- chooseStarter Modal -----*/}
-      <Modal contentStyle={{ width: 'fit-content' }} open={chooseStarterModalVisible} closeOnDocumentClick={false}>
-        <div className="px-12 text-center">Choose who will play first next lift</div>
-
-        <div className='flex flex-col gap-5 justify-center items-center mt-3 mx-5'>
-          <Button className={(selectedOpp?.id == player1Data?.id ? 'blue-button' : 'white-button') + ' w-full justify-center'} onClick={() => setSelectedOpp(player1Data)}>
-            {player1Data.nickname}
-          </Button>
-
-          <Button className={(selectedOpp?.id == player2Data?.id ? 'blue-button' : 'white-button') + ' w-full justify-center'} onClick={() => setSelectedOpp(player2Data)}>
-            {player2Data.nickname}
-          </Button>
-
-          <Button className={(selectedOpp?.id == player3Data?.id ? 'blue-button' : 'white-button') + ' w-full justify-center'} onClick={() => setSelectedOpp(player3Data)}>
-            {player3Data.nickname}
-          </Button>
-
-          <Button className={(selectedOpp?.id == player4Data?.id ? 'blue-button' : 'white-button') + ' w-full justify-center'} onClick={() => setSelectedOpp(player4Data)}>
-            {player4Data.nickname}
-          </Button>
-
-        </div>
-
-        <div className='flex flex-row gap-5 justify-center'>
-          <Button disabled={!selectedOpp} className='green-button mt-5' onClick={() => { handleChooseStarterConfirm(); }}>
-            Confirm
-          </Button>
-
-          <Button className='red-button mt-5' onClick={() => { handleChooseStarterModalClose(); }}>
-            Cancel
-          </Button>
-        </div>
-      </Modal>
+      <ChooseStarterModal
+        handleChooseStarterClose={handleChooseStarterModalClose}
+        handleChooseStarterConfirm={handleChooseStarterConfirm}
+        setSelectedOpp={setSelectedOpp}
+        selectedOpp={selectedOpp}
+        player1Data={player1Data}
+        player2Data={player2Data}
+        player3Data={player3Data}
+        player4Data={player4Data}
+      />
 
 
       {/* ----- doubleLift Modal -----*/}
-      <Modal contentStyle={{ width: mobileView ? '90vw' : 'fit-content' }} open={doubleLiftModalVisible} onClose={() => dispatch(setDoubleLiftModalVisible(false))} closeOnDocumentClick={true}>
-        <div className="px-12 text-center">Cards that the winner of this lift will also win</div>
-
-        <div className='grid grid-cols-4 gap-5 justify-center items-center mt-3 mx-5'>
-          {
-            Array.from({ length: doubleLiftCards?.length ?? 0 }, (_, k) => (
-              <PlayingCard
-                key={'dl' + k}
-                cardData={doubleLiftCards[k]}
-                isNotPlayable
-                glow='none'
-              />
-            ))
-          }
-
-        </div>
-
-        <div className='flex flex-row gap-5 justify-center'>
-          <Button className='red-button mt-5' onClick={() => { dispatch(setDoubleLiftModalVisible(false)); }}>
-            Close
-          </Button>
-        </div>
-      </Modal>
+      <DoubleLiftModal />
 
 
       {/* ----- swapHands Modal -----*/}
-      <Modal contentStyle={{ width: 'fit-content' }} open={swapHandsModalVisible} closeOnDocumentClick={false}>
-        <div className="px-12 text-center">Choose the player you want to swap hands with</div>
-
-        <div className='flex flex-col gap-5 justify-center items-center mt-3 mx-5'>
-
-          <Button className={(selectedOpp?.id == player2Data?.id ? 'blue-button' : 'white-button') + ' w-full justify-center'} onClick={() => setSelectedOpp(player2Data)}>
-            {player2Data.nickname}
-          </Button>
-
-          <Button className={(selectedOpp?.id == player3Data?.id ? 'blue-button' : 'white-button') + ' w-full justify-center'} onClick={() => setSelectedOpp(player3Data)}>
-            {player3Data.nickname}
-          </Button>
-
-          <Button className={(selectedOpp?.id == player4Data?.id ? 'blue-button' : 'white-button') + ' w-full justify-center'} onClick={() => setSelectedOpp(player4Data)}>
-            {player4Data.nickname}
-          </Button>
-
-        </div>
-
-        <div className='flex flex-row gap-5 justify-center'>
-          <Button disabled={!selectedOpp} className='green-button mt-5' onClick={() => { handleSwapHandsConfirm(); }}>
-            Confirm
-          </Button>
-
-          <Button className='red-button mt-5' onClick={() => { handleSwapHandsModalClose(); }}>
-            Cancel
-          </Button>
-        </div>
-      </Modal>
+      <SwapHandsModal
+        handleSwapHandsClose={handleSwapHandsModalClose}
+        handleSwapHandsConfirm={handleSwapHandsConfirm}
+        setSelectedOpp={setSelectedOpp}
+        selectedOpp={selectedOpp}
+        player2Data={player2Data}
+        player3Data={player3Data}
+        player4Data={player4Data}
+      />
 
 
 

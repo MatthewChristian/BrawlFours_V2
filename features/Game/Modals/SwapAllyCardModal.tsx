@@ -22,44 +22,45 @@ export default function SwapAllyCardModal({ selectedAllyCard, selectedCard, hand
   const isAllySelectionModalVisible = useAppSelector(getIsAllySelectionModalVisible);
 
   return (
-    <Modal contentStyle={{ width: 'fit-content' }} open={isAllySelectionModalVisible && !mobileView} closeOnDocumentClick={false}>
+    mobileView ? <></> :
+      <Modal contentStyle={{ width: 'fit-content' }} open={isAllySelectionModalVisible} closeOnDocumentClick={false}>
 
-      <div className='px-5'>
-        <div className='flex flex-row justify-center items-center mt-3 gap-5'>
-          <PlayingCard
-            key={'swap-card-1'}
-            cardData={selectedCard}
-            isDeckCard={false}
-            isOutline={!selectedCard}
-            isNotPlayable
-          />
+        <div className='px-5'>
+          <div className='flex flex-row justify-center items-center mt-3 gap-5'>
+            <PlayingCard
+              key={'swap-card-1'}
+              cardData={selectedCard}
+              isDeckCard={false}
+              isOutline={!selectedCard}
+              isNotPlayable
+            />
 
-          <IoMdSwap size={32}/>
+            <IoMdSwap size={32}/>
 
-          <PlayingCard
-            key={'swap-card-2'}
-            cardData={selectedAllyCard}
-            isDeckCard={false}
-            isOutline={!selectedAllyCard}
-            isNotPlayable
-          />
+            <PlayingCard
+              key={'swap-card-2'}
+              cardData={selectedAllyCard}
+              isDeckCard={false}
+              isOutline={!selectedAllyCard}
+              isNotPlayable
+            />
+          </div>
+
+
+          <div className='mt-3 text-bold text-center text-lg text-blue-500'>Swapping these two cards</div>
+
         </div>
 
 
-        <div className='mt-3 text-bold text-center text-lg text-blue-500'>Swapping these two cards</div>
-
-      </div>
-
-
-      <div className='flex flex-row gap-5 justify-center'>
-        <Button disabled={!(selectedCard && selectedAllyCard)} className='green-button mt-5' onClick={() => { handleAllySelectionConfirm(); }}>
+        <div className='flex flex-row gap-5 justify-center'>
+          <Button disabled={!(selectedCard && selectedAllyCard)} className='green-button mt-5' onClick={() => { handleAllySelectionConfirm(); }}>
             Confirm
-        </Button>
+          </Button>
 
-        <Button className='red-button mt-5' onClick={() => { handleAllySelectionClose(); }}>
+          <Button className='red-button mt-5' onClick={() => { handleAllySelectionClose(); }}>
             Cancel
-        </Button>
-      </div>
-    </Modal>
+          </Button>
+        </div>
+      </Modal>
   );
 }
