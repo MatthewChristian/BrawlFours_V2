@@ -276,6 +276,7 @@ export function scoreLift(roomData: RoomSocket): ScoreLiftOutput {
   let jackOwnerPlayer: PlayerSocket;
   let liftWinnerPlayer: PlayerSocket;
   let doubleLiftJackPlayer: PlayerSocket;
+  let jackSaved = false;
 
   const teamsWithGreaterPowerThanJack = [false, false, false];
   const teamsWhoCouldveWonLift = [false, false, false]; // Which teams coudve won the lift at some point, used for pointsForSaved and doubleLift interaction
@@ -416,9 +417,9 @@ export function scoreLift(roomData: RoomSocket): ScoreLiftOutput {
         roomData.playerStatus && roomData.playerStatus[jackOwnerTeammate.player]?.status?.includes(CardAbilities.hangSaver)
       ) {
         roomData.jackSaved = true;
+        jackSaved = true;
         roomData.jackWinner = jackOwnerTeammate;
         highestHangerPlayer = jackOwnerTeammate;
-
       }
       else {
         roomData.jackWinner = roomData.doubleLiftJack ? liftWinnerPlayer : highestHangerPlayer;
@@ -464,7 +465,8 @@ export function scoreLift(roomData: RoomSocket): ScoreLiftOutput {
   return ({
     liftWinnerPlayer: liftWinnerPlayer,
     highestHangerPlayer: highestHangerPlayer,
-    jackOwnerPlayer: jackOwnerPlayer
+    jackOwnerPlayer: jackOwnerPlayer,
+    jackSaved: jackSaved
   });
 }
 

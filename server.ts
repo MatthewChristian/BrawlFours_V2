@@ -1108,6 +1108,7 @@ async function liftScoring(data: BasicRoomInput) {
   const liftWinnerPlayer = resp.liftWinnerPlayer;
   const highestHangerPlayer = resp.highestHangerPlayer;
   const jackOwnerPlayer = resp.jackOwnerPlayer;
+  const jackSaved = resp.jackSaved;
 
   roomUsers[data.roomId].lift = undefined;
   roomUsers[data.roomId].called = undefined;
@@ -1136,11 +1137,10 @@ async function liftScoring(data: BasicRoomInput) {
   // Set playable status of cards of player whose turn is next
   setCardsPlayability(data.roomId);
 
-
   if (highestHangerPlayer && jackOwnerPlayer && highestHangerPlayer.team != jackOwnerPlayer.team) { // Hang Jack
     sendSystemMessage({ io, message: highestHangerPlayer.nickname + ' hung jack!!!', roomId: data.roomId, colour: '#f97316', showToast: true });
   }
-  else if (roomUsers[data.roomId].jackSaved && highestHangerPlayer) { // Save Jack
+  else if (jackSaved && highestHangerPlayer) { // Save Jack
     sendSystemMessage({ io, message: highestHangerPlayer.nickname + ' saved jack from being hung!!!', roomId: data.roomId, colour: '#db2777', showToast: true });
   }
 
